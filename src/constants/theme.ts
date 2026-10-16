@@ -1,65 +1,87 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://unistyl.es/), etc.
- */
-
 import '@/global.css';
 
-import { Platform } from 'react-native';
+/**
+ * Chez Toi BH design tokens.
+ * Brand red comes from the main logo (red tile). Use it sparingly:
+ * identity, primary action and active tab — never for errors.
+ */
+export const Brand = {
+  red: '#E80C20',
+  redPressed: '#C70A1B',
+  onRed: '#FFFFFF',
+} as const;
 
 export const Colors = {
   light: {
-    text: '#000000',
-    background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
+    brand: Brand.red,
+    brandSoft: '#FDE8EA',
+    onBrand: Brand.onRed,
+    text: '#18181B',
+    textSecondary: '#71717A',
+    background: '#FAFAFA',
+    surface: '#FFFFFF',
+    line: '#E4E4E7',
+    error: '#B42318',
+    errorSoft: '#FEF3F2',
+    success: '#067647',
+    successSoft: '#ECFDF3',
+    eventCity: '#DC6803',
+    eventOptional: '#1570EF',
+    eventCleaning: '#0E9384',
   },
   dark: {
-    text: '#ffffff',
-    background: '#000000',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA',
+    brand: '#FF3346',
+    brandSoft: '#3A1418',
+    onBrand: Brand.onRed,
+    text: '#F4F4F5',
+    textSecondary: '#A1A1AA',
+    background: '#0B0B0C',
+    surface: '#18181B',
+    line: '#27272A',
+    error: '#F97066',
+    errorSoft: '#3B1512',
+    success: '#47CD89',
+    successSoft: '#0E2A1D',
+    eventCity: '#FDB022',
+    eventOptional: '#53B1FD',
+    eventCleaning: '#2ED3B7',
   },
 } as const;
 
-export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
+export type ThemeColors = { [K in keyof typeof Colors.light]: string };
 
-export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
-  },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
-  },
-  web: {
-    sans: 'var(--font-display)',
-    serif: 'var(--font-serif)',
-    rounded: 'var(--font-rounded)',
-    mono: 'var(--font-mono)',
-  },
-});
+export const Fonts = {
+  display: 'Outfit_600SemiBold',
+  displayBold: 'Outfit_700Bold',
+  body: 'Inter_400Regular',
+  bodyMedium: 'Inter_500Medium',
+  bodySemiBold: 'Inter_600SemiBold',
+} as const;
+
+/** Short type scale: 4 sizes. */
+export const Type = {
+  title: { fontFamily: Fonts.display, fontSize: 28, lineHeight: 34 },
+  heading: { fontFamily: Fonts.display, fontSize: 20, lineHeight: 26 },
+  body: { fontFamily: Fonts.body, fontSize: 16, lineHeight: 22 },
+  caption: { fontFamily: Fonts.bodyMedium, fontSize: 13, lineHeight: 18 },
+} as const;
 
 export const Spacing = {
-  half: 2,
-  one: 4,
-  two: 8,
-  three: 16,
-  four: 24,
-  five: 32,
-  six: 64,
+  xs: 4,
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 32,
+  xxl: 48,
 } as const;
 
-export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
-export const MaxContentWidth = 800;
+export const Radius = {
+  sm: 10,
+  md: 16,
+  lg: 24,
+  pill: 999,
+} as const;
+
+/** Minimum tap target (Apple HIG: 44pt). */
+export const TapTarget = 44;
+export const MaxContentWidth = 560;

@@ -1,0 +1,262 @@
+import { useMemo, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import Animated, { FadeIn, FadeInDown, LinearTransition } from 'react-native-reanimated';
+
+import { eventColor, eventKinds, soft } from '@/components/event-style';
+import { MonthGrid } from '@/components/month-grid';
+import { Reveal, Screen, SectionLabel } from '@/components/screen';
+import { normalize, SearchField } from '@/components/search-field';
+import { AppText, Card, PressableScale } from '@/components/ui';
+import { Fonts, Radius, Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
+import { useI18n, type Lang } from '@/i18n';
+import { buildEvents, parseIso, toIso, type CalendarEvent, type EventKind } from '@/lib/events';
+import { formatTime } from '@/lib/format';
+
+const UPCOMING_COUNT = 6;
+
+export default function CalendarScreen() {
+  const theme = useTheme();
+  const { t, lang } = useI18n();
+
+  const today = new Date();
+  const todayIso = toIso(today);
+  const [month, setMonth] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
+  const [selectedIso, setSelectedIso] = useState<string | null>(null);
+  const [query, setQuery] = useState('');
+  const [hidden, setHidden] = useState<Set<EventKind>>(new Set());
+
+  // Current year and the next one cover any running semester.
+  const year = today.getFullYear();
+  const allEvents = useMemo(() => buildEvents([year, year + 1]), [year]);
+  const events = useMemo(() => allEvents.filter((e) => !hidden.has(e.kind)), [allEvents, hidden]);
+
+  const kindsByDate = useMemo(() => {
+    const map = new Map<string, EventKind[]>();
+    for (const e of events) {
+      const kinds = map.get(e.date) ?? [];
+      if (!kinds.includes(e.kind)) kinds.push(e.kind);
+      map.set(e.date, kinds);
+    }
+    return map;
+  }, [events]);
+
+  const monthLabel = month.toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-US', {
+    month: 'long',
+    year: 'numeric',
+  });
+
+  const q = normalize(query.trim());
+  const searchResults = q
+    ? allEvents.filter(
+        (e) =>
+          e.kind !== 'cleaning' &&
+          normalize([e.title.fr, e.title.en, e.ptName ?? ''].join(' ')).includes(q),
+      )
+    : [];
+  const selectedEvents = selectedIso ? events.filter((e) => e.date === selectedIso) : [];
+  const upcoming = events.filter((e) => e.date >= todayIso).slice(0, UPCOMING_COUNT);
+
+  function shiftMonth(delta: number) {
+    setMonth((m) => new Date(m.getFullYear(), m.getMonth() + delta, 1));
+    setSelectedIso(null);
+  }
+
+  function jumpTo(iso: string) {
+    const d = parseIso(iso);
+    setMonth(new Date(d.getFullYear(), d.getMonth(), 1));
+    setSelectedIso(iso);
+    setQuery('');
+  }
+
+  function toggleKind(kind: EventKind) {
+    setHidden((prev) => {
+      const next = new Set(prev);
+      if (next.has(kind)) next.delete(kind);
+      else next.add(kind);
+      return next;
+    });
+  }
+
+  return (
+    <Screen title={t.calendar.title} subtitle={t.calendar.subtitle}>
+      <SearchField
+        value={query}
+        onChangeText={setQuery}
+        placeholder={t.calendar.searchPlaceholder}
+        clearLabel={t.guide.clear}
+      />
+
+      {q ? (
+        <Animated.View entering={FadeIn} style={{ gap: Spacing.sm }}>
+          <SectionLabel>{t.calendar.results}</SectionLabel>
+          {searchResults.length === 0 ? (
+            <Card>
+              <AppText color={theme.textSecondary}>{t.calendar.noResults(query)}</AppText>
+            </Card>
+          ) : (
+            searchResults.map((e, i) => (
+              <EventRow key={e.id} event={e} lang={lang} index={i} onPress={() => jumpTo(e.date)} />
+            ))
+          )}
+        </Animated.View>
+      ) : (
+        <>
+          <Reveal index={0}>
+            <Card>
+              <MonthGrid
+                month={month}
+                monthLabel={monthLabel}
+                todayIso={todayIso}
+                selectedIso={selectedIso}
+                kindsByDate={kindsByDate}
+                weekStartsOn={t.calendar.weekStartsOn}
+                weekdaysShort={t.calendar.weekdaysShort}
+                prevLabel={t.calendar.previousMonth}
+                nextLabel={t.calendar.nextMonth}
+                onSelect={(iso) => setSelectedIso(iso === selectedIso ? null : iso)}
+                onPrev={() => shiftMonth(-1)}
+                onNext={() => shiftMonth(1)}
+              />
+            </Card>
+          </Reveal>
+
+          <Reveal index={1}>
+            <View style={styles.legend}>
+              {eventKinds.map((kind) => {
+                const active = !hidden.has(kind);
+                const color = eventColor(theme, kind);
+                return (
+                  <PressableScale
+                    key={kind}
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: active }}
+                    onPress={() => toggleKind(kind)}
+                    style={[
+                      styles.chip,
+                      { borderColor: theme.line, backgroundColor: active ? theme.surface : 'transparent' },
+                    ]}>
+                    <View
+                      style={[
+                        styles.dot,
+                        active ? { backgroundColor: color } : { borderWidth: 1.5, borderColor: color },
+                      ]}
+                    />
+                    <AppText variant="caption" color={active ? theme.text : theme.textSecondary}>
+                      {t.calendar.kinds[kind]}
+                    </AppText>
+                  </PressableScale>
+                );
+              })}
+            </View>
+          </Reveal>
+
+          {selectedIso && (
+            <Animated.View entering={FadeInDown.duration(250)} style={{ gap: Spacing.sm }}>
+              <SectionLabel>{longDate(selectedIso, lang)}</SectionLabel>
+              {selectedEvents.length === 0 ? (
+                <Card>
+                  <AppText color={theme.textSecondary}>{t.calendar.nothingThisDay}</AppText>
+                </Card>
+              ) : (
+                selectedEvents.map((e, i) => <EventRow key={e.id} event={e} lang={lang} index={i} />)
+              )}
+            </Animated.View>
+          )}
+
+          <Reveal index={2}>
+            <SectionLabel>{t.calendar.upcoming}</SectionLabel>
+          </Reveal>
+          <View style={{ gap: Spacing.sm }}>
+            {upcoming.map((e, i) => (
+              <EventRow key={e.id} event={e} lang={lang} index={i} onPress={() => jumpTo(e.date)} />
+            ))}
+          </View>
+
+          <AppText variant="caption" color={theme.textSecondary}>
+            {t.calendar.optionalHint}
+          </AppText>
+        </>
+      )}
+    </Screen>
+  );
+}
+
+function longDate(iso: string, lang: Lang) {
+  return parseIso(iso).toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-US', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
+
+function EventRow({
+  event,
+  lang,
+  index,
+  onPress,
+}: {
+  event: CalendarEvent;
+  lang: Lang;
+  index: number;
+  onPress?: () => void;
+}) {
+  const theme = useTheme();
+  const { t } = useI18n();
+  const color = eventColor(theme, event.kind);
+  const details = [
+    event.ptName && event.ptName !== event.title[lang] ? event.ptName : null,
+    longDate(event.date, lang),
+    event.time ? formatTime(event.time, lang) : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
+  return (
+    <Animated.View entering={FadeInDown.delay(40 * index).duration(250)} layout={LinearTransition}>
+      <PressableScale
+        disabled={!onPress}
+        haptic={!!onPress}
+        onPress={onPress}
+        style={[styles.row, { backgroundColor: theme.surface, borderColor: theme.line }]}>
+        <View style={[styles.bar, { backgroundColor: color }]} />
+        <View style={{ flex: 1, gap: 2 }}>
+          <AppText style={{ fontFamily: Fonts.bodySemiBold }}>{event.title[lang]}</AppText>
+          <AppText variant="caption" color={theme.textSecondary}>
+            {details}
+          </AppText>
+        </View>
+        <View style={[styles.badge, { backgroundColor: soft(color) }]}>
+          <AppText variant="caption" color={color} style={{ fontSize: 11 }}>
+            {t.calendar.kinds[event.kind]}
+          </AppText>
+        </View>
+      </PressableScale>
+    </Animated.View>
+  );
+}
+
+const styles = StyleSheet.create({
+  legend: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    minHeight: 34,
+    paddingHorizontal: 12,
+    borderRadius: Radius.pill,
+    borderWidth: 1,
+  },
+  dot: { width: 8, height: 8, borderRadius: 4 },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    padding: Spacing.md,
+    borderRadius: Radius.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+  },
+  bar: { width: 4, alignSelf: 'stretch', borderRadius: 2 },
+  badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: Radius.pill },
+});
