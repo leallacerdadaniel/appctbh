@@ -15,7 +15,7 @@
       "lng": -43.94380899999999,
       "placeId": "ChIJFeUR4WGXpgARXjcWkFaBptY",
       "rating": 4.7,
-      "ratingCount": 2413,
+      "ratingCount": 2414,
       "priceLevel": 4,
       "hours": [
         {
@@ -96,7 +96,7 @@
       "lng": -43.9457818,
       "placeId": "ChIJ3XrutduXpgAR3-icD28yLpA",
       "rating": 4.9,
-      "ratingCount": 1438,
+      "ratingCount": 1441,
       "priceLevel": 4,
       "hours": [
         {
@@ -288,7 +288,7 @@
       "lng": -43.9403604,
       "placeId": "ChIJsUxEmxeZpgARLxGW-GLX5gg",
       "rating": 4.8,
-      "ratingCount": 953,
+      "ratingCount": 955,
       "priceLevel": 4,
       "hours": [
         {
@@ -560,7 +560,7 @@
       "lng": -43.9430979,
       "placeId": "ChIJB9JzByyapgARhHmqOCMY98g",
       "rating": 4.4,
-      "ratingCount": 2727,
+      "ratingCount": 2728,
       "priceLevel": null,
       "hours": [
         {
@@ -782,7 +782,7 @@
       "lng": -43.94617770000001,
       "placeId": "ChIJkS0f-AWXpgARcAgYxg_gqkY",
       "rating": 4.8,
-      "ratingCount": 2502,
+      "ratingCount": 2550,
       "priceLevel": 3,
       "hours": [
         {
@@ -863,7 +863,7 @@
       "lng": -43.944823,
       "placeId": "ChIJjQzeIIGXpgARVz3Xoo-g5fQ",
       "rating": 4.7,
-      "ratingCount": 3287,
+      "ratingCount": 3288,
       "priceLevel": 4,
       "hours": [
         {
@@ -1014,7 +1014,7 @@
       "lng": -43.9395785,
       "placeId": "ChIJD5Dxts6ZpgARtzmRTsfudYk",
       "rating": 4.9,
-      "ratingCount": 1974,
+      "ratingCount": 1979,
       "priceLevel": 4,
       "hours": [
         {
@@ -1632,7 +1632,7 @@
     {
       "id": "barolio",
       "name": "Barolio Savassi",
-      "tier": "occasion",
+      "tier": "everyday",
       "top100": null,
       "address": "R. Tomé de Souza, 616 - Lj - Savassi, Belo Horizonte - MG, 34006-200",
       "neighborhood": "Savassi",
@@ -1640,7 +1640,7 @@
       "lng": -43.9324081,
       "placeId": "ChIJ28qe0KqZpgARSY_Fj3O8uK0",
       "rating": 4.4,
-      "ratingCount": 532,
+      "ratingCount": 536,
       "priceLevel": 2,
       "hours": [
         {
@@ -2306,7 +2306,7 @@
       "lng": -43.9456602,
       "placeId": "ChIJe3Z-v2aXpgAR4eXD3lDpZ90",
       "rating": 4.2,
-      "ratingCount": 1202,
+      "ratingCount": 1204,
       "priceLevel": 2,
       "hours": [
         {
@@ -3013,7 +3013,7 @@
       "lng": -43.9100112,
       "placeId": "ChIJy3FHNrqbpgARn-lTa9YawSM",
       "rating": 4.7,
-      "ratingCount": 3499,
+      "ratingCount": 3503,
       "priceLevel": 2,
       "hours": [
         {
@@ -3082,127 +3082,6 @@
       "distanceM": 3979,
       "walkMin": 54,
       "driveMin": 13
-    },
-    {
-      "id": "james-burger",
-      "name": "James Burger - Hambúrguer Artesanal na Savassi | Delivery de Hambúrguer | Hamburgueria Perto de Você | Hamburgueria em BH",
-      "tier": "everyday",
-      "top100": null,
-      "address": "R. Sergipe, 1091 - Savassi, Belo Horizonte - MG, 30130-171",
-      "neighborhood": "Savassi",
-      "lat": -19.9361462,
-      "lng": -43.9376608,
-      "placeId": "ChIJVyv0t9uZpgAR2bSVTuVvOZ0",
-      "rating": 4.6,
-      "ratingCount": 3182,
-      "priceLevel": 2,
-      "hours": [
-        {
-          "open": {
-            "day": 0,
-            "time": "1800"
-          },
-          "close": {
-            "day": 0,
-            "time": "2300"
-          }
-        },
-        {
-          "open": {
-            "day": 2,
-            "time": "1130"
-          },
-          "close": {
-            "day": 2,
-            "time": "1430"
-          }
-        },
-        {
-          "open": {
-            "day": 2,
-            "time": "1800"
-          },
-          "close": {
-            "day": 2,
-            "time": "2300"
-          }
-        },
-        {
-          "open": {
-            "day": 3,
-            "time": "1130"
-          },
-          "close": {
-            "day": 3,
-            "time": "1430"
-          }
-        },
-        {
-          "open": {
-            "day": 3,
-            "time": "1800"
-          },
-          "close": {
-            "day": 3,
-            "time": "2300"
-          }
-        },
-        {
-          "open": {
-            "day": 4,
-            "time": "1130"
-          },
-          "close": {
-            "day": 4,
-            "time": "1430"
-          }
-        },
-        {
-          "open": {
-            "day": 4,
-            "time": "1800"
-          },
-          "close": {
-            "day": 4,
-            "time": "2300"
-          }
-        },
-        {
-          "open": {
-            "day": 5,
-            "time": "1130"
-          },
-          "close": {
-            "day": 5,
-            "time": "1430"
-          }
-        },
-        {
-          "open": {
-            "day": 5,
-            "time": "1800"
-          },
-          "close": {
-            "day": 6,
-            "time": "0030"
-          }
-        },
-        {
-          "open": {
-            "day": 6,
-            "time": "1800"
-          },
-          "close": {
-            "day": 0,
-            "time": "0030"
-          }
-        }
-      ],
-      "phone": "+55 31 99299-1800",
-      "website": "http://www.jamesburguerbh.com.br/",
-      "distanceM": 605,
-      "walkMin": 8,
-      "driveMin": 7
     },
     {
       "id": "maurizio-gallo",
@@ -3597,6 +3476,805 @@
       "distanceM": 384,
       "walkMin": 6,
       "driveMin": 3
+    },
+    {
+      "id": "sal15",
+      "name": "SAL15 Burger and Shop",
+      "tier": "burger",
+      "top100": null,
+      "address": "R. Pedra Bonita, 346 - Prado, Belo Horizonte - MG, 30411-203",
+      "neighborhood": "Prado",
+      "lat": -19.9264038,
+      "lng": -43.966213,
+      "placeId": "ChIJ3wm6Vz6XpgAR0rLMDyMavMs",
+      "rating": 4.8,
+      "ratingCount": 3906,
+      "priceLevel": 2,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1700"
+          },
+          "close": {
+            "day": 0,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1700"
+          },
+          "close": {
+            "day": 2,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1700"
+          },
+          "close": {
+            "day": 3,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1700"
+          },
+          "close": {
+            "day": 4,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1700"
+          },
+          "close": {
+            "day": 5,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1700"
+          },
+          "close": {
+            "day": 6,
+            "time": "2300"
+          }
+        }
+      ],
+      "phone": null,
+      "website": "https://www.instagram.com/sal15.burgerandshop/",
+      "distanceM": 4052,
+      "walkMin": 61,
+      "driveMin": 13
+    },
+    {
+      "id": "nimbos",
+      "name": "Nimbos Bar",
+      "tier": "burger",
+      "top100": null,
+      "address": "R. Sergipe, 629 - Savassi, Belo Horizonte - MG, 30130-171",
+      "neighborhood": "Savassi",
+      "lat": -19.9323193,
+      "lng": -43.9365866,
+      "placeId": "ChIJRY8OGN2ZpgARhuQRsiGwtgg",
+      "rating": 4.6,
+      "ratingCount": 2047,
+      "priceLevel": 2,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1700"
+          },
+          "close": {
+            "day": 0,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1800"
+          },
+          "close": {
+            "day": 4,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1800"
+          },
+          "close": {
+            "day": 5,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1800"
+          },
+          "close": {
+            "day": 6,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1800"
+          },
+          "close": {
+            "day": 0,
+            "time": "0000"
+          }
+        }
+      ],
+      "phone": null,
+      "website": "https://www.instagram.com/nimbosbar/",
+      "distanceM": 951,
+      "walkMin": 13,
+      "driveMin": 8
+    },
+    {
+      "id": "ferris-burger",
+      "name": "Ferris Burger",
+      "tier": "burger",
+      "top100": null,
+      "address": "Rua dos Inconfidentes, 615 - Savassi, Belo Horizonte - MG, 30140-120",
+      "neighborhood": "Savassi",
+      "lat": -19.9367735,
+      "lng": -43.9317989,
+      "placeId": "ChIJE7Igt6OZpgAR030CkgL6yoo",
+      "rating": 4.6,
+      "ratingCount": 577,
+      "priceLevel": 2,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1730"
+          },
+          "close": {
+            "day": 0,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1730"
+          },
+          "close": {
+            "day": 1,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1730"
+          },
+          "close": {
+            "day": 2,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1730"
+          },
+          "close": {
+            "day": 3,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1730"
+          },
+          "close": {
+            "day": 4,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1800"
+          },
+          "close": {
+            "day": 6,
+            "time": "0030"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1800"
+          },
+          "close": {
+            "day": 0,
+            "time": "0030"
+          }
+        }
+      ],
+      "phone": "+55 31 99598-4609",
+      "website": "https://www.instagram.com/ferrisburger/",
+      "distanceM": 411,
+      "walkMin": 5,
+      "driveMin": 2
+    },
+    {
+      "id": "juicy-burger",
+      "name": "Juicy Burger Shop BH",
+      "tier": "burger",
+      "top100": null,
+      "address": "Rua dos Guajajaras, 847 - Lourdes, Belo Horizonte - MG, 30180-105",
+      "neighborhood": "Lourdes",
+      "lat": -19.9249492,
+      "lng": -43.9420018,
+      "placeId": "ChIJGy67l-qZpgAR_IijaVNtrQU",
+      "rating": 4.5,
+      "ratingCount": 724,
+      "priceLevel": 2,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1800"
+          },
+          "close": {
+            "day": 0,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1800"
+          },
+          "close": {
+            "day": 2,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1800"
+          },
+          "close": {
+            "day": 3,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1800"
+          },
+          "close": {
+            "day": 4,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1800"
+          },
+          "close": {
+            "day": 5,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1800"
+          },
+          "close": {
+            "day": 6,
+            "time": "2300"
+          }
+        }
+      ],
+      "phone": "+55 31 99245-1582",
+      "website": "https://oia.99app.com/dlp9/mOTyTN?area=BR",
+      "distanceM": 1980,
+      "walkMin": 27,
+      "driveMin": 11
+    },
+    {
+      "id": "american-bulls",
+      "name": "American Bulls - Silveira",
+      "tier": "burger",
+      "top100": null,
+      "address": "R. Ilacir Pereira Lima, 124 - de Lima, Belo Horizonte - MG, 31140-540",
+      "neighborhood": "de Lima",
+      "lat": -19.8930431,
+      "lng": -43.9288687,
+      "placeId": "ChIJw75MNCubpgARBIP7lzg99e0",
+      "rating": 4.8,
+      "ratingCount": 1503,
+      "priceLevel": 2,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1700"
+          },
+          "close": {
+            "day": 0,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1800"
+          },
+          "close": {
+            "day": 1,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1800"
+          },
+          "close": {
+            "day": 2,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1800"
+          },
+          "close": {
+            "day": 3,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1800"
+          },
+          "close": {
+            "day": 4,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1800"
+          },
+          "close": {
+            "day": 6,
+            "time": "0030"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1800"
+          },
+          "close": {
+            "day": 0,
+            "time": "0030"
+          }
+        }
+      ],
+      "phone": null,
+      "website": "https://americanbulls.co/",
+      "distanceM": 5822,
+      "walkMin": 82,
+      "driveMin": 19
+    },
+    {
+      "id": "foraster",
+      "name": "Foraster Burguer",
+      "tier": "burger",
+      "top100": null,
+      "address": "Rua Dr. Júlio Otaviano Ferreira, 615 - Cidade Nova, Belo Horizonte - MG, 31170-200",
+      "neighborhood": "Cidade Nova",
+      "lat": -19.8881876,
+      "lng": -43.9239899,
+      "placeId": "ChIJQ1r1Iy-bpgART0bCgbZHsPk",
+      "rating": 4.9,
+      "ratingCount": 1832,
+      "priceLevel": 2,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1733"
+          },
+          "close": {
+            "day": 0,
+            "time": "2159"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1733"
+          },
+          "close": {
+            "day": 2,
+            "time": "2233"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1733"
+          },
+          "close": {
+            "day": 3,
+            "time": "2233"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1733"
+          },
+          "close": {
+            "day": 4,
+            "time": "2233"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1733"
+          },
+          "close": {
+            "day": 5,
+            "time": "2233"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1733"
+          },
+          "close": {
+            "day": 6,
+            "time": "2233"
+          }
+        }
+      ],
+      "phone": "+55 31 3146-6776",
+      "website": "https://forasterburguer.com.br/",
+      "distanceM": 6354,
+      "walkMin": 93,
+      "driveMin": 19
+    },
+    {
+      "id": "meatz",
+      "name": "Meatz Burger - Centro Sul - Hamburgueria",
+      "tier": "burger",
+      "top100": null,
+      "address": "Av. Prudente de Morais, 399/401 - Santo Antônio, Belo Horizonte - MG, 30350-143",
+      "neighborhood": "Santo Antônio",
+      "lat": -19.9391289,
+      "lng": -43.9476114,
+      "placeId": "ChIJ5Xn1sn2XpgAR9EjE-hO8480",
+      "rating": 4.7,
+      "ratingCount": 4331,
+      "priceLevel": 2,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1100"
+          },
+          "close": {
+            "day": 0,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1100"
+          },
+          "close": {
+            "day": 1,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1100"
+          },
+          "close": {
+            "day": 2,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1100"
+          },
+          "close": {
+            "day": 3,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1100"
+          },
+          "close": {
+            "day": 4,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1100"
+          },
+          "close": {
+            "day": 5,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1100"
+          },
+          "close": {
+            "day": 6,
+            "time": "2300"
+          }
+        }
+      ],
+      "phone": "+55 31 98358-4780",
+      "website": "https://meatzburger.com/unidades/hamburgueria-centro-sul-bh/",
+      "distanceM": 1663,
+      "walkMin": 23,
+      "driveMin": 8
+    },
+    {
+      "id": "james-burger",
+      "name": "James Burger - Hambúrguer Artesanal na Savassi | Delivery de Hambúrguer | Hamburgueria Perto de Você | Hamburgueria em BH",
+      "tier": "burger",
+      "top100": null,
+      "address": "R. Sergipe, 1091 - Savassi, Belo Horizonte - MG, 30130-171",
+      "neighborhood": "Savassi",
+      "lat": -19.9361462,
+      "lng": -43.9376608,
+      "placeId": "ChIJVyv0t9uZpgAR2bSVTuVvOZ0",
+      "rating": 4.6,
+      "ratingCount": 3190,
+      "priceLevel": 2,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1800"
+          },
+          "close": {
+            "day": 0,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1130"
+          },
+          "close": {
+            "day": 2,
+            "time": "1430"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1800"
+          },
+          "close": {
+            "day": 2,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1130"
+          },
+          "close": {
+            "day": 3,
+            "time": "1430"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1800"
+          },
+          "close": {
+            "day": 3,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1130"
+          },
+          "close": {
+            "day": 4,
+            "time": "1430"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1800"
+          },
+          "close": {
+            "day": 4,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1130"
+          },
+          "close": {
+            "day": 5,
+            "time": "1430"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1800"
+          },
+          "close": {
+            "day": 6,
+            "time": "0030"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1800"
+          },
+          "close": {
+            "day": 0,
+            "time": "0030"
+          }
+        }
+      ],
+      "phone": "+55 31 99299-1800",
+      "website": "http://www.jamesburguerbh.com.br/",
+      "distanceM": 605,
+      "walkMin": 8,
+      "driveMin": 7
+    },
+    {
+      "id": "eddie-fine",
+      "name": "Eddie Fine Burgers - Lourdes (Casa Amarela)",
+      "tier": "burger",
+      "top100": null,
+      "address": "R. da Bahia, 2652 - Casa Amarela! - Lourdes, Belo Horizonte - MG, 30160-012",
+      "neighborhood": "Lourdes",
+      "lat": -19.9382115,
+      "lng": -43.9413504,
+      "placeId": "ChIJlfq0f9eZpgAR7nWszwwFoKI",
+      "rating": 4.3,
+      "ratingCount": 4372,
+      "priceLevel": 2,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1200"
+          },
+          "close": {
+            "day": 0,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1100"
+          },
+          "close": {
+            "day": 1,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1100"
+          },
+          "close": {
+            "day": 2,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1100"
+          },
+          "close": {
+            "day": 3,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1100"
+          },
+          "close": {
+            "day": 4,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1200"
+          },
+          "close": {
+            "day": 6,
+            "time": "0100"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1200"
+          },
+          "close": {
+            "day": 0,
+            "time": "0100"
+          }
+        }
+      ],
+      "phone": "+55 31 3282-4606",
+      "website": "http://www.eddieburger.com.br/",
+      "distanceM": 855,
+      "walkMin": 12,
+      "driveMin": 5
     }
   ]
 }

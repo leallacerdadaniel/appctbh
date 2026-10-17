@@ -9,7 +9,7 @@ import { restaurantContent, type RestaurantContent } from '@/lib/restaurants-con
  * Distance is from the demo apartment; later it comes per student from Supabase.
  */
 
-export type Tier = 'occasion' | 'everyday';
+export type Tier = 'occasion' | 'everyday' | 'burger';
 
 /** Google opening period. day: 0 = Sunday. time: "HHMM". No close = open 24h. */
 export type Period = { open: { day: number; time: string }; close?: { day: number; time: string } | null };
@@ -35,7 +35,7 @@ type RestaurantFacts = {
   driveMin?: number;
 };
 
-export type Restaurant = RestaurantFacts & Omit<RestaurantContent, 'priceLevel'>;
+export type Restaurant = RestaurantFacts & Omit<RestaurantContent, 'priceLevel' | 'website'>;
 
 const facts = (data as { origin: { lat: number; lng: number }; restaurants: RestaurantFacts[] }).restaurants;
 
@@ -43,7 +43,13 @@ export const restaurants: Restaurant[] = facts
   .filter((f) => restaurantContent[f.id])
   .map((f) => {
     const content = restaurantContent[f.id];
-    return { ...f, ...content, priceLevel: f.priceLevel ?? content.priceLevel ?? null };
+    return {
+      ...f,
+      ...content,
+      priceLevel: f.priceLevel ?? content.priceLevel ?? null,
+      // A hand-checked website wins over Google's (some Google links are dead).
+      website: content.website !== undefined ? content.website : f.website,
+    };
   });
 
 export function getRestaurant(id: string) {

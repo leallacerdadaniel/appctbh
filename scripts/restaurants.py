@@ -25,7 +25,7 @@ from photo_allowlist import write_allowlist
 
 ORIGIN = "Rua Antônio de Albuquerque, 335 - Funcionários, Belo Horizonte - MG"
 
-# id, Google search query, tier ("occasion" | "everyday"), Casual EXAME Top 100 Brasil 2026 position.
+# id, Google search query, tier ("occasion" | "everyday" | "burger"), Casual EXAME Top 100 Brasil 2026 position.
 RESTAURANTS = [
     ("glouton", "Glouton Rua Bárbara Heliodora Lourdes", "occasion", 24),
     ("parallel", "Parallel Rua Santa Catarina 1155 Lourdes", "occasion", 32),
@@ -42,7 +42,7 @@ RESTAURANTS = [
     ("patria", "Pátria Cozinha do Brasil Belvedere", "occasion", None),
     ("rex-bibendi", "Rex Bibendi Funcionários Belo Horizonte", "occasion", None),
     ("est-est-est", "Est! Est!! Est!!! Ristorante Savassi", "occasion", None),
-    ("barolio", "Barolio Savassi Belo Horizonte", "occasion", None),
+    ("barolio", "Barolio Savassi Belo Horizonte", "everyday", None),
     ("amado", "Restaurante Amado Lourdes", "occasion", None),
     ("casa-calixto", "Casa Calixto Savassi Belo Horizonte", "occasion", None),
     ("el-mai", "el Mai Lourdes Belo Horizonte", "occasion", None),
@@ -56,11 +56,21 @@ RESTAURANTS = [
     ("hou-mei", "Hou Mei Lourdes Belo Horizonte", "everyday", None),
     ("stadt-jever", "Stadt Jever Funcionários Belo Horizonte", "everyday", None),
     ("esquina-sante", "Esquina Santê Santa Tereza Belo Horizonte", "everyday", None),
-    ("james-burger", "James Burger Savassi", "everyday", None),
     ("maurizio-gallo", "Maurízio Gallo Lourdes Belo Horizonte", "everyday", None),
     ("indian-gourmet", "Indian Gourmet Lourdes Belo Horizonte", "everyday", None),
     ("candia", "O Candiá Bar Prado Belo Horizonte", "everyday", None),
     ("baxo-bar", "Baxo Bar Funcionários Belo Horizonte", "everyday", None),
+
+    # Burgers: team picks (Sal15, Nimbos, Juicy, Ferris) + Burger Fest / Hambúrguer Perfeito 2026 and Google ratings.
+    ("sal15", "SAL15 Burger and Shop Rua Pedra Bonita 346 Prado", "burger", None),
+    ("nimbos", "Nimbos Bar Rua Sergipe 629 Savassi", "burger", None),
+    ("ferris-burger", "Ferris Burger Rua dos Inconfidentes 615 Savassi", "burger", None),
+    ("juicy-burger", "Juicy Burger Shop BH Rua dos Guajajaras 847 Lourdes", "burger", None),
+    ("american-bulls", "American Bulls Silveira Rua Ilacir Pereira Lima 124", "burger", None),
+    ("foraster", "Foraster Burguer Rua Dr. Júlio Otaviano Ferreira 615 Cidade Nova", "burger", None),
+    ("meatz", "Meatz Burger Centro Sul Avenida Prudente de Morais 399", "burger", None),
+    ("james-burger", "James Burger Savassi", "burger", None),
+    ("eddie-fine", "Eddie Fine Burgers Lourdes Casa Amarela Rua da Bahia 2652", "burger", None),
 ]
 
 DETAIL_FIELDS = ",".join([

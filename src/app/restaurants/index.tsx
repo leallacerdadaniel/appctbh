@@ -1,4 +1,3 @@
-import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
@@ -12,12 +11,11 @@ import { AppText, Chip, PressableScale } from '@/components/ui';
 import { Fonts, Radius, Shadow, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
-import { dishes } from '@/lib/dishes';
 import { WALK_LIMIT_MIN } from '@/lib/nearby';
 import { usePlacePhoto } from '@/lib/place-photo';
 import { displayName, restaurants, type Restaurant, type Tier } from '@/lib/restaurants';
 
-const TIERS: Tier[] = ['occasion', 'everyday'];
+const TIERS: Tier[] = ['occasion', 'everyday', 'burger'];
 
 export default function RestaurantsScreen() {
   const theme = useTheme();
@@ -28,19 +26,30 @@ export default function RestaurantsScreen() {
 
   return (
     <Screen back title={t.restaurants.title} subtitle={t.restaurants.subtitle}>
-      <DishesEntry />
-
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.bleed} contentContainerStyle={styles.chips}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.bleed}
+        contentContainerStyle={styles.chips}>
         <Chip label={t.restaurants.all} selected={tier === null} onPress={() => setTier(null)} />
         {TIERS.map((x) => (
-          <Chip key={x} label={t.restaurants.tiers[x]} selected={tier === x} onPress={() => setTier(tier === x ? null : x)} />
+          <Chip
+            key={x}
+            label={t.restaurants.tiers[x]}
+            selected={tier === x}
+            onPress={() => setTier(tier === x ? null : x)}
+          />
         ))}
       </ScrollView>
+
+      <AppText variant="callout" color={theme.textSecondary}>
+        {t.restaurants.count(restaurants.filter((r) => shown.includes(r.tier)).length)}
+      </AppText>
 
       {shown.map((x) => {
         const list = restaurants.filter((r) => r.tier === x);
         return (
-          <Section key={x} title={`${t.restaurants.tiers[x]} · ${t.restaurants.count(list.length)}`} subtitle={t.restaurants.tierHints[x]}>
+          <Section key={x} title={t.restaurants.tiers[x]} subtitle={t.restaurants.tierHints[x]}>
             <View style={{ gap: 12 }}>
               {list.map((r) => (
                 <RestaurantRow key={r.id} restaurant={r} />
@@ -64,7 +73,11 @@ function RestaurantRow({ restaurant: r }: { restaurant: Restaurant }) {
   const photo = usePlacePhoto(r.placeId, 300);
   const far = r.walkMin != null && r.walkMin > WALK_LIMIT_MIN;
   const distance =
-    r.walkMin == null ? null : far && r.driveMin != null ? t.restaurants.drive(r.driveMin) : t.restaurants.walk(r.walkMin);
+    r.walkMin == null
+      ? null
+      : far && r.driveMin != null
+        ? t.restaurants.drive(r.driveMin)
+        : t.restaurants.walk(r.walkMin);
 
   return (
     <PressableScale
@@ -118,28 +131,6 @@ function RestaurantRow({ restaurant: r }: { restaurant: Restaurant }) {
   );
 }
 
-/** Entry to "Plats à goûter": the traditional food page. */
-function DishesEntry() {
-  const theme = useTheme();
-  const { t } = useI18n();
-  return (
-    <PressableScale
-      accessibilityRole="button"
-      accessibilityLabel={`${t.dishes.entry}, ${t.dishes.entryHint}`}
-      onPress={() => router.push('/restaurants/dishes')}
-      style={[styles.row, Shadow.card, { backgroundColor: theme.surface }]}>
-      <Image source={{ uri: dishes[0].photo.uri }} style={styles.entryPhoto} contentFit="cover" />
-      <View style={styles.text}>
-        <AppText style={{ fontFamily: Fonts.bodyMedium }}>{t.dishes.entry}</AppText>
-        <AppText variant="callout" color={theme.textSecondary}>
-          {t.dishes.entryHint}
-        </AppText>
-      </View>
-      <Icon name="chevronRight" size={15} color={theme.textTertiary} />
-    </PressableScale>
-  );
-}
-
 const styles = StyleSheet.create({
   bleed: { marginHorizontal: -Spacing.gutter },
   chips: { gap: Spacing.sm, paddingHorizontal: Spacing.gutter },
@@ -149,5 +140,4 @@ const styles = StyleSheet.create({
   text: { flex: 1, gap: 3 },
   line: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 5 },
   credit: { fontSize: 10, lineHeight: 13 },
-  entryPhoto: { width: 64, height: 64, borderRadius: Radius.md },
 });

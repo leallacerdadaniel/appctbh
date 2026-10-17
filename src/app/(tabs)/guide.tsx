@@ -44,8 +44,10 @@ export default function GuideScreen() {
     if (!q) return null;
     const has = (parts: string[]) => normalize(parts.join(' ')).includes(q);
     return {
-      info: guide.filter((g) => has([...Object.values(g.title), ...Object.values(g.category), g.body[lang], ...g.keywords])),
-      restaurants: restaurants.filter((r) => has([r.name, ...Object.values(r.cuisine), r.neighborhood, ...r.mustTry])),
+      info: guide.filter((g) =>
+        has([...Object.values(g.title), ...Object.values(g.category), g.body[lang], ...g.keywords]),
+      ),
+      restaurants: restaurants.filter((r) => has([r.name, ...Object.values(r.cuisine), r.neighborhood])),
       places: attractions.filter((a) => has([a.name, a.neighborhood])),
       dishes: dishes.filter((d) => has([d.name, ...Object.values(d.description)])),
     };

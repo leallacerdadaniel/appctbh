@@ -64,10 +64,6 @@ export default function RestaurantScreen() {
         </ListGroup>
       </Card>
 
-      <Section title={t.restaurants.mustTry}>
-        <Tags items={r.mustTry} />
-      </Section>
-
       <Section title={t.restaurants.goodFor}>
         <Tags items={r.goodFor.map((g) => t.restaurants.goodForLabels[g])} />
       </Section>
