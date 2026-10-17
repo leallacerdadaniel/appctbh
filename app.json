@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/brand/icon.png",
     "scheme": "cheztoibh",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "ios": {
       "icon": "./assets/brand/icon.png",
       "bundleIdentifier": "br.cheztoibh.app"

@@ -50,8 +50,7 @@ export function MonthGrid(props: Props) {
   const pan = useMemo(
     () =>
       PanResponder.create({
-        onMoveShouldSetPanResponder: (_, g) =>
-          Math.abs(g.dx) > 15 && Math.abs(g.dx) > Math.abs(g.dy),
+        onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 15 && Math.abs(g.dx) > Math.abs(g.dy),
         onPanResponderRelease: (_, g) => {
           if (g.dx < -SWIPE_DISTANCE) onNext();
           else if (g.dx > SWIPE_DISTANCE) onPrev();
@@ -67,7 +66,7 @@ export function MonthGrid(props: Props) {
           <ChevronLeft size={20} color={theme.text} />
         </NavButton>
         <Animated.View key={props.monthLabel} entering={FadeIn.duration(220)}>
-          <AppText variant="heading" style={{ textTransform: 'capitalize' }}>
+          <AppText variant="title" style={{ textTransform: 'capitalize' }}>
             {props.monthLabel}
           </AppText>
         </Animated.View>
@@ -105,15 +104,17 @@ export function MonthGrid(props: Props) {
                 ]}>
                 <AppText
                   color={isToday ? '#fff' : inMonth ? theme.text : theme.line}
-                  style={isToday || isSelected ? { fontFamily: Fonts.bodySemiBold } : undefined}>
+                  style={isToday || isSelected ? { fontFamily: Fonts.bodyMedium } : undefined}>
                   {day}
                 </AppText>
               </View>
               <View style={styles.dots}>
                 {inMonth &&
-                  kinds.slice(0, 3).map((k) => (
-                    <View key={k} style={[styles.dot, { backgroundColor: eventColor(theme, k) }]} />
-                  ))}
+                  kinds
+                    .slice(0, 3)
+                    .map((k) => (
+                      <View key={k} style={[styles.dot, { backgroundColor: eventColor(theme, k) }]} />
+                    ))}
               </View>
             </PressableScale>
           );

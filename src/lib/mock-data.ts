@@ -24,6 +24,8 @@ export type Apartment = {
   wifiName: string;
   wifiPassword: string;
   mapsQuery: string;
+  /** Main photo of the listing on the site (public `apartment-images` bucket). */
+  photoUrl: string;
 };
 
 export type Contract = {
@@ -42,14 +44,19 @@ export const demoStudent: Student = {
 
 export const demoApartment: Apartment = {
   nickname: 'Apê Savassi',
-  address: 'Rua Exemplo, 123',
+  address: 'Rua Antônio de Albuquerque, 335',
   complement: 'Apto 802',
-  neighborhood: 'Savassi',
+  neighborhood: 'Funcionários',
   city: 'Belo Horizonte',
   wifiName: 'ChezToi_Savassi',
   wifiPassword: 'bienvenue2027',
-  mapsQuery: 'Savassi, Belo Horizonte',
+  mapsQuery: 'Rua Antônio de Albuquerque, 335, Funcionários, Belo Horizonte',
+  photoUrl:
+    'https://miucfiiporxhvvbefonh.supabase.co/storage/v1/object/public/apartment-images/apartment-1756409026859-dxia0v.png',
 };
+
+/** Restaurant highlighted on Home this week (id from src/lib/restaurants-content.ts). Later: set by the team in Supabase. */
+export const weeklyPickId = 'trintaeum';
 
 export const demoContract: Contract = {
   semester: '2027/1',

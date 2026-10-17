@@ -1,9 +1,9 @@
-import { Search, X } from 'lucide-react-native';
 import { forwardRef, type ComponentRef } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 
+import { Icon } from '@/components/icon';
 import { PressableScale } from '@/components/ui';
-import { Radius, Spacing, TapTarget, Type } from '@/constants/theme';
+import { Radius, Shadow, Spacing, TapTarget, Type } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 /** Pill search input with a clear button. */
@@ -14,7 +14,7 @@ export const SearchField = forwardRef<
   const theme = useTheme();
   return (
     <View style={[styles.search, { backgroundColor: theme.surface, borderColor: theme.line }]}>
-      <Search size={18} color={theme.textSecondary} />
+      <Icon name="search" size={18} color={theme.textSecondary} />
       <TextInput
         ref={ref}
         value={value}
@@ -30,7 +30,7 @@ export const SearchField = forwardRef<
           accessibilityLabel={clearLabel}
           onPress={() => onChangeText('')}
           style={styles.clear}>
-          <X size={16} color={theme.textSecondary} />
+          <Icon name="close" size={16} color={theme.textSecondary} />
         </PressableScale>
       )}
     </View>
@@ -55,7 +55,8 @@ const styles = StyleSheet.create({
     paddingLeft: Spacing.md,
     paddingRight: Spacing.xs,
     borderRadius: Radius.pill,
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
+    ...Shadow.card,
   },
   input: { flex: 1, minHeight: TapTarget, outlineStyle: 'none' } as object,
   clear: { width: TapTarget, height: TapTarget, alignItems: 'center', justifyContent: 'center' },

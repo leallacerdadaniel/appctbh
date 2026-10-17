@@ -53,7 +53,7 @@ export default function LoginScreen() {
             accessibilityLabel="Chez Toi BH"
           />
           <View style={{ alignItems: 'center', gap: Spacing.xs }}>
-            <AppText variant="title">{t.login.title}</AppText>
+            <AppText variant="display">{t.login.title}</AppText>
             <AppText color={theme.textSecondary} style={{ textAlign: 'center' }}>
               {t.login.subtitle}
             </AppText>
@@ -84,12 +84,7 @@ export default function LoginScreen() {
             onSubmitEditing={submit}
           />
           {error && <InlineMessage kind="error" text={t.login.errors[error]} />}
-          <Button
-            label={t.login.submit}
-            onPress={submit}
-            loading={loading}
-            disabled={!email || !password}
-          />
+          <Button label={t.login.submit} onPress={submit} loading={loading} disabled={!email || !password} />
           <AppText variant="caption" color={theme.textSecondary} style={{ textAlign: 'center' }}>
             {t.login.forgot}
           </AppText>

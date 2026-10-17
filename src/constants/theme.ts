@@ -1,9 +1,8 @@
 import '@/global.css';
 
 /**
- * Chez Toi BH design tokens.
- * Brand red comes from the main logo (red tile). Use it sparingly:
- * identity, primary action and active tab — never for errors.
+ * Chez Toi BH design tokens — light mode, DUO Gourmet-inspired (red brand bar, gray canvas, white cards).
+ * Rules and rationale: .claude/skills/ctbh-design-system (keep references/tokens.md in sync).
  */
 export const Brand = {
   red: '#E80C20',
@@ -14,56 +13,53 @@ export const Brand = {
 export const Colors = {
   light: {
     brand: Brand.red,
-    brandSoft: '#FDE8EA',
+    brandPressed: Brand.redPressed,
     onBrand: Brand.onRed,
-    text: '#18181B',
-    textSecondary: '#71717A',
-    background: '#FAFAFA',
+    onBrandMuted: 'rgba(255,255,255,0.82)',
+    /** @deprecated v1 tinted bubbles. Neutral until every screen is migrated. */
+    brandSoft: '#EFEEEA',
+    text: '#141414',
+    textSecondary: '#6B6A67',
+    textTertiary: '#A09E99',
+    /** Canvas behind every screen. */
+    background: '#F4F4F2',
+    /** Cards, search pill, tab bar. */
     surface: '#FFFFFF',
-    line: '#E4E4E7',
+    fill: '#EFEEEA',
+    /** Dark layer under text on photos. */
+    scrim: 'rgba(0,0,0,0.45)',
+    star: '#F5B301',
+    /** Must-go medal only. */
+    gold: '#C9971C',
+    line: '#E9E7E3',
     error: '#B42318',
     errorSoft: '#FEF3F2',
-    success: '#067647',
+    success: '#1F7A4D',
     successSoft: '#ECFDF3',
+    warning: '#B54708',
     eventCity: '#DC6803',
     eventOptional: '#1570EF',
     eventCleaning: '#0E9384',
-  },
-  dark: {
-    brand: '#FF3346',
-    brandSoft: '#3A1418',
-    onBrand: Brand.onRed,
-    text: '#F4F4F5',
-    textSecondary: '#A1A1AA',
-    background: '#0B0B0C',
-    surface: '#18181B',
-    line: '#27272A',
-    error: '#F97066',
-    errorSoft: '#3B1512',
-    success: '#47CD89',
-    successSoft: '#0E2A1D',
-    eventCity: '#FDB022',
-    eventOptional: '#53B1FD',
-    eventCleaning: '#2ED3B7',
   },
 } as const;
 
 export type ThemeColors = { [K in keyof typeof Colors.light]: string };
 
+/** Light weights only (owner asked twice on 2026-10-16: "fontes grandes e grossas" → clean). */
 export const Fonts = {
-  display: 'Outfit_600SemiBold',
-  displayBold: 'Outfit_700Bold',
+  display: 'Outfit_400Regular',
   body: 'Inter_400Regular',
+  /** Emphasis: names, row titles, buttons. Never heavier than this. */
   bodyMedium: 'Inter_500Medium',
-  bodySemiBold: 'Inter_600SemiBold',
 } as const;
 
-/** Short type scale: 4 sizes. */
+/** Five sizes, nothing else. */
 export const Type = {
-  title: { fontFamily: Fonts.display, fontSize: 28, lineHeight: 34 },
-  heading: { fontFamily: Fonts.display, fontSize: 20, lineHeight: 26 },
-  body: { fontFamily: Fonts.body, fontSize: 16, lineHeight: 22 },
-  caption: { fontFamily: Fonts.bodyMedium, fontSize: 13, lineHeight: 18 },
+  display: { fontFamily: Fonts.display, fontSize: 24, lineHeight: 30, letterSpacing: -0.2 },
+  title: { fontFamily: Fonts.display, fontSize: 17, lineHeight: 22 },
+  body: { fontFamily: Fonts.body, fontSize: 15, lineHeight: 21 },
+  callout: { fontFamily: Fonts.body, fontSize: 13, lineHeight: 18 },
+  caption: { fontFamily: Fonts.body, fontSize: 12, lineHeight: 16 },
 } as const;
 
 export const Spacing = {
@@ -73,13 +69,23 @@ export const Spacing = {
   lg: 24,
   xl: 32,
   xxl: 48,
+  /** Screen side padding. */
+  gutter: 20,
+  /** Space between sections. */
+  section: 32,
 } as const;
 
 export const Radius = {
   sm: 10,
-  md: 16,
-  lg: 24,
+  md: 14,
+  lg: 16,
   pill: 999,
+} as const;
+
+/** The only shadows of the app. */
+export const Shadow = {
+  card: { boxShadow: '0 2px 12px rgba(20, 20, 20, 0.06)' },
+  floating: { boxShadow: '0 6px 24px rgba(20, 20, 20, 0.12)' },
 } as const;
 
 /** Minimum tap target (Apple HIG: 44pt). */

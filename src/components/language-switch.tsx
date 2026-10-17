@@ -31,11 +31,7 @@ export function LanguageSwitch() {
       style={[styles.track, { backgroundColor: theme.line }]}>
       {segmentWidth > 0 && (
         <Animated.View
-          style={[
-            styles.thumb,
-            { width: segmentWidth, backgroundColor: theme.surface },
-            thumbStyle,
-          ]}
+          style={[styles.thumb, { width: segmentWidth, backgroundColor: theme.surface }, thumbStyle]}
         />
       )}
       {languages.map((l) => {
@@ -51,7 +47,7 @@ export function LanguageSwitch() {
             <AppText
               variant="caption"
               color={selected ? theme.text : theme.textSecondary}
-              style={{ fontFamily: Fonts.bodySemiBold }}>
+              style={{ fontFamily: Fonts.bodyMedium }}>
               {l.toUpperCase()}
             </AppText>
           </PressableScale>

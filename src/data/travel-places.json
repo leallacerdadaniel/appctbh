@@ -1,0 +1,177 @@
+[
+ {
+  "id": "ouro-preto",
+  "placeId": "ChIJeU2NCuAKpAARZF3FAvUEtIc",
+  "photoIndex": 0
+ },
+ {
+  "id": "inhotim",
+  "placeId": "ChIJ57n5BszNpgARTBWNsiwuQ2w",
+  "photoIndex": 0
+ },
+ {
+  "id": "tiradentes",
+  "placeId": "ChIJdeLuVrK5oQAR_nysgULIyAQ",
+  "photoIndex": 0
+ },
+ {
+  "id": "serra-do-cipo",
+  "placeId": "ChIJXzV_xRhXrwARRhoyLlpUt4U",
+  "photoIndex": 0
+ },
+ {
+  "id": "capitolio",
+  "placeId": "ChIJSZ_mEEWhtpQRuNPbewjXjiA",
+  "photoIndex": 0
+ },
+ {
+  "id": "diamantina",
+  "placeId": "ChIJz8RwiXlLqJQRDiCfSUf-2mI",
+  "photoIndex": 0
+ },
+ {
+  "id": "ibitipoca",
+  "placeId": "ChIJyTjd-OBOnwARz4jPs9wJwic",
+  "photoIndex": 0
+ },
+ {
+  "id": "canastra",
+  "placeId": "ChIJKdnmFpRHsZQRzSwgZkz0kts",
+  "photoIndex": 0
+ },
+ {
+  "id": "sao-thome",
+  "placeId": "ChIJF9i47m_VnwARsQHcnEVg568",
+  "photoIndex": 3
+ },
+ {
+  "id": "congonhas",
+  "placeId": "ChIJIY5IEHtZoQAR-Fippned8Gw",
+  "photoIndex": 0
+ },
+ {
+  "id": "rio",
+  "placeId": "ChIJRfg5kECAmQARjLS837zXdYA",
+  "photoIndex": 0
+ },
+ {
+  "id": "paraty",
+  "placeId": "ChIJJ6bPZh9tnQARsU7Uj2rBmYU",
+  "photoIndex": 0
+ },
+ {
+  "id": "ilha-grande",
+  "placeId": "ChIJ2zlmbIBenAAR9jD5a88qsjM",
+  "photoIndex": 0
+ },
+ {
+  "id": "salvador",
+  "placeId": "ChIJbwjQpe8EFgcReGfBceMwWXI",
+  "photoIndex": 0
+ },
+ {
+  "id": "chapada-diamantina",
+  "placeId": "ChIJy25MWYbkaQcRa1BlBGSvR5U",
+  "photoIndex": 1
+ },
+ {
+  "id": "foz",
+  "placeId": "ChIJPSROs21N8ZQRj6pUWNM8Y24",
+  "photoIndex": 0
+ },
+ {
+  "id": "lencois",
+  "placeId": "ChIJX745XuGe8QcR65t-1dCVKC0",
+  "photoIndex": 0
+ },
+ {
+  "id": "jericoacoara",
+  "placeId": "ChIJQ7v8QtiF6QcRKT6u76_UhOE",
+  "photoIndex": 0
+ },
+ {
+  "id": "bonito",
+  "placeId": "ChIJS22ZGV9gfJQR-9k5T_7cnFg",
+  "photoIndex": 0
+ },
+ {
+  "id": "florianopolis",
+  "placeId": "ChIJBSybQTg8J5URP5RckJSq30g",
+  "photoIndex": 0
+ },
+ {
+  "id": "noronha",
+  "placeId": "ChIJozBFEP9NNgYR0nF0P8j5WAI",
+  "photoIndex": 0
+ },
+ {
+  "id": "veadeiros",
+  "placeId": "ChIJS-49vHmgRZMRTB8Lnde9YS8",
+  "photoIndex": 0
+ },
+ {
+  "id": "amazonia",
+  "placeId": "ChIJy12xGo0dbZIR85w8UhubQbU",
+  "photoIndex": 0
+ },
+ {
+  "id": "buzios",
+  "placeId": "ChIJ3XCaEKxVlgAR132nfOxT4_0",
+  "photoIndex": 0
+ },
+ {
+  "id": "angra",
+  "placeId": "ChIJe9SZ6sxPnAARNOS0cKnPjII",
+  "photoIndex": 0
+ },
+ {
+  "id": "buenos-aires",
+  "placeId": "ChIJk5Zj-LA0o5URFK_uteT36Z4",
+  "photoIndex": 0
+ },
+ {
+  "id": "santiago",
+  "placeId": "ChIJUQ2xxPLFYpYRgzyi3olg7fU",
+  "photoIndex": 0
+ },
+ {
+  "id": "montevideo",
+  "placeId": "ChIJBx8dDiuAn5UR8wpXvzqsnH0",
+  "photoIndex": 2
+ },
+ {
+  "id": "bariloche",
+  "placeId": "ChIJQesT5CV3GpYRlnzWRDRnKBw",
+  "photoIndex": 0
+ },
+ {
+  "id": "machu-picchu",
+  "placeId": "ChIJVVVViV-abZERJxqgpA43EDo",
+  "photoIndex": 0
+ },
+ {
+  "id": "atacama",
+  "placeId": "ChIJLVjIjf9yqZYRQy-xxNJ20Xo",
+  "photoIndex": 0
+ },
+ {
+  "id": "patagonia",
+  "placeId": "ChIJw1B4IWPJpL0Rvnl0r--igaQ",
+  "photoIndex": 0
+ },
+ {
+  "id": "uyuni",
+  "placeId": "ChIJ14vhJbOEVZERtniCFToY5Aw",
+  "photoIndex": 0
+ },
+ {
+  "id": "cartagena",
+  "placeId": "ChIJ____b_ol9o4RLoG_cv6u6cU",
+  "photoIndex": 2
+ },
+ {
+  "id": "mendoza",
+  "placeId": "ChIJ0ZUQIbSJh5YRW2y9FwH84pg",
+  "photoIndex": 1
+ }
+]

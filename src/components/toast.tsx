@@ -33,8 +33,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             entering={FadeInDown.springify().damping(18)}
             exiting={FadeOutDown.duration(180)}
             style={[styles.toast, { backgroundColor: theme.text }]}>
-            <CircleCheck size={18} color={theme.background} />
-            <AppText variant="caption" color={theme.background}>
+            <CircleCheck size={18} color={theme.surface} />
+            <AppText variant="caption" color={theme.surface}>
               {toast.message}
             </AppText>
           </Animated.View>

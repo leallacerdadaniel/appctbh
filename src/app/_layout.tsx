@@ -1,5 +1,6 @@
-import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold } from '@expo-google-fonts/inter';
-import { Outfit_600SemiBold, Outfit_700Bold } from '@expo-google-fonts/outfit';
+import { Inter_400Regular, Inter_500Medium } from '@expo-google-fonts/inter';
+import { Outfit_400Regular } from '@expo-google-fonts/outfit';
+import { MaterialSymbols_300Light } from '@expo-google-fonts/material-symbols/300Light';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -19,9 +20,8 @@ export default function RootLayout() {
   const [fontsLoaded] = useFonts({
     Inter_400Regular,
     Inter_500Medium,
-    Inter_600SemiBold,
-    Outfit_600SemiBold,
-    Outfit_700Bold,
+    Outfit_400Regular,
+    MaterialSymbols_300Light,
   });
 
   useEffect(() => {
@@ -53,7 +53,7 @@ function RootStack() {
 
   return (
     <>
-      <StatusBar style="auto" />
+      <StatusBar style="light" />
       <Stack
         screenOptions={{
           headerShown: false,
@@ -68,6 +68,16 @@ function RootStack() {
         </Stack.Protected>
         <Stack.Protected guard={isSignedIn && !mustChangePassword}>
           <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="nearby" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="restaurants/index" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="restaurants/[id]" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="restaurants/dishes" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="apartment/cleaning" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="apartment/contract" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="apartment/roommates" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="travel/[id]" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="attraction/[id]" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="profile" options={{ animation: 'slide_from_right' }} />
         </Stack.Protected>
       </Stack>
     </>

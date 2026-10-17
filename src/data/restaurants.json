@@ -1,0 +1,3602 @@
+{
+  "origin": {
+    "lat": -19.9390581,
+    "lng": -43.93384349999999
+  },
+  "restaurants": [
+    {
+      "id": "glouton",
+      "name": "Glouton",
+      "tier": "occasion",
+      "top100": 24,
+      "address": "R. Bárbara Heliodora, 71 - Lourdes, Belo Horizonte - MG, 30180-130",
+      "neighborhood": "Lourdes",
+      "lat": -19.931575,
+      "lng": -43.94380899999999,
+      "placeId": "ChIJFeUR4WGXpgARXjcWkFaBptY",
+      "rating": 4.7,
+      "ratingCount": 2413,
+      "priceLevel": 4,
+      "hours": [
+        {
+          "open": {
+            "day": 1,
+            "time": "1900"
+          },
+          "close": {
+            "day": 1,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1900"
+          },
+          "close": {
+            "day": 2,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1900"
+          },
+          "close": {
+            "day": 3,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1900"
+          },
+          "close": {
+            "day": 4,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1900"
+          },
+          "close": {
+            "day": 5,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1900"
+          },
+          "close": {
+            "day": 6,
+            "time": "2300"
+          }
+        }
+      ],
+      "phone": "+55 31 3292-4237",
+      "website": "http://www.glouton.com.br/",
+      "distanceM": 1596,
+      "walkMin": 22,
+      "driveMin": 8
+    },
+    {
+      "id": "parallel",
+      "name": "Parallel",
+      "tier": "occasion",
+      "top100": 32,
+      "address": "R. Santa Catarina, 1155 - Lourdes, Belo Horizonte - MG, 30170-084",
+      "neighborhood": "Lourdes",
+      "lat": -19.9307365,
+      "lng": -43.9457818,
+      "placeId": "ChIJ3XrutduXpgAR3-icD28yLpA",
+      "rating": 4.9,
+      "ratingCount": 1438,
+      "priceLevel": 4,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1230"
+          },
+          "close": {
+            "day": 0,
+            "time": "1630"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1800"
+          },
+          "close": {
+            "day": 2,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1800"
+          },
+          "close": {
+            "day": 3,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1800"
+          },
+          "close": {
+            "day": 4,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1800"
+          },
+          "close": {
+            "day": 5,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1230"
+          },
+          "close": {
+            "day": 6,
+            "time": "2300"
+          }
+        }
+      ],
+      "phone": null,
+      "website": "https://www.instagram.com/parallel.bh/",
+      "distanceM": 1819,
+      "walkMin": 26,
+      "driveMin": 8
+    },
+    {
+      "id": "pacato",
+      "name": "Pacato",
+      "tier": "occasion",
+      "top100": 35,
+      "address": "R. Rio de Janeiro, 2735 - Lourdes, Belo Horizonte - MG, 30160-048",
+      "neighborhood": "Lourdes",
+      "lat": -19.937909,
+      "lng": -43.9433994,
+      "placeId": "ChIJ2URjHTOZpgARot2QWyVtqts",
+      "rating": 4.4,
+      "ratingCount": 673,
+      "priceLevel": 4,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1200"
+          },
+          "close": {
+            "day": 0,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1200"
+          },
+          "close": {
+            "day": 3,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1900"
+          },
+          "close": {
+            "day": 3,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1200"
+          },
+          "close": {
+            "day": 4,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1900"
+          },
+          "close": {
+            "day": 4,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1200"
+          },
+          "close": {
+            "day": 5,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1900"
+          },
+          "close": {
+            "day": 5,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1200"
+          },
+          "close": {
+            "day": 6,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1900"
+          },
+          "close": {
+            "day": 6,
+            "time": "2300"
+          }
+        }
+      ],
+      "phone": "+55 31 98324-8736",
+      "website": "http://www.pacatobh.com.br/",
+      "distanceM": 1070,
+      "walkMin": 15,
+      "driveMin": 5
+    },
+    {
+      "id": "trintaeum",
+      "name": "Trintaeum",
+      "tier": "occasion",
+      "top100": 20,
+      "address": "R. Prof. Antônio Aleixo, 20 - Lourdes, Belo Horizonte - MG, 30180-150",
+      "neighborhood": "Lourdes",
+      "lat": -19.9342565,
+      "lng": -43.9403604,
+      "placeId": "ChIJsUxEmxeZpgARLxGW-GLX5gg",
+      "rating": 4.8,
+      "ratingCount": 953,
+      "priceLevel": 4,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0630"
+          },
+          "close": {
+            "day": 0,
+            "time": "1030"
+          }
+        },
+        {
+          "open": {
+            "day": 0,
+            "time": "1200"
+          },
+          "close": {
+            "day": 0,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "0630"
+          },
+          "close": {
+            "day": 1,
+            "time": "1030"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0630"
+          },
+          "close": {
+            "day": 2,
+            "time": "1030"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1200"
+          },
+          "close": {
+            "day": 2,
+            "time": "1530"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1900"
+          },
+          "close": {
+            "day": 2,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0630"
+          },
+          "close": {
+            "day": 3,
+            "time": "1030"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1200"
+          },
+          "close": {
+            "day": 3,
+            "time": "1530"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1900"
+          },
+          "close": {
+            "day": 3,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0630"
+          },
+          "close": {
+            "day": 4,
+            "time": "1030"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1200"
+          },
+          "close": {
+            "day": 4,
+            "time": "1530"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1900"
+          },
+          "close": {
+            "day": 4,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0630"
+          },
+          "close": {
+            "day": 5,
+            "time": "1030"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1200"
+          },
+          "close": {
+            "day": 5,
+            "time": "1530"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1900"
+          },
+          "close": {
+            "day": 5,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0630"
+          },
+          "close": {
+            "day": 6,
+            "time": "1030"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1200"
+          },
+          "close": {
+            "day": 6,
+            "time": "1530"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1900"
+          },
+          "close": {
+            "day": 6,
+            "time": "2300"
+          }
+        }
+      ],
+      "phone": "+55 31 99866-0135",
+      "website": "https://trintaeum.com.br/",
+      "distanceM": 1040,
+      "walkMin": 15,
+      "driveMin": 7
+    },
+    {
+      "id": "per-lui",
+      "name": "Per Lui Restaurante",
+      "tier": "occasion",
+      "top100": 47,
+      "address": "R. Muzambinho, 608 - Serra, Belo Horizonte - MG, 30210-530",
+      "neighborhood": "Serra",
+      "lat": -19.9450187,
+      "lng": -43.9200764,
+      "placeId": "ChIJJ0kJenOZpgARK_3n_xjpLPU",
+      "rating": 4.8,
+      "ratingCount": 303,
+      "priceLevel": 4,
+      "hours": [
+        {
+          "open": {
+            "day": 2,
+            "time": "1900"
+          },
+          "close": {
+            "day": 3,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1900"
+          },
+          "close": {
+            "day": 4,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1900"
+          },
+          "close": {
+            "day": 5,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1900"
+          },
+          "close": {
+            "day": 6,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1900"
+          },
+          "close": {
+            "day": 0,
+            "time": "0000"
+          }
+        }
+      ],
+      "phone": "+55 31 98365-9397",
+      "website": "https://perluibh.com.br/",
+      "distanceM": 1950,
+      "walkMin": 33,
+      "driveMin": 8
+    },
+    {
+      "id": "birosca",
+      "name": "Birosca Restaurante & Deli",
+      "tier": "occasion",
+      "top100": 36,
+      "address": "R. São Paulo, 2003 - Lourdes, Belo Horizonte - MG, 30170-135",
+      "neighborhood": "Lourdes",
+      "lat": -19.9313105,
+      "lng": -43.9430979,
+      "placeId": "ChIJB9JzByyapgARhHmqOCMY98g",
+      "rating": 4.4,
+      "ratingCount": 2727,
+      "priceLevel": null,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1200"
+          },
+          "close": {
+            "day": 0,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1200"
+          },
+          "close": {
+            "day": 2,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1200"
+          },
+          "close": {
+            "day": 3,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1200"
+          },
+          "close": {
+            "day": 4,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1200"
+          },
+          "close": {
+            "day": 5,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1200"
+          },
+          "close": {
+            "day": 6,
+            "time": "2300"
+          }
+        }
+      ],
+      "phone": null,
+      "website": "https://www.instagram.com/birosca.bh",
+      "distanceM": 1470,
+      "walkMin": 20,
+      "driveMin": 7
+    },
+    {
+      "id": "anella",
+      "name": "Anella Ristorante",
+      "tier": "occasion",
+      "top100": null,
+      "address": "Av. Min. Guilhermino de Oliveira, 325 - Santa Amelia, Belo Horizonte - MG, 31560-100",
+      "neighborhood": "Santa Amelia",
+      "lat": -19.8435826,
+      "lng": -43.973444,
+      "placeId": "ChIJ69u34TeQpgARDYiVHSmD0N8",
+      "rating": 4.7,
+      "ratingCount": 5772,
+      "priceLevel": 3,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1200"
+          },
+          "close": {
+            "day": 0,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1200"
+          },
+          "close": {
+            "day": 1,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1800"
+          },
+          "close": {
+            "day": 1,
+            "time": "2330"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1200"
+          },
+          "close": {
+            "day": 2,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1800"
+          },
+          "close": {
+            "day": 2,
+            "time": "2330"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1200"
+          },
+          "close": {
+            "day": 3,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1800"
+          },
+          "close": {
+            "day": 3,
+            "time": "2330"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1200"
+          },
+          "close": {
+            "day": 4,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1800"
+          },
+          "close": {
+            "day": 4,
+            "time": "2330"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1200"
+          },
+          "close": {
+            "day": 5,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1800"
+          },
+          "close": {
+            "day": 6,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1200"
+          },
+          "close": {
+            "day": 0,
+            "time": "0000"
+          }
+        }
+      ],
+      "phone": "+55 31 3441-8748",
+      "website": "https://anella.com.br/",
+      "distanceM": 12406,
+      "walkMin": 172,
+      "driveMin": 29
+    },
+    {
+      "id": "okinaki",
+      "name": "Ōkinaki",
+      "tier": "occasion",
+      "top100": null,
+      "address": "Av. Álvares Cabral, 1303 - Lourdes, Belo Horizonte - MG, 30170-001",
+      "neighborhood": "Lourdes",
+      "lat": -19.9307778,
+      "lng": -43.94617770000001,
+      "placeId": "ChIJkS0f-AWXpgARcAgYxg_gqkY",
+      "rating": 4.8,
+      "ratingCount": 2502,
+      "priceLevel": 3,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1230"
+          },
+          "close": {
+            "day": 0,
+            "time": "1630"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1800"
+          },
+          "close": {
+            "day": 2,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1800"
+          },
+          "close": {
+            "day": 3,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1800"
+          },
+          "close": {
+            "day": 4,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1800"
+          },
+          "close": {
+            "day": 5,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1230"
+          },
+          "close": {
+            "day": 6,
+            "time": "2300"
+          }
+        }
+      ],
+      "phone": null,
+      "website": "https://okinaki.com.br/cardapio/",
+      "distanceM": 1846,
+      "walkMin": 27,
+      "driveMin": 8
+    },
+    {
+      "id": "nino",
+      "name": "Nino Cucina - Belo Horizonte",
+      "tier": "occasion",
+      "top100": null,
+      "address": "R. Curitiba, 2090 - Lourdes, Belo Horizonte - MG, 30170-127",
+      "neighborhood": "Lourdes",
+      "lat": -19.9311172,
+      "lng": -43.944823,
+      "placeId": "ChIJjQzeIIGXpgARVz3Xoo-g5fQ",
+      "rating": 4.7,
+      "ratingCount": 3287,
+      "priceLevel": 4,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1200"
+          },
+          "close": {
+            "day": 0,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1200"
+          },
+          "close": {
+            "day": 1,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1900"
+          },
+          "close": {
+            "day": 1,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1200"
+          },
+          "close": {
+            "day": 2,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1900"
+          },
+          "close": {
+            "day": 2,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1200"
+          },
+          "close": {
+            "day": 3,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1900"
+          },
+          "close": {
+            "day": 3,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1200"
+          },
+          "close": {
+            "day": 4,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1900"
+          },
+          "close": {
+            "day": 4,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1200"
+          },
+          "close": {
+            "day": 5,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1900"
+          },
+          "close": {
+            "day": 6,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1200"
+          },
+          "close": {
+            "day": 6,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1900"
+          },
+          "close": {
+            "day": 0,
+            "time": "0000"
+          }
+        }
+      ],
+      "phone": "+55 11 3368-6863",
+      "website": "https://www.alifenino.com.br/restaurante-nino/",
+      "distanceM": 1710,
+      "walkMin": 24,
+      "driveMin": 9
+    },
+    {
+      "id": "maru",
+      "name": "Marú Bar Japonês",
+      "tier": "occasion",
+      "top100": null,
+      "address": "R. Fernandes Tourinho, 604 - Savassi, Belo Horizonte - MG, 30112-002",
+      "neighborhood": "Savassi",
+      "lat": -19.9383775,
+      "lng": -43.9395785,
+      "placeId": "ChIJD5Dxts6ZpgARtzmRTsfudYk",
+      "rating": 4.9,
+      "ratingCount": 1974,
+      "priceLevel": 4,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1100"
+          },
+          "close": {
+            "day": 1,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1100"
+          },
+          "close": {
+            "day": 2,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1100"
+          },
+          "close": {
+            "day": 3,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1100"
+          },
+          "close": {
+            "day": 4,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1100"
+          },
+          "close": {
+            "day": 5,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1100"
+          },
+          "close": {
+            "day": 6,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1100"
+          },
+          "close": {
+            "day": 0,
+            "time": "0000"
+          }
+        }
+      ],
+      "phone": "+55 31 2528-7337",
+      "website": "http://marubar.com.br/",
+      "distanceM": 671,
+      "walkMin": 9,
+      "driveMin": 5
+    },
+    {
+      "id": "osso",
+      "name": "OssO",
+      "tier": "occasion",
+      "top100": null,
+      "address": "R. São Paulo, 1984 - Lourdes, Belo Horizonte - MG, 30171-132",
+      "neighborhood": "Lourdes",
+      "lat": -19.9308508,
+      "lng": -43.9433632,
+      "placeId": "ChIJyVarZN-ZpgARvheGw28JOEQ",
+      "rating": 4.1,
+      "ratingCount": 2044,
+      "priceLevel": 2,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1200"
+          },
+          "close": {
+            "day": 0,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1200"
+          },
+          "close": {
+            "day": 2,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1800"
+          },
+          "close": {
+            "day": 3,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1200"
+          },
+          "close": {
+            "day": 3,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1800"
+          },
+          "close": {
+            "day": 4,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1200"
+          },
+          "close": {
+            "day": 4,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1800"
+          },
+          "close": {
+            "day": 5,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1200"
+          },
+          "close": {
+            "day": 6,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1200"
+          },
+          "close": {
+            "day": 0,
+            "time": "0000"
+          }
+        }
+      ],
+      "phone": "+55 31 3243-9064",
+      "website": "https://www.facebook.com/ossobh/",
+      "distanceM": 1508,
+      "walkMin": 21,
+      "driveMin": 8
+    },
+    {
+      "id": "villeon",
+      "name": "Villeon Restaurante",
+      "tier": "occasion",
+      "top100": null,
+      "address": "R. Elias Antônio Jorge, 21 - Luxemburgo, Belo Horizonte - MG, 30380-600",
+      "neighborhood": "Luxemburgo",
+      "lat": -19.9473301,
+      "lng": -43.9536805,
+      "placeId": "ChIJiVZkyLyXpgAROYB981jb-1c",
+      "rating": 4.7,
+      "ratingCount": 484,
+      "priceLevel": null,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1200"
+          },
+          "close": {
+            "day": 0,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1800"
+          },
+          "close": {
+            "day": 3,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1800"
+          },
+          "close": {
+            "day": 4,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1200"
+          },
+          "close": {
+            "day": 5,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1200"
+          },
+          "close": {
+            "day": 6,
+            "time": "2300"
+          }
+        }
+      ],
+      "phone": "+55 31 97207-7593",
+      "website": "https://www.instagram.com/villeonbh/",
+      "distanceM": 2948,
+      "walkMin": 43,
+      "driveMin": 11
+    },
+    {
+      "id": "patria",
+      "name": "Pátria - Cozinha do Brasil",
+      "tier": "occasion",
+      "top100": null,
+      "address": "Av. Celso Porfírio Machado, 1520 - Belvedere, Belo Horizonte - MG, 30320-400",
+      "neighborhood": "Belvedere",
+      "lat": -19.9629156,
+      "lng": -43.9341036,
+      "placeId": "ChIJd45hcVqZpgAR-0NtFa7JLJw",
+      "rating": 4.5,
+      "ratingCount": 528,
+      "priceLevel": 3,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1200"
+          },
+          "close": {
+            "day": 0,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1200"
+          },
+          "close": {
+            "day": 3,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1200"
+          },
+          "close": {
+            "day": 4,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1200"
+          },
+          "close": {
+            "day": 5,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1200"
+          },
+          "close": {
+            "day": 6,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1200"
+          },
+          "close": {
+            "day": 0,
+            "time": "0000"
+          }
+        }
+      ],
+      "phone": "+55 31 98421-8664",
+      "website": "https://patriarestaurante.com.br/",
+      "distanceM": 3853,
+      "walkMin": 68,
+      "driveMin": 11
+    },
+    {
+      "id": "rex-bibendi",
+      "name": "Rex Bibendi",
+      "tier": "occasion",
+      "top100": null,
+      "address": "R. Antônio de Albuquerque, 917 - Funcionários, Belo Horizonte - MG, 30112-011",
+      "neighborhood": "Funcionários",
+      "lat": -19.9373734,
+      "lng": -43.9393197,
+      "placeId": "ChIJtx2O7M-ZpgAR6vcGwP0OhDc",
+      "rating": 4.6,
+      "ratingCount": 601,
+      "priceLevel": 3,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1200"
+          },
+          "close": {
+            "day": 0,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1130"
+          },
+          "close": {
+            "day": 2,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1800"
+          },
+          "close": {
+            "day": 2,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1130"
+          },
+          "close": {
+            "day": 3,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1800"
+          },
+          "close": {
+            "day": 3,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1130"
+          },
+          "close": {
+            "day": 4,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1800"
+          },
+          "close": {
+            "day": 4,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1130"
+          },
+          "close": {
+            "day": 5,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1800"
+          },
+          "close": {
+            "day": 5,
+            "time": "2330"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1130"
+          },
+          "close": {
+            "day": 6,
+            "time": "2300"
+          }
+        }
+      ],
+      "phone": "+55 31 97507-4751",
+      "website": "https://www.instagram.com/orexbibendi/",
+      "distanceM": 646,
+      "walkMin": 9,
+      "driveMin": 5
+    },
+    {
+      "id": "est-est-est",
+      "name": "Est! Est!! Est!!! Ristorante Italiano",
+      "tier": "occasion",
+      "top100": null,
+      "address": "Av. Getúlio Vargas, 107 - Funcionários, Belo Horizonte - MG, 30112-020",
+      "neighborhood": "Funcionários",
+      "lat": -19.9326443,
+      "lng": -43.9251932,
+      "placeId": "ChIJpyuLueqZpgARczszQW5Gze8",
+      "rating": 4.5,
+      "ratingCount": 3458,
+      "priceLevel": 3,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1200"
+          },
+          "close": {
+            "day": 0,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1130"
+          },
+          "close": {
+            "day": 1,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1800"
+          },
+          "close": {
+            "day": 1,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1130"
+          },
+          "close": {
+            "day": 2,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1800"
+          },
+          "close": {
+            "day": 2,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1130"
+          },
+          "close": {
+            "day": 3,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1800"
+          },
+          "close": {
+            "day": 3,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1130"
+          },
+          "close": {
+            "day": 4,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1800"
+          },
+          "close": {
+            "day": 4,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1130"
+          },
+          "close": {
+            "day": 5,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1800"
+          },
+          "close": {
+            "day": 5,
+            "time": "2330"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1200"
+          },
+          "close": {
+            "day": 6,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1900"
+          },
+          "close": {
+            "day": 6,
+            "time": "2330"
+          }
+        }
+      ],
+      "phone": "+55 31 2526-5852",
+      "website": null,
+      "distanceM": 1199,
+      "walkMin": 17,
+      "driveMin": 4
+    },
+    {
+      "id": "barolio",
+      "name": "Barolio Savassi",
+      "tier": "occasion",
+      "top100": null,
+      "address": "R. Tomé de Souza, 616 - Lj - Savassi, Belo Horizonte - MG, 34006-200",
+      "neighborhood": "Savassi",
+      "lat": -19.937447,
+      "lng": -43.9324081,
+      "placeId": "ChIJ28qe0KqZpgARSY_Fj3O8uK0",
+      "rating": 4.4,
+      "ratingCount": 532,
+      "priceLevel": 2,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1130"
+          },
+          "close": {
+            "day": 0,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1130"
+          },
+          "close": {
+            "day": 1,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1130"
+          },
+          "close": {
+            "day": 2,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1130"
+          },
+          "close": {
+            "day": 3,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1130"
+          },
+          "close": {
+            "day": 4,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1130"
+          },
+          "close": {
+            "day": 5,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1130"
+          },
+          "close": {
+            "day": 6,
+            "time": "2300"
+          }
+        }
+      ],
+      "phone": "+55 31 3665-8049",
+      "website": null,
+      "distanceM": 231,
+      "walkMin": 3,
+      "driveMin": 3
+    },
+    {
+      "id": "amado",
+      "name": "Restaurante Amado Lourdes",
+      "tier": "occasion",
+      "top100": null,
+      "address": "R. Alvarenga Peixoto, 900 - Lourdes, Belo Horizonte - MG, 30180-120",
+      "neighborhood": "Lourdes",
+      "lat": -19.9301693,
+      "lng": -43.9467066,
+      "placeId": "ChIJizvTbCuZpgARuzDKd2RIX1Y",
+      "rating": 4.5,
+      "ratingCount": 530,
+      "priceLevel": 2,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1130"
+          },
+          "close": {
+            "day": 0,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1130"
+          },
+          "close": {
+            "day": 1,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1130"
+          },
+          "close": {
+            "day": 2,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1130"
+          },
+          "close": {
+            "day": 3,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1130"
+          },
+          "close": {
+            "day": 4,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1130"
+          },
+          "close": {
+            "day": 5,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1800"
+          },
+          "close": {
+            "day": 5,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1130"
+          },
+          "close": {
+            "day": 6,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1800"
+          },
+          "close": {
+            "day": 6,
+            "time": "2300"
+          }
+        }
+      ],
+      "phone": "+55 31 98321-9981",
+      "website": "https://www.amadolourdes.com.br/",
+      "distanceM": 1989,
+      "walkMin": 29,
+      "driveMin": 8
+    },
+    {
+      "id": "casa-calixto",
+      "name": "Casa Calixto: Restaurante, Drinks, Carnes, Peixes, Frutos do Mar, Savassi, BH",
+      "tier": "occasion",
+      "top100": null,
+      "address": "R. Padre Odorico, 81 - Savassi, Belo Horizonte - MG, 30330-040",
+      "neighborhood": "Savassi",
+      "lat": -19.9410534,
+      "lng": -43.9362065,
+      "placeId": "ChIJwZC4n5aZpgAR-pXLp1D7SX0",
+      "rating": 4.9,
+      "ratingCount": 1977,
+      "priceLevel": 4,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1200"
+          },
+          "close": {
+            "day": 0,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1800"
+          },
+          "close": {
+            "day": 2,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1200"
+          },
+          "close": {
+            "day": 3,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1800"
+          },
+          "close": {
+            "day": 3,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1200"
+          },
+          "close": {
+            "day": 4,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1800"
+          },
+          "close": {
+            "day": 4,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1200"
+          },
+          "close": {
+            "day": 5,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1800"
+          },
+          "close": {
+            "day": 5,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1200"
+          },
+          "close": {
+            "day": 6,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1800"
+          },
+          "close": {
+            "day": 6,
+            "time": "2300"
+          }
+        }
+      ],
+      "phone": "+55 31 2118-5473",
+      "website": "https://casacalixtobh.com.br/",
+      "distanceM": 659,
+      "walkMin": 10,
+      "driveMin": 6
+    },
+    {
+      "id": "el-mai",
+      "name": "el MAI",
+      "tier": "occasion",
+      "top100": null,
+      "address": "R. Prof. Antônio Aleixo, 592 - Lourdes, Belo Horizonte - MG, 30180-150",
+      "neighborhood": "Lourdes",
+      "lat": -19.9329848,
+      "lng": -43.9454718,
+      "placeId": "ChIJaYpL1iaXpgARX4AUmlANFnY",
+      "rating": 4.7,
+      "ratingCount": 1768,
+      "priceLevel": 3,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1200"
+          },
+          "close": {
+            "day": 1,
+            "time": "0030"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1730"
+          },
+          "close": {
+            "day": 2,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1730"
+          },
+          "close": {
+            "day": 3,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1730"
+          },
+          "close": {
+            "day": 4,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1730"
+          },
+          "close": {
+            "day": 5,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1730"
+          },
+          "close": {
+            "day": 6,
+            "time": "0030"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1200"
+          },
+          "close": {
+            "day": 0,
+            "time": "0030"
+          }
+        }
+      ],
+      "phone": "+55 31 3879-9699",
+      "website": "https://www.lojalocal.com/43304178000139",
+      "distanceM": 1593,
+      "walkMin": 23,
+      "driveMin": 8
+    },
+    {
+      "id": "ninita",
+      "name": "Restaurante Ninita",
+      "tier": "occasion",
+      "top100": null,
+      "address": "R. Bárbara Heliodora, 71 - Lourdes, Belo Horizonte - MG, 30180-130",
+      "neighborhood": "Lourdes",
+      "lat": -19.9316252,
+      "lng": -43.9438837,
+      "placeId": "ChIJ-f63dbCXpgARBgk6hif7cgE",
+      "rating": 4.6,
+      "ratingCount": 1624,
+      "priceLevel": 4,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1200"
+          },
+          "close": {
+            "day": 0,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1800"
+          },
+          "close": {
+            "day": 1,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1200"
+          },
+          "close": {
+            "day": 2,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1800"
+          },
+          "close": {
+            "day": 2,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1200"
+          },
+          "close": {
+            "day": 3,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1800"
+          },
+          "close": {
+            "day": 3,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1200"
+          },
+          "close": {
+            "day": 4,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1800"
+          },
+          "close": {
+            "day": 4,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1200"
+          },
+          "close": {
+            "day": 5,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1800"
+          },
+          "close": {
+            "day": 5,
+            "time": "2330"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1200"
+          },
+          "close": {
+            "day": 6,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1800"
+          },
+          "close": {
+            "day": 6,
+            "time": "2330"
+          }
+        }
+      ],
+      "phone": "+55 31 3292-4237",
+      "website": "https://www.ninitacozinha.com.br/",
+      "distanceM": 1606,
+      "walkMin": 22,
+      "driveMin": 8
+    },
+    {
+      "id": "domenico",
+      "name": "Domenico Pizzeria e Trattoria",
+      "tier": "occasion",
+      "top100": null,
+      "address": "R. Cláudio Manoel, 583 - Savassi, Belo Horizonte - MG, 30140-100",
+      "neighborhood": "Savassi",
+      "lat": -19.934248,
+      "lng": -43.9306323,
+      "placeId": "ChIJ6__XtMOZpgARQ_9FypjhjrY",
+      "rating": 4.6,
+      "ratingCount": 2589,
+      "priceLevel": 3,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1200"
+          },
+          "close": {
+            "day": 0,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 0,
+            "time": "1830"
+          },
+          "close": {
+            "day": 0,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1830"
+          },
+          "close": {
+            "day": 1,
+            "time": "2330"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1830"
+          },
+          "close": {
+            "day": 2,
+            "time": "2330"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1830"
+          },
+          "close": {
+            "day": 3,
+            "time": "2330"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1830"
+          },
+          "close": {
+            "day": 4,
+            "time": "2330"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1830"
+          },
+          "close": {
+            "day": 6,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1200"
+          },
+          "close": {
+            "day": 6,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1830"
+          },
+          "close": {
+            "day": 0,
+            "time": "0000"
+          }
+        }
+      ],
+      "phone": "+55 31 3565-8385",
+      "website": "http://domenicopizzeria.com.br/",
+      "distanceM": 741,
+      "walkMin": 10,
+      "driveMin": 7
+    },
+    {
+      "id": "cozinha-tupis",
+      "name": "Cozinha Tupis",
+      "tier": "everyday",
+      "top100": 26,
+      "address": "Av. Olegário Maciel, 742 - Lj 2161 - Centro, Belo Horizonte - MG, 30170-110",
+      "neighborhood": "Centro",
+      "lat": -19.9205408,
+      "lng": -43.9456602,
+      "placeId": "ChIJe3Z-v2aXpgAR4eXD3lDpZ90",
+      "rating": 4.2,
+      "ratingCount": 1202,
+      "priceLevel": 2,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1130"
+          },
+          "close": {
+            "day": 0,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1130"
+          },
+          "close": {
+            "day": 1,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1130"
+          },
+          "close": {
+            "day": 2,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1130"
+          },
+          "close": {
+            "day": 3,
+            "time": "2230"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1130"
+          },
+          "close": {
+            "day": 4,
+            "time": "2230"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1130"
+          },
+          "close": {
+            "day": 5,
+            "time": "2230"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1130"
+          },
+          "close": {
+            "day": 6,
+            "time": "2200"
+          }
+        }
+      ],
+      "phone": null,
+      "website": "http://instagram.com/cozinhatupis",
+      "distanceM": 2593,
+      "walkMin": 36,
+      "driveMin": 14
+    },
+    {
+      "id": "bar-da-lora",
+      "name": "Bar da Lora Savassi",
+      "tier": "everyday",
+      "top100": null,
+      "address": "R. Sergipe, 1414 - Savassi, Belo Horizonte - MG, 30130-174",
+      "neighborhood": "Savassi",
+      "lat": -19.9389228,
+      "lng": -43.9387413,
+      "placeId": "ChIJ-xIe9_uZpgAR5vH84TdX3oY",
+      "rating": 4.9,
+      "ratingCount": 2855,
+      "priceLevel": 2,
+      "hours": [
+        {
+          "open": {
+            "day": 1,
+            "time": "1100"
+          },
+          "close": {
+            "day": 2,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1100"
+          },
+          "close": {
+            "day": 3,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1100"
+          },
+          "close": {
+            "day": 4,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1100"
+          },
+          "close": {
+            "day": 5,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1100"
+          },
+          "close": {
+            "day": 6,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1100"
+          },
+          "close": {
+            "day": 0,
+            "time": "0000"
+          }
+        }
+      ],
+      "phone": "+55 31 99288-4752",
+      "website": null,
+      "distanceM": 568,
+      "walkMin": 8,
+      "driveMin": 5
+    },
+    {
+      "id": "gastro-hub",
+      "name": "Gastrô Hub - Restaurante e Espaço de Eventos",
+      "tier": "everyday",
+      "top100": null,
+      "address": "Av. do Contorno, 4667 - Serra, Belo Horizonte - MG, 30220-040",
+      "neighborhood": "Serra",
+      "lat": -19.9343034,
+      "lng": -43.9244397,
+      "placeId": "ChIJwRm9mo-ZpgAR-1v7Uj_uiMA",
+      "rating": 4.8,
+      "ratingCount": 4874,
+      "priceLevel": 2,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1100"
+          },
+          "close": {
+            "day": 0,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1100"
+          },
+          "close": {
+            "day": 1,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1800"
+          },
+          "close": {
+            "day": 1,
+            "time": "2230"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1100"
+          },
+          "close": {
+            "day": 2,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1800"
+          },
+          "close": {
+            "day": 2,
+            "time": "2230"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1100"
+          },
+          "close": {
+            "day": 3,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1800"
+          },
+          "close": {
+            "day": 3,
+            "time": "2230"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1100"
+          },
+          "close": {
+            "day": 4,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1800"
+          },
+          "close": {
+            "day": 4,
+            "time": "2230"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1100"
+          },
+          "close": {
+            "day": 5,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1800"
+          },
+          "close": {
+            "day": 5,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1100"
+          },
+          "close": {
+            "day": 6,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1800"
+          },
+          "close": {
+            "day": 6,
+            "time": "2300"
+          }
+        }
+      ],
+      "phone": "+55 31 2527-5858",
+      "website": "https://www.instagram.com/gastrohub.bh/?hl=pt-br",
+      "distanceM": 1349,
+      "walkMin": 20,
+      "driveMin": 7
+    },
+    {
+      "id": "odoya",
+      "name": "Odoyá Cozinha",
+      "tier": "everyday",
+      "top100": null,
+      "address": "R. Pernambuco, 797 - Savassi, Belo Horizonte - MG, 30130-171",
+      "neighborhood": "Savassi",
+      "lat": -19.9342498,
+      "lng": -43.93429159999999,
+      "placeId": "ChIJSQbdq8WZpgAR_FxX5e-H29I",
+      "rating": 4.9,
+      "ratingCount": 1743,
+      "priceLevel": 2,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1200"
+          },
+          "close": {
+            "day": 0,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1130"
+          },
+          "close": {
+            "day": 2,
+            "time": "1530"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1130"
+          },
+          "close": {
+            "day": 3,
+            "time": "1530"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1130"
+          },
+          "close": {
+            "day": 4,
+            "time": "1530"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1800"
+          },
+          "close": {
+            "day": 4,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1130"
+          },
+          "close": {
+            "day": 5,
+            "time": "1530"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1800"
+          },
+          "close": {
+            "day": 5,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1200"
+          },
+          "close": {
+            "day": 6,
+            "time": "1700"
+          }
+        }
+      ],
+      "phone": "+55 31 98493-7436",
+      "website": "https://instagram.com/odoya.cozinha",
+      "distanceM": 655,
+      "walkMin": 8,
+      "driveMin": 7
+    },
+    {
+      "id": "dona-fulo",
+      "name": "Dona Fulô | BH",
+      "tier": "everyday",
+      "top100": null,
+      "address": "R. Santa Catarina, 778 - Lourdes, Belo Horizonte - MG, 30170-081",
+      "neighborhood": "Lourdes",
+      "lat": -19.9274897,
+      "lng": -43.9452621,
+      "placeId": "ChIJn0Z1Ft6XpgAR411-DAp0SQo",
+      "rating": 4.8,
+      "ratingCount": 2320,
+      "priceLevel": 2,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1200"
+          },
+          "close": {
+            "day": 0,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1700"
+          },
+          "close": {
+            "day": 3,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1700"
+          },
+          "close": {
+            "day": 4,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1700"
+          },
+          "close": {
+            "day": 5,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1200"
+          },
+          "close": {
+            "day": 6,
+            "time": "2300"
+          }
+        }
+      ],
+      "phone": "+55 31 3287-4127",
+      "website": "http://instagram.com/restaurantedonafulo",
+      "distanceM": 1985,
+      "walkMin": 28,
+      "driveMin": 10
+    },
+    {
+      "id": "hou-mei",
+      "name": "Hou Mei",
+      "tier": "everyday",
+      "top100": null,
+      "address": "R. Marília de Dirceu, 159 - Lourdes, Belo Horizonte - MG, 30170-090",
+      "neighborhood": "Lourdes",
+      "lat": -19.9346309,
+      "lng": -43.9460444,
+      "placeId": "ChIJzaCpYi-XpgARUftmUGNqgmM",
+      "rating": 4.7,
+      "ratingCount": 1647,
+      "priceLevel": 2,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1200"
+          },
+          "close": {
+            "day": 0,
+            "time": "1530"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1130"
+          },
+          "close": {
+            "day": 2,
+            "time": "1430"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1800"
+          },
+          "close": {
+            "day": 2,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1130"
+          },
+          "close": {
+            "day": 3,
+            "time": "1430"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1800"
+          },
+          "close": {
+            "day": 3,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1130"
+          },
+          "close": {
+            "day": 4,
+            "time": "1430"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1800"
+          },
+          "close": {
+            "day": 4,
+            "time": "2230"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1130"
+          },
+          "close": {
+            "day": 5,
+            "time": "1430"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1800"
+          },
+          "close": {
+            "day": 5,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1200"
+          },
+          "close": {
+            "day": 6,
+            "time": "1530"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1800"
+          },
+          "close": {
+            "day": 6,
+            "time": "2300"
+          }
+        }
+      ],
+      "phone": "+55 31 99511-1688",
+      "website": "https://www.instagram.com/houmeibh/",
+      "distanceM": 1616,
+      "walkMin": 22,
+      "driveMin": 6
+    },
+    {
+      "id": "stadt-jever",
+      "name": "Stadt Jever",
+      "tier": "everyday",
+      "top100": null,
+      "address": "Av. do Contorno, 5771 - Funcionários, Belo Horizonte - MG, 30310-035",
+      "neighborhood": "Funcionários",
+      "lat": -19.9399758,
+      "lng": -43.9311583,
+      "placeId": "ChIJlavJosWZpgARS4gkurrfsrA",
+      "rating": 4.6,
+      "ratingCount": 3400,
+      "priceLevel": 2,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1200"
+          },
+          "close": {
+            "day": 0,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1800"
+          },
+          "close": {
+            "day": 3,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1800"
+          },
+          "close": {
+            "day": 4,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1800"
+          },
+          "close": {
+            "day": 5,
+            "time": "0100"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1700"
+          },
+          "close": {
+            "day": 6,
+            "time": "0100"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1700"
+          },
+          "close": {
+            "day": 0,
+            "time": "0100"
+          }
+        }
+      ],
+      "phone": "+55 31 3047-3113",
+      "website": null,
+      "distanceM": 419,
+      "walkMin": 6,
+      "driveMin": 6
+    },
+    {
+      "id": "esquina-sante",
+      "name": "Esquina Santê",
+      "tier": "everyday",
+      "top100": null,
+      "address": "Rua Silvianópolis, 464 - Santa Tereza, Belo Horizonte - MG, 31010-410",
+      "neighborhood": "Santa Tereza",
+      "lat": -19.9147558,
+      "lng": -43.9100112,
+      "placeId": "ChIJy3FHNrqbpgARn-lTa9YawSM",
+      "rating": 4.7,
+      "ratingCount": 3499,
+      "priceLevel": 2,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1200"
+          },
+          "close": {
+            "day": 0,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1700"
+          },
+          "close": {
+            "day": 2,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1700"
+          },
+          "close": {
+            "day": 3,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1700"
+          },
+          "close": {
+            "day": 4,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1700"
+          },
+          "close": {
+            "day": 5,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1200"
+          },
+          "close": {
+            "day": 6,
+            "time": "2300"
+          }
+        }
+      ],
+      "phone": "+55 31 98992-7003",
+      "website": "https://www.instagram.com/esquinasante/?igshid=MzRlODBiNWFlZA%3D%3D",
+      "distanceM": 3979,
+      "walkMin": 54,
+      "driveMin": 13
+    },
+    {
+      "id": "james-burger",
+      "name": "James Burger - Hambúrguer Artesanal na Savassi | Delivery de Hambúrguer | Hamburgueria Perto de Você | Hamburgueria em BH",
+      "tier": "everyday",
+      "top100": null,
+      "address": "R. Sergipe, 1091 - Savassi, Belo Horizonte - MG, 30130-171",
+      "neighborhood": "Savassi",
+      "lat": -19.9361462,
+      "lng": -43.9376608,
+      "placeId": "ChIJVyv0t9uZpgAR2bSVTuVvOZ0",
+      "rating": 4.6,
+      "ratingCount": 3182,
+      "priceLevel": 2,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1800"
+          },
+          "close": {
+            "day": 0,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1130"
+          },
+          "close": {
+            "day": 2,
+            "time": "1430"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1800"
+          },
+          "close": {
+            "day": 2,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1130"
+          },
+          "close": {
+            "day": 3,
+            "time": "1430"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1800"
+          },
+          "close": {
+            "day": 3,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1130"
+          },
+          "close": {
+            "day": 4,
+            "time": "1430"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1800"
+          },
+          "close": {
+            "day": 4,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1130"
+          },
+          "close": {
+            "day": 5,
+            "time": "1430"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1800"
+          },
+          "close": {
+            "day": 6,
+            "time": "0030"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1800"
+          },
+          "close": {
+            "day": 0,
+            "time": "0030"
+          }
+        }
+      ],
+      "phone": "+55 31 99299-1800",
+      "website": "http://www.jamesburguerbh.com.br/",
+      "distanceM": 605,
+      "walkMin": 8,
+      "driveMin": 7
+    },
+    {
+      "id": "maurizio-gallo",
+      "name": "Restaurante Italiano Maurizio Gallo",
+      "tier": "everyday",
+      "top100": null,
+      "address": "R. dos Aimorés, 2305 - Lourdes, Belo Horizonte - MG, 30140-072",
+      "neighborhood": "Lourdes",
+      "lat": -19.9266667,
+      "lng": -43.9458333,
+      "placeId": "ChIJOzzzMV6XpgARiAciqRo2EDg",
+      "rating": 4.6,
+      "ratingCount": 2328,
+      "priceLevel": 2,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1100"
+          },
+          "close": {
+            "day": 0,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1100"
+          },
+          "close": {
+            "day": 1,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1100"
+          },
+          "close": {
+            "day": 3,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1100"
+          },
+          "close": {
+            "day": 4,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1100"
+          },
+          "close": {
+            "day": 5,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1100"
+          },
+          "close": {
+            "day": 6,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1100"
+          },
+          "close": {
+            "day": 0,
+            "time": "0000"
+          }
+        }
+      ],
+      "phone": "+55 31 2514-3020",
+      "website": "https://mauriziogallo.com.br/",
+      "distanceM": 2082,
+      "walkMin": 29,
+      "driveMin": 9
+    },
+    {
+      "id": "indian-gourmet",
+      "name": "Indian Gourmet",
+      "tier": "everyday",
+      "top100": null,
+      "address": "R. Alvarenga Peixoto, 585 - Lourdes, Belo Horizonte - MG, 30180-124",
+      "neighborhood": "Lourdes",
+      "lat": -19.9309631,
+      "lng": -43.9441102,
+      "placeId": "ChIJaWFR22GXpgAR6bZ2nKSQFjE",
+      "rating": 4.7,
+      "ratingCount": 617,
+      "priceLevel": 2,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1200"
+          },
+          "close": {
+            "day": 0,
+            "time": "1630"
+          }
+        },
+        {
+          "open": {
+            "day": 0,
+            "time": "1900"
+          },
+          "close": {
+            "day": 0,
+            "time": "2330"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1200"
+          },
+          "close": {
+            "day": 1,
+            "time": "2330"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1200"
+          },
+          "close": {
+            "day": 2,
+            "time": "1630"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1900"
+          },
+          "close": {
+            "day": 2,
+            "time": "2330"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1200"
+          },
+          "close": {
+            "day": 3,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1900"
+          },
+          "close": {
+            "day": 3,
+            "time": "2330"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1200"
+          },
+          "close": {
+            "day": 4,
+            "time": "1630"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1900"
+          },
+          "close": {
+            "day": 4,
+            "time": "2330"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1200"
+          },
+          "close": {
+            "day": 5,
+            "time": "1630"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1900"
+          },
+          "close": {
+            "day": 5,
+            "time": "2330"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1200"
+          },
+          "close": {
+            "day": 6,
+            "time": "1630"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1900"
+          },
+          "close": {
+            "day": 6,
+            "time": "2330"
+          }
+        }
+      ],
+      "phone": "+55 31 2555-9005",
+      "website": "https://instagram.com/indian_gourmet?utm_source=ig_profile_share&igshid=zkctibqlokr5",
+      "distanceM": 1605,
+      "walkMin": 22,
+      "driveMin": 9
+    },
+    {
+      "id": "candia",
+      "name": "O Candiá",
+      "tier": "everyday",
+      "top100": null,
+      "address": "Av. Francisco Sá, 430 - Prado, Belo Horizonte - MG, 30411-174",
+      "neighborhood": "Prado",
+      "lat": -19.9264777,
+      "lng": -43.9597141,
+      "placeId": "ChIJ7W9XxqeXpgARj0hbaUy1Lbk",
+      "rating": 4.6,
+      "ratingCount": 1114,
+      "priceLevel": 2,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1200"
+          },
+          "close": {
+            "day": 0,
+            "time": "2000"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1700"
+          },
+          "close": {
+            "day": 2,
+            "time": "2330"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1700"
+          },
+          "close": {
+            "day": 4,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1700"
+          },
+          "close": {
+            "day": 5,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1100"
+          },
+          "close": {
+            "day": 6,
+            "time": "0030"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1230"
+          },
+          "close": {
+            "day": 0,
+            "time": "0000"
+          }
+        }
+      ],
+      "phone": null,
+      "website": "https://www.instagram.com/ocandiabar/",
+      "distanceM": 3428,
+      "walkMin": 49,
+      "driveMin": 12
+    },
+    {
+      "id": "baxo-bar",
+      "name": "Baxo Bar",
+      "tier": "everyday",
+      "top100": null,
+      "address": "R. Fernandes Tourinho, 241 - Funcionários, Belo Horizonte - MG, 30112-000",
+      "neighborhood": "Funcionários",
+      "lat": -19.9392586,
+      "lng": -43.936965,
+      "placeId": "ChIJF20ZQHyZpgAR0qqHTxKkSxA",
+      "rating": 4.8,
+      "ratingCount": 603,
+      "priceLevel": 2,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1600"
+          },
+          "close": {
+            "day": 0,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1800"
+          },
+          "close": {
+            "day": 4,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1800"
+          },
+          "close": {
+            "day": 5,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1800"
+          },
+          "close": {
+            "day": 6,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1800"
+          },
+          "close": {
+            "day": 0,
+            "time": "0000"
+          }
+        }
+      ],
+      "phone": "+55 31 98258-3862",
+      "website": "https://www.instagram.com/baxobar/",
+      "distanceM": 384,
+      "walkMin": 6,
+      "driveMin": 3
+    }
+  ]
+}

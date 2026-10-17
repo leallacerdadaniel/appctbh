@@ -1,0 +1,1232 @@
+{
+  "origin": {
+    "lat": -19.9390581,
+    "lng": -43.93384349999999
+  },
+  "attractions": [
+    {
+      "id": "pampulha-church",
+      "name": "Santuário Arquidiocesano São Francisco de Assis",
+      "placeId": "ChIJy8jGrlWQpgARNFdAKqO_ehY",
+      "photoIndex": 0,
+      "address": "Avenida Otacílio Negrão de Lima, 3000 - Pampulha - São Luiz, Belo Horizonte - MG, 31365-450",
+      "neighborhood": "São Luiz",
+      "lat": -19.8583426,
+      "lng": -43.9789655,
+      "rating": 4.7,
+      "ratingCount": 11558,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0700"
+          },
+          "close": {
+            "day": 0,
+            "time": "1100"
+          }
+        },
+        {
+          "open": {
+            "day": 0,
+            "time": "1400"
+          },
+          "close": {
+            "day": 0,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "0800"
+          },
+          "close": {
+            "day": 1,
+            "time": "1200"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1300"
+          },
+          "close": {
+            "day": 1,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0800"
+          },
+          "close": {
+            "day": 2,
+            "time": "1200"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1300"
+          },
+          "close": {
+            "day": 2,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0800"
+          },
+          "close": {
+            "day": 3,
+            "time": "1200"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1300"
+          },
+          "close": {
+            "day": 3,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0800"
+          },
+          "close": {
+            "day": 4,
+            "time": "1200"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1300"
+          },
+          "close": {
+            "day": 4,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0800"
+          },
+          "close": {
+            "day": 5,
+            "time": "1200"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1300"
+          },
+          "close": {
+            "day": 5,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0800"
+          },
+          "close": {
+            "day": 6,
+            "time": "1200"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1300"
+          },
+          "close": {
+            "day": 6,
+            "time": "1700"
+          }
+        }
+      ],
+      "website": "https://santuariosaofranciscodeassis.arquidiocesebh.org.br/",
+      "distanceM": 11408,
+      "walkMin": 157,
+      "driveMin": 28
+    },
+    {
+      "id": "pampulha-lagoa",
+      "name": "Lagoa da Pampulha",
+      "placeId": "ChIJFTdn5U2QpgARQ_D45yct-4Q",
+      "photoIndex": 0,
+      "address": "Av. Otacílio Negrão de Lima, s/n - São Luiz, Belo Horizonte - MG, 31365-450",
+      "neighborhood": "São Luiz",
+      "lat": -19.8513605,
+      "lng": -43.9779221,
+      "rating": 4.6,
+      "ratingCount": 10830,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0000"
+          },
+          "close": null
+        }
+      ],
+      "website": "https://www.lagoadapampulha.com.br/",
+      "distanceM": 13299,
+      "walkMin": 185,
+      "driveMin": 31
+    },
+    {
+      "id": "casa-do-baile",
+      "name": "Casa do Baile",
+      "placeId": "ChIJlxqb2FqQpgARB0K6QJa63pQ",
+      "photoIndex": 2,
+      "address": "Av. Otacílio Negrão de Lima, 751 - Pampulha, Belo Horizonte - MG, 31365-450",
+      "neighborhood": "Pampulha",
+      "lat": -19.854522,
+      "lng": -43.9701032,
+      "rating": 4.5,
+      "ratingCount": 6531,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1000"
+          },
+          "close": {
+            "day": 0,
+            "time": "1800"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1000"
+          },
+          "close": {
+            "day": 3,
+            "time": "1800"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1000"
+          },
+          "close": {
+            "day": 4,
+            "time": "1800"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1000"
+          },
+          "close": {
+            "day": 5,
+            "time": "1800"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1000"
+          },
+          "close": {
+            "day": 6,
+            "time": "1800"
+          }
+        }
+      ],
+      "website": "https://www.instagram.com/casadobailebh/",
+      "distanceM": 11465,
+      "walkMin": 158,
+      "driveMin": 27
+    },
+    {
+      "id": "mineirao",
+      "name": "Mineirão",
+      "placeId": "ChIJbf9IE_eQpgARiHXSQjJFuTU",
+      "photoIndex": 2,
+      "address": "Av. Antônio Abrahão Caram, 1001 - São José, Belo Horizonte - MG, 31275-000",
+      "neighborhood": "São José",
+      "lat": -19.865867,
+      "lng": -43.97113150000001,
+      "rating": 4.7,
+      "ratingCount": 91547,
+      "hours": [
+        {
+          "open": {
+            "day": 1,
+            "time": "0800"
+          },
+          "close": {
+            "day": 1,
+            "time": "1800"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0800"
+          },
+          "close": {
+            "day": 2,
+            "time": "1800"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0800"
+          },
+          "close": {
+            "day": 3,
+            "time": "1800"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0800"
+          },
+          "close": {
+            "day": 4,
+            "time": "1800"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0800"
+          },
+          "close": {
+            "day": 5,
+            "time": "1700"
+          }
+        }
+      ],
+      "website": "https://mineirao.com.br/",
+      "distanceM": 10932,
+      "walkMin": 152,
+      "driveMin": 25
+    },
+    {
+      "id": "mercado-central",
+      "name": "Mercado Central de Belo Horizonte",
+      "placeId": "ChIJAz0eA-KZpgARYAFkjcWmbI4",
+      "photoIndex": 0,
+      "address": "Av. Augusto de Lima, 744 - Centro, Belo Horizonte - MG, 30190-922",
+      "neighborhood": "Centro",
+      "lat": -19.9230462,
+      "lng": -43.9431479,
+      "rating": 4.7,
+      "ratingCount": 163956,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0800"
+          },
+          "close": {
+            "day": 0,
+            "time": "1300"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "0800"
+          },
+          "close": {
+            "day": 1,
+            "time": "1800"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0800"
+          },
+          "close": {
+            "day": 2,
+            "time": "1800"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0800"
+          },
+          "close": {
+            "day": 3,
+            "time": "1800"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0800"
+          },
+          "close": {
+            "day": 4,
+            "time": "1800"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0800"
+          },
+          "close": {
+            "day": 5,
+            "time": "1800"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0800"
+          },
+          "close": {
+            "day": 6,
+            "time": "1800"
+          }
+        }
+      ],
+      "website": "http://mercadocentral.com.br/",
+      "distanceM": 2233,
+      "walkMin": 31,
+      "driveMin": 11
+    },
+    {
+      "id": "mercado-novo",
+      "name": "Mercado Novo",
+      "placeId": "ChIJ8dj6IGmXpgAR-4SWbwxlVdY",
+      "photoIndex": 0,
+      "address": "R. Rio Grande do Sul, 499 - Centro, Belo Horizonte - MG, 30180-916",
+      "neighborhood": "Centro",
+      "lat": -19.9205772,
+      "lng": -43.94569389999999,
+      "rating": 4.4,
+      "ratingCount": 15094,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0700"
+          },
+          "close": {
+            "day": 0,
+            "time": "1800"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "0700"
+          },
+          "close": {
+            "day": 1,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0700"
+          },
+          "close": {
+            "day": 3,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0700"
+          },
+          "close": {
+            "day": 4,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0700"
+          },
+          "close": {
+            "day": 5,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0700"
+          },
+          "close": {
+            "day": 6,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0700"
+          },
+          "close": {
+            "day": 0,
+            "time": "0000"
+          }
+        }
+      ],
+      "website": "http://instagram.com/mercadonovobh",
+      "distanceM": 2589,
+      "walkMin": 36,
+      "driveMin": 14
+    },
+    {
+      "id": "praca-liberdade",
+      "name": "Praça da Liberdade",
+      "placeId": "ChIJjU6EM9yZpgAR-ZPzNIfuwyU",
+      "photoIndex": 0,
+      "address": "Praça da Liberdade - Savassi, Belo Horizonte - MG, 30140-010",
+      "neighborhood": "Savassi",
+      "lat": -19.9329185,
+      "lng": -43.938381,
+      "rating": null,
+      "ratingCount": null,
+      "hours": [],
+      "website": null,
+      "distanceM": 919,
+      "walkMin": 13,
+      "driveMin": 6
+    },
+    {
+      "id": "ccbb",
+      "name": "Centro Cultural Banco do Brasil",
+      "placeId": "ChIJ-y9fS9yZpgARW-N0ni10mlU",
+      "photoIndex": 0,
+      "address": "Praça da Liberdade, 450 - Funcionários, Belo Horizonte - MG, 30140-010",
+      "neighborhood": "Funcionários",
+      "lat": -19.9321387,
+      "lng": -43.9370845,
+      "rating": 4.8,
+      "ratingCount": 22753,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1000"
+          },
+          "close": {
+            "day": 0,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1000"
+          },
+          "close": {
+            "day": 1,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1000"
+          },
+          "close": {
+            "day": 3,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1000"
+          },
+          "close": {
+            "day": 4,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1000"
+          },
+          "close": {
+            "day": 5,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1000"
+          },
+          "close": {
+            "day": 6,
+            "time": "2200"
+          }
+        }
+      ],
+      "website": "https://ccbb.com.br/belo-horizonte/",
+      "distanceM": 952,
+      "walkMin": 13,
+      "driveMin": 6
+    },
+    {
+      "id": "mm-gerdau",
+      "name": "MM Gerdau – Museu das Minas e do Metal",
+      "placeId": "ChIJOzlj092ZpgAR-mL6VtTxMtY",
+      "photoIndex": 0,
+      "address": "Praça da Liberdade, 680 - Funcionários, Belo Horizonte - MG, 30140-010",
+      "neighborhood": "Funcionários",
+      "lat": -19.9316955,
+      "lng": -43.9387508,
+      "rating": 4.8,
+      "ratingCount": 4309,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1000"
+          },
+          "close": {
+            "day": 0,
+            "time": "1630"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1000"
+          },
+          "close": {
+            "day": 2,
+            "time": "1630"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1000"
+          },
+          "close": {
+            "day": 3,
+            "time": "1630"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1000"
+          },
+          "close": {
+            "day": 4,
+            "time": "2130"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1000"
+          },
+          "close": {
+            "day": 5,
+            "time": "1630"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1000"
+          },
+          "close": {
+            "day": 6,
+            "time": "1630"
+          }
+        }
+      ],
+      "website": "http://www.mmgerdau.org.br/",
+      "distanceM": 1091,
+      "walkMin": 15,
+      "driveMin": 7
+    },
+    {
+      "id": "palacio-artes",
+      "name": "Palácio das Artes",
+      "placeId": "ChIJBzw2c8KZpgARY74EPRA9fUw",
+      "photoIndex": 0,
+      "address": "Av. Afonso Pena, 1537 - Centro, Belo Horizonte - MG, 30120-010",
+      "neighborhood": "Centro",
+      "lat": -19.9256601,
+      "lng": -43.93351699999999,
+      "rating": 4.7,
+      "ratingCount": 16258,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0930"
+          },
+          "close": {
+            "day": 0,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0930"
+          },
+          "close": {
+            "day": 2,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0930"
+          },
+          "close": {
+            "day": 3,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0930"
+          },
+          "close": {
+            "day": 4,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0930"
+          },
+          "close": {
+            "day": 5,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0930"
+          },
+          "close": {
+            "day": 6,
+            "time": "2100"
+          }
+        }
+      ],
+      "website": "http://fcs.mg.gov.br/",
+      "distanceM": 2608,
+      "walkMin": 35,
+      "driveMin": 7
+    },
+    {
+      "id": "parque-municipal",
+      "name": "Parque Municipal Américo Renné Giannetti",
+      "placeId": "ChIJ1VS5qu-ZpgARF8B4SNBoDQc",
+      "photoIndex": 0,
+      "address": "Av. Afonso Pena, 1377 - Centro, Belo Horizonte - MG, 30130-002",
+      "neighborhood": "Centro",
+      "lat": -19.9242934,
+      "lng": -43.9348505,
+      "rating": 4.5,
+      "ratingCount": 48068,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0700"
+          },
+          "close": {
+            "day": 0,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0700"
+          },
+          "close": {
+            "day": 2,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0700"
+          },
+          "close": {
+            "day": 3,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0700"
+          },
+          "close": {
+            "day": 4,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0700"
+          },
+          "close": {
+            "day": 5,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0700"
+          },
+          "close": {
+            "day": 6,
+            "time": "2100"
+          }
+        }
+      ],
+      "website": "https://prefeitura.pbh.gov.br/fundacao-de-parques-e-zoobotanica",
+      "distanceM": 2455,
+      "walkMin": 33,
+      "driveMin": 7
+    },
+    {
+      "id": "mangabeiras",
+      "name": "Mirante do Mangabeiras",
+      "placeId": "ChIJ8wlHY66ZpgARJtyGadOpM-U",
+      "photoIndex": 0,
+      "address": "R. Pedro José Pardo, 1000 - Mangabeiras, Belo Horizonte - MG, 47512-000",
+      "neighborhood": "Mangabeiras",
+      "lat": -19.9509089,
+      "lng": -43.9127978,
+      "rating": 4.8,
+      "ratingCount": 11184,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0800"
+          },
+          "close": {
+            "day": 0,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "0800"
+          },
+          "close": {
+            "day": 1,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0800"
+          },
+          "close": {
+            "day": 2,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0800"
+          },
+          "close": {
+            "day": 3,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0800"
+          },
+          "close": {
+            "day": 4,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0800"
+          },
+          "close": {
+            "day": 5,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0800"
+          },
+          "close": {
+            "day": 6,
+            "time": "2100"
+          }
+        }
+      ],
+      "website": "https://prefeitura.pbh.gov.br/fundacao-de-parques-e-zoobotanica/informacoes/parques/mirante-do-mangabeiras",
+      "distanceM": 4169,
+      "walkMin": 73,
+      "driveMin": 13
+    },
+    {
+      "id": "serra-curral",
+      "name": "Parque da Serra do Curral",
+      "placeId": "ChIJYYGyH1KYpgARXMqLukutIYA",
+      "photoIndex": 0,
+      "address": "Av. José do Patrocínio Pontes, 1951 - Mangabeiras, Belo Horizonte - MG, 30210-090",
+      "neighborhood": "Mangabeiras",
+      "lat": -19.9616691,
+      "lng": -43.9153721,
+      "rating": 4.7,
+      "ratingCount": 5389,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0800"
+          },
+          "close": {
+            "day": 0,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0800"
+          },
+          "close": {
+            "day": 2,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0800"
+          },
+          "close": {
+            "day": 3,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0800"
+          },
+          "close": {
+            "day": 4,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0800"
+          },
+          "close": {
+            "day": 5,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0800"
+          },
+          "close": {
+            "day": 6,
+            "time": "1600"
+          }
+        }
+      ],
+      "website": "https://prefeitura.pbh.gov.br/fundacao-de-parques-e-zoobotanica",
+      "distanceM": 6146,
+      "walkMin": 108,
+      "driveMin": 12
+    },
+    {
+      "id": "feira-hippie",
+      "name": "Feira Hippie",
+      "placeId": "ChIJyXh9ppCZpgAR-IYKBctMFRQ",
+      "photoIndex": 0,
+      "address": "Av. Afonso Pena, 1005-901 - Centro, Belo Horizonte - MG, 30120-050",
+      "neighborhood": "Centro",
+      "lat": -19.9215025,
+      "lng": -43.9370989,
+      "rating": 4.7,
+      "ratingCount": 494,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0700"
+          },
+          "close": {
+            "day": 0,
+            "time": "1400"
+          }
+        }
+      ],
+      "website": "https://feirahippie.com/",
+      "distanceM": 2198,
+      "walkMin": 29,
+      "driveMin": 14
+    },
+    {
+      "id": "santa-tereza",
+      "name": "Paróquia Santa Teresa e Santa Teresinha",
+      "placeId": "ChIJw0LqEieapgARPI4iyY2xzak",
+      "photoIndex": 3,
+      "address": "Praça Duque de Caxias, 200 - Santa Tereza, Belo Horizonte - MG, 31010-230",
+      "neighborhood": "Santa Tereza",
+      "lat": -19.9168853,
+      "lng": -43.9178428,
+      "rating": 4.8,
+      "ratingCount": 526,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0730"
+          },
+          "close": {
+            "day": 0,
+            "time": "0900"
+          }
+        },
+        {
+          "open": {
+            "day": 0,
+            "time": "0930"
+          },
+          "close": {
+            "day": 0,
+            "time": "1100"
+          }
+        },
+        {
+          "open": {
+            "day": 0,
+            "time": "1900"
+          },
+          "close": {
+            "day": 0,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1900"
+          },
+          "close": {
+            "day": 1,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1500"
+          },
+          "close": {
+            "day": 2,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1900"
+          },
+          "close": {
+            "day": 2,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1900"
+          },
+          "close": {
+            "day": 3,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1900"
+          },
+          "close": {
+            "day": 4,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1500"
+          },
+          "close": {
+            "day": 5,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1900"
+          },
+          "close": {
+            "day": 5,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1500"
+          },
+          "close": {
+            "day": 6,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1900"
+          },
+          "close": {
+            "day": 6,
+            "time": "2100"
+          }
+        }
+      ],
+      "website": "http://santacultura.com/;%20https://www.instagram.com/paroquiasante?igsh=am5iNXJuOXo1OWZy",
+      "distanceM": 3453,
+      "walkMin": 48,
+      "driveMin": 15
+    },
+    {
+      "id": "estacao",
+      "name": "Museu de Artes e Ofícios",
+      "placeId": "ChIJ2VZVHPqZpgARxfOC9NjNX8Q",
+      "photoIndex": 0,
+      "address": "Praça Rui Barbosa, 600 - Centro, Belo Horizonte - MG, 30160-000",
+      "neighborhood": "Centro",
+      "lat": -19.9169133,
+      "lng": -43.9334937,
+      "rating": 4.8,
+      "ratingCount": 1574,
+      "hours": [
+        {
+          "open": {
+            "day": 2,
+            "time": "1000"
+          },
+          "close": {
+            "day": 2,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1000"
+          },
+          "close": {
+            "day": 3,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1000"
+          },
+          "close": {
+            "day": 4,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1000"
+          },
+          "close": {
+            "day": 5,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0900"
+          },
+          "close": {
+            "day": 6,
+            "time": "1700"
+          }
+        }
+      ],
+      "website": "https://mao.com.br/",
+      "distanceM": 2931,
+      "walkMin": 39,
+      "driveMin": 11
+    }
+  ]
+}

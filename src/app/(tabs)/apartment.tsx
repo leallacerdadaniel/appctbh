@@ -1,18 +1,26 @@
 import * as Clipboard from 'expo-clipboard';
-import { Copy, Download, Eye, EyeOff, FileText, MapPin, Wifi } from 'lucide-react-native';
+import { Image } from 'expo-image';
+import { router } from 'expo-router';
 import { useState } from 'react';
-import { Linking, Platform, StyleSheet, View } from 'react-native';
+import { Linking, StyleSheet, View } from 'react-native';
 
-import { Reveal, Screen, SectionLabel } from '@/components/screen';
+import { HubGrid, HubTile } from '@/components/hub-tile';
+import { Icon, type IconName } from '@/components/icon';
+import { ListGroup, ListRow } from '@/components/list';
+import { Screen, Section } from '@/components/screen';
 import { useToast } from '@/components/toast';
-import { AppText, Avatar, Button, Card, InlineMessage, PressableScale } from '@/components/ui';
-import { Fonts, Radius, Spacing, TapTarget } from '@/constants/theme';
+import { Card, PressableScale } from '@/components/ui';
+import { Radius, Shadow, TapTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
-import { downloadDocument, openDocument, type AppDocument } from '@/lib/documents';
-import { formatBrl, formatDate } from '@/lib/format';
-import { demoApartment, demoContract, demoContractDocument, demoRoommates } from '@/lib/mock-data';
+import { formatLongDate, upcomingCleanings } from '@/lib/cleaning';
+import { formatDate, formatTime } from '@/lib/format';
+import { demoApartment, demoContract, demoRoommates } from '@/lib/mock-data';
 
+/**
+ * "Mon appart" hub: photo, address, Wi‑Fi (used daily), then tiles to the sub-pages
+ * (cleaning, contract, roommates, around). Each tile shows a live status line.
+ */
 export default function ApartmentScreen() {
   const theme = useTheme();
   const toast = useToast();
@@ -25,224 +33,131 @@ export default function ApartmentScreen() {
   }
 
   const fullAddress = `${demoApartment.address}, ${demoApartment.complement} — ${demoApartment.neighborhood}, ${demoApartment.city}`;
+  const next = upcomingCleanings[0];
+  const nextLabel = next
+    ? t.apartment.nextCleaning(
+        `${capitalize(formatLongDate(next.date, lang))} · ${formatTime(next.time, lang)}`,
+      )
+    : t.apartment.cleaning.empty;
 
   return (
-    <Screen title={demoApartment.nickname} subtitle={`${demoApartment.neighborhood}, ${demoApartment.city}`}>
-      <Reveal index={0}>
-        <SectionLabel>{t.apartment.address}</SectionLabel>
-      </Reveal>
-      <Reveal index={1}>
-        <Card style={{ gap: Spacing.md }}>
-          <View style={styles.line}>
-            <MapPin size={20} color={theme.textSecondary} />
-            <View style={{ flex: 1 }}>
-              <AppText style={{ fontFamily: Fonts.bodySemiBold }}>{demoApartment.address}</AppText>
-              <AppText variant="caption" color={theme.textSecondary}>
-                {demoApartment.complement}
-              </AppText>
-            </View>
-            <IconButton label={t.apartment.copyAddress} onPress={() => copy(fullAddress, t.apartment.addressCopied)}>
-              <Copy size={18} color={theme.text} />
-            </IconButton>
-          </View>
-          <Button
-            variant="secondary"
-            label={t.apartment.openMaps}
-            onPress={() =>
-              Linking.openURL(
-                `https://maps.google.com/?q=${encodeURIComponent(demoApartment.mapsQuery)}`,
-              )
+    <Screen
+      title={demoApartment.nickname}
+      subtitle={`${demoApartment.complement} · ${demoApartment.neighborhood}`}>
+      <View style={[styles.photo, Shadow.card, { backgroundColor: theme.fill }]}>
+        <Image
+          source={{ uri: demoApartment.photoUrl }}
+          style={StyleSheet.absoluteFill}
+          contentFit="cover"
+          transition={200}
+        />
+      </View>
+
+      <Card style={styles.listCard}>
+        <ListGroup inset>
+          <ListRow
+            icon="address"
+            title={t.apartment.address}
+            subtitle={demoApartment.address}
+            accessory={
+              // Two actions side by side (a button can't sit inside a pressable row).
+              <View style={styles.inline}>
+                <IconButton
+                  icon="directions"
+                  label={t.apartment.openMaps}
+                  onPress={() =>
+                    Linking.openURL(
+                      `https://maps.google.com/?q=${encodeURIComponent(demoApartment.mapsQuery)}`,
+                    )
+                  }
+                />
+                <IconButton
+                  icon="copy"
+                  label={t.apartment.copyAddress}
+                  onPress={() => copy(fullAddress, t.apartment.addressCopied)}
+                />
+              </View>
             }
           />
-        </Card>
-      </Reveal>
+          <ListRow icon="wifi" title={t.apartment.network} value={demoApartment.wifiName} />
+          <ListRow
+            icon="key"
+            title={t.apartment.wifiPassword}
+            subtitle={showWifi ? demoApartment.wifiPassword : '••••••••••'}
+            accessory={
+              <View style={styles.inline}>
+                <IconButton
+                  icon={showWifi ? 'hide' : 'show'}
+                  label={showWifi ? t.apartment.hide : t.apartment.show}
+                  onPress={() => setShowWifi((v) => !v)}
+                />
+                <IconButton
+                  icon="copy"
+                  label={t.apartment.copyPassword}
+                  onPress={() => copy(demoApartment.wifiPassword, t.apartment.passwordCopied)}
+                />
+              </View>
+            }
+          />
+        </ListGroup>
+      </Card>
 
-      <Reveal index={2}>
-        <SectionLabel>{t.apartment.wifi}</SectionLabel>
-      </Reveal>
-      <Reveal index={3}>
-        <Card style={{ gap: Spacing.md }}>
-          <View style={styles.line}>
-            <Wifi size={20} color={theme.textSecondary} />
-            <View style={{ flex: 1 }}>
-              <AppText variant="caption" color={theme.textSecondary}>
-                {t.apartment.network}
-              </AppText>
-              <AppText style={{ fontFamily: Fonts.bodySemiBold }}>{demoApartment.wifiName}</AppText>
-            </View>
-          </View>
-          <View style={[styles.divider, { backgroundColor: theme.line }]} />
-          <View style={styles.line}>
-            <View style={{ flex: 1 }}>
-              <AppText variant="caption" color={theme.textSecondary}>
-                {t.apartment.password}
-              </AppText>
-              <AppText style={{ fontFamily: Fonts.bodySemiBold, letterSpacing: showWifi ? 0 : 2 }}>
-                {showWifi ? demoApartment.wifiPassword : '••••••••••'}
-              </AppText>
-            </View>
-            <IconButton
-              label={showWifi ? t.apartment.hide : t.apartment.show}
-              onPress={() => setShowWifi((v) => !v)}>
-              {showWifi ? <EyeOff size={18} color={theme.text} /> : <Eye size={18} color={theme.text} />}
-            </IconButton>
-            <IconButton
-              label={t.apartment.copyPassword}
-              onPress={() => copy(demoApartment.wifiPassword, t.apartment.passwordCopied)}>
-              <Copy size={18} color={theme.text} />
-            </IconButton>
-          </View>
-        </Card>
-      </Reveal>
-
-      <Reveal index={4}>
-        <SectionLabel>{t.apartment.roommates}</SectionLabel>
-      </Reveal>
-      <Reveal index={5}>
-        <Card style={{ gap: Spacing.md }}>
-          {demoRoommates.map((r) => (
-            <View key={r.name} style={styles.line}>
-              <Avatar initials={r.initials} />
-              <AppText>{r.name}</AppText>
-            </View>
-          ))}
-        </Card>
-      </Reveal>
-
-      <Reveal index={6}>
-        <SectionLabel>{t.apartment.contract}</SectionLabel>
-      </Reveal>
-      <Reveal index={7}>
-        <Card style={{ gap: Spacing.sm }}>
-          <Row label={t.apartment.semester} value={demoContract.semester} />
-          <Row label={t.apartment.moveIn} value={formatDate(demoContract.moveIn, lang)} />
-          <Row label={t.apartment.moveOut} value={formatDate(demoContract.moveOut, lang)} />
-          <Row label={t.apartment.monthlyRent} value={formatBrl(demoContract.monthlyRentBrl, lang)} />
-        </Card>
-      </Reveal>
-      <Reveal index={8}>
-        <DocumentCard doc={demoContractDocument} />
-      </Reveal>
+      <Section title={t.apartment.info}>
+        <HubGrid>
+          <HubTile
+            emoji="🧹"
+            title={t.apartment.cleaning.title}
+            status={nextLabel}
+            onPress={() => router.push('/apartment/cleaning')}
+          />
+          <HubTile
+            emoji="📄"
+            title={t.apartment.contract}
+            status={t.apartment.contractUntil(demoContract.semester, formatDate(demoContract.moveOut, lang))}
+            onPress={() => router.push('/apartment/contract')}
+          />
+          <HubTile
+            emoji="👥"
+            title={t.apartment.roommates}
+            status={demoRoommates.map((r) => r.name.split(' ')[0]).join(', ')}
+            onPress={() => router.push('/apartment/roommates')}
+          />
+          <HubTile
+            emoji="📍"
+            title={t.apartment.neighborhood}
+            status={t.apartment.aroundHint}
+            onPress={() => router.push('/nearby')}
+          />
+        </HubGrid>
+      </Section>
     </Screen>
   );
 }
 
-function DocumentCard({ doc }: { doc: AppDocument }) {
-  const theme = useTheme();
-  const toast = useToast();
-  const { t } = useI18n();
-  const [busy, setBusy] = useState<'open' | 'download' | null>(null);
-  const [failed, setFailed] = useState(false);
-
-  async function run(action: 'open' | 'download') {
-    setBusy(action);
-    setFailed(false);
-    try {
-      if (action === 'open') await openDocument(doc);
-      else {
-        await downloadDocument(doc);
-        // Native shows the share sheet itself; web saves silently, so confirm it.
-        if (Platform.OS === 'web') toast(t.apartment.downloaded);
-      }
-    } catch {
-      setFailed(true);
-    } finally {
-      setBusy(null);
-    }
-  }
-
-  const size = doc.sizeBytes ? ` · ${Math.max(1, Math.round(doc.sizeBytes / 1024))} ${t.apartment.kilobytes}` : '';
-
-  return (
-    <Card style={{ gap: Spacing.md }}>
-      <View style={styles.line}>
-        <View style={[styles.docIcon, { backgroundColor: theme.brandSoft }]}>
-          <FileText size={22} color={theme.brand} />
-        </View>
-        <View style={{ flex: 1 }}>
-          <AppText style={{ fontFamily: Fonts.bodySemiBold }} numberOfLines={1}>
-            {doc.fileName}
-          </AppText>
-          <AppText variant="caption" color={theme.textSecondary}>
-            {t.apartment.document}
-            {size}
-          </AppText>
-        </View>
-      </View>
-      <View style={styles.docActions}>
-        <View style={{ flex: 1 }}>
-          <Button
-            variant="secondary"
-            label={t.apartment.open}
-            icon={<Eye size={18} color={theme.text} />}
-            loading={busy === 'open'}
-            disabled={busy !== null}
-            onPress={() => run('open')}
-          />
-        </View>
-        <View style={{ flex: 1 }}>
-          <Button
-            label={t.apartment.download}
-            icon={<Download size={18} color={theme.onBrand} />}
-            loading={busy === 'download'}
-            disabled={busy !== null}
-            onPress={() => run('download')}
-          />
-        </View>
-      </View>
-      {failed && <InlineMessage kind="error" text={t.apartment.documentError} />}
-    </Card>
-  );
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  const theme = useTheme();
-  return (
-    <View style={styles.row}>
-      <AppText color={theme.textSecondary}>{label}</AppText>
-      <AppText style={{ fontFamily: Fonts.bodySemiBold }}>{value}</AppText>
-    </View>
-  );
-}
-
-function IconButton({
-  label,
-  onPress,
-  children,
-}: {
-  label: string;
-  onPress: () => void;
-  children: React.ReactNode;
-}) {
+function IconButton({ icon, label, onPress }: { icon: IconName; label: string; onPress: () => void }) {
   const theme = useTheme();
   return (
     <PressableScale
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}
-      style={[styles.iconButton, { backgroundColor: theme.background }]}>
-      {children}
+      style={styles.iconButton}>
+      <Icon name={icon} size={18} color={theme.textSecondary} />
     </PressableScale>
   );
 }
 
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
 const styles = StyleSheet.create({
-  line: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
-  divider: { height: StyleSheet.hairlineWidth },
-  docIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: Radius.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  docActions: { flexDirection: 'row', gap: Spacing.sm },
-  row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: Spacing.xs },
+  photo: { width: '100%', aspectRatio: 16 / 10, borderRadius: Radius.lg, overflow: 'hidden' },
+  listCard: { paddingVertical: 0 },
+  inline: { flexDirection: 'row' },
   iconButton: {
     width: TapTarget,
     height: TapTarget,
-    borderRadius: TapTarget / 2,
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: -10,
   },
 });

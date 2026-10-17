@@ -49,7 +49,7 @@ export default function ChangePasswordScreen() {
           <Check size={40} color={theme.success} strokeWidth={2.5} />
         </Animated.View>
         <Animated.View entering={FadeIn.delay(200)}>
-          <AppText variant="heading">{t.changePassword.saved}</AppText>
+          <AppText variant="title">{t.changePassword.saved}</AppText>
         </Animated.View>
       </View>
     );
@@ -69,10 +69,8 @@ export default function ChangePasswordScreen() {
           <View style={[styles.icon, { backgroundColor: theme.brandSoft }]}>
             <KeyRound size={26} color={theme.brand} />
           </View>
-          <AppText variant="title">{t.changePassword.hello(demoStudent.firstName)}</AppText>
-          <AppText color={theme.textSecondary}>
-            {t.changePassword.intro}
-          </AppText>
+          <AppText variant="display">{t.changePassword.hello(demoStudent.firstName)}</AppText>
+          <AppText color={theme.textSecondary}>{t.changePassword.intro}</AppText>
         </Animated.View>
 
         <Animated.View entering={FadeInDown.delay(100).duration(400)} style={{ gap: Spacing.md }}>
@@ -86,11 +84,7 @@ export default function ChangePasswordScreen() {
           <View style={{ gap: Spacing.xs }}>
             {rules.map((r) => (
               <View key={r.label} style={styles.rule}>
-                <View
-                  style={[
-                    styles.dot,
-                    { backgroundColor: r.ok ? theme.success : theme.line },
-                  ]}>
+                <View style={[styles.dot, { backgroundColor: r.ok ? theme.success : theme.line }]}>
                   {r.ok && <Check size={10} color="#fff" strokeWidth={3} />}
                 </View>
                 <AppText variant="caption" color={r.ok ? theme.text : theme.textSecondary}>

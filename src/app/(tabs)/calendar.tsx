@@ -50,8 +50,7 @@ export default function CalendarScreen() {
   const searchResults = q
     ? allEvents.filter(
         (e) =>
-          e.kind !== 'cleaning' &&
-          normalize([e.title.fr, e.title.en, e.ptName ?? ''].join(' ')).includes(q),
+          e.kind !== 'cleaning' && normalize([e.title.fr, e.title.en, e.ptName ?? ''].join(' ')).includes(q),
       )
     : [];
   const selectedEvents = selectedIso ? events.filter((e) => e.date === selectedIso) : [];
@@ -214,7 +213,7 @@ function EventRow({
     .join(' · ');
 
   return (
-    <Animated.View entering={FadeInDown.delay(40 * index).duration(250)} layout={LinearTransition}>
+    <Animated.View layout={LinearTransition}>
       <PressableScale
         disabled={!onPress}
         haptic={!!onPress}
@@ -222,7 +221,7 @@ function EventRow({
         style={[styles.row, { backgroundColor: theme.surface, borderColor: theme.line }]}>
         <View style={[styles.bar, { backgroundColor: color }]} />
         <View style={{ flex: 1, gap: 2 }}>
-          <AppText style={{ fontFamily: Fonts.bodySemiBold }}>{event.title[lang]}</AppText>
+          <AppText style={{ fontFamily: Fonts.bodyMedium }}>{event.title[lang]}</AppText>
           <AppText variant="caption" color={theme.textSecondary}>
             {details}
           </AppText>
