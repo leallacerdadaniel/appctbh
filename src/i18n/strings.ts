@@ -226,7 +226,6 @@ const fr = {
     entryHint: 'Pão de queijo, feijoada, acarajé et d’autres classiques',
     regions: { mg: 'Minas Gerais', br: 'Brésil' },
     whereToTry: 'Où goûter',
-    photosCredit: 'Photos : Wikimedia Commons, licences libres (auteur sur chaque photo).',
   },
   explore: {
     title: 'Explorer',
@@ -575,7 +574,6 @@ const en: Strings = {
     entryHint: 'Pão de queijo, feijoada, acarajé and other classics',
     regions: { mg: 'Minas Gerais', br: 'Brazil' },
     whereToTry: 'Where to try',
-    photosCredit: 'Photos: Wikimedia Commons, free licences (author on each photo).',
   },
   explore: {
     title: 'Explore',

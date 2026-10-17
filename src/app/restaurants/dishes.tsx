@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Linking, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { Icon } from '@/components/icon';
 import { Screen } from '@/components/screen';
@@ -37,9 +37,6 @@ export default function DishesScreen() {
             <DishCard key={d.id} dish={d} />
           ))}
       </View>
-      <AppText variant="caption" color={useTheme().textSecondary} style={{ textAlign: 'center' }}>
-        {t.dishes.photosCredit}
-      </AppText>
     </Screen>
   );
 }
@@ -52,13 +49,7 @@ function DishCard({ dish: d }: { dish: Dish }) {
   return (
     <View style={[styles.card, Shadow.card, { backgroundColor: theme.surface }]}>
       <View style={[styles.photo, { backgroundColor: theme.fill }]}>
-        <Image source={{ uri: d.photo.uri }} style={StyleSheet.absoluteFill} contentFit="cover" transition={200} />
-        <AppText
-          color={theme.onBrand}
-          style={[styles.credit, { backgroundColor: theme.scrim }]}
-          onPress={() => Linking.openURL(d.photo.source)}>
-          © {d.photo.author} · {d.photo.license}
-        </AppText>
+        <Image source={d.photo} style={StyleSheet.absoluteFill} contentFit="cover" transition={200} />
       </View>
       <View style={styles.body}>
         <AppText variant="title">{d.name}</AppText>
@@ -97,35 +88,36 @@ function resolve(at: TryAt): Resolved | null {
   if (at.kind === 'restaurant') {
     const r = getRestaurant(at.id);
     return r
-      ? { key: at.id, label: displayName(r), open: () => router.push({ pathname: '/restaurants/[id]', params: { id: at.id } }) }
+      ? {
+          key: at.id,
+          label: displayName(r),
+          open: () => router.push({ pathname: '/restaurants/[id]', params: { id: at.id } }),
+        }
       : null;
   }
   if (at.kind === 'attraction') {
     const a = getAttraction(at.id);
     return a
-      ? { key: at.id, label: a.name, open: () => router.push({ pathname: '/attraction/[id]', params: { id: at.id } }) }
+      ? {
+          key: at.id,
+          label: a.name,
+          open: () => router.push({ pathname: '/attraction/[id]', params: { id: at.id } }),
+        }
       : null;
   }
   const d = getDestination(at.id);
   return d
-    ? { key: at.id, label: d.name, open: () => router.push({ pathname: '/travel/[id]', params: { id: at.id } }) }
+    ? {
+        key: at.id,
+        label: d.name,
+        open: () => router.push({ pathname: '/travel/[id]', params: { id: at.id } }),
+      }
     : null;
 }
 
 const styles = StyleSheet.create({
   card: { borderRadius: Radius.lg, overflow: 'hidden' },
   photo: { width: '100%', aspectRatio: 16 / 10 },
-  credit: {
-    position: 'absolute',
-    left: 6,
-    bottom: 6,
-    maxWidth: '80%',
-    fontSize: 10,
-    lineHeight: 14,
-    paddingHorizontal: 5,
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
   body: { padding: Spacing.md, gap: Spacing.sm },
   where: { gap: 4, padding: 12, borderRadius: Radius.md },
   links: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 4 },
