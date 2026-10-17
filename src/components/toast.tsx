@@ -1,9 +1,9 @@
-import { CircleCheck } from 'lucide-react-native';
 import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown, FadeOutDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { Icon } from '@/components/icon';
 import { AppText } from '@/components/ui';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -33,7 +33,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             entering={FadeInDown.springify().damping(18)}
             exiting={FadeOutDown.duration(180)}
             style={[styles.toast, { backgroundColor: theme.text }]}>
-            <CircleCheck size={18} color={theme.surface} />
+            <Icon name="checkCircle" size={18} color={theme.surface} />
             <AppText variant="caption" color={theme.surface}>
               {toast.message}
             </AppText>

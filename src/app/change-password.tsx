@@ -1,11 +1,12 @@
-import { Check, KeyRound } from 'lucide-react-native';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
-import Animated, { FadeIn, FadeInDown, ZoomIn } from 'react-native-reanimated';
+import Animated, { ZoomIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AppText, Button, InlineMessage, Input } from '@/components/ui';
-import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { BrandBar } from '@/components/brand-bar';
+import { Icon } from '@/components/icon';
+import { AppText, Button, Card, InlineMessage, Input } from '@/components/ui';
+import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { DEMO_TEMP_PASSWORD, useAuth } from '@/lib/auth';
@@ -46,11 +47,9 @@ export default function ChangePasswordScreen() {
         <Animated.View
           entering={ZoomIn.springify().damping(12)}
           style={[styles.successIcon, { backgroundColor: theme.successSoft }]}>
-          <Check size={40} color={theme.success} strokeWidth={2.5} />
+          <Icon name="check" size={40} color={theme.success} />
         </Animated.View>
-        <Animated.View entering={FadeIn.delay(200)}>
-          <AppText variant="title">{t.changePassword.saved}</AppText>
-        </Animated.View>
+        <AppText variant="title">{t.changePassword.saved}</AppText>
       </View>
     );
   }
@@ -59,21 +58,20 @@ export default function ChangePasswordScreen() {
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: theme.background }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <BrandBar />
       <ScrollView
         contentContainerStyle={[
           styles.container,
-          { paddingTop: insets.top + Spacing.xxl, paddingBottom: insets.bottom + Spacing.xl },
+          { paddingTop: Spacing.xl, paddingBottom: insets.bottom + Spacing.xl },
         ]}
         keyboardShouldPersistTaps="handled">
-        <Animated.View entering={FadeInDown.duration(400)} style={{ gap: Spacing.md }}>
-          <View style={[styles.icon, { backgroundColor: theme.brandSoft }]}>
-            <KeyRound size={26} color={theme.brand} />
-          </View>
+        <View style={{ gap: Spacing.sm }}>
+          <Icon name="key" size={28} color={theme.textSecondary} />
           <AppText variant="display">{t.changePassword.hello(demoStudent.firstName)}</AppText>
           <AppText color={theme.textSecondary}>{t.changePassword.intro}</AppText>
-        </Animated.View>
+        </View>
 
-        <Animated.View entering={FadeInDown.delay(100).duration(400)} style={{ gap: Spacing.md }}>
+        <Card style={{ gap: Spacing.md }}>
           <Input
             label={t.changePassword.newPassword}
             value={password}
@@ -85,7 +83,7 @@ export default function ChangePasswordScreen() {
             {rules.map((r) => (
               <View key={r.label} style={styles.rule}>
                 <View style={[styles.dot, { backgroundColor: r.ok ? theme.success : theme.line }]}>
-                  {r.ok && <Check size={10} color="#fff" strokeWidth={3} />}
+                  {r.ok && <Icon name="check" size={11} color={theme.surface} />}
                 </View>
                 <AppText variant="caption" color={r.ok ? theme.text : theme.textSecondary}>
                   {r.label}
@@ -103,7 +101,7 @@ export default function ChangePasswordScreen() {
           />
           {mismatch && <InlineMessage kind="error" text={t.changePassword.mismatch} />}
           <Button label={t.changePassword.save} onPress={submit} loading={loading} disabled={!valid} />
-        </Animated.View>
+        </Card>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -117,13 +115,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     paddingHorizontal: Spacing.lg,
     gap: Spacing.xl,
-  },
-  icon: {
-    width: 52,
-    height: 52,
-    borderRadius: Radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   rule: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
   dot: {

@@ -1,16 +1,16 @@
 import { Image } from 'expo-image';
 import { useRef, useState, type ComponentRef } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { LanguageSwitch } from '@/components/language-switch';
-import { AppText, Button, InlineMessage, Input } from '@/components/ui';
+import { AppText, Button, Card, InlineMessage, Input } from '@/components/ui';
 import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { DEMO_TEMP_PASSWORD, useAuth, type SignInError } from '@/lib/auth';
 
+/** Red band with the logo and the language switch, then the sign-in card on the gray canvas. */
 export default function LoginScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -36,64 +36,71 @@ export default function LoginScreen() {
       style={{ flex: 1, backgroundColor: theme.background }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView
-        contentContainerStyle={[
-          styles.container,
-          { paddingTop: insets.top + Spacing.md, paddingBottom: insets.bottom + Spacing.xl },
-        ]}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: insets.bottom + Spacing.xl }}
         keyboardShouldPersistTaps="handled">
-        <View style={styles.topBar}>
-          <LanguageSwitch />
+        <View style={{ backgroundColor: theme.brand, paddingTop: insets.top }}>
+          <View style={styles.band}>
+            <View style={styles.bandTop}>
+              <LanguageSwitch onBrand />
+            </View>
+            <Image
+              source={require('@/assets/brand/logo-wordmark-white.png')}
+              style={styles.logo}
+              contentFit="contain"
+              accessibilityLabel="Chez Toi BH"
+            />
+            <View style={{ alignItems: 'center', gap: Spacing.xs }}>
+              <AppText variant="display" color={theme.onBrand}>
+                {t.login.title}
+              </AppText>
+              <AppText color={theme.onBrandMuted} style={{ textAlign: 'center' }}>
+                {t.login.subtitle}
+              </AppText>
+            </View>
+          </View>
         </View>
 
-        <Animated.View entering={FadeInUp.duration(450)} style={styles.brand}>
-          <Image
-            source={require('@/assets/brand/logo-tile.png')}
-            style={styles.tile}
-            contentFit="cover"
-            accessibilityLabel="Chez Toi BH"
-          />
-          <View style={{ alignItems: 'center', gap: Spacing.xs }}>
-            <AppText variant="display">{t.login.title}</AppText>
-            <AppText color={theme.textSecondary} style={{ textAlign: 'center' }}>
-              {t.login.subtitle}
+        <View style={styles.column}>
+          <Card style={{ gap: Spacing.md }}>
+            <Input
+              label={t.login.email}
+              value={email}
+              onChangeText={setEmail}
+              placeholder={t.login.emailPlaceholder}
+              autoCapitalize="none"
+              autoComplete="email"
+              keyboardType="email-address"
+              returnKeyType="next"
+              onSubmitEditing={() => passwordRef.current?.focus()}
+            />
+            <Input
+              ref={passwordRef}
+              label={t.login.password}
+              value={password}
+              onChangeText={setPassword}
+              placeholder="••••••••"
+              secureTextEntry
+              autoComplete="password"
+              returnKeyType="go"
+              onSubmitEditing={submit}
+            />
+            {error && <InlineMessage kind="error" text={t.login.errors[error]} />}
+            <Button
+              label={t.login.submit}
+              onPress={submit}
+              loading={loading}
+              disabled={!email || !password}
+            />
+            <AppText variant="caption" color={theme.textSecondary} style={{ textAlign: 'center' }}>
+              {t.login.forgot}
+            </AppText>
+          </Card>
+
+          <View style={[styles.demo, { borderColor: theme.line }]}>
+            <AppText variant="caption" color={theme.textSecondary} style={{ textAlign: 'center' }}>
+              {t.login.demo(DEMO_TEMP_PASSWORD)}
             </AppText>
           </View>
-        </Animated.View>
-
-        <Animated.View entering={FadeInDown.delay(120).duration(400)} style={styles.form}>
-          <Input
-            label={t.login.email}
-            value={email}
-            onChangeText={setEmail}
-            placeholder={t.login.emailPlaceholder}
-            autoCapitalize="none"
-            autoComplete="email"
-            keyboardType="email-address"
-            returnKeyType="next"
-            onSubmitEditing={() => passwordRef.current?.focus()}
-          />
-          <Input
-            ref={passwordRef}
-            label={t.login.password}
-            value={password}
-            onChangeText={setPassword}
-            placeholder="••••••••"
-            secureTextEntry
-            autoComplete="password"
-            returnKeyType="go"
-            onSubmitEditing={submit}
-          />
-          {error && <InlineMessage kind="error" text={t.login.errors[error]} />}
-          <Button label={t.login.submit} onPress={submit} loading={loading} disabled={!email || !password} />
-          <AppText variant="caption" color={theme.textSecondary} style={{ textAlign: 'center' }}>
-            {t.login.forgot}
-          </AppText>
-        </Animated.View>
-
-        <View style={[styles.demo, { borderColor: theme.line }]}>
-          <AppText variant="caption" color={theme.textSecondary} style={{ textAlign: 'center' }}>
-            {t.login.demo(DEMO_TEMP_PASSWORD)}
-          </AppText>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -101,21 +108,30 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  band: {
+    width: '100%',
+    maxWidth: MaxContentWidth,
+    alignSelf: 'center',
+    paddingHorizontal: Spacing.gutter,
+    paddingTop: Spacing.sm,
+    paddingBottom: Spacing.xl,
+    alignItems: 'center',
+    gap: Spacing.lg,
+  },
+  bandTop: { alignSelf: 'stretch', alignItems: 'flex-end' },
+  logo: { width: 180, height: 32 },
+  column: {
     flexGrow: 1,
     width: '100%',
     maxWidth: MaxContentWidth,
     alignSelf: 'center',
-    paddingHorizontal: Spacing.lg,
-    gap: Spacing.xl,
+    paddingHorizontal: Spacing.gutter,
+    paddingTop: Spacing.lg,
+    gap: Spacing.lg,
   },
-  topBar: { alignItems: 'flex-end' },
-  brand: { alignItems: 'center', gap: Spacing.lg },
-  tile: { width: 96, height: 96, borderRadius: Radius.lg },
-  form: { gap: Spacing.md },
   demo: {
     marginTop: 'auto',
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     borderStyle: 'dashed',
     borderRadius: Radius.sm,
     padding: Spacing.sm,

@@ -1,11 +1,11 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { useMemo } from 'react';
 import { PanResponder, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { eventColor } from '@/components/event-style';
+import { Icon } from '@/components/icon';
 import { AppText, PressableScale } from '@/components/ui';
-import { Brand, Fonts, Radius, Spacing, TapTarget } from '@/constants/theme';
+import { Fonts, Radius, Spacing, TapTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { toIso, type EventKind } from '@/lib/events';
 
@@ -63,15 +63,15 @@ export function MonthGrid(props: Props) {
     <View {...pan.panHandlers} style={{ gap: Spacing.sm }}>
       <View style={styles.nav}>
         <NavButton label={props.prevLabel} onPress={props.onPrev}>
-          <ChevronLeft size={20} color={theme.text} />
+          <Icon name="chevronLeft" size={18} color={theme.text} />
         </NavButton>
         <Animated.View key={props.monthLabel} entering={FadeIn.duration(220)}>
-          <AppText variant="title" style={{ textTransform: 'capitalize' }}>
-            {props.monthLabel}
+          <AppText variant="title">
+            {props.monthLabel.charAt(0).toUpperCase() + props.monthLabel.slice(1)}
           </AppText>
         </Animated.View>
         <NavButton label={props.nextLabel} onPress={props.onNext}>
-          <ChevronRight size={20} color={theme.text} />
+          <Icon name="chevronRight" size={18} color={theme.text} />
         </NavButton>
       </View>
 
@@ -99,11 +99,11 @@ export function MonthGrid(props: Props) {
               <View
                 style={[
                   styles.dayCircle,
-                  isToday && { backgroundColor: Brand.red },
+                  isToday && { backgroundColor: theme.text },
                   isSelected && !isToday && { borderWidth: 1.5, borderColor: theme.text },
                 ]}>
                 <AppText
-                  color={isToday ? '#fff' : inMonth ? theme.text : theme.line}
+                  color={isToday ? theme.surface : inMonth ? theme.text : theme.line}
                   style={isToday || isSelected ? { fontFamily: Fonts.bodyMedium } : undefined}>
                   {day}
                 </AppText>
@@ -139,7 +139,7 @@ function NavButton({
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}
-      style={[styles.navButton, { backgroundColor: theme.background }]}>
+      style={[styles.navButton, { backgroundColor: theme.fill }]}>
       {children}
     </PressableScale>
   );

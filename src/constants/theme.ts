@@ -16,8 +16,8 @@ export const Colors = {
     brandPressed: Brand.redPressed,
     onBrand: Brand.onRed,
     onBrandMuted: 'rgba(255,255,255,0.82)',
-    /** @deprecated v1 tinted bubbles. Neutral until every screen is migrated. */
-    brandSoft: '#EFEEEA',
+    /** Control tracks on the red band (language switch). */
+    onBrandTrack: 'rgba(255,255,255,0.22)',
     text: '#141414',
     textSecondary: '#6B6A67',
     textTertiary: '#A09E99',
@@ -37,6 +37,7 @@ export const Colors = {
     success: '#1F7A4D',
     successSoft: '#ECFDF3',
     warning: '#B54708',
+    eventNational: '#7A5AF8',
     eventCity: '#DC6803',
     eventOptional: '#1570EF',
     eventCleaning: '#0E9384',

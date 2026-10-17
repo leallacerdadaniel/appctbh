@@ -2,9 +2,9 @@ import { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown, LinearTransition } from 'react-native-reanimated';
 
-import { eventColor, eventKinds, soft } from '@/components/event-style';
+import { eventColor, eventKinds } from '@/components/event-style';
 import { MonthGrid } from '@/components/month-grid';
-import { Reveal, Screen, SectionLabel } from '@/components/screen';
+import { Screen, Section } from '@/components/screen';
 import { normalize, SearchField } from '@/components/search-field';
 import { AppText, Card, PressableScale } from '@/components/ui';
 import { Fonts, Radius, Spacing } from '@/constants/theme';
@@ -87,90 +87,81 @@ export default function CalendarScreen() {
       />
 
       {q ? (
-        <Animated.View entering={FadeIn} style={{ gap: Spacing.sm }}>
-          <SectionLabel>{t.calendar.results}</SectionLabel>
-          {searchResults.length === 0 ? (
-            <Card>
-              <AppText color={theme.textSecondary}>{t.calendar.noResults(query)}</AppText>
-            </Card>
-          ) : (
-            searchResults.map((e, i) => (
-              <EventRow key={e.id} event={e} lang={lang} index={i} onPress={() => jumpTo(e.date)} />
-            ))
-          )}
+        <Animated.View entering={FadeIn}>
+          <Section title={t.calendar.results}>
+            {searchResults.length === 0 ? (
+              <Card>
+                <AppText color={theme.textSecondary}>{t.calendar.noResults(query)}</AppText>
+              </Card>
+            ) : (
+              <EventList events={searchResults} lang={lang} onPress={(e) => jumpTo(e.date)} />
+            )}
+          </Section>
         </Animated.View>
       ) : (
         <>
-          <Reveal index={0}>
-            <Card>
-              <MonthGrid
-                month={month}
-                monthLabel={monthLabel}
-                todayIso={todayIso}
-                selectedIso={selectedIso}
-                kindsByDate={kindsByDate}
-                weekStartsOn={t.calendar.weekStartsOn}
-                weekdaysShort={t.calendar.weekdaysShort}
-                prevLabel={t.calendar.previousMonth}
-                nextLabel={t.calendar.nextMonth}
-                onSelect={(iso) => setSelectedIso(iso === selectedIso ? null : iso)}
-                onPrev={() => shiftMonth(-1)}
-                onNext={() => shiftMonth(1)}
-              />
-            </Card>
-          </Reveal>
+          <Card>
+            <MonthGrid
+              month={month}
+              monthLabel={monthLabel}
+              todayIso={todayIso}
+              selectedIso={selectedIso}
+              kindsByDate={kindsByDate}
+              weekStartsOn={t.calendar.weekStartsOn}
+              weekdaysShort={t.calendar.weekdaysShort}
+              prevLabel={t.calendar.previousMonth}
+              nextLabel={t.calendar.nextMonth}
+              onSelect={(iso) => setSelectedIso(iso === selectedIso ? null : iso)}
+              onPrev={() => shiftMonth(-1)}
+              onNext={() => shiftMonth(1)}
+            />
+          </Card>
 
-          <Reveal index={1}>
-            <View style={styles.legend}>
-              {eventKinds.map((kind) => {
-                const active = !hidden.has(kind);
-                const color = eventColor(theme, kind);
-                return (
-                  <PressableScale
-                    key={kind}
-                    accessibilityRole="checkbox"
-                    accessibilityState={{ checked: active }}
-                    onPress={() => toggleKind(kind)}
+          <View style={styles.legend}>
+            {eventKinds.map((kind) => {
+              const active = !hidden.has(kind);
+              const color = eventColor(theme, kind);
+              return (
+                <PressableScale
+                  key={kind}
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked: active }}
+                  onPress={() => toggleKind(kind)}
+                  style={[
+                    styles.chip,
+                    { borderColor: theme.line, backgroundColor: active ? theme.surface : theme.fill },
+                  ]}>
+                  <View
                     style={[
-                      styles.chip,
-                      { borderColor: theme.line, backgroundColor: active ? theme.surface : 'transparent' },
-                    ]}>
-                    <View
-                      style={[
-                        styles.dot,
-                        active ? { backgroundColor: color } : { borderWidth: 1.5, borderColor: color },
-                      ]}
-                    />
-                    <AppText variant="caption" color={active ? theme.text : theme.textSecondary}>
-                      {t.calendar.kinds[kind]}
-                    </AppText>
-                  </PressableScale>
-                );
-              })}
-            </View>
-          </Reveal>
+                      styles.dot,
+                      active ? { backgroundColor: color } : { borderWidth: 1.5, borderColor: color },
+                    ]}
+                  />
+                  <AppText variant="caption" color={active ? theme.text : theme.textSecondary}>
+                    {t.calendar.kinds[kind]}
+                  </AppText>
+                </PressableScale>
+              );
+            })}
+          </View>
 
           {selectedIso && (
-            <Animated.View entering={FadeInDown.duration(250)} style={{ gap: Spacing.sm }}>
-              <SectionLabel>{longDate(selectedIso, lang)}</SectionLabel>
-              {selectedEvents.length === 0 ? (
-                <Card>
-                  <AppText color={theme.textSecondary}>{t.calendar.nothingThisDay}</AppText>
-                </Card>
-              ) : (
-                selectedEvents.map((e, i) => <EventRow key={e.id} event={e} lang={lang} index={i} />)
-              )}
+            <Animated.View entering={FadeInDown.duration(250)}>
+              <Section title={capitalize(longDate(selectedIso, lang))}>
+                {selectedEvents.length === 0 ? (
+                  <Card>
+                    <AppText color={theme.textSecondary}>{t.calendar.nothingThisDay}</AppText>
+                  </Card>
+                ) : (
+                  <EventList events={selectedEvents} lang={lang} />
+                )}
+              </Section>
             </Animated.View>
           )}
 
-          <Reveal index={2}>
-            <SectionLabel>{t.calendar.upcoming}</SectionLabel>
-          </Reveal>
-          <View style={{ gap: Spacing.sm }}>
-            {upcoming.map((e, i) => (
-              <EventRow key={e.id} event={e} lang={lang} index={i} onPress={() => jumpTo(e.date)} />
-            ))}
-          </View>
+          <Section title={t.calendar.upcoming}>
+            <EventList events={upcoming} lang={lang} onPress={(e) => jumpTo(e.date)} />
+          </Section>
 
           <AppText variant="caption" color={theme.textSecondary}>
             {t.calendar.optionalHint}
@@ -190,49 +181,54 @@ function longDate(iso: string, lang: Lang) {
   });
 }
 
-function EventRow({
-  event,
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+/** Events in one card: colored dot = kind, title, date (and Portuguese name), kind in its color. */
+function EventList({
+  events,
   lang,
-  index,
   onPress,
 }: {
-  event: CalendarEvent;
+  events: CalendarEvent[];
   lang: Lang;
-  index: number;
-  onPress?: () => void;
+  onPress?: (e: CalendarEvent) => void;
 }) {
   const theme = useTheme();
   const { t } = useI18n();
-  const color = eventColor(theme, event.kind);
-  const details = [
-    event.ptName && event.ptName !== event.title[lang] ? event.ptName : null,
-    longDate(event.date, lang),
-    event.time ? formatTime(event.time, lang) : null,
-  ]
-    .filter(Boolean)
-    .join(' · ');
-
   return (
-    <Animated.View layout={LinearTransition}>
-      <PressableScale
-        disabled={!onPress}
-        haptic={!!onPress}
-        onPress={onPress}
-        style={[styles.row, { backgroundColor: theme.surface, borderColor: theme.line }]}>
-        <View style={[styles.bar, { backgroundColor: color }]} />
-        <View style={{ flex: 1, gap: 2 }}>
-          <AppText style={{ fontFamily: Fonts.bodyMedium }}>{event.title[lang]}</AppText>
-          <AppText variant="caption" color={theme.textSecondary}>
-            {details}
-          </AppText>
-        </View>
-        <View style={[styles.badge, { backgroundColor: soft(color) }]}>
-          <AppText variant="caption" color={color} style={{ fontSize: 11 }}>
-            {t.calendar.kinds[event.kind]}
-          </AppText>
-        </View>
-      </PressableScale>
-    </Animated.View>
+    <Card style={styles.listCard}>
+      {events.map((event, i) => {
+        const color = eventColor(theme, event.kind);
+        const details = [
+          event.ptName && event.ptName !== event.title[lang] ? event.ptName : null,
+          capitalize(longDate(event.date, lang)),
+          event.time ? formatTime(event.time, lang) : null,
+        ]
+          .filter(Boolean)
+          .join(' · ');
+        return (
+          <Animated.View key={event.id} layout={LinearTransition}>
+            {i > 0 && <View style={[styles.divider, { backgroundColor: theme.line }]} />}
+            <PressableScale
+              disabled={!onPress}
+              haptic={!!onPress}
+              onPress={onPress ? () => onPress(event) : undefined}
+              style={styles.row}>
+              <View style={[styles.dot, { backgroundColor: color, marginTop: 7 }]} />
+              <View style={{ flex: 1, gap: 2 }}>
+                <AppText>{event.title[lang]}</AppText>
+                <AppText variant="callout" color={theme.textSecondary}>
+                  {details}
+                </AppText>
+              </View>
+              <AppText variant="caption" color={color} style={{ fontFamily: Fonts.bodyMedium }}>
+                {t.calendar.kinds[event.kind]}
+              </AppText>
+            </PressableScale>
+          </Animated.View>
+        );
+      })}
+    </Card>
   );
 }
 
@@ -245,17 +241,10 @@ const styles = StyleSheet.create({
     minHeight: 34,
     paddingHorizontal: 12,
     borderRadius: Radius.pill,
-    borderWidth: 1,
-  },
-  dot: { width: 8, height: 8, borderRadius: 4 },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-    padding: Spacing.md,
-    borderRadius: Radius.lg,
     borderWidth: StyleSheet.hairlineWidth,
   },
-  bar: { width: 4, alignSelf: 'stretch', borderRadius: 2 },
-  badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: Radius.pill },
+  dot: { width: 8, height: 8, borderRadius: 4 },
+  listCard: { paddingVertical: 0 },
+  divider: { height: StyleSheet.hairlineWidth },
+  row: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.md, paddingVertical: 14 },
 });

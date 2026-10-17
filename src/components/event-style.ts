@@ -6,7 +6,7 @@ export const eventKinds: EventKind[] = ['national', 'city', 'optional', 'cleanin
 export function eventColor(theme: ThemeColors, kind: EventKind) {
   switch (kind) {
     case 'national':
-      return theme.brand;
+      return theme.eventNational;
     case 'city':
       return theme.eventCity;
     case 'optional':

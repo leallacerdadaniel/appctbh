@@ -9,8 +9,8 @@ import { languages, useI18n } from '@/i18n';
 
 const PADDING = 3;
 
-/** Segmented FR | EN control with a sliding thumb. */
-export function LanguageSwitch() {
+/** Segmented FR | EN control with a sliding thumb. `onBrand` = placed on the red band. */
+export function LanguageSwitch({ onBrand = false }: { onBrand?: boolean }) {
   const theme = useTheme();
   const { lang, setLang } = useI18n();
   const [segmentWidth, setSegmentWidth] = useState(0);
@@ -28,7 +28,7 @@ export function LanguageSwitch() {
     <View
       accessibilityRole="radiogroup"
       onLayout={onLayout}
-      style={[styles.track, { backgroundColor: theme.line }]}>
+      style={[styles.track, { backgroundColor: onBrand ? theme.onBrandTrack : theme.line }]}>
       {segmentWidth > 0 && (
         <Animated.View
           style={[styles.thumb, { width: segmentWidth, backgroundColor: theme.surface }, thumbStyle]}
@@ -46,7 +46,7 @@ export function LanguageSwitch() {
             style={styles.segment}>
             <AppText
               variant="caption"
-              color={selected ? theme.text : theme.textSecondary}
+              color={selected ? theme.text : onBrand ? theme.onBrand : theme.textSecondary}
               style={{ fontFamily: Fonts.bodyMedium }}>
               {l.toUpperCase()}
             </AppText>

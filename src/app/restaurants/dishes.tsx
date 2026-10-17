@@ -6,7 +6,7 @@ import { Linking, StyleSheet, View } from 'react-native';
 import { Icon } from '@/components/icon';
 import { Screen } from '@/components/screen';
 import { SegmentedControl } from '@/components/segmented-control';
-import { AppText, Card, PressableScale } from '@/components/ui';
+import { AppText, PressableScale } from '@/components/ui';
 import { Fonts, Radius, Shadow, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
@@ -63,7 +63,7 @@ function DishCard({ dish: d }: { dish: Dish }) {
       <View style={styles.body}>
         <AppText variant="title">{d.name}</AppText>
         <AppText color={theme.textSecondary}>{d.description[lang]}</AppText>
-        <Card style={[styles.where, { backgroundColor: theme.fill }]}>
+        <View style={[styles.where, { backgroundColor: theme.fill }]}>
           <AppText variant="caption" color={theme.textSecondary}>
             {t.dishes.whereToTry}
           </AppText>
@@ -84,7 +84,7 @@ function DishCard({ dish: d }: { dish: Dish }) {
               ))}
             </View>
           )}
-        </Card>
+        </View>
       </View>
     </View>
   );
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   body: { padding: Spacing.md, gap: Spacing.sm },
-  where: { gap: 4, padding: 12, boxShadow: 'none' },
+  where: { gap: 4, padding: 12, borderRadius: Radius.md },
   links: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 4 },
   link: {
     flexDirection: 'row',
