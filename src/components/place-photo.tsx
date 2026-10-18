@@ -8,6 +8,7 @@ import { useI18n } from '@/i18n';
 import { usePlacePhoto } from '@/lib/place-photo';
 
 /**
+ * Photo of a place: a team-chosen image bundled with the app (`source`), otherwise Google Maps.
  * Google Maps photo of a place. The box keeps its size while loading (fill color),
  * so the screen never jumps; the image fades in once it arrives.
  * Google requires the author credit wherever a photo is shown: `credit="below"` on large photos,
@@ -15,6 +16,7 @@ import { usePlacePhoto } from '@/lib/place-photo';
  */
 export function PlacePhoto({
   placeId,
+  source,
   aspectRatio = 16 / 10,
   width = 800,
   radius = Radius.md,
@@ -22,6 +24,8 @@ export function PlacePhoto({
   photoIndex = 0,
 }: {
   placeId: string;
+  /** Bundled image that replaces the Google photo (no Google credit then). */
+  source?: number;
   /** Which of the place's Google photos (0 = first). */
   photoIndex?: number;
   aspectRatio?: number;
@@ -31,14 +35,14 @@ export function PlacePhoto({
 }) {
   const theme = useTheme();
   const { t } = useI18n();
-  const photo = usePlacePhoto(placeId, width, photoIndex);
+  const photo = usePlacePhoto(source ? '' : placeId, width, photoIndex);
 
   return (
     <View style={{ gap: Spacing.xs }}>
       <View style={[styles.box, { aspectRatio, borderRadius: radius, backgroundColor: theme.fill }]}>
-        {photo && (
+        {(source || photo) && (
           <Image
-            source={{ uri: photo.uri }}
+            source={source ?? { uri: photo!.uri }}
             style={StyleSheet.absoluteFill}
             contentFit="cover"
             transition={200}

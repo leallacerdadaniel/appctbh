@@ -29,13 +29,16 @@ const content: Record<string, AttractionContent> = {
   'pampulha-church': {
     name: 'Igreja São Francisco de Assis',
     group: 'pampulha',
-    price: 'paid',
+    price: 'free',
     duration: L('45 min', '45 min'),
     description: L(
       'La petite église aux voûtes ondulées d’Oscar Niemeyer, avec les azulejos et les peintures de Portinari. Cœur de l’ensemble moderne de la Pampulha, classé au patrimoine mondial de l’UNESCO en 2016.',
       'Oscar Niemeyer’s small church with wavy vaults, with Portinari’s tiles and paintings. The heart of the Pampulha modern ensemble, a UNESCO World Heritage Site since 2016.',
     ),
-    tip: L('Venez en fin d’après-midi : la lumière sur les azulejos est superbe.', 'Come late afternoon: the light on the tiles is beautiful.'),
+    tip: L(
+      'Les horaires changent selon les messes et mariages : vérifiez avant d’y aller. En fin d’après-midi, la lumière sur les azulejos est superbe.',
+      'Hours change with masses and weddings: check before you go. In the late afternoon, the light on the tiles is beautiful.',
+    ),
   },
   'pampulha-lagoa': {
     name: 'Lagoa da Pampulha',
@@ -91,7 +94,7 @@ const content: Record<string, AttractionContent> = {
       'Un vieux marché rénové par une nouvelle génération : bars, petits restaurants, brasseries et créateurs locaux, très animé le soir.',
       'An old market revived by a new generation: bars, small restaurants, breweries and local designers, very lively at night.',
     ),
-    tip: L('Le jeudi et le vendredi soir sont les plus animés.', 'Thursday and Friday nights are the liveliest.'),
+    tip: L('Ouvert jusqu’à minuit du mardi au samedi : venez en soirée.', 'Open until midnight Tuesday to Saturday: come in the evening.'),
   },
   'praca-liberdade': {
     name: 'Praça da Liberdade',
@@ -108,13 +111,16 @@ const content: Record<string, AttractionContent> = {
   ccbb: {
     name: 'CCBB Belo Horizonte',
     group: 'culture',
-    price: 'mixed',
+    price: 'free',
     duration: L('1 à 2 h', '1 to 2 h'),
     description: L(
       'Centre culturel installé dans un palais de la Praça da Liberdade : expositions, cinéma, théâtre et un café dans la cour.',
       'A cultural centre in a palace on Praça da Liberdade: exhibitions, cinema, theatre and a café in the courtyard.',
     ),
-    tip: L('Entrée gratuite pour la plupart des expositions ; fermé le mardi.', 'Free entry to most exhibitions; closed on Tuesdays.'),
+    tip: L(
+      'Entrée gratuite : réservez le billet sur le site ou à la billetterie. Fermé le mardi.',
+      'Free entry: book your ticket online or at the box office. Closed on Tuesdays.',
+    ),
   },
   'mm-gerdau': {
     name: 'MM Gerdau – Museu das Minas e do Metal',
@@ -182,14 +188,26 @@ const content: Record<string, AttractionContent> = {
     ),
     tip: L('Prenez de l’eau, une casquette et des chaussures de marche.', 'Bring water, a cap and walking shoes.'),
   },
+  'praca-papa': {
+    name: 'Praça do Papa',
+    group: 'outdoors',
+    price: 'free',
+    duration: L('1 h', '1 h'),
+    description: L(
+      'L’un des belvédères les plus connus de BH, dans les Mangabeiras : une grande esplanade avec vue à 180° sur la ville et la Serra do Curral. Son surnom vient de la messe de Jean-Paul II en 1980.',
+      'One of BH’s best-known viewpoints, in the Mangabeiras: a wide esplanade with a 180° view of the city and the Serra do Curral. Its nickname comes from John Paul II’s mass in 1980.',
+    ),
+    tip: L('Venez au coucher du soleil, en Uber ou en voiture : la montée à pied est longue.', 'Come at sunset, by Uber or car: the walk up is long.'),
+    showHours: false,
+  },
   'feira-hippie': {
     name: 'Feira Hippie',
     group: 'markets',
     price: 'free',
     duration: L('Un dimanche matin', 'A Sunday morning'),
     description: L(
-      'Chaque dimanche, l’Avenida Afonso Pena devient un immense marché d’artisanat, de mode et de nourriture : plus d’un kilomètre d’étals.',
-      'Every Sunday, Avenida Afonso Pena becomes a huge market of crafts, fashion and food: more than a kilometre of stalls.',
+      'Chaque dimanche, l’Avenida Afonso Pena devient un immense marché d’artisanat, de mode et de nourriture : environ 1 km et plus de 1 500 étals.',
+      'Every Sunday, Avenida Afonso Pena becomes a huge market of crafts, fashion and food: about 1 km and more than 1,500 stalls.',
     ),
     tip: L('Le dimanche de 8 h à 14 h environ. Gardez votre téléphone près de vous dans la foule.', 'Sundays from about 8 AM to 2 PM. Keep your phone close in the crowd.'),
   },
@@ -225,11 +243,32 @@ type AttractionFacts = {
   driveMin?: number;
 };
 
+/** Team-chosen photos, bundled with the app (replace the Google ones). */
+const photos: Record<string, number> = {
+  'pampulha-church': require('@/assets/attractions/pampulha-church.jpg'),
+  'pampulha-lagoa': require('@/assets/attractions/pampulha-lagoa.jpg'),
+  'casa-do-baile': require('@/assets/attractions/casa-do-baile.jpg'),
+  mineirao: require('@/assets/attractions/mineirao.jpg'),
+  'mercado-central': require('@/assets/attractions/mercado-central.jpg'),
+  'mercado-novo': require('@/assets/attractions/mercado-novo.jpg'),
+  'praca-liberdade': require('@/assets/attractions/praca-liberdade.jpg'),
+  ccbb: require('@/assets/attractions/ccbb.jpg'),
+  'mm-gerdau': require('@/assets/attractions/mm-gerdau.jpg'),
+  'palacio-artes': require('@/assets/attractions/palacio-artes.jpg'),
+  'parque-municipal': require('@/assets/attractions/parque-municipal.jpg'),
+  mangabeiras: require('@/assets/attractions/mangabeiras.jpg'),
+  'serra-curral': require('@/assets/attractions/serra-curral.jpg'),
+  'praca-papa': require('@/assets/attractions/praca-papa.jpg'),
+  'feira-hippie': require('@/assets/attractions/feira-hippie.jpg'),
+  'santa-tereza': require('@/assets/attractions/santa-tereza.jpg'),
+  estacao: require('@/assets/attractions/estacao.jpg'),
+};
+
 export const attractions = (data as { attractions: AttractionFacts[] }).attractions
   .filter((f) => content[f.id])
   .map((f) => {
     const c = content[f.id];
-    return { ...f, ...c, hours: c.showHours === false ? [] : f.hours, mustGo: isMustGo(f.id) };
+    return { ...f, ...c, hours: c.showHours === false ? [] : f.hours, mustGo: isMustGo(f.id), photo: photos[f.id] as number | undefined };
   });
 
 export type Attraction = (typeof attractions)[number];

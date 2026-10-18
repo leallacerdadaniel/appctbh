@@ -1,0 +1,1752 @@
+{
+  "origin": {
+    "lat": -19.9390581,
+    "lng": -43.93384349999999
+  },
+  "places": [
+    {
+      "id": "run-pampulha",
+      "name": "Lagoa da Pampulha",
+      "placeId": "ChIJFTdn5U2QpgARQ_D45yct-4Q",
+      "address": "Av. Otacílio Negrão de Lima, s/n - São Luiz, Belo Horizonte - MG, 31365-450",
+      "neighborhood": "São Luiz",
+      "lat": -19.8513605,
+      "lng": -43.9779221,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0000"
+          },
+          "close": null
+        }
+      ],
+      "website": "https://www.lagoadapampulha.com.br/",
+      "distanceM": 13299,
+      "walkMin": 185,
+      "driveMin": 31
+    },
+    {
+      "id": "run-liberdade",
+      "name": "Praça da Liberdade",
+      "placeId": "ChIJjU6EM9yZpgAR-ZPzNIfuwyU",
+      "address": "Praça da Liberdade - Savassi, Belo Horizonte - MG, 30140-010",
+      "neighborhood": "Savassi",
+      "lat": -19.9329185,
+      "lng": -43.938381,
+      "hours": [],
+      "website": null,
+      "distanceM": 919,
+      "walkMin": 13,
+      "driveMin": 6
+    },
+    {
+      "id": "run-lagoa-seca",
+      "name": "Praça Lagoa Seca",
+      "placeId": "ChIJc9Z60feXpgARoLhSNOaxHx8",
+      "address": "Rua Juvenal de Melo Senra, 675 - Belvedere, Belo Horizonte - MG, 30320-660",
+      "neighborhood": "Belvedere",
+      "lat": -19.9728354,
+      "lng": -43.9428785,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0000"
+          },
+          "close": null
+        }
+      ],
+      "website": null,
+      "distanceM": 4987,
+      "walkMin": 81,
+      "driveMin": 15
+    },
+    {
+      "id": "run-parque-municipal",
+      "name": "Parque Municipal Américo Renné Giannetti",
+      "placeId": "ChIJ1VS5qu-ZpgARF8B4SNBoDQc",
+      "address": "Av. Afonso Pena, 1377 - Centro, Belo Horizonte - MG, 30130-002",
+      "neighborhood": "Centro",
+      "lat": -19.9242934,
+      "lng": -43.9348505,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0700"
+          },
+          "close": {
+            "day": 0,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0700"
+          },
+          "close": {
+            "day": 2,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0700"
+          },
+          "close": {
+            "day": 3,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0700"
+          },
+          "close": {
+            "day": 4,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0700"
+          },
+          "close": {
+            "day": 5,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0700"
+          },
+          "close": {
+            "day": 6,
+            "time": "2100"
+          }
+        }
+      ],
+      "website": "https://prefeitura.pbh.gov.br/fundacao-de-parques-e-zoobotanica",
+      "distanceM": 2455,
+      "walkMin": 33,
+      "driveMin": 7
+    },
+    {
+      "id": "run-mangabeiras",
+      "name": "Parque das Mangabeiras - Maurício Campos",
+      "placeId": "ChIJCdNRlXOZpgAREwvpLa2Lnpc",
+      "address": "Av. José do Patrocínio Pontes, 580 - Mangabeiras, Belo Horizonte - MG, 30210-090",
+      "neighborhood": "Mangabeiras",
+      "lat": -19.9509155,
+      "lng": -43.9056299,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0800"
+          },
+          "close": {
+            "day": 0,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0800"
+          },
+          "close": {
+            "day": 2,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0800"
+          },
+          "close": {
+            "day": 3,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0800"
+          },
+          "close": {
+            "day": 4,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0800"
+          },
+          "close": {
+            "day": 5,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0800"
+          },
+          "close": {
+            "day": 6,
+            "time": "1700"
+          }
+        }
+      ],
+      "website": "http://pbh.gov.br/parquesezoobotanica",
+      "distanceM": 4767,
+      "walkMin": 80,
+      "driveMin": 14
+    },
+    {
+      "id": "smart-fit",
+      "name": "Academia Smart Fit - Savassi",
+      "placeId": "ChIJOVrhO7tRzpQR0BRxxSb1IUE",
+      "address": "R. Fernandes Tourinho, 195 - Funcionários, Belo Horizonte - MG, 30112-000",
+      "neighborhood": "Funcionários",
+      "lat": -19.939351,
+      "lng": -43.9364606,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0800"
+          },
+          "close": {
+            "day": 0,
+            "time": "1400"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "0500"
+          },
+          "close": {
+            "day": 1,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0530"
+          },
+          "close": {
+            "day": 2,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0530"
+          },
+          "close": {
+            "day": 3,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0500"
+          },
+          "close": {
+            "day": 4,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0530"
+          },
+          "close": {
+            "day": 5,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0800"
+          },
+          "close": {
+            "day": 6,
+            "time": "1700"
+          }
+        }
+      ],
+      "website": "https://www.smartfit.com.br/academias/savassi/?utm_source=google&utm_medium=maps&utm_campaign=fbiz-SBRMGCSAV01",
+      "distanceM": 379,
+      "walkMin": 6,
+      "driveMin": 3
+    },
+    {
+      "id": "bluefit",
+      "name": "Academia BlueFit Savassi Mall",
+      "placeId": "ChIJSVkAvTCZpgARPt7TXM1n-OE",
+      "address": "R. Sergipe, 1448 - Funcionários, Belo Horizonte - MG, 30130-174",
+      "neighborhood": "Funcionários",
+      "lat": -19.9393108,
+      "lng": -43.9387744,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0000"
+          },
+          "close": null
+        }
+      ],
+      "website": "https://www.bluefit.com.br/unidade/savassi-mall",
+      "distanceM": 626,
+      "walkMin": 9,
+      "driveMin": 4
+    },
+    {
+      "id": "contorno-do-corpo",
+      "name": "Contorno do Corpo - Unidade Funcionários",
+      "placeId": "ChIJI82dK5WZpgARtVFjqodjJUs",
+      "address": "R. dos Aimorés, 20 - Funcionários, Belo Horizonte - MG, 30140-070",
+      "neighborhood": "Funcionários",
+      "lat": -19.931565,
+      "lng": -43.9244146,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0900"
+          },
+          "close": {
+            "day": 0,
+            "time": "1300"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "0530"
+          },
+          "close": {
+            "day": 1,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0530"
+          },
+          "close": {
+            "day": 2,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0530"
+          },
+          "close": {
+            "day": 3,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0530"
+          },
+          "close": {
+            "day": 4,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0530"
+          },
+          "close": {
+            "day": 5,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0800"
+          },
+          "close": {
+            "day": 6,
+            "time": "1400"
+          }
+        }
+      ],
+      "website": "https://contornodocorpo.com.br/unidade/funcionarios/",
+      "distanceM": 1341,
+      "walkMin": 19,
+      "driveMin": 7
+    },
+    {
+      "id": "pratique",
+      "name": "Academia Pratique Fitness - Prime, Funcionários",
+      "placeId": "ChIJBSc5YDSZpgARd8YaK4GPqWo",
+      "address": "Av. Carandaí, 41 - Funcionários, Belo Horizonte - MG, 30130-060",
+      "neighborhood": "Funcionários",
+      "lat": -19.9297071,
+      "lng": -43.9227189,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0900"
+          },
+          "close": {
+            "day": 0,
+            "time": "1300"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "0530"
+          },
+          "close": {
+            "day": 1,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0530"
+          },
+          "close": {
+            "day": 2,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0530"
+          },
+          "close": {
+            "day": 3,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0530"
+          },
+          "close": {
+            "day": 4,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0530"
+          },
+          "close": {
+            "day": 5,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0800"
+          },
+          "close": {
+            "day": 6,
+            "time": "1300"
+          }
+        }
+      ],
+      "website": "https://pratiquefitness.com.br/unidade/funcionarios",
+      "distanceM": 1688,
+      "walkMin": 23,
+      "driveMin": 6
+    },
+    {
+      "id": "bh-wake-school",
+      "name": "Clube Serra da Moeda",
+      "placeId": "ChIJ4c-kk5OxpgARFCxyG6IAJps",
+      "address": "S/N Br 040 567 Zona Rural, Nova Lima - MG",
+      "neighborhood": "MG, 34000-000, Brasil",
+      "lat": -20.1897003,
+      "lng": -43.96613989999999,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0800"
+          },
+          "close": {
+            "day": 0,
+            "time": "1800"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0800"
+          },
+          "close": {
+            "day": 4,
+            "time": "1800"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0800"
+          },
+          "close": {
+            "day": 5,
+            "time": "1800"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0800"
+          },
+          "close": {
+            "day": 6,
+            "time": "1800"
+          }
+        }
+      ],
+      "website": null,
+      "distanceM": 38544,
+      "walkMin": 574,
+      "driveMin": 36
+    },
+    {
+      "id": "pe-na-areia",
+      "name": "Pé na areia",
+      "placeId": "ChIJhSOWtnCZpgARwdUNqhxGmtg",
+      "address": "R. Luz, 126 - Serra, Belo Horizonte - MG, 30220-080",
+      "neighborhood": "Serra",
+      "lat": -19.937704,
+      "lng": -43.9247245,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0800"
+          },
+          "close": {
+            "day": 0,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "0600"
+          },
+          "close": {
+            "day": 1,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0600"
+          },
+          "close": {
+            "day": 2,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0600"
+          },
+          "close": {
+            "day": 3,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0600"
+          },
+          "close": {
+            "day": 4,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0600"
+          },
+          "close": {
+            "day": 5,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0800"
+          },
+          "close": {
+            "day": 6,
+            "time": "2200"
+          }
+        }
+      ],
+      "website": "http://penaareiabh.com.br/",
+      "distanceM": 1152,
+      "walkMin": 19,
+      "driveMin": 7
+    },
+    {
+      "id": "orla-sports",
+      "name": "ORLA SPORTS",
+      "placeId": "ChIJUepP212ZpgARyYRo3DsK8l8",
+      "address": "Av. Celso Porfírio Machado, 870 - Belvedere, Belo Horizonte - MG, 30320-400",
+      "neighborhood": "Belvedere",
+      "lat": -19.9680901,
+      "lng": -43.9365108,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0800"
+          },
+          "close": {
+            "day": 0,
+            "time": "1400"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "0700"
+          },
+          "close": {
+            "day": 1,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0700"
+          },
+          "close": {
+            "day": 2,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0700"
+          },
+          "close": {
+            "day": 3,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0700"
+          },
+          "close": {
+            "day": 4,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0700"
+          },
+          "close": {
+            "day": 5,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0800"
+          },
+          "close": {
+            "day": 6,
+            "time": "2000"
+          }
+        }
+      ],
+      "website": null,
+      "distanceM": 4042,
+      "walkMin": 70,
+      "driveMin": 11
+    },
+    {
+      "id": "4set-arena",
+      "name": "4Set Arena Bh",
+      "placeId": "ChIJr1rgEU-XpgARCGbpEkRSRRU",
+      "address": "R. Líbero Leone, 259 - Buritis, Belo Horizonte - MG, 30493-145",
+      "neighborhood": "Buritis",
+      "lat": -19.9721202,
+      "lng": -43.963362,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0900"
+          },
+          "close": {
+            "day": 0,
+            "time": "1400"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "0700"
+          },
+          "close": {
+            "day": 1,
+            "time": "2230"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0700"
+          },
+          "close": {
+            "day": 2,
+            "time": "2230"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0700"
+          },
+          "close": {
+            "day": 3,
+            "time": "2230"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0700"
+          },
+          "close": {
+            "day": 4,
+            "time": "2230"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0700"
+          },
+          "close": {
+            "day": 5,
+            "time": "2230"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0800"
+          },
+          "close": {
+            "day": 6,
+            "time": "1500"
+          }
+        }
+      ],
+      "website": "http://www.4setarenabh.com.br/",
+      "distanceM": 6280,
+      "walkMin": 105,
+      "driveMin": 21
+    },
+    {
+      "id": "arena-serra",
+      "name": "Arena Serra",
+      "placeId": "ChIJ0SqWPL2ZpgARI29kXlKvXjc",
+      "address": "R. Laguna, 9 - Serra, Belo Horizonte - MG, 30240-040",
+      "neighborhood": "Serra",
+      "lat": -19.9380483,
+      "lng": -43.9160005,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0900"
+          },
+          "close": {
+            "day": 0,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "0800"
+          },
+          "close": {
+            "day": 2,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1000"
+          },
+          "close": {
+            "day": 3,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0800"
+          },
+          "close": {
+            "day": 4,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1000"
+          },
+          "close": {
+            "day": 5,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0800"
+          },
+          "close": {
+            "day": 6,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0900"
+          },
+          "close": {
+            "day": 6,
+            "time": "1700"
+          }
+        }
+      ],
+      "website": null,
+      "distanceM": 2176,
+      "walkMin": 36,
+      "driveMin": 9
+    },
+    {
+      "id": "la-bombonera",
+      "name": "La Bombonera Centro Esportivo",
+      "placeId": "ChIJuy5jK--XpgAReN6UYz0zuYY",
+      "address": "Av. Professor Mário Werneck, 569 - Buritis, Belo Horizonte - MG, 30450-610",
+      "neighborhood": "Buritis",
+      "lat": -19.9687976,
+      "lng": -43.9587111,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0700"
+          },
+          "close": {
+            "day": 0,
+            "time": "1800"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "0900"
+          },
+          "close": {
+            "day": 2,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0900"
+          },
+          "close": {
+            "day": 3,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0900"
+          },
+          "close": {
+            "day": 4,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0900"
+          },
+          "close": {
+            "day": 5,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0900"
+          },
+          "close": {
+            "day": 6,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0700"
+          },
+          "close": {
+            "day": 6,
+            "time": "1800"
+          }
+        }
+      ],
+      "website": null,
+      "distanceM": 5671,
+      "walkMin": 94,
+      "driveMin": 15
+    },
+    {
+      "id": "arena-7-bh",
+      "name": "Arena 7 BH",
+      "placeId": "ChIJU5CLPkyRpgARz1d-PFDk2wA",
+      "address": "Av. Heráclito Mourão de Miranda, 907 - Alípio de Melo, Belo Horizonte - MG, 30882-150",
+      "neighborhood": "Alípio de Melo",
+      "lat": -19.8861858,
+      "lng": -44.0076158,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0800"
+          },
+          "close": {
+            "day": 0,
+            "time": "1400"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "0700"
+          },
+          "close": {
+            "day": 1,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0700"
+          },
+          "close": {
+            "day": 2,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0700"
+          },
+          "close": {
+            "day": 3,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0700"
+          },
+          "close": {
+            "day": 4,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0700"
+          },
+          "close": {
+            "day": 5,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0800"
+          },
+          "close": {
+            "day": 6,
+            "time": "1700"
+          }
+        }
+      ],
+      "website": "https://arena7bh.com.br/",
+      "distanceM": 11439,
+      "walkMin": 158,
+      "driveMin": 30
+    },
+    {
+      "id": "layback-park",
+      "name": "LayBack Park Belo Horizonte",
+      "placeId": "ChIJ00rxsXW9pgARDowg6df3o98",
+      "address": "Rod. Januário Carneiro, 20 - Vale do Sereno, Nova Lima - MG",
+      "neighborhood": "MG, 34006-057, Brasil",
+      "lat": -19.983118,
+      "lng": -43.9474021,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1130"
+          },
+          "close": {
+            "day": 0,
+            "time": "1800"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1130"
+          },
+          "close": {
+            "day": 1,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1130"
+          },
+          "close": {
+            "day": 2,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1130"
+          },
+          "close": {
+            "day": 4,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1130"
+          },
+          "close": {
+            "day": 5,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1130"
+          },
+          "close": {
+            "day": 6,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1130"
+          },
+          "close": {
+            "day": 0,
+            "time": "0000"
+          }
+        }
+      ],
+      "website": "http://layback.com/",
+      "distanceM": 6503,
+      "walkMin": 105,
+      "driveMin": 13
+    },
+    {
+      "id": "fast-tennis",
+      "name": "Fast Tennis Savassi",
+      "placeId": "ChIJFTVeF8iZpgARWClBvmSg_74",
+      "address": "Av. do Contorno, 6539 - Savassi, Belo Horizonte - MG, 30110-043",
+      "neighborhood": "Savassi",
+      "lat": -19.9404956,
+      "lng": -43.9385107,
+      "hours": [
+        {
+          "open": {
+            "day": 1,
+            "time": "0600"
+          },
+          "close": {
+            "day": 1,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0600"
+          },
+          "close": {
+            "day": 2,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0600"
+          },
+          "close": {
+            "day": 3,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0600"
+          },
+          "close": {
+            "day": 4,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0600"
+          },
+          "close": {
+            "day": 5,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0700"
+          },
+          "close": {
+            "day": 6,
+            "time": "1600"
+          }
+        }
+      ],
+      "website": "https://www.fasttennis.com.br/fast-tennis-savassi",
+      "distanceM": 639,
+      "walkMin": 10,
+      "driveMin": 7
+    },
+    {
+      "id": "aera-pilates",
+      "name": "Aera Pilates - Belvedere",
+      "placeId": "ChIJP34dPWeZpgAR-8sb_JvvadQ",
+      "address": "Rua Modesto Carvalho de Araújo, 674 - Belvedere, Belo Horizonte - MG, 30320-410",
+      "neighborhood": "Belvedere",
+      "lat": -19.9699025,
+      "lng": -43.9421565,
+      "hours": [],
+      "website": null,
+      "distanceM": 4506,
+      "walkMin": 75,
+      "driveMin": 12
+    },
+    {
+      "id": "goya",
+      "name": "Goyá Health Club",
+      "placeId": "ChIJM3CRaACXpgARM_dKVrp-Dv4",
+      "address": "R. Parentins, 420 - Santa Lúcia, Belo Horizonte - MG, 30360-620",
+      "neighborhood": "Santa Lúcia",
+      "lat": -19.9711155,
+      "lng": -43.9492112,
+      "hours": [
+        {
+          "open": {
+            "day": 1,
+            "time": "0700"
+          },
+          "close": {
+            "day": 1,
+            "time": "1200"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1730"
+          },
+          "close": {
+            "day": 1,
+            "time": "2030"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0700"
+          },
+          "close": {
+            "day": 2,
+            "time": "1200"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1700"
+          },
+          "close": {
+            "day": 2,
+            "time": "2030"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0700"
+          },
+          "close": {
+            "day": 3,
+            "time": "1200"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1730"
+          },
+          "close": {
+            "day": 3,
+            "time": "2030"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0700"
+          },
+          "close": {
+            "day": 4,
+            "time": "1200"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1600"
+          },
+          "close": {
+            "day": 4,
+            "time": "2030"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0700"
+          },
+          "close": {
+            "day": 5,
+            "time": "1200"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0900"
+          },
+          "close": {
+            "day": 6,
+            "time": "1200"
+          }
+        }
+      ],
+      "website": "https://goyahealthclub.com.br/",
+      "distanceM": 4752,
+      "walkMin": 82,
+      "driveMin": 11
+    },
+    {
+      "id": "flow-yoga",
+      "name": "Flow Yoga BH",
+      "placeId": "ChIJ7frYpXeZpgARoxkYN4YoaRE",
+      "address": "Alameda Oscar Niemeyer 1369 - lojas 55 e 56 - Vila da Serra, Nova Lima - MG",
+      "neighborhood": "MG, 34006-049, Brasil",
+      "lat": -19.9752692,
+      "lng": -43.9387127,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0900"
+          },
+          "close": {
+            "day": 0,
+            "time": "1300"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "0600"
+          },
+          "close": {
+            "day": 1,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0700"
+          },
+          "close": {
+            "day": 2,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0600"
+          },
+          "close": {
+            "day": 3,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0700"
+          },
+          "close": {
+            "day": 4,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0600"
+          },
+          "close": {
+            "day": 5,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0800"
+          },
+          "close": {
+            "day": 6,
+            "time": "1300"
+          }
+        }
+      ],
+      "website": "https://flowyogabr.com.br/",
+      "distanceM": 5466,
+      "walkMin": 91,
+      "driveMin": 15
+    },
+    {
+      "id": "vidya",
+      "name": "Vidya Studio - Belvedere",
+      "placeId": "ChIJFc4AqCGZpgARn3oBxy3VPlM",
+      "address": "Rua Modesto Carvalho de Araújo, 674 - Belvedere, Belo Horizonte - MG, 30320-410",
+      "neighborhood": "Belvedere",
+      "lat": -19.9699025,
+      "lng": -43.9421565,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0800"
+          },
+          "close": {
+            "day": 0,
+            "time": "1300"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "0600"
+          },
+          "close": {
+            "day": 1,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0600"
+          },
+          "close": {
+            "day": 2,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0600"
+          },
+          "close": {
+            "day": 3,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0600"
+          },
+          "close": {
+            "day": 4,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0600"
+          },
+          "close": {
+            "day": 5,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0800"
+          },
+          "close": {
+            "day": 6,
+            "time": "1300"
+          }
+        }
+      ],
+      "website": "https://www.vidyastudio.com.br/unidade-belvedere",
+      "distanceM": 4506,
+      "walkMin": 75,
+      "driveMin": 12
+    },
+    {
+      "id": "velocity",
+      "name": "Studio Velocity Vila da Serra",
+      "placeId": "ChIJmwMT0v2ZpgARGiTs-Ie2gSQ",
+      "address": "Alameda Oscar Niemeyer, 891 - Vila da Serra, Nova Lima - MG",
+      "neighborhood": "MG, 34006-065, Brasil",
+      "lat": -19.9782102,
+      "lng": -43.942427,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0800"
+          },
+          "close": {
+            "day": 0,
+            "time": "1300"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "0630"
+          },
+          "close": {
+            "day": 1,
+            "time": "2130"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0615"
+          },
+          "close": {
+            "day": 2,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0630"
+          },
+          "close": {
+            "day": 3,
+            "time": "2130"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0615"
+          },
+          "close": {
+            "day": 4,
+            "time": "2200"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0630"
+          },
+          "close": {
+            "day": 5,
+            "time": "2130"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0800"
+          },
+          "close": {
+            "day": 6,
+            "time": "1300"
+          }
+        }
+      ],
+      "website": "https://studiovelocity.com.br/unidades/vila-da%20serra/55",
+      "distanceM": 5963,
+      "walkMin": 97,
+      "driveMin": 16
+    },
+    {
+      "id": "companhia-do-nado",
+      "name": "Companhia do Nado - Anchieta",
+      "placeId": "ChIJYxInvsmZpgARhbenLkqWjI4",
+      "address": "Rua Vitório Marçola, 435 - Cruzeiro, Belo Horizonte - MG, 30310-360",
+      "neighborhood": "Cruzeiro",
+      "lat": -19.946082,
+      "lng": -43.9259375,
+      "hours": [
+        {
+          "open": {
+            "day": 1,
+            "time": "0600"
+          },
+          "close": {
+            "day": 1,
+            "time": "2130"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0600"
+          },
+          "close": {
+            "day": 2,
+            "time": "2130"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0600"
+          },
+          "close": {
+            "day": 3,
+            "time": "2130"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0600"
+          },
+          "close": {
+            "day": 4,
+            "time": "2130"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0600"
+          },
+          "close": {
+            "day": 5,
+            "time": "2130"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0830"
+          },
+          "close": {
+            "day": 6,
+            "time": "1230"
+          }
+        }
+      ],
+      "website": "http://www.companhiadonado.com.br/",
+      "distanceM": 1440,
+      "walkMin": 22,
+      "driveMin": 8
+    },
+    {
+      "id": "gracie-barra",
+      "name": "Gracie Barra Savassi",
+      "placeId": "ChIJ0dTdFDOZpgARQL2wPkJNozI",
+      "address": "R. Levindo Lopes, 373 - Savassi, Belo Horizonte - MG, 30140-170",
+      "neighborhood": "Savassi",
+      "lat": -19.9393291,
+      "lng": -43.9398272,
+      "hours": [
+        {
+          "open": {
+            "day": 1,
+            "time": "0700"
+          },
+          "close": {
+            "day": 1,
+            "time": "2130"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0700"
+          },
+          "close": {
+            "day": 2,
+            "time": "2130"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0700"
+          },
+          "close": {
+            "day": 3,
+            "time": "2130"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0700"
+          },
+          "close": {
+            "day": 4,
+            "time": "2130"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0700"
+          },
+          "close": {
+            "day": 5,
+            "time": "1930"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0930"
+          },
+          "close": {
+            "day": 6,
+            "time": "1330"
+          }
+        }
+      ],
+      "website": "https://graciebarrasavassi.com.br/",
+      "distanceM": 777,
+      "walkMin": 11,
+      "driveMin": 4
+    }
+  ]
+}

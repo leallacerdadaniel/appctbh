@@ -52,8 +52,8 @@ const content: Destination[] = [
       'One of the largest open-air contemporary art museums in the world: artists’ pavilions spread across a huge botanical garden. A full day is sometimes not enough.',
     ),
     getThere: L(
-      'Environ 60 km de BH : voiture, van ou excursion organisée (pas de bus direct pratique).',
-      'About 60 km from BH: car, van or an organised tour (no convenient direct bus).',
+      'Environ 60 km de BH : bus Saritur depuis la rodoviária (≈ 1 h 45, départ vers 8 h 15, sauf le lundi), voiture, ou van depuis la Savassi.',
+      'About 60 km from BH: Saritur bus from the rodoviária (≈ 1 h 45, leaves around 8:15 AM, not on Mondays), car, or a van from Savassi.',
     ),
     stay: L('Une journée', 'One day'),
     season: L('Toute l’année (fermé le lundi)', 'All year (closed on Mondays)'),
@@ -63,8 +63,8 @@ const content: Destination[] = [
       L('Les voiturettes entre les pavillons éloignés', 'Electric carts to the distant pavilions'),
     ],
     tip: L(
-      'Certains jours ont une entrée gratuite sur réservation : regardez le site officiel avant d’acheter.',
-      'Some days have free entry with a booking: check the official website before buying.',
+      'Entrée gratuite le mercredi (sauf jours fériés), sur réservation : regardez le site officiel avant d’acheter.',
+      'Free entry on Wednesdays (except public holidays), with a booking: check the official website before buying.',
     ),
     mapsQuery: 'Instituto Inhotim, Brumadinho',
   },
@@ -81,8 +81,8 @@ const content: Destination[] = [
       'The former gold capital, a UNESCO World Heritage Site: Aleijadinho’s baroque churches, steep cobbled streets and a lively student life. Neighbouring Mariana is 15 minutes away.',
     ),
     getThere: L(
-      'Bus Pássaro Verde depuis la rodoviária de BH (≈ 2 h, à partir de ≈ R$ 65).',
-      'Pássaro Verde bus from BH’s rodoviária (≈ 2 h, from ≈ R$ 65).',
+      'Bus Pássaro Verde depuis la rodoviária de BH (≈ 2 h à 2 h 30, ≈ R$ 65–70).',
+      'Pássaro Verde bus from BH’s rodoviária (≈ 2 h to 2 h 30, ≈ R$ 65–70).',
     ),
     stay: L('Aller-retour dans la journée ou un week-end', 'Day trip or a weekend'),
     season: L('Toute l’année ; ambiance unique pendant le Carnaval', 'All year; unique atmosphere during Carnival'),
@@ -111,11 +111,10 @@ const content: Destination[] = [
     stay: L('Un week-end', 'A weekend'),
     season: L('Saison sèche, avril à septembre, pour les randonnées', 'Dry season, April to September, for hiking'),
     highlights: [
-      L('Cachoeira Grande', 'Cachoeira Grande waterfall'),
       L('Cachoeira da Farofa (dans le parc)', 'Farofa waterfall (inside the park)'),
       L('Cânion das Bandeirinhas', 'Bandeirinhas canyon'),
     ],
-    tip: L('Les véhicules à moteur sont interdits dans le parc : prévoyez de marcher ou de louer un vélo.', 'Motor vehicles are not allowed in the park: plan to walk or rent a bike.'),
+    tip: L('Les sentiers se font à pied : comptez ≈ 7 km aller pour la Cachoeira da Farofa, avec de l’eau et de bonnes chaussures.', 'The trails are on foot: expect ≈ 7 km each way to the Farofa waterfall, with water and good shoes.'),
     mapsQuery: 'Serra do Cipó, MG',
   },
   {
@@ -149,10 +148,10 @@ const content: Destination[] = [
     fromBh: L('≈ 3 h', '≈ 3 h'),
     cost: 2,
     description: L(
-      'Petite ville coloniale parfaitement conservée, réputée pour sa gastronomie et ses ateliers d’artisans. São João del-Rei, à 10 km, complète la visite.',
-      'A small, perfectly preserved colonial town, known for its food and craft workshops. São João del-Rei, 10 km away, completes the visit.',
+      'Petite ville coloniale parfaitement conservée, réputée pour sa gastronomie et ses ateliers d’artisans. São João del-Rei, à ≈ 15 km, complète la visite.',
+      'A small, perfectly preserved colonial town, known for its food and craft workshops. São João del-Rei, ≈ 15 km away, completes the visit.',
     ),
-    getThere: L('≈ 190 km : bus jusqu’à São João del-Rei puis bus local, ou voiture.', '≈ 190 km: bus to São João del-Rei then a local bus, or car.'),
+    getThere: L('≈ 200 km : bus Sandra jusqu’à São João del-Rei (≈ 3 h 30 à 4 h 30), puis bus local ou taxi ; ou voiture.', '≈ 200 km: Sandra bus to São João del-Rei (≈ 3 h 30 to 4 h 30), then a local bus or taxi; or car.'),
     stay: L('Un week-end', 'A weekend'),
     season: L('Toute l’année ; festival gastronomique en août', 'All year; food festival in August'),
     highlights: [
@@ -175,13 +174,13 @@ const content: Destination[] = [
       'Ville du diamant classée à l’UNESCO, au cœur de la Serra do Espinhaço : façades colorées, histoire de Chica da Silva et musiciens qui jouent depuis les balcons lors des « Vesperatas ».',
       'The UNESCO-listed diamond town in the Serra do Espinhaço: colourful façades, the story of Chica da Silva and musicians playing from balconies during the “Vesperatas”.',
     ),
-    getThere: L('Bus Pássaro Verde depuis la rodoviária de BH (≈ 5 h, plusieurs départs par jour).', 'Pássaro Verde bus from BH’s rodoviária (≈ 5 h, several departures a day).'),
+    getThere: L('Bus Pássaro Verde ou Gontijo depuis la rodoviária de BH (≈ 5 à 6 h).', 'Pássaro Verde or Gontijo bus from BH’s rodoviária (≈ 5 to 6 h).'),
     stay: L('Un week-end prolongé', 'A long weekend'),
-    season: L('Vesperatas certains samedis (consultez le calendrier)', 'Vesperatas on some Saturdays (check the calendar)'),
+    season: L('Vesperatas gratuites certains samedis d’avril à octobre (consultez le calendrier)', 'Free Vesperatas on some Saturdays from April to October (check the calendar)'),
     highlights: [
       L('Casa de Chica da Silva', 'Casa de Chica da Silva'),
       L('Caminho dos Escravos (sentier historique)', 'Caminho dos Escravos (historic trail)'),
-      L('Parc de Biribiri et ses cascades', 'Biribiri park and its waterfalls'),
+      L('Parc de Biribiri et ses cascades (voiture ou excursion : pas de transport public)', 'Biribiri park and its waterfalls (car or tour: no public transport)'),
     ],
     tip: L('Le bus de nuit fait gagner une nuit d’hôtel.', 'The night bus saves a night in a hotel.'),
     mapsQuery: 'Diamantina, MG',
@@ -198,7 +197,7 @@ const content: Destination[] = [
       'Les canyons de Furnas, une eau verte entre des falaises de pierre et des cascades : l’une des images les plus célèbres du Minas, à découvrir en bateau.',
       'The Furnas canyons, green water between rock cliffs and waterfalls: one of Minas’ most famous sights, best seen by boat.',
     ),
-    getThere: L('≈ 280 km : bus ou voiture ; les attractions sont dispersées, une voiture aide beaucoup.', '≈ 280 km: bus or car; sights are spread out, a car helps a lot.'),
+    getThere: L('≈ 280 km : bus ou voiture ; les bateaux partent du pont du Rio Turvo, à ≈ 15 km de la ville, et les attractions sont dispersées : une voiture aide beaucoup.', '≈ 280 km: bus or car; boats leave from the Rio Turvo bridge, ≈ 15 km from town, and sights are spread out: a car helps a lot.'),
     stay: L('Un pont de 3 jours', 'A 3-day long weekend'),
     season: L('Avril à octobre pour le ciel dégagé ; l’été pour l’eau plus chaude', 'April to October for clear skies; summer for warmer water'),
     highlights: [
@@ -221,13 +220,13 @@ const content: Destination[] = [
       'Le parc où naît le fleuve São Francisco : plateaux immenses, la cascade Casca d’Anta de 186 m et le célèbre fromage canastra.',
       'The park where the São Francisco river begins: vast plateaus, the 186 m Casca d’Anta waterfall and the famous canastra cheese.',
     ),
-    getThere: L('≈ 330 km : voiture recommandée, beaucoup de routes en terre.', '≈ 330 km: car recommended, many dirt roads.'),
+    getThere: L('≈ 350 km jusqu’à São Roque de Minas : voiture recommandée, beaucoup de pistes en terre (4x4 conseillé pour certaines).', '≈ 350 km to São Roque de Minas: car recommended, many dirt roads (4x4 advised for some).'),
     stay: L('Un pont de 3 à 4 jours', 'A 3–4 day long weekend'),
     season: L('Avril à octobre', 'April to October'),
     highlights: [
       L('Cachoeira Casca d’Anta', 'Casca d’Anta waterfall'),
       L('Source du São Francisco', 'Source of the São Francisco river'),
-      L('Fromageries de queijo canastra', 'Canastra cheese farms'),
+      L('Fromageries de queijo canastra, patrimoine culturel du Brésil (visites et dégustations)', 'Canastra cheese farms, Brazilian cultural heritage (visits and tastings)'),
     ],
     tip: L('À combiner avec Capitólio dans le même voyage.', 'Combine it with Capitólio in the same trip.'),
     mapsQuery: 'Parque Nacional da Serra da Canastra',
@@ -268,9 +267,9 @@ const content: Destination[] = [
     ),
     getThere: L('Bus jusqu’à Três Corações, puis bus local.', 'Bus to Três Corações, then a local bus.'),
     stay: L('Un week-end', 'A weekend'),
-    season: L('Avril à septembre ; nuits froides en juin–août', 'April to September; cold nights in June–August'),
+    season: L('Avril à octobre (saison sèche) ; nuits froides en juin–août', 'April to October (dry season); cold nights in June–August'),
     highlights: [
-      L('Coucher de soleil à la Pirâmide', 'Sunset at the Pirâmide'),
+      L('Coucher de soleil à la Pirâmide, le point le plus haut de la ville', 'Sunset at the Pirâmide, the highest point in town'),
       L('Cachoeira da Eubiose', 'Eubiose waterfall'),
       L('Grottes et mirantes', 'Caves and viewpoints'),
     ],
@@ -338,7 +337,7 @@ const content: Destination[] = [
       'Une grande île sans voitures couverte de forêt atlantique, avec des plages parmi les plus belles du Brésil, comme Lopes Mendes.',
       'A large car-free island covered in Atlantic forest, with some of Brazil’s most beautiful beaches, like Lopes Mendes.',
     ),
-    getThere: L('Bus jusqu’à Angra dos Reis ou Conceição de Jacareí, puis bateau.', 'Bus to Angra dos Reis or Conceição de Jacareí, then a boat.'),
+    getThere: L('Bus jusqu’à Angra dos Reis, Conceição de Jacareí ou Mangaratiba, puis bateau.', 'Bus to Angra dos Reis, Conceição de Jacareí or Mangaratiba, then a boat.'),
     stay: L('3 à 4 jours', '3 to 4 days'),
     season: L('Mai à octobre : moins de pluie', 'May to October: less rain'),
     highlights: [
@@ -379,13 +378,16 @@ const content: Destination[] = [
     state: 'BA',
     region: 'br',
     trip: 'holiday',
-    fromBh: L('Vol direct vers Lençóis', 'Direct flight to Lençóis'),
+    fromBh: L('Vol direct vers Lençóis (Bahia)', 'Direct flight to Lençóis (Bahia)'),
     cost: 2,
     description: L(
       'Montagnes tabulaires, grottes aux eaux bleues et cascades géantes : l’un des meilleurs endroits du Brésil pour la randonnée.',
       'Table mountains, caves with blue water and giant waterfalls: one of Brazil’s best places for hiking.',
     ),
-    getThere: L('Nouveau vol direct Azul Confins → Lençóis (depuis juin 2026).', 'New direct Azul flight Confins → Lençóis (since June 2026).'),
+    getThere: L(
+      'Vol direct Azul Confins → aéroport de Lençóis, en Bahia, porte d’entrée de la Chapada (repris en juin 2026, jeudi et dimanche, ≈ 2 h).',
+      'Direct Azul flight Confins → Lençóis airport, in Bahia, the gateway to the Chapada (resumed in June 2026, Thursdays and Sundays, ≈ 2 h).',
+    ),
     stay: L('5 à 7 jours', '5 to 7 days'),
     season: L('Avril à octobre', 'April to October'),
     highlights: [
@@ -408,7 +410,7 @@ const content: Destination[] = [
       'Les chutes d’Iguaçu, parmi les plus impressionnantes du monde, à la frontière avec l’Argentine et le Paraguay.',
       'The Iguaçu falls, among the most impressive in the world, on the border with Argentina and Paraguay.',
     ),
-    getThere: L('Vol avec escale (São Paulo ou autre).', 'Flight with a connection (São Paulo or elsewhere).'),
+    getThere: L('Vol Azul depuis Confins (direct selon les dates) ou avec escale.', 'Azul flight from Confins (direct on some dates) or with a connection.'),
     stay: L('3 jours', '3 days'),
     season: L('Toute l’année ; plus d’eau d’octobre à mars', 'All year; more water from October to March'),
     highlights: [
@@ -462,7 +464,7 @@ const content: Destination[] = [
       L('Coucher de soleil sur la Duna do Pôr do Sol', 'Sunset on the Duna do Pôr do Sol'),
       L('Lagoa do Paraíso', 'Lagoa do Paraíso'),
     ],
-    tip: L('Une taxe de séjour est demandée à l’entrée du village.', 'A tourist fee is charged when entering the village.'),
+    tip: L('Une taxe de séjour est demandée à l’entrée du village : R$ 41,50 pour un séjour jusqu’à 10 jours (2026).', 'A tourist fee is charged when entering the village: R$ 41.50 for a stay of up to 10 days (2026).'),
     mapsQuery: 'Jericoacoara, CE',
   },
   {
@@ -477,7 +479,7 @@ const content: Destination[] = [
       'Capitale de l’écotourisme : rivières si transparentes qu’on y nage au milieu des poissons, grottes et cascades.',
       'Brazil’s ecotourism capital: rivers so clear you swim among the fish, caves and waterfalls.',
     ),
-    getThere: L('Vol jusqu’à Campo Grande, puis ≈ 4 h de route.', 'Flight to Campo Grande, then ≈ 4 h by road.'),
+    getThere: L('Vol jusqu’à Campo Grande, puis ≈ 3 h 30 à 4 h de route ; ou vols saisonniers directs vers l’aéroport de Bonito.', 'Flight to Campo Grande, then ≈ 3 h 30 to 4 h by road; or seasonal direct flights to Bonito airport.'),
     stay: L('4 à 5 jours', '4 to 5 days'),
     season: L('Toute l’année ; eau la plus claire de mai à septembre', 'All year; clearest water May to September'),
     highlights: [
@@ -508,7 +510,7 @@ const content: Destination[] = [
       L('Lagoa da Conceição', 'Lagoa da Conceição'),
       L('Sentier de Lagoinha do Leste', 'Lagoinha do Leste trail'),
     ],
-    tip: L('L’eau est froide même en été : c’est le sud du Brésil.', 'The water is cold even in summer: it’s southern Brazil.'),
+    tip: L('L’eau est agréable en été mais fraîche en hiver (≈ 19 °C en juillet) : c’est le sud du Brésil.', 'The water is pleasant in summer but cool in winter (≈ 19 °C in July): it’s southern Brazil.'),
     mapsQuery: 'Florianópolis, SC',
   },
   {
@@ -576,8 +578,8 @@ const content: Destination[] = [
     getThere: L('Vol jusqu’à Manaus, puis bateau vers un lodge (2 à 4 nuits).', 'Flight to Manaus, then a boat to a lodge (2 to 4 nights).'),
     stay: L('5 à 7 jours', '5 to 7 days'),
     season: L(
-      'Mars–septembre : forêt inondée en bateau ; juin–novembre : eaux basses et plages fluviales',
-      'March–September: flooded forest by boat; June–November: low water and river beaches',
+      'Mars–juillet : forêt inondée en bateau (pic en juin–juillet) ; septembre–novembre : eaux basses et plages fluviales',
+      'March–July: flooded forest by boat (peak in June–July); September–November: low water and river beaches',
     ),
     highlights: [
       L('Rencontre des eaux (Rio Negro et Solimões)', 'Meeting of the Waters (Rio Negro and Solimões)'),
@@ -649,7 +651,7 @@ const content: Destination[] = [
       'La grande capitale latine à l’européenne : quartiers aux styles très différents, tango, cafés historiques et la meilleure viande grillée du continent.',
       'The great European-style Latin capital: very different neighbourhoods, tango, historic cafés and the continent’s best grilled meat.',
     ),
-    getThere: L('Vol direct depuis Confins.', 'Direct flight from Confins.'),
+    getThere: L('Vol direct Gol depuis Confins (le samedi, ≈ 3 h 30), sinon avec escale.', 'Direct Gol flight from Confins (on Saturdays, ≈ 3 h 30), otherwise with a connection.'),
     stay: L('4 à 5 jours', '4 to 5 days'),
     season: L('Mars–mai et septembre–novembre (doux)', 'March–May and September–November (mild)'),
     highlights: [
@@ -675,7 +677,10 @@ const content: Destination[] = [
       'Une capitale moderne au pied des Andes enneigées, à une heure et demie de Valparaíso, le port coloré aux funiculaires.',
       'A modern capital at the foot of the snowy Andes, an hour and a half from Valparaíso, the colourful port with funiculars.',
     ),
-    getThere: L('Vol direct saisonnier depuis Confins, sinon avec escale.', 'Seasonal direct flight from Confins, otherwise with a connection.'),
+    getThere: L(
+      'Vol direct LATAM depuis Confins seulement en hiver (fin juin–mi-août), sinon avec escale à São Paulo.',
+      'Direct LATAM flight from Confins only in winter (late June–mid-August), otherwise with a connection in São Paulo.',
+    ),
     stay: L('4 à 6 jours', '4 to 6 days'),
     season: L('Toute l’année ; ski dans les Andes de juin à septembre', 'All year; skiing in the Andes from June to September'),
     highlights: [
@@ -701,7 +706,7 @@ const content: Destination[] = [
       'Une capitale tranquille au bord du Río de la Plata, avec sa longue rambla, et Colonia del Sacramento, petite ville coloniale classée par l’UNESCO.',
       'A calm capital on the Río de la Plata, with its long rambla, and Colonia del Sacramento, a small UNESCO-listed colonial town.',
     ),
-    getThere: L('Vol direct Azul depuis Confins (depuis mars 2026).', 'Direct Azul flight from Confins (since March 2026).'),
+    getThere: L('Vol direct Azul depuis Confins (depuis mars 2026, mercredi et dimanche).', 'Direct Azul flight from Confins (since March 2026, Wednesdays and Sundays).'),
     stay: L('3 à 4 jours', '3 to 4 days'),
     season: L('Novembre à mars (été)', 'November to March (summer)'),
     highlights: [
@@ -709,7 +714,7 @@ const content: Destination[] = [
       L('Mercado del Puerto', 'Mercado del Puerto'),
       L('Journée à Colonia del Sacramento', 'A day in Colonia del Sacramento'),
     ],
-    tip: L('Depuis Colonia, un ferry rejoint Buenos Aires en 1 à 2 h : idéal pour combiner les deux.', 'From Colonia, a ferry reaches Buenos Aires in 1–2 h: perfect to combine both.'),
+    tip: L('Depuis Colonia, un ferry rejoint Buenos Aires en ≈ 1 h à 1 h 15 : idéal pour combiner les deux.', 'From Colonia, a ferry reaches Buenos Aires in ≈ 1 h to 1 h 15: perfect to combine both.'),
     documents: L('Passeport ; pas de visa pour les Français (tourisme, jusqu’à 90 jours).', 'Passport; no visa for French citizens (tourism, up to 90 days).'),
     mapsQuery: 'Montevideo',
   },
@@ -726,7 +731,10 @@ const content: Destination[] = [
       'La Suisse de l’Argentine : lacs, forêts et montagnes en Patagonie du nord, ski en hiver et randonnées en été, avec du chocolat partout.',
       'Argentina’s Switzerland: lakes, forests and mountains in northern Patagonia, skiing in winter and hiking in summer, with chocolate everywhere.',
     ),
-    getThere: L('Vol direct saisonnier depuis Confins, sinon via Buenos Aires.', 'Seasonal direct flight from Confins, otherwise via Buenos Aires.'),
+    getThere: L(
+      'Vol direct Azul depuis Confins en hiver (fin juin–août, mercredi et dimanche, ≈ 5 h), sinon via Buenos Aires.',
+      'Direct Azul flight from Confins in winter (late June–August, Wednesdays and Sundays, ≈ 5 h), otherwise via Buenos Aires.',
+    ),
     stay: L('5 à 7 jours', '5 to 7 days'),
     season: L('Juillet–septembre pour le ski ; décembre–mars pour les lacs', 'July–September for skiing; December–March for the lakes'),
     highlights: [
@@ -773,8 +781,8 @@ const content: Destination[] = [
     fromBh: L('Vol avec escale', 'Flight with a connection'),
     cost: 3,
     description: L(
-      'Le désert le plus sec du monde : vallées lunaires, geysers au lever du soleil, lagunes d’altitude et l’un des plus beaux ciels étoilés de la planète.',
-      'The driest desert in the world: moon valleys, geysers at sunrise, high-altitude lagoons and one of the most beautiful night skies on Earth.',
+      'Le désert non polaire le plus sec du monde : vallées lunaires, geysers au lever du soleil, lagunes d’altitude et l’un des plus beaux ciels étoilés de la planète.',
+      'The driest non-polar desert in the world: moon valleys, geysers at sunrise, high-altitude lagoons and one of the most beautiful night skies on Earth.',
     ),
     getThere: L('Vol jusqu’à Calama (via Santiago), puis ≈ 1 h 30 jusqu’à San Pedro.', 'Flight to Calama (via Santiago), then ≈ 1 h 30 to San Pedro.'),
     stay: L('4 à 5 jours', '4 to 5 days'),
@@ -835,7 +843,10 @@ const content: Destination[] = [
       L('Lagunes colorées du sud Lípez', 'Colourful lagoons of southern Lípez'),
     ],
     tip: L('À combiner avec l’Atacama : l’excursion en 4x4 relie les deux.', 'Combine it with Atacama: the 4x4 tour links both.'),
-    documents: L('Passeport ; vérifiez les conditions d’entrée avant de partir.', 'Passport; check entry requirements before you go.'),
+    documents: L(
+      'Passeport valide 6 mois ; pas de visa pour les Français (tourisme, jusqu’à 90 jours).',
+      'Passport valid for 6 months; no visa for French citizens (tourism, up to 90 days).',
+    ),
     mapsQuery: 'Salar de Uyuni',
   },
   {
@@ -876,7 +887,7 @@ const content: Destination[] = [
       'La capitale du malbec au pied des Andes : bodegas à vélo, l’Aconcagua (plus haut sommet des Amériques) et des paysages de montagne.',
       'The malbec capital at the foot of the Andes: bodegas by bike, Aconcagua (the highest peak in the Americas) and mountain scenery.',
     ),
-    getThere: L('Vol via Santiago ou Buenos Aires.', 'Flight via Santiago or Buenos Aires.'),
+    getThere: L('Vol via São Paulo, Santiago ou Buenos Aires.', 'Flight via São Paulo, Santiago or Buenos Aires.'),
     stay: L('4 à 5 jours', '4 to 5 days'),
     season: L('Mars–avril (vendanges) et septembre–novembre', 'March–April (harvest) and September–November'),
     highlights: [
@@ -892,8 +903,48 @@ const content: Destination[] = [
 
 const photos = new Map((places as { id: string; placeId: string; photoIndex: number }[]).map((p) => [p.id, p]));
 
+/** Team-chosen photos, bundled with the app (replace the Google ones). */
+const teamPhotos: Record<string, number> = {
+  inhotim: require('@/assets/destinations/inhotim.jpg'),
+  'ouro-preto': require('@/assets/destinations/ouro-preto.jpg'),
+  'serra-do-cipo': require('@/assets/destinations/serra-do-cipo.jpg'),
+  capitolio: require('@/assets/destinations/capitolio.jpg'),
+  'sao-thome': require('@/assets/destinations/sao-thome.jpg'),
+  congonhas: require('@/assets/destinations/congonhas.jpg'),
+  tiradentes: require('@/assets/destinations/tiradentes.jpg'),
+  diamantina: require('@/assets/destinations/diamantina.jpg'),
+  canastra: require('@/assets/destinations/canastra.jpg'),
+  ibitipoca: require('@/assets/destinations/ibitipoca.jpg'),
+  rio: require('@/assets/destinations/rio.jpg'),
+  paraty: require('@/assets/destinations/paraty.jpg'),
+  'ilha-grande': require('@/assets/destinations/ilha-grande.jpg'),
+  salvador: require('@/assets/destinations/salvador.jpg'),
+  'chapada-diamantina': require('@/assets/destinations/chapada-diamantina.jpg'),
+  foz: require('@/assets/destinations/foz.jpg'),
+  lencois: require('@/assets/destinations/lencois.jpg'),
+  jericoacoara: require('@/assets/destinations/jericoacoara.jpg'),
+  bonito: require('@/assets/destinations/bonito.jpg'),
+  florianopolis: require('@/assets/destinations/florianopolis.jpg'),
+  noronha: require('@/assets/destinations/noronha.jpg'),
+  veadeiros: require('@/assets/destinations/veadeiros.jpg'),
+  amazonia: require('@/assets/destinations/amazonia.jpg'),
+  buzios: require('@/assets/destinations/buzios.jpg'),
+  angra: require('@/assets/destinations/angra.jpg'),
+  'buenos-aires': require('@/assets/destinations/buenos-aires.jpg'),
+  santiago: require('@/assets/destinations/santiago.jpg'),
+  montevideo: require('@/assets/destinations/montevideo.jpg'),
+  bariloche: require('@/assets/destinations/bariloche.jpg'),
+  'machu-picchu': require('@/assets/destinations/machu-picchu.jpg'),
+  atacama: require('@/assets/destinations/atacama.jpg'),
+  patagonia: require('@/assets/destinations/patagonia.jpg'),
+  uyuni: require('@/assets/destinations/uyuni.jpg'),
+  cartagena: require('@/assets/destinations/cartagena.jpg'),
+  mendoza: require('@/assets/destinations/mendoza.jpg'),
+};
+
 export const destinations = content.map((d) => ({
   ...d,
+  photo: teamPhotos[d.id] as number | undefined,
   placeId: photos.get(d.id)!.placeId,
   photoIndex: photos.get(d.id)!.photoIndex,
   mustGo: isMustGo(d.id),

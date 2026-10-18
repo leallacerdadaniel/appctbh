@@ -4,11 +4,13 @@
  * Order here = order in the "Incontournables" carousel.
  */
 // Picked by the owner on 2026-10-16 (checklist artifact).
-export const MUST_GO: { bh: string[]; mg: string[]; br: string[]; sa: string[] } = {
+export const MUST_GO: { bh: string[]; mg: string[]; br: string[]; sa: string[]; events: string[] } = {
   bh: ['pampulha-church', 'pampulha-lagoa', 'mercado-central', 'mercado-novo', 'praca-liberdade', 'mangabeiras'],
   mg: ['inhotim', 'ouro-preto', 'serra-do-cipo', 'capitolio'],
   br: ['rio', 'ilha-grande', 'salvador', 'lencois', 'amazonia', 'angra'],
   sa: ['bariloche', 'machu-picchu', 'atacama'],
+  // Added 2026-10-18.
+  events: ['carnaval'],
 };
 
 export const isMustGo = (id: string) => Object.values(MUST_GO).some((ids) => ids.includes(id));

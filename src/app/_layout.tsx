@@ -72,11 +72,16 @@ function RootStack() {
           <Stack.Screen name="restaurants/index" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="restaurants/[id]" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="restaurants/dishes" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="nightlife/index" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="nightlife/[id]" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="sports/index" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="sports/[id]" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="apartment/cleaning" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="apartment/contract" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="apartment/roommates" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="travel/[id]" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="attraction/[id]" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="festival/[id]" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="profile" options={{ animation: 'slide_from_right' }} />
         </Stack.Protected>
       </Stack>

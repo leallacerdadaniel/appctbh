@@ -1,4 +1,4 @@
-"""Allow-list of place ids the place-photo function serves: restaurants + travel + BH attractions.
+"""Allow-list of place ids the place-photo function serves: restaurants + travel + BH attractions + events + nightlife + sports.
 
 Rewritten by restaurants.py and attractions.py. Redeploy the function after it changes:
     npx supabase functions deploy place-photo --project-ref miucfiiporxhvvbefonh --no-verify-jwt --use-api
@@ -25,6 +25,9 @@ def write_allowlist():
         _ids("src/data/restaurants.json", "restaurants")
         + _ids("src/data/travel-places.json", None)
         + _ids("src/data/attractions.json", "attractions")
+        + _ids("src/data/festivals.json", None)
+        + _ids("src/data/nightlife.json", "places")
+        + _ids("src/data/sports.json", "places")
     )
     path = os.path.join(ROOT, "supabase", "functions", "place-photo", "allowed.json")
     with open(path, "w", encoding="utf-8") as f:

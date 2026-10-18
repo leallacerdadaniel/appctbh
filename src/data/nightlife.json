@@ -1,0 +1,617 @@
+{
+  "origin": {
+    "lat": -19.9390581,
+    "lng": -43.93384349999999
+  },
+  "places": [
+    {
+      "id": "redentor",
+      "name": "Redentor Bar",
+      "placeId": "ChIJ7bVC4tmZpgARViK85gXU6OM",
+      "address": "R. Fernandes Tourinho, 500 - Savassi, Belo Horizonte - MG, 30112-004",
+      "neighborhood": "Savassi",
+      "lat": -19.9385426,
+      "lng": -43.9386734,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1100"
+          },
+          "close": {
+            "day": 1,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1100"
+          },
+          "close": {
+            "day": 2,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1100"
+          },
+          "close": {
+            "day": 3,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1100"
+          },
+          "close": {
+            "day": 4,
+            "time": "0100"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1100"
+          },
+          "close": {
+            "day": 5,
+            "time": "0100"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1100"
+          },
+          "close": {
+            "day": 6,
+            "time": "0100"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1100"
+          },
+          "close": {
+            "day": 0,
+            "time": "0100"
+          }
+        }
+      ],
+      "website": "http://www.redentorbar.com.br/",
+      "distanceM": 575,
+      "walkMin": 8,
+      "driveMin": 4
+    },
+    {
+      "id": "berilo",
+      "name": "Berilo Cozinha & Drinks",
+      "placeId": "ChIJyZGPMK6ZpgARD3vpH1bNBHE",
+      "address": "R. Fernandes Tourinho, 503 - Savassi, Belo Horizonte - MG, 30112-002",
+      "neighborhood": "Savassi",
+      "lat": -19.9386645,
+      "lng": -43.9394102,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1100"
+          },
+          "close": {
+            "day": 0,
+            "time": "2230"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1100"
+          },
+          "close": {
+            "day": 1,
+            "time": "2230"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1100"
+          },
+          "close": {
+            "day": 2,
+            "time": "2230"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1100"
+          },
+          "close": {
+            "day": 3,
+            "time": "2230"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1100"
+          },
+          "close": {
+            "day": 4,
+            "time": "2330"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1100"
+          },
+          "close": {
+            "day": 5,
+            "time": "2330"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1100"
+          },
+          "close": {
+            "day": 6,
+            "time": "2330"
+          }
+        }
+      ],
+      "website": "https://berilocozinhaedrinks.com.br/",
+      "distanceM": 645,
+      "walkMin": 9,
+      "driveMin": 5
+    },
+    {
+      "id": "moema",
+      "name": "Moema Bar e Cozinha",
+      "placeId": "ChIJF4WU-iyZpgARIPSmd41qKaw",
+      "address": "R. Sergipe, 1370 - Funcionários, Belo Horizonte - MG, 30130-171",
+      "neighborhood": "Funcionários",
+      "lat": -19.9384683,
+      "lng": -43.9385974,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1120"
+          },
+          "close": {
+            "day": 1,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1120"
+          },
+          "close": {
+            "day": 1,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1120"
+          },
+          "close": {
+            "day": 2,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1120"
+          },
+          "close": {
+            "day": 3,
+            "time": "2300"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1120"
+          },
+          "close": {
+            "day": 5,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1120"
+          },
+          "close": {
+            "day": 6,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1120"
+          },
+          "close": {
+            "day": 0,
+            "time": "0000"
+          }
+        }
+      ],
+      "website": "http://moemabar.com.br/",
+      "distanceM": 577,
+      "walkMin": 8,
+      "driveMin": 7
+    },
+    {
+      "id": "estacao-savassi",
+      "name": "ESTAÇÃO SAVASSI",
+      "placeId": "ChIJfZIURGuZpgARA4RT07XXkq4",
+      "address": "R. Paraíba, 1352 - Lj 8 - Funcionários, Belo Horizonte - MG, 30130-141",
+      "neighborhood": "Funcionários",
+      "lat": -19.93863,
+      "lng": -43.9344659,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1100"
+          },
+          "close": {
+            "day": 1,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "1100"
+          },
+          "close": {
+            "day": 2,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1100"
+          },
+          "close": {
+            "day": 3,
+            "time": "0100"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1100"
+          },
+          "close": {
+            "day": 4,
+            "time": "0100"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1100"
+          },
+          "close": {
+            "day": 5,
+            "time": "0200"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1100"
+          },
+          "close": {
+            "day": 6,
+            "time": "0230"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1100"
+          },
+          "close": {
+            "day": 0,
+            "time": "0230"
+          }
+        }
+      ],
+      "website": "https://www.facebook.com/estacaosavassibh/",
+      "distanceM": 82,
+      "walkMin": 1,
+      "driveMin": 2
+    },
+    {
+      "id": "mercado-novo",
+      "name": "Mercado Novo",
+      "placeId": "ChIJ8dj6IGmXpgAR-4SWbwxlVdY",
+      "address": "R. Rio Grande do Sul, 499 - Centro, Belo Horizonte - MG, 30180-916",
+      "neighborhood": "Centro",
+      "lat": -19.9205772,
+      "lng": -43.94569389999999,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0700"
+          },
+          "close": {
+            "day": 0,
+            "time": "1800"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "0700"
+          },
+          "close": {
+            "day": 1,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0700"
+          },
+          "close": {
+            "day": 3,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0700"
+          },
+          "close": {
+            "day": 4,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0700"
+          },
+          "close": {
+            "day": 5,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0700"
+          },
+          "close": {
+            "day": 6,
+            "time": "0000"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0700"
+          },
+          "close": {
+            "day": 0,
+            "time": "0000"
+          }
+        }
+      ],
+      "website": "http://instagram.com/mercadonovobh",
+      "distanceM": 2589,
+      "walkMin": 36,
+      "driveMin": 14
+    },
+    {
+      "id": "lab",
+      "name": "Lab",
+      "placeId": "ChIJ5SH6_rOZpgARgv-J4IeBREE",
+      "address": "Av. do Contorno, 6342 - Savassi, Belo Horizonte - MG, 30110-017",
+      "neighborhood": "Savassi",
+      "lat": -19.9399631,
+      "lng": -43.9382091,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "2200"
+          },
+          "close": {
+            "day": 1,
+            "time": "0400"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "2200"
+          },
+          "close": {
+            "day": 0,
+            "time": "0400"
+          }
+        }
+      ],
+      "website": "https://instagram.com/lab.bh",
+      "distanceM": 601,
+      "walkMin": 9,
+      "driveMin": 3
+    },
+    {
+      "id": "major-lock",
+      "name": "Major Lock Pub",
+      "placeId": "ChIJlUa7XtKZpgARby3Sb1jv-N8",
+      "address": "Rua dos Guajajaras, 842 - Centro, Belo Horizonte - MG, 30140-100",
+      "neighborhood": "Centro",
+      "lat": -19.9246844,
+      "lng": -43.9419691,
+      "hours": [
+        {
+          "open": {
+            "day": 4,
+            "time": "2000"
+          },
+          "close": {
+            "day": 5,
+            "time": "0200"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "2000"
+          },
+          "close": {
+            "day": 6,
+            "time": "0200"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "2000"
+          },
+          "close": {
+            "day": 0,
+            "time": "0200"
+          }
+        }
+      ],
+      "website": "https://www.sympla.com.br/majorlock",
+      "distanceM": 1986,
+      "walkMin": 27,
+      "driveMin": 11
+    },
+    {
+      "id": "night-market",
+      "name": "Night Market Rooftop",
+      "placeId": "ChIJM_zceu-XpgARkfDo0DCceHA",
+      "address": "R. Wilson Rocha Lima, 137 - Estoril, Belo Horizonte - MG, 30494-460",
+      "neighborhood": "Estoril",
+      "lat": -19.9701384,
+      "lng": -43.955714,
+      "hours": [],
+      "website": "https://www.nightmarket.com.br/eventos-privados",
+      "distanceM": 5430,
+      "walkMin": 93,
+      "driveMin": 16
+    },
+    {
+      "id": "raro",
+      "name": "RARO CLUB",
+      "placeId": "ChIJ48Gy4dm9pgARfHBg-PBbZ_I",
+      "address": "R. Sen. Milton Campos, 230 - Vila da Serra, Nova Lima - MG",
+      "neighborhood": "MG, 34000-000, Brasil",
+      "lat": -19.9860383,
+      "lng": -43.9489423,
+      "hours": [
+        {
+          "open": {
+            "day": 5,
+            "time": "2100"
+          },
+          "close": {
+            "day": 6,
+            "time": "0600"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "2100"
+          },
+          "close": {
+            "day": 0,
+            "time": "0600"
+          }
+        }
+      ],
+      "website": "https://raroclub.com.br/",
+      "distanceM": 7393,
+      "walkMin": 123,
+      "driveMin": 17
+    },
+    {
+      "id": "chalezinho",
+      "name": "Clube Chalezinho",
+      "placeId": "ChIJIQQx5eeWpgARjQkspqYs58k",
+      "address": "Av. Professor Mário Werneck, 530 - Estoril, Belo Horizonte - MG, 30455-610",
+      "neighborhood": "Estoril",
+      "lat": -19.968118,
+      "lng": -43.95747,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "1700"
+          },
+          "close": {
+            "day": 1,
+            "time": "0500"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "2100"
+          },
+          "close": {
+            "day": 5,
+            "time": "0600"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "2200"
+          },
+          "close": {
+            "day": 6,
+            "time": "0500"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "2200"
+          },
+          "close": {
+            "day": 0,
+            "time": "0600"
+          }
+        }
+      ],
+      "website": "http://www.clubechalezinho.com.br/",
+      "distanceM": 5705,
+      "walkMin": 96,
+      "driveMin": 14
+    }
+  ]
+}

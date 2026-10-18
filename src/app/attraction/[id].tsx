@@ -39,6 +39,7 @@ export default function AttractionScreen() {
 
       <PlacePhoto
         placeId={a.placeId}
+        source={a.photo}
         photoIndex={a.photoIndex}
         width={1000}
         aspectRatio={4 / 3}

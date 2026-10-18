@@ -11,6 +11,7 @@ Usage (from App CTBH/app):
 """
 
 import json
+import re
 import sys
 from concurrent.futures import ThreadPoolExecutor
 
@@ -33,10 +34,22 @@ ATTRACTIONS = [
     ("parque-municipal", "ChIJ1VS5qu-ZpgARF8B4SNBoDQc", 0),
     ("mangabeiras", "ChIJ8wlHY66ZpgARJtyGadOpM-U", 0),
     ("serra-curral", "ChIJYYGyH1KYpgARXMqLukutIYA", 0),
+    ("praca-papa", "ChIJEczse1KYpgARRu0mCO-2zQo", 0),
     ("feira-hippie", "ChIJyXh9ppCZpgAR-IYKBctMFRQ", 0),
     ("santa-tereza", "ChIJw0LqEieapgARPI4iyY2xzak", 3),
     ("estacao", "ChIJ2VZVHPqZpgARxfOC9NjNX8Q", 0),
 ]
+
+
+def clean_address(address):
+    """Google sometimes returns a CEP from another state (Mangabeiras: 47512-000); BH's start with 30 or 31."""
+    address = address.replace(", Brazil", "").replace(", Brasil", "")
+    return re.sub(r",\s*(?!3[01])\d{5}-\d{3}$", "", address)
+
+
+def clean_website(url):
+    """Santa Tereza came back as two URLs glued with ';%20': keep the first."""
+    return url.split(";")[0].strip() if url else url
 
 
 def main():
@@ -57,14 +70,14 @@ def main():
             "name": d["name"],
             "placeId": place_id,
             "photoIndex": photo_index,
-            "address": d.get("formatted_address", "").replace(", Brazil", "").replace(", Brasil", ""),
+            "address": clean_address(d.get("formatted_address", "")),
             "neighborhood": neighborhood(d.get("formatted_address", "")),
             "lat": loc["lat"],
             "lng": loc["lng"],
             "rating": d.get("rating"),
             "ratingCount": d.get("user_ratings_total"),
             "hours": [{"open": p["open"], "close": p.get("close")} for p in (d.get("opening_hours") or {}).get("periods", [])],
-            "website": d.get("website"),
+            "website": clean_website(d.get("website")),
             **t,
         })
 

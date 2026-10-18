@@ -833,7 +833,7 @@
       "name": "Mirante do Mangabeiras",
       "placeId": "ChIJ8wlHY66ZpgARJtyGadOpM-U",
       "photoIndex": 0,
-      "address": "R. Pedro José Pardo, 1000 - Mangabeiras, Belo Horizonte - MG, 47512-000",
+      "address": "R. Pedro José Pardo, 1000 - Mangabeiras, Belo Horizonte - MG",
       "neighborhood": "Mangabeiras",
       "lat": -19.9509089,
       "lng": -43.9127978,
@@ -1155,7 +1155,7 @@
           }
         }
       ],
-      "website": "http://santacultura.com/;%20https://www.instagram.com/paroquiasante?igsh=am5iNXJuOXo1OWZy",
+      "website": "http://santacultura.com/",
       "distanceM": 3453,
       "walkMin": 48,
       "driveMin": 15
@@ -1226,6 +1226,31 @@
       "website": "https://mao.com.br/",
       "distanceM": 2931,
       "walkMin": 39,
+      "driveMin": 11
+    },
+    {
+      "id": "praca-papa",
+      "name": "Praça Governador Israel Pinheiro (Praça do Papa)",
+      "placeId": "ChIJEczse1KYpgARRu0mCO-2zQo",
+      "photoIndex": 0,
+      "address": "Av. Agulhas Negras, s/n - Mangabeiras, Belo Horizonte - MG, 30210-060",
+      "neighborhood": "Mangabeiras",
+      "lat": -19.9570223,
+      "lng": -43.9148135,
+      "rating": 4.6,
+      "ratingCount": 34310,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0000"
+          },
+          "close": null
+        }
+      ],
+      "website": "https://www.pracadopapa.com.br/",
+      "distanceM": 3457,
+      "walkMin": 60,
       "driveMin": 11
     }
   ]

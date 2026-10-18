@@ -13,6 +13,7 @@ import { Fonts, Radius, Shadow, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { ATTRACTION_GROUPS, attractions, getAttraction, type Attraction } from '@/lib/attractions';
+import { festivals, getFestival, type FestivalItem } from '@/lib/festivals';
 import { MUST_GO } from '@/lib/must-go';
 import { WALK_LIMIT_MIN } from '@/lib/nearby';
 import {
@@ -25,11 +26,11 @@ import {
   type TripType,
 } from '@/lib/travel';
 
-type Segment = 'bh' | Region;
-const SEGMENTS: Segment[] = ['bh', 'mg', 'br', 'sa'];
+type Segment = 'bh' | Region | 'events';
+const SEGMENTS: Segment[] = ['bh', 'mg', 'br', 'sa', 'events'];
 const TRIPS: TripType[] = ['daytrip', 'weekend', 'long', 'holiday'];
 
-/** "Explorer" tab: BH attractions, Minas escapes, trips across Brazil and South America. */
+/** "Explorer" tab: BH attractions, Minas escapes, trips across Brazil and South America, events and festivals. */
 export default function ExploreScreen() {
   const { t } = useI18n();
   const [segment, setSegment] = useState<Segment>('bh');
@@ -41,7 +42,7 @@ export default function ExploreScreen() {
         value={segment}
         onChange={setSegment}
       />
-      {segment === 'bh' ? <BhAttractions /> : <Trips region={segment} />}
+      {segment === 'bh' ? <BhAttractions /> : segment === 'events' ? <Events /> : <Trips region={segment} />}
     </Screen>
   );
 }
@@ -91,7 +92,14 @@ function AttractionCard({ attraction: a }: { attraction: Attraction }) {
       onPress={() => router.push({ pathname: '/attraction/[id]', params: { id: a.id } })}
       style={[styles.card, Shadow.card, { backgroundColor: theme.surface }]}>
       <View>
-        <PlacePhoto placeId={a.placeId} photoIndex={a.photoIndex} width={500} radius={0} credit="overlay" />
+        <PlacePhoto
+          placeId={a.placeId}
+          source={a.photo}
+          photoIndex={a.photoIndex}
+          width={500}
+          radius={0}
+          credit="overlay"
+        />
         <View style={styles.badges}>
           {a.mustGo && <MustGoBadge />}
           {a.price === 'free' && (
@@ -116,6 +124,108 @@ function AttractionCard({ attraction: a }: { attraction: Attraction }) {
             </AppText>
           </View>
         )}
+      </View>
+    </PressableScale>
+  );
+}
+
+/* ---------- Events ---------- */
+
+function Events() {
+  const theme = useTheme();
+  const { t } = useI18n();
+  const mustGo = MUST_GO.events.map(getFestival).filter((e): e is FestivalItem => !!e);
+  return (
+    <>
+      <AppText variant="callout" color={theme.textSecondary}>
+        {t.explore.eventsHint}
+      </AppText>
+      {mustGo.length > 0 && (
+        <Section title={t.explore.mustGoTitle} subtitle={t.explore.mustGoHint}>
+          <Carousel>
+            {mustGo.map((e) => (
+              <EventTile key={e.id} event={e} />
+            ))}
+          </Carousel>
+        </Section>
+      )}
+      <View style={{ gap: Spacing.lg }}>
+        {festivals.map((e) => (
+          <EventCard key={e.id} event={e} />
+        ))}
+      </View>
+      <AppText variant="caption" color={theme.textSecondary} style={{ textAlign: 'center' }}>
+        {t.explore.eventsDisclaimer}
+      </AppText>
+    </>
+  );
+}
+
+/** Carousel tile for a must-go event. */
+function EventTile({ event: e }: { event: FestivalItem }) {
+  const theme = useTheme();
+  return (
+    <PressableScale
+      accessibilityRole="button"
+      accessibilityLabel={e.name}
+      onPress={() => router.push({ pathname: '/festival/[id]', params: { id: e.id } })}
+      style={[styles.card, Shadow.card, { backgroundColor: theme.surface }]}>
+      <View>
+        <PlacePhoto
+          placeId={e.placeId}
+          source={e.photo}
+          photoIndex={e.photoIndex}
+          width={500}
+          radius={0}
+          credit="overlay"
+        />
+        <View style={styles.badges}>
+          <MustGoBadge />
+        </View>
+      </View>
+      <View style={styles.body}>
+        <AppText style={{ fontFamily: Fonts.bodyMedium }}>{e.name}</AppText>
+        <AppText variant="callout" color={theme.textSecondary}>
+          {e.city}
+        </AppText>
+      </View>
+    </PressableScale>
+  );
+}
+
+/** Full-width photo card for an event, with the usual period. */
+function EventCard({ event: e }: { event: FestivalItem }) {
+  const theme = useTheme();
+  const { lang } = useI18n();
+  return (
+    <PressableScale
+      accessibilityRole="button"
+      accessibilityLabel={`${e.name}, ${e.city}`}
+      onPress={() => router.push({ pathname: '/festival/[id]', params: { id: e.id } })}
+      style={[styles.wideCard, Shadow.card, { backgroundColor: theme.surface }]}>
+      <View>
+        <PlacePhoto
+          placeId={e.placeId}
+          source={e.photo}
+          photoIndex={e.photoIndex}
+          width={900}
+          aspectRatio={16 / 9}
+          radius={0}
+          credit="overlay"
+        />
+        <View style={styles.badges}>{e.mustGo && <MustGoBadge />}</View>
+      </View>
+      <View style={styles.eventBody}>
+        <AppText style={{ fontFamily: Fonts.bodyMedium }}>{e.name}</AppText>
+        <AppText variant="callout" color={theme.textSecondary}>
+          {e.city}
+        </AppText>
+        <View style={styles.meta}>
+          <Icon name="calendar" size={13} color={theme.textSecondary} />
+          <AppText variant="caption" color={theme.textSecondary} style={{ flex: 1 }}>
+            {e.when[lang]}
+          </AppText>
+        </View>
       </View>
     </PressableScale>
   );
@@ -190,7 +300,14 @@ function DestinationTile({ destination: d }: { destination: DestinationWithPhoto
       onPress={() => router.push({ pathname: '/travel/[id]', params: { id: d.id } })}
       style={[styles.card, Shadow.card, { backgroundColor: theme.surface }]}>
       <View>
-        <PlacePhoto placeId={d.placeId} photoIndex={d.photoIndex} width={500} radius={0} credit="overlay" />
+        <PlacePhoto
+          placeId={d.placeId}
+          source={d.photo}
+          photoIndex={d.photoIndex}
+          width={500}
+          radius={0}
+          credit="overlay"
+        />
         <View style={styles.badges}>
           <MustGoBadge />
         </View>
@@ -224,6 +341,7 @@ function DestinationCard({ destination: d }: { destination: DestinationWithPhoto
       <View>
         <PlacePhoto
           placeId={d.placeId}
+          source={d.photo}
           photoIndex={d.photoIndex}
           width={900}
           aspectRatio={16 / 9}
@@ -266,6 +384,7 @@ const styles = StyleSheet.create({
   body: { padding: 12, gap: 2 },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
   wideCard: { borderRadius: Radius.lg, overflow: 'hidden' },
+  eventBody: { padding: 14, gap: 2 },
   wideBody: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, padding: 14 },
   metaRight: { flexDirection: 'row', alignItems: 'center', gap: 4, maxWidth: '50%' },
 });

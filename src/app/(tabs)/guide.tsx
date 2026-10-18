@@ -15,10 +15,12 @@ import { useI18n, type Lang } from '@/i18n';
 import { attractions } from '@/lib/attractions';
 import { dishes } from '@/lib/dishes';
 import { contacts, guide, type GuideItem } from '@/lib/mock-data';
+import { nightPlaces } from '@/lib/nightlife';
+import { sportPlaces } from '@/lib/sports';
 import { displayName, restaurants } from '@/lib/restaurants';
 
 /**
- * "Guide": everything for living in BH — eating (restaurants, dishes), everyday needs
+ * "Guide": everything for living in BH — eating (restaurants, dishes), going out at night, sport, everyday needs
  * (nearby places, emergencies) and the practical info. Exploring and travel live in Explorer.
  */
 export default function GuideScreen() {
@@ -50,15 +52,21 @@ export default function GuideScreen() {
       restaurants: restaurants.filter((r) => has([r.name, ...Object.values(r.cuisine), r.neighborhood])),
       places: attractions.filter((a) => has([a.name, a.neighborhood])),
       dishes: dishes.filter((d) => has([d.name, ...Object.values(d.description)])),
+      night: nightPlaces.filter((p) => has([p.name, ...Object.values(p.vibe), p.neighborhood])),
+      sport: sportPlaces.filter((p) =>
+        has([p.name, ...Object.values(p.kind), p.neighborhood, ...p.groups.flatMap((g) => [t.sports.groups[g]])]),
+      ),
     };
-  }, [q, lang]);
+  }, [q, lang, t]);
 
   const empty =
     results &&
     !results.info.length &&
     !results.restaurants.length &&
     !results.places.length &&
-    !results.dishes.length;
+    !results.dishes.length &&
+    !results.night.length &&
+    !results.sport.length;
 
   return (
     <Screen title={t.guide.title} subtitle={t.guide.subtitle}>
@@ -85,6 +93,28 @@ export default function GuideScreen() {
                 title={t.dishes.entry}
                 status={t.guide.dishesStatus}
                 onPress={() => router.push('/restaurants/dishes')}
+              />
+            </HubGrid>
+          </Section>
+
+          <Section title={t.guide.night} subtitle={t.guide.nightHint}>
+            <HubGrid>
+              <HubTile
+                emoji="🌙"
+                title={t.nightlife.title}
+                status={t.nightlife.status}
+                onPress={() => router.push('/nightlife')}
+              />
+            </HubGrid>
+          </Section>
+
+          <Section title={t.guide.sport} subtitle={t.guide.sportHint}>
+            <HubGrid>
+              <HubTile
+                emoji="🏃"
+                title={t.sports.title}
+                status={t.sports.status}
+                onPress={() => router.push('/sports')}
               />
             </HubGrid>
           </Section>
@@ -150,6 +180,38 @@ export default function GuideScreen() {
                 <ListGroup>
                   {results.dishes.map((d) => (
                     <ListRow key={d.id} title={d.name} onPress={() => router.push('/restaurants/dishes')} />
+                  ))}
+                </ListGroup>
+              </Card>
+            </Section>
+          )}
+          {results.night.length > 0 && (
+            <Section title={t.guide.resultsNight}>
+              <Card style={styles.listCard}>
+                <ListGroup>
+                  {results.night.map((p) => (
+                    <ListRow
+                      key={p.id}
+                      title={p.name}
+                      subtitle={`${p.vibe[lang]} · ${p.neighborhood}`}
+                      onPress={() => router.push({ pathname: '/nightlife/[id]', params: { id: p.id } })}
+                    />
+                  ))}
+                </ListGroup>
+              </Card>
+            </Section>
+          )}
+          {results.sport.length > 0 && (
+            <Section title={t.guide.resultsSport}>
+              <Card style={styles.listCard}>
+                <ListGroup>
+                  {results.sport.map((p) => (
+                    <ListRow
+                      key={p.id}
+                      title={p.name}
+                      subtitle={`${p.kind[lang]} · ${p.neighborhood}`}
+                      onPress={() => router.push({ pathname: '/sports/[id]', params: { id: p.id } })}
+                    />
                   ))}
                 </ListGroup>
               </Card>

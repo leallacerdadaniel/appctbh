@@ -27,6 +27,7 @@ export default function DestinationScreen() {
 
       <PlacePhoto
         placeId={d.placeId}
+        source={d.photo}
         photoIndex={d.photoIndex}
         width={1000}
         aspectRatio={4 / 3}
