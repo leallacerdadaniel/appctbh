@@ -93,63 +93,19 @@ export default function GuideScreen() {
 
       {!results && (
         <>
-          <Section title={t.guide.eat} subtitle={t.guide.eatHint}>
-            <HubGrid>
-              <HubTile
-                emoji="🍽️"
-                title={t.restaurants.title}
-                status={t.guide.restaurantsStatus(restaurants.length)}
-                onPress={() => router.push('/restaurants')}
-              />
-              <HubTile
-                emoji="🧀"
-                title={t.dishes.entry}
-                status={t.guide.dishesStatus}
-                onPress={() => router.push('/restaurants/dishes')}
-              />
-            </HubGrid>
-          </Section>
-
-          <Section title={t.guide.night} subtitle={t.guide.nightHint}>
-            <HubGrid>
-              <HubTile
-                emoji="🌙"
-                title={t.nightlife.title}
-                status={t.nightlife.status}
-                onPress={() => router.push('/nightlife')}
-              />
-            </HubGrid>
-          </Section>
-
-          <Section title={t.guide.sport} subtitle={t.guide.sportHint}>
-            <HubGrid>
-              <HubTile
-                emoji="🏃"
-                title={t.sports.title}
-                status={t.sports.status}
-                onPress={() => router.push('/sports')}
-              />
-            </HubGrid>
-          </Section>
-
-          <Section title={t.guide.beauty} subtitle={t.guide.beautyHint}>
-            <HubGrid>
-              <HubTile
-                emoji="💇"
-                title={t.beauty.title}
-                status={t.beauty.status}
-                onPress={() => router.push('/beauty')}
-              />
-            </HubGrid>
-          </Section>
-
-          <Section title={t.guide.admin} subtitle={t.guide.adminHint}>
+          <Section title={t.guide.start} subtitle={t.guide.startHint}>
             <HubGrid>
               <HubTile
                 emoji="🛂"
                 title={t.admin.title}
                 status={t.admin.status}
                 onPress={() => router.push('/admin')}
+              />
+              <HubTile
+                emoji="📱"
+                title={t.services.title}
+                status={t.services.status}
+                onPress={() => router.push('/services')}
               />
             </HubGrid>
           </Section>
@@ -171,13 +127,42 @@ export default function GuideScreen() {
             </HubGrid>
           </Section>
 
-          <Section title={t.guide.services} subtitle={t.guide.servicesHint}>
+          <Section title={t.guide.eat} subtitle={t.guide.eatHint}>
             <HubGrid>
               <HubTile
-                emoji="📱"
-                title={t.services.title}
-                status={t.services.status}
-                onPress={() => router.push('/services')}
+                emoji="🍽️"
+                title={t.restaurants.title}
+                status={t.guide.restaurantsStatus(restaurants.length)}
+                onPress={() => router.push('/restaurants')}
+              />
+              <HubTile
+                emoji="🧀"
+                title={t.dishes.entry}
+                status={t.guide.dishesStatus}
+                onPress={() => router.push('/restaurants/dishes')}
+              />
+              <HubTile
+                emoji="🌙"
+                title={t.nightlife.title}
+                status={t.nightlife.status}
+                onPress={() => router.push('/nightlife')}
+              />
+            </HubGrid>
+          </Section>
+
+          <Section title={t.guide.sport} subtitle={t.guide.sportHint}>
+            <HubGrid>
+              <HubTile
+                emoji="🏃"
+                title={t.sports.title}
+                status={t.sports.status}
+                onPress={() => router.push('/sports')}
+              />
+              <HubTile
+                emoji="💇"
+                title={t.beauty.title}
+                status={t.beauty.status}
+                onPress={() => router.push('/beauty')}
               />
             </HubGrid>
           </Section>
