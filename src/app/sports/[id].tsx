@@ -36,8 +36,8 @@ export default function SportPlaceScreen() {
 
   return (
     <Screen back title={p.name} subtitle={`${p.kind[lang]} · ${p.neighborhood}`}>
-      {p.logo && p.photo ? (
-        // A brand logo looks poor blown up to a full-width photo: show it small.
+      {p.photo ? (
+        // Logos and photos of varying quality look poor blown up: show every team photo small.
         <Image
           source={p.photo}
           style={styles.logo}

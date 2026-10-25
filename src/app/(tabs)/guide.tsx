@@ -12,10 +12,13 @@ import { AppText, Button, Card, PressableScale } from '@/components/ui';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n, type Lang } from '@/i18n';
+import { adminProcedures } from '@/lib/admin';
 import { attractions } from '@/lib/attractions';
+import { beautyPlaces } from '@/lib/beauty';
 import { dishes } from '@/lib/dishes';
 import { contacts, guide, type GuideItem } from '@/lib/mock-data';
 import { nightPlaces } from '@/lib/nightlife';
+import { services } from '@/lib/services';
 import { sportPlaces } from '@/lib/sports';
 import { displayName, restaurants } from '@/lib/restaurants';
 
@@ -56,6 +59,13 @@ export default function GuideScreen() {
       sport: sportPlaces.filter((p) =>
         has([p.name, ...Object.values(p.kind), p.neighborhood, ...p.groups.flatMap((g) => [t.sports.groups[g]])]),
       ),
+      services: services.filter((s) => has([s.name, ...Object.values(s.kind), t.services.groups[s.group]])),
+      admin: adminProcedures.filter((p) =>
+        has([p.title, ...Object.values(p.kind), ...Object.values(p.summary), ...p.keywords]),
+      ),
+      beauty: beautyPlaces.filter((p) =>
+        has([p.name, ...Object.values(p.kind), ...Object.values(p.description), ...p.neighborhoods, t.beauty.groups[p.group]]),
+      ),
     };
   }, [q, lang, t]);
 
@@ -66,7 +76,10 @@ export default function GuideScreen() {
     !results.places.length &&
     !results.dishes.length &&
     !results.night.length &&
-    !results.sport.length;
+    !results.sport.length &&
+    !results.services.length &&
+    !results.beauty.length &&
+    !results.admin.length;
 
   return (
     <Screen title={t.guide.title} subtitle={t.guide.subtitle}>
@@ -119,6 +132,28 @@ export default function GuideScreen() {
             </HubGrid>
           </Section>
 
+          <Section title={t.guide.beauty} subtitle={t.guide.beautyHint}>
+            <HubGrid>
+              <HubTile
+                emoji="💇"
+                title={t.beauty.title}
+                status={t.beauty.status}
+                onPress={() => router.push('/beauty')}
+              />
+            </HubGrid>
+          </Section>
+
+          <Section title={t.guide.admin} subtitle={t.guide.adminHint}>
+            <HubGrid>
+              <HubTile
+                emoji="🛂"
+                title={t.admin.title}
+                status={t.admin.status}
+                onPress={() => router.push('/admin')}
+              />
+            </HubGrid>
+          </Section>
+
           <Section title={t.guide.daily} subtitle={t.guide.dailyHint}>
             <HubGrid>
               <HubTile
@@ -131,16 +166,20 @@ export default function GuideScreen() {
                 emoji="🚑"
                 title={t.home.emergency}
                 status={t.guide.emergencyStatus}
-                onPress={() => {
-                  setQuery('');
-                  setOpenId('emergency');
-                }}
+                onPress={() => router.push('/emergency')}
               />
             </HubGrid>
           </Section>
 
-          <Section title={t.guide.info} subtitle={t.guide.infoHint}>
-            <InfoList items={guide} lang={lang} openId={openId} onToggle={setOpenId} />
+          <Section title={t.guide.services} subtitle={t.guide.servicesHint}>
+            <HubGrid>
+              <HubTile
+                emoji="📱"
+                title={t.services.title}
+                status={t.services.status}
+                onPress={() => router.push('/services')}
+              />
+            </HubGrid>
           </Section>
         </>
       )}
@@ -211,6 +250,54 @@ export default function GuideScreen() {
                       title={p.name}
                       subtitle={`${p.kind[lang]} · ${p.neighborhood}`}
                       onPress={() => router.push({ pathname: '/sports/[id]', params: { id: p.id } })}
+                    />
+                  ))}
+                </ListGroup>
+              </Card>
+            </Section>
+          )}
+          {results.services.length > 0 && (
+            <Section title={t.guide.resultsServices}>
+              <Card style={styles.listCard}>
+                <ListGroup>
+                  {results.services.map((s) => (
+                    <ListRow
+                      key={s.id}
+                      title={s.name}
+                      subtitle={s.kind[lang]}
+                      onPress={() => router.push({ pathname: '/services/[id]', params: { id: s.id } })}
+                    />
+                  ))}
+                </ListGroup>
+              </Card>
+            </Section>
+          )}
+          {results.admin.length > 0 && (
+            <Section title={t.guide.resultsAdmin}>
+              <Card style={styles.listCard}>
+                <ListGroup>
+                  {results.admin.map((p) => (
+                    <ListRow
+                      key={p.id}
+                      title={p.title}
+                      subtitle={p.kind[lang]}
+                      onPress={() => router.push({ pathname: '/admin/[id]', params: { id: p.id } })}
+                    />
+                  ))}
+                </ListGroup>
+              </Card>
+            </Section>
+          )}
+          {results.beauty.length > 0 && (
+            <Section title={t.guide.resultsBeauty}>
+              <Card style={styles.listCard}>
+                <ListGroup>
+                  {results.beauty.map((p) => (
+                    <ListRow
+                      key={p.id}
+                      title={p.name}
+                      subtitle={`${p.kind[lang]} · ${p.neighborhoods.join(', ')}`}
+                      onPress={() => router.push({ pathname: '/beauty/[id]', params: { id: p.id } })}
                     />
                   ))}
                 </ListGroup>

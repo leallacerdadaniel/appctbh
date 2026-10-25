@@ -91,17 +91,17 @@ const content: Record<string, SportContent> = {
       'A large park at the foot of the Serra do Curral, with paths that climb and drop: for those who like hills and nature.',
     ),
     tip: L(
-      'Entrée gratuite, mais il faut présenter le certificat de vaccination contre la fièvre jaune et une pièce d’identité. Montez en Uber et prévoyez de l’eau : les côtes sont raides.',
-      'Free entry, but you must show your yellow fever vaccination certificate and an ID. Take an Uber up and bring water: the slopes are steep.',
+      'Entrée gratuite, fermé le lundi. On entre par la portaria Sul (av. José do Patrocínio Pontes) ou la portaria Caraça. Montez en Uber et prévoyez de l’eau : les côtes sont raides.',
+      'Free entry, closed on Mondays. Enter through the Sul gate (Av. José do Patrocínio Pontes) or the Caraça gate. Take an Uber up and bring water: the slopes are steep.',
     ),
   },
   'run-lagoa-seca': {
     name: 'Lagoa Seca',
     groups: ['run'],
-    kind: L('Circuit plat', 'Flat loop'),
+    kind: L('Circuit de quartier', 'Neighbourhood loop'),
     description: L(
-      'Un circuit plat et asphalté autour de la Lagoa Seca, dans le Belvedere, très apprécié des coureurs du quartier.',
-      'A flat, paved loop around the Lagoa Seca in Belvedere, popular with local runners.',
+      'Une place autour de la Lagoa Seca, dans le Belvedere, avec un circuit pour marcher, courir et faire du vélo, très apprécié des coureurs du quartier.',
+      'A square around the Lagoa Seca in Belvedere, with a loop for walking, running and cycling, popular with local runners.',
     ),
     tip: L('Plein de monde tôt le matin et en fin de journée ; allez-y en Uber.', 'Busy early in the morning and late in the day; take an Uber there.'),
     showHours: false,
@@ -172,12 +172,12 @@ const content: Record<string, SportContent> = {
     groups: ['wakeboard'],
     kind: L('Wakeboard derrière un bateau', 'Boat wakeboarding'),
     description: L(
-      'École de wakeboard installée au Clube Serra da Moeda, sur la Lagoa dos Ingleses (Nova Lima), le seul club de la région où les bateaux à moteur sont autorisés. Des étapes du championnat du monde de wakeboard s’y déroulent.',
-      'A wakeboard school at Clube Serra da Moeda, on the Lagoa dos Ingleses (Nova Lima), the only club in the region where motorboats are allowed. World wakeboard championship events take place there.',
+      'École de wakeboard installée au Clube Serra da Moeda, sur la Lagoa dos Ingleses (Nova Lima), où se déroulent des compétitions internationales de wakeboard, comme le Brasil Wake Open.',
+      'A wakeboard school at Clube Serra da Moeda, on the Lagoa dos Ingleses (Nova Lima), which hosts international wakeboard competitions such as the Brasil Wake Open.',
     ),
     price: L(
-      'Cours derrière le bateau : ≈ R$ 400 (20 min) ou R$ 500 (30 min). Lac pour débutants : R$ 75 en semaine, R$ 95 le week-end (mai 2026).',
-      'Boat lessons: ≈ R$ 400 (20 min) or R$ 500 (30 min). Beginners’ lake: R$ 75 on weekdays, R$ 95 at weekends (May 2026).',
+      'Cours derrière le bateau : ≈ R$ 400 (20 min) ou R$ 500 (30 min) (mai 2026).',
+      'Boat lessons: ≈ R$ 400 (20 min) or R$ 500 (30 min) (May 2026).',
     ),
     tip: L('Réservez par Instagram (@bhwakeschool) ou WhatsApp ; le club est à ≈ 40 min de voiture.', 'Book on Instagram (@bhwakeschool) or WhatsApp; the club is ≈ 40 min away by car.'),
     neighborhood: 'Lagoa dos Ingleses (Nova Lima)',
@@ -212,8 +212,8 @@ const content: Record<string, SportContent> = {
     groups: ['beachTennis', 'padel'],
     kind: L('Beach tennis, padel et volley', 'Beach tennis, padel and volleyball'),
     description: L(
-      'Complexe sportif du Belvedere avec courts de sable et de padel, vestiaires et espace barbecue.',
-      'A sports complex in Belvedere with sand and padel courts, changing rooms and a barbecue area.',
+      'Complexe sportif du Belvedere avec courts de sable et de padel : location de courts et cours.',
+      'A sports complex in Belvedere with sand and padel courts: court rental and classes.',
     ),
     tip: L('À plusieurs, le prix du court se partage vite.', 'With friends, the court price is quickly shared.'),
   },
@@ -245,10 +245,10 @@ const content: Record<string, SportContent> = {
     groups: ['football'],
     kind: L('Foot et école de foot', 'Football and football school'),
     description: L(
-      'Centre sportif du Buritis avec un grand terrain, une école de foot pour enfants et des « peladas » (matchs entre amis) régulières, avec bar et parking payant.',
-      'A sports centre in Buritis with a big pitch, a football school for children and regular “peladas” (friendly matches), with a bar and paid parking.',
+      'Centre sportif du Buritis avec des terrains de foot society en gazon synthétique, à louer pour jouer entre amis, une école de foot pour enfants et un bar.',
+      'A sports centre in Buritis with artificial-grass five/seven-a-side pitches to rent for games with friends, a football school for children and a bar.',
     ),
-    tip: L('Le parking est payant et petit : allez-y à plusieurs, en Uber.', 'Parking is paid and small: go as a group, by Uber.'),
+    tip: L('Loin de l’appartement : allez-y à plusieurs, en Uber.', 'Far from the apartment: go as a group, by Uber.'),
   },
 
   'arena-serra': {
@@ -269,8 +269,8 @@ const content: Record<string, SportContent> = {
     groups: ['tennis'],
     kind: L('Cours de tennis · plusieurs unités', 'Tennis classes · several units'),
     description: L(
-      'Réseau d’écoles de tennis né à BH, avec un concept « Fun & Flex » : des cours dynamiques et flexibles, sans esprit de compétition, pour tous les âges. Plusieurs unités dans la ville : Savassi (la plus proche, ci-dessous), Estoril, Santa Lúcia, Lagoa Seca, Saul Macedo, Calafate et Cidade Nova.',
-      'A tennis school network born in BH, with a “Fun & Flex” concept: dynamic, flexible classes, with no competitive pressure, for all ages. Several units across the city: Savassi (the closest, below), Estoril, Santa Lúcia, Lagoa Seca, Saul Macedo, Calafate and Cidade Nova.',
+      'Réseau d’écoles de tennis né à BH, avec un concept « Fun & Flex » : des cours légers et ludiques, et des horaires flexibles (un cours manqué se rattrape un autre jour), pour enfants et adultes. Plus de dix unités à BH, dont Savassi (la plus proche, ci-dessous), Belvedere, Buritis, Pampulha, Santa Lúcia et Cidade Nova.',
+      'A tennis school network born in BH, with a “Fun & Flex” concept: light, fun classes and flexible times (a missed class can be made up another day), for children and adults. More than ten units in BH, including Savassi (the closest, below), Belvedere, Buritis, Pampulha, Santa Lúcia and Cidade Nova.',
     ),
     tip: L('Le site officiel liste toutes les unités : choisissez celle qui est sur votre trajet.', 'The official website lists every unit: pick the one on your way.'),
   },
@@ -279,10 +279,10 @@ const content: Record<string, SportContent> = {
   'aera-pilates': {
     name: 'Aera Pilates',
     groups: ['pilates'],
-    kind: L('Pilates collectif et dynamique', 'Dynamic group pilates'),
+    kind: L('Pilates sur Reformer', 'Reformer pilates'),
     description: L(
-      'Studio du Belvedere qui propose un pilates collectif, intense et dynamique, à la même adresse que le Vidya Studio.',
-      'A Belvedere studio offering intense, dynamic group pilates, at the same address as Vidya Studio.',
+      'Studio du Belvedere de pilates sur Reformer, avec sa propre méthode d’entraînement, à la même adresse que le Vidya Studio.',
+      'A Belvedere studio for Reformer pilates, with its own training method, at the same address as Vidya Studio.',
     ),
     tip: L('Combinez avec un cours de yoga au Vidya, juste à côté.', 'Combine it with a yoga class at Vidya, right next door.'),
   },
@@ -291,8 +291,8 @@ const content: Record<string, SportContent> = {
     groups: ['pilates', 'yoga'],
     kind: L('Yoga, pilates et fonctionnel', 'Yoga, pilates and functional'),
     description: L(
-      'Studio de bien-être à Santa Lúcia, près du Belvedere, qui réunit yoga, mat pilates et entraînement fonctionnel.',
-      'A wellness studio in Santa Lúcia, near Belvedere, bringing together yoga, mat pilates and functional training.',
+      'Studio de bien-être à Santa Lúcia, près du Belvedere, qui réunit yoga, pilates au sol et sur Reformer, et entraînement fonctionnel.',
+      'A wellness studio in Santa Lúcia, near Belvedere, bringing together yoga, mat and Reformer pilates, and functional training.',
     ),
     tip: L('Regardez le planning sur le site avant d’y aller : les horaires changent selon les cours.', 'Check the schedule on the website before going: hours depend on the classes.'),
   },
@@ -302,10 +302,10 @@ const content: Record<string, SportContent> = {
   'flow-yoga': {
     name: 'Flow Yoga',
     groups: ['yoga'],
-    kind: L('Studio de yoga', 'Yoga studio'),
+    kind: L('Yoga et hot yoga', 'Yoga and hot yoga'),
     description: L(
-      'Studio de yoga et de méditation à Vila da Serra : Yoga Flow, Ashtanga, Yin Yoga et cours de souplesse.',
-      'A yoga and meditation studio in Vila da Serra: Yoga Flow, Ashtanga, Yin Yoga and flexibility classes.',
+      'Studio de yoga à Vila da Serra, surtout en salle chauffée (38 °C) : Yoga Flow, Hot Yoga, Power Yoga, Candlelight Flow à la bougie et étirements (Active Stretch).',
+      'A yoga studio in Vila da Serra, mostly in a heated room (38 °C): Yoga Flow, Hot Yoga, Power Yoga, candlelit Candlelight Flow and stretching (Active Stretch).',
     ),
     tip: L('Ouvert aussi le samedi et le dimanche matin.', 'Also open on Saturday and Sunday mornings.'),
     neighborhood: 'Vila da Serra (Nova Lima)',
@@ -328,8 +328,8 @@ const content: Record<string, SportContent> = {
     groups: ['bike'],
     kind: L('Bike indoor en musique', 'Indoor cycling to music'),
     description: L(
-      'Grande chaîne brésilienne de bike indoor : des cours rythmés par la musique, menés par des instructeurs. Unités à Vila da Serra et à Lourdes.',
-      'A big Brazilian indoor cycling chain: classes paced by the music, led by instructors. Units in Vila da Serra and Lourdes.',
+      'Grande chaîne brésilienne de bike indoor : des cours rythmés par la musique, menés par des instructeurs. Unités à Vila da Serra, à Lourdes et à la Pampulha.',
+      'A big Brazilian indoor cycling chain: classes paced by the music, led by instructors. Units in Vila da Serra, Lourdes and Pampulha.',
     ),
     tip: L('L’unité de Lourdes (rue Gonçalves Dias) est plus proche de l’appartement.', 'The Lourdes unit (Rua Gonçalves Dias) is closer to the apartment.'),
     neighborhood: 'Vila da Serra (Nova Lima)',
@@ -388,6 +388,22 @@ const teamPhotos: Record<string, number> = {
   'bluefit': require('@/assets/sports/bluefit.jpg'),
   'contorno-do-corpo': require('@/assets/sports/contorno-do-corpo.jpg'),
   'pratique': require('@/assets/sports/pratique.jpg'),
+  'bh-wake-school': require('@/assets/sports/bh-wake-school.jpg'),
+  'pe-na-areia': require('@/assets/sports/pe-na-areia.jpg'),
+  'orla-sports': require('@/assets/sports/orla-sports.jpg'),
+  '4set-arena': require('@/assets/sports/4set-arena.jpg'),
+  'arena-serra': require('@/assets/sports/arena-serra.jpg'),
+  'la-bombonera': require('@/assets/sports/la-bombonera.jpg'),
+  'arena-7-bh': require('@/assets/sports/arena-7-bh.jpg'),
+  'layback-park': require('@/assets/sports/layback-park.jpg'),
+  'fast-tennis': require('@/assets/sports/fast-tennis.jpg'),
+  'aera-pilates': require('@/assets/sports/aera-pilates.jpg'),
+  'goya': require('@/assets/sports/goya.jpg'),
+  'flow-yoga': require('@/assets/sports/flow-yoga.jpg'),
+  'vidya': require('@/assets/sports/vidya.jpg'),
+  'velocity': require('@/assets/sports/velocity.jpg'),
+  'companhia-do-nado': require('@/assets/sports/companhia-do-nado.jpg'),
+  'gracie-barra': require('@/assets/sports/gracie-barra.jpg'),
 };
 
 export const sportPlaces = (data as { places: SportFacts[] }).places

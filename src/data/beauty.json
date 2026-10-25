@@ -1,0 +1,1347 @@
+{
+  "origin": {
+    "lat": -19.9390581,
+    "lng": -43.93384349999999
+  },
+  "places": [
+    {
+      "id": "blow-savassi",
+      "name": "bLOw - Savassi l Belo Horizonte",
+      "placeId": "ChIJ2RmS3geZpgARjXZ615YI-HM",
+      "status": "OPERATIONAL",
+      "address": "Rua dos Inconfidentes, 855 - Savassi, Belo Horizonte - MG, 30140-128",
+      "neighborhood": "Savassi",
+      "lat": -19.9361084,
+      "lng": -43.93393880000001,
+      "hours": [
+        {
+          "open": {
+            "day": 1,
+            "time": "0700"
+          },
+          "close": {
+            "day": 1,
+            "time": "1945"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0700"
+          },
+          "close": {
+            "day": 2,
+            "time": "1945"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0700"
+          },
+          "close": {
+            "day": 3,
+            "time": "1945"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0700"
+          },
+          "close": {
+            "day": 4,
+            "time": "1945"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0700"
+          },
+          "close": {
+            "day": 5,
+            "time": "1945"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0830"
+          },
+          "close": {
+            "day": 6,
+            "time": "1900"
+          }
+        }
+      ],
+      "phone": "+55 31 98499-7808",
+      "website": "https://www.trinks.com//blow-savassi-l-bh?_gl=1*1ux3aeq*_gcl_au*MTkzNjEwMzM2Mi4xNzY3MDMwMzc3*_ga*NTY4MjAyNDY0LjE3NjcwMzAzNzg.*_ga_KQRFQD8CE0*czE3NjcwMzAzNzckbzEkZzEkdDE3NjcwMzAzNzkkajU4JGwwJGgw",
+      "distanceM": 398,
+      "walkMin": 5,
+      "driveMin": 6
+    },
+    {
+      "id": "blow-belvedere",
+      "name": "bLOw - Belvedere | Belo Horizonte",
+      "placeId": "ChIJVz9RbfiZpgARNq8o6g4Qcfw",
+      "status": "OPERATIONAL",
+      "address": "R. Jorn. Djalma Andrade, 180 - Lj 2 - Andar 2 - Belvedere, Belo Horizonte - MG, 30320-540",
+      "neighborhood": "Belvedere",
+      "lat": -19.9706899,
+      "lng": -43.9427623,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0900"
+          },
+          "close": {
+            "day": 0,
+            "time": "1500"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "0700"
+          },
+          "close": {
+            "day": 1,
+            "time": "1945"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0700"
+          },
+          "close": {
+            "day": 2,
+            "time": "1945"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0700"
+          },
+          "close": {
+            "day": 3,
+            "time": "1945"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0700"
+          },
+          "close": {
+            "day": 4,
+            "time": "1945"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0700"
+          },
+          "close": {
+            "day": 5,
+            "time": "1945"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0830"
+          },
+          "close": {
+            "day": 6,
+            "time": "1945"
+          }
+        }
+      ],
+      "phone": "+55 31 99000-0203",
+      "website": "https://www.meublow.com.br/",
+      "distanceM": 4608,
+      "walkMin": 76,
+      "driveMin": 12
+    },
+    {
+      "id": "blow-buritis",
+      "name": "bLOw - Buritis | Belo Horizonte/MG",
+      "placeId": "ChIJxa9dDLqXpgARoTh0LvsZj5g",
+      "status": "OPERATIONAL",
+      "address": "R. José Rodrigues Pereira, 1294 - Lj 03 - Buritis, Belo Horizonte - MG, 30455-640",
+      "neighborhood": "Buritis",
+      "lat": -19.9692972,
+      "lng": -43.96405,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0900"
+          },
+          "close": {
+            "day": 0,
+            "time": "1600"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "0700"
+          },
+          "close": {
+            "day": 1,
+            "time": "2000"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0700"
+          },
+          "close": {
+            "day": 2,
+            "time": "2000"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0700"
+          },
+          "close": {
+            "day": 3,
+            "time": "2000"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0700"
+          },
+          "close": {
+            "day": 4,
+            "time": "2000"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0700"
+          },
+          "close": {
+            "day": 5,
+            "time": "2000"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0700"
+          },
+          "close": {
+            "day": 6,
+            "time": "2000"
+          }
+        }
+      ],
+      "phone": "+55 31 98103-5353",
+      "website": "https://www.meublow.com.br/",
+      "distanceM": 5783,
+      "walkMin": 97,
+      "driveMin": 17
+    },
+    {
+      "id": "blonde-concept",
+      "name": "The Blonde Concept - SALÃO DE BELEZA SAVASSI BELO HORIZONTE",
+      "placeId": "ChIJ3XTuOZeZpgARf46l1OL8Prk",
+      "status": "OPERATIONAL",
+      "address": "R. Alagoas, 450 - Boa Viagem, Belo Horizonte - MG, 30130-162",
+      "neighborhood": "Boa Viagem",
+      "lat": -19.930927,
+      "lng": -43.9352348,
+      "hours": [
+        {
+          "open": {
+            "day": 2,
+            "time": "0900"
+          },
+          "close": {
+            "day": 2,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0900"
+          },
+          "close": {
+            "day": 3,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0900"
+          },
+          "close": {
+            "day": 4,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0900"
+          },
+          "close": {
+            "day": 5,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0800"
+          },
+          "close": {
+            "day": 6,
+            "time": "1900"
+          }
+        }
+      ],
+      "phone": "+55 31 3146-2816",
+      "website": "https://theblondeconcept.com.br/",
+      "distanceM": 1041,
+      "walkMin": 14,
+      "driveMin": 6
+    },
+    {
+      "id": "fast-escova-savassi",
+      "name": "Fast Escova Savassi",
+      "placeId": "ChIJ6UO-wY-ZpgAR1iyC4ChW7KI",
+      "status": "OPERATIONAL",
+      "address": "R. Antero da Silveira, 10 - Savassi, Belo Horizonte - MG, 30310-050",
+      "neighborhood": "Savassi",
+      "lat": -19.9398121,
+      "lng": -43.9303777,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0800"
+          },
+          "close": {
+            "day": 0,
+            "time": "1400"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "0800"
+          },
+          "close": {
+            "day": 1,
+            "time": "2000"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0800"
+          },
+          "close": {
+            "day": 2,
+            "time": "2000"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0800"
+          },
+          "close": {
+            "day": 3,
+            "time": "2000"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0800"
+          },
+          "close": {
+            "day": 4,
+            "time": "2000"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0800"
+          },
+          "close": {
+            "day": 5,
+            "time": "2000"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0800"
+          },
+          "close": {
+            "day": 6,
+            "time": "2000"
+          }
+        }
+      ],
+      "phone": "+55 31 99806-2941",
+      "website": "https://www.instagram.com/fastescova.bhsavassi/",
+      "distanceM": 501,
+      "walkMin": 7,
+      "driveMin": 6
+    },
+    {
+      "id": "fast-escova-lourdes",
+      "name": "Fast Escova Lourdes- BH",
+      "placeId": "ChIJlUAD6umZpgARMEdknyNBKFs",
+      "status": "OPERATIONAL",
+      "address": "R. Rio de Janeiro, n° 1751 - Lourdes, Belo Horizonte - MG, 30160-046",
+      "neighborhood": "Lourdes",
+      "lat": -19.929499,
+      "lng": -43.941351,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0900"
+          },
+          "close": {
+            "day": 0,
+            "time": "1400"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "0900"
+          },
+          "close": {
+            "day": 1,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0900"
+          },
+          "close": {
+            "day": 2,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0900"
+          },
+          "close": {
+            "day": 3,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0900"
+          },
+          "close": {
+            "day": 4,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0900"
+          },
+          "close": {
+            "day": 5,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0800"
+          },
+          "close": {
+            "day": 6,
+            "time": "1900"
+          }
+        }
+      ],
+      "phone": "+55 31 99995-7914",
+      "website": "https://fastescova.com.br/",
+      "distanceM": 1483,
+      "walkMin": 20,
+      "driveMin": 9
+    },
+    {
+      "id": "fast-escova-belvedere",
+      "name": "Fast Escova Belvedere",
+      "placeId": "ChIJc2h6AGKZpgARhKFfRydCbp8",
+      "status": "OPERATIONAL",
+      "address": "Av. Luiz Paulo Franco, 949 - Belvedere, Belo Horizonte - MG, 30320-570",
+      "neighborhood": "Belvedere",
+      "lat": -19.9755469,
+      "lng": -43.9437077,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0900"
+          },
+          "close": {
+            "day": 0,
+            "time": "1400"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "0900"
+          },
+          "close": {
+            "day": 1,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0900"
+          },
+          "close": {
+            "day": 2,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0900"
+          },
+          "close": {
+            "day": 3,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0900"
+          },
+          "close": {
+            "day": 4,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0900"
+          },
+          "close": {
+            "day": 5,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0900"
+          },
+          "close": {
+            "day": 6,
+            "time": "1900"
+          }
+        }
+      ],
+      "phone": "+55 31 99809-8051",
+      "website": "https://fastescova.com.br/",
+      "distanceM": 5379,
+      "walkMin": 88,
+      "driveMin": 13
+    },
+    {
+      "id": "thiago-dias",
+      "name": "Thiago Dias Studio",
+      "placeId": "ChIJZxeKvGyZpgAReI5m1ul74Ao",
+      "status": "OPERATIONAL",
+      "address": "R. Pernambuco, 1389 - lj 01 - Funcionários, Belo Horizonte - MG, 30130-151",
+      "neighborhood": "Funcionários",
+      "lat": -19.9396318,
+      "lng": -43.9357788,
+      "hours": [
+        {
+          "open": {
+            "day": 1,
+            "time": "1000"
+          },
+          "close": {
+            "day": 1,
+            "time": "2000"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "1000"
+          },
+          "close": {
+            "day": 2,
+            "time": "2000"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0900"
+          },
+          "close": {
+            "day": 3,
+            "time": "2000"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0900"
+          },
+          "close": {
+            "day": 4,
+            "time": "2000"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0900"
+          },
+          "close": {
+            "day": 5,
+            "time": "2000"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1000"
+          },
+          "close": {
+            "day": 6,
+            "time": "1600"
+          }
+        }
+      ],
+      "phone": "+55 31 98364-7772",
+      "website": "https://studiothiagodias.com.br/",
+      "distanceM": 345,
+      "walkMin": 5,
+      "driveMin": 2
+    },
+    {
+      "id": "lu-duarte",
+      "name": "Esmalteria Lu Duarte",
+      "placeId": "ChIJ28w39v-ZpgARQ_0Jq80rQqI",
+      "status": "OPERATIONAL",
+      "address": "R. Tomé de Souza, 830 - Sala 1306 13º andar - Funcionários, Belo Horizonte - MG, 30140-136",
+      "neighborhood": "Funcionários",
+      "lat": -19.9367429,
+      "lng": -43.9344499,
+      "hours": [
+        {
+          "open": {
+            "day": 1,
+            "time": "0800"
+          },
+          "close": {
+            "day": 1,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0800"
+          },
+          "close": {
+            "day": 2,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0800"
+          },
+          "close": {
+            "day": 3,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0800"
+          },
+          "close": {
+            "day": 4,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0800"
+          },
+          "close": {
+            "day": 5,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0800"
+          },
+          "close": {
+            "day": 6,
+            "time": "1400"
+          }
+        }
+      ],
+      "phone": "+55 31 98460-6655",
+      "website": "https://www.instagram.com/esmalterialuduarte/",
+      "distanceM": 264,
+      "walkMin": 3,
+      "driveMin": 4
+    },
+    {
+      "id": "up-esmalteria",
+      "name": "UP Esmalteria",
+      "placeId": "ChIJmzIDstuZpgARrhyZDS71-A0",
+      "status": "OPERATIONAL",
+      "address": "R. Tomé de Souza, 1081 - Funcionários, Belo Horizonte - MG, 30140-130",
+      "neighborhood": "Funcionários",
+      "lat": -19.9366252,
+      "lng": -43.9370852,
+      "hours": [
+        {
+          "open": {
+            "day": 2,
+            "time": "1000"
+          },
+          "close": {
+            "day": 2,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1000"
+          },
+          "close": {
+            "day": 3,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1000"
+          },
+          "close": {
+            "day": 4,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1000"
+          },
+          "close": {
+            "day": 5,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1000"
+          },
+          "close": {
+            "day": 6,
+            "time": "1900"
+          }
+        }
+      ],
+      "phone": "+55 31 97179-3685",
+      "website": "https://upesmalteria.com.br/",
+      "distanceM": 501,
+      "walkMin": 7,
+      "driveMin": 8
+    },
+    {
+      "id": "charmea",
+      "name": "Charmeá Estética",
+      "placeId": "ChIJhxiabtqZpgARfPPwlUxhudA",
+      "status": "OPERATIONAL",
+      "address": "R. Alagoas, 1314 - 12c - Funcionários, Belo Horizonte - MG, 30130-160",
+      "neighborhood": "Funcionários",
+      "lat": -19.938432,
+      "lng": -43.93747339999999,
+      "hours": [
+        {
+          "open": {
+            "day": 1,
+            "time": "0900"
+          },
+          "close": {
+            "day": 1,
+            "time": "2000"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0900"
+          },
+          "close": {
+            "day": 2,
+            "time": "2000"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0900"
+          },
+          "close": {
+            "day": 3,
+            "time": "2000"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0900"
+          },
+          "close": {
+            "day": 4,
+            "time": "2000"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0900"
+          },
+          "close": {
+            "day": 5,
+            "time": "2000"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0900"
+          },
+          "close": {
+            "day": 6,
+            "time": "1700"
+          }
+        }
+      ],
+      "phone": "+55 31 3262-3201",
+      "website": "http://www.charmea.com.br/",
+      "distanceM": 447,
+      "walkMin": 6,
+      "driveMin": 3
+    },
+    {
+      "id": "flavia-costa",
+      "name": "Espaço Flávia Costa",
+      "placeId": "ChIJ73o3TimZpgARU3egn-Abkvc",
+      "status": "OPERATIONAL",
+      "address": "Rua alagoas, 1314, - Shopping 5ª Avenida Rua Alagoas, 1314 - Shopping 5ª avenida - Loja 21C terceiro piso - Savassi, Belo Horizonte - MG, 30130-160",
+      "neighborhood": "Savassi",
+      "lat": -19.9383386,
+      "lng": -43.9374286,
+      "hours": [
+        {
+          "open": {
+            "day": 1,
+            "time": "1300"
+          },
+          "close": {
+            "day": 1,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0930"
+          },
+          "close": {
+            "day": 2,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0930"
+          },
+          "close": {
+            "day": 3,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0930"
+          },
+          "close": {
+            "day": 4,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0930"
+          },
+          "close": {
+            "day": 5,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0930"
+          },
+          "close": {
+            "day": 6,
+            "time": "1330"
+          }
+        }
+      ],
+      "phone": "+55 31 98482-8588",
+      "website": null,
+      "distanceM": 447,
+      "walkMin": 6,
+      "driveMin": 4
+    },
+    {
+      "id": "fabi-archanjo",
+      "name": "Fabi Archanjo Beauty | Sobrancelhas Savassi, Cabelo, Cílios - Salão de Beleza BH",
+      "placeId": "ChIJn0odC3WZpgARp7WNqcaZYao",
+      "status": "OPERATIONAL",
+      "address": "Edifício Diamand Arch - Av. Getúlio Vargas, 874 - Funcionários, Belo Horizonte - MG, 30112-021",
+      "neighborhood": "Funcionários",
+      "lat": -19.9356989,
+      "lng": -43.9317841,
+      "hours": [
+        {
+          "open": {
+            "day": 2,
+            "time": "1000"
+          },
+          "close": {
+            "day": 2,
+            "time": "1800"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "1000"
+          },
+          "close": {
+            "day": 3,
+            "time": "1800"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "1000"
+          },
+          "close": {
+            "day": 4,
+            "time": "1800"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "1000"
+          },
+          "close": {
+            "day": 5,
+            "time": "1800"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "1000"
+          },
+          "close": {
+            "day": 6,
+            "time": "1400"
+          }
+        }
+      ],
+      "phone": "+55 31 98821-5863",
+      "website": "https://wa.me/31988215863?text=Ol%C3%A1!+Vim+pelo+Google.+Gostaria+de+saber+mais+a+respeito+dos+seus+servi%C3%A7os.+",
+      "distanceM": 439,
+      "walkMin": 6,
+      "driveMin": 4
+    },
+    {
+      "id": "depyl-savassi",
+      "name": "DEPYL ACTION - Loja Conceito",
+      "placeId": "ChIJ0xO0_dmZpgARcpzk4zccK04",
+      "status": "OPERATIONAL",
+      "address": "R. Fernandes Tourinho, 588 - Savassi, Belo Horizonte - MG, 30112-000",
+      "neighborhood": "Savassi",
+      "lat": -19.9384146,
+      "lng": -43.9393051,
+      "hours": [
+        {
+          "open": {
+            "day": 1,
+            "time": "0830"
+          },
+          "close": {
+            "day": 1,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0830"
+          },
+          "close": {
+            "day": 2,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0830"
+          },
+          "close": {
+            "day": 3,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0830"
+          },
+          "close": {
+            "day": 4,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0830"
+          },
+          "close": {
+            "day": 5,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0800"
+          },
+          "close": {
+            "day": 6,
+            "time": "1700"
+          }
+        }
+      ],
+      "phone": "+55 31 3282-6433",
+      "website": "https://www.depylaction.com.br/franqueada/depyl-action-bh-savassi/",
+      "distanceM": 642,
+      "walkMin": 9,
+      "driveMin": 5
+    },
+    {
+      "id": "depyl-sion",
+      "name": "Depyl Action BH Sion",
+      "placeId": "ChIJuxVXMbWZpgAROlffxRdfSls",
+      "status": "OPERATIONAL",
+      "address": "Av. dos Bandeirantes, 1332 - Comiteco, Belo Horizonte - MG, 30315-032",
+      "neighborhood": "Comiteco",
+      "lat": -19.9526784,
+      "lng": -43.9230783,
+      "hours": [
+        {
+          "open": {
+            "day": 1,
+            "time": "0830"
+          },
+          "close": {
+            "day": 1,
+            "time": "1830"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0830"
+          },
+          "close": {
+            "day": 2,
+            "time": "1830"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0830"
+          },
+          "close": {
+            "day": 3,
+            "time": "1830"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0830"
+          },
+          "close": {
+            "day": 4,
+            "time": "1830"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0830"
+          },
+          "close": {
+            "day": 5,
+            "time": "1830"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0830"
+          },
+          "close": {
+            "day": 6,
+            "time": "1530"
+          }
+        }
+      ],
+      "phone": "+55 31 2551-9575",
+      "website": "https://www.instagram.com/depylaction_bhsion",
+      "distanceM": 2279,
+      "walkMin": 38,
+      "driveMin": 10
+    },
+    {
+      "id": "alecrim",
+      "name": "Alecrim Relaxamento e Bem-Estar",
+      "placeId": "ChIJxx6-94-XpgARes4_UXcwViQ",
+      "status": "OPERATIONAL",
+      "address": "Av. dos Bandeirantes, 670 - Mangabeiras, Belo Horizonte - MG, 30315-382",
+      "neighborhood": "Mangabeiras",
+      "lat": -19.9541648,
+      "lng": -43.92910670000001,
+      "hours": [
+        {
+          "open": {
+            "day": 0,
+            "time": "0900"
+          },
+          "close": {
+            "day": 0,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 1,
+            "time": "0900"
+          },
+          "close": {
+            "day": 1,
+            "time": "2030"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0900"
+          },
+          "close": {
+            "day": 2,
+            "time": "2030"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0900"
+          },
+          "close": {
+            "day": 3,
+            "time": "2030"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0900"
+          },
+          "close": {
+            "day": 4,
+            "time": "2030"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0900"
+          },
+          "close": {
+            "day": 5,
+            "time": "1700"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0900"
+          },
+          "close": {
+            "day": 6,
+            "time": "1700"
+          }
+        }
+      ],
+      "phone": "+55 31 99714-0138",
+      "website": "https://alecrim.bhz.br/",
+      "distanceM": 2081,
+      "walkMin": 35,
+      "driveMin": 10
+    },
+    {
+      "id": "spa-lotus",
+      "name": "Spa Lótus",
+      "placeId": "ChIJy4n7JNeZpgARcFBUft0lN10",
+      "status": "OPERATIONAL",
+      "address": "R. Arturo Toscanini, 48 A - Santo Antônio, Belo Horizonte - MG, 30330-200",
+      "neighborhood": "Santo Antônio",
+      "lat": -19.9403517,
+      "lng": -43.9398285,
+      "hours": [
+        {
+          "open": {
+            "day": 1,
+            "time": "0900"
+          },
+          "close": {
+            "day": 1,
+            "time": "1900"
+          }
+        },
+        {
+          "open": {
+            "day": 2,
+            "time": "0900"
+          },
+          "close": {
+            "day": 2,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 3,
+            "time": "0900"
+          },
+          "close": {
+            "day": 3,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 4,
+            "time": "0900"
+          },
+          "close": {
+            "day": 4,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 5,
+            "time": "0900"
+          },
+          "close": {
+            "day": 5,
+            "time": "2100"
+          }
+        },
+        {
+          "open": {
+            "day": 6,
+            "time": "0900"
+          },
+          "close": {
+            "day": 6,
+            "time": "1900"
+          }
+        }
+      ],
+      "phone": "+55 31 2555-3135",
+      "website": "http://www.spalotus.com.br/",
+      "distanceM": 810,
+      "walkMin": 12,
+      "driveMin": 8
+    }
+  ]
+}

@@ -21,11 +21,9 @@ const CATEGORIES: { id: NearbyCategoryId; emoji: string }[] = [
   { id: 'supermarket', emoji: '🛒' },
   { id: 'pharmacy', emoji: '💊' },
   { id: 'bakery', emoji: '🥐' },
-  { id: 'cafe', emoji: '☕' },
   { id: 'gym', emoji: '🏋️' },
   { id: 'laundry', emoji: '🧺' },
   { id: 'mall', emoji: '🛍️' },
-  { id: 'bank', emoji: '🏦' },
   { id: 'hospital', emoji: '🏥' },
 ];
 
@@ -113,7 +111,7 @@ export default function HomeScreen() {
               icon="emergency"
               title={t.home.emergency}
               subtitle={t.home.usefulNumbers}
-              onPress={() => router.navigate({ pathname: '/guide', params: { q: t.guide.emergencyQuery } })}
+              onPress={() => router.push('/emergency')}
             />
           </ListGroup>
         </Card>

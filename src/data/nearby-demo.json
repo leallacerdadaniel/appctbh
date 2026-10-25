@@ -20,22 +20,10 @@
           "lat": -19.9401697,
           "lng": -43.9339687,
           "rating": 4.5,
-          "ratingCount": 7489,
+          "ratingCount": 7491,
           "distanceM": 488,
           "walkMin": 8,
           "driveMin": 7
-        },
-        {
-          "name": "Supermercado Verdemar",
-          "address": "R. Fernandes Tourinho, 471 - Funcionários, Belo Horizonte",
-          "placeId": "ChIJbx2JVbeZpgARNSydD-o4Ywk",
-          "lat": -19.938816,
-          "lng": -43.9390963,
-          "rating": 4.3,
-          "ratingCount": 962,
-          "distanceM": 609,
-          "walkMin": 8,
-          "driveMin": 5
         },
         {
           "name": "Supernosso Grão Mogol",
@@ -56,22 +44,10 @@
           "lat": -19.9364476,
           "lng": -43.9297867,
           "rating": 4.1,
-          "ratingCount": 651,
+          "ratingCount": 652,
           "distanceM": 682,
           "walkMin": 10,
           "driveMin": 4
-        },
-        {
-          "name": "Supernosso Funcionários",
-          "address": "R. Gonçalves Dias, 603 - Funcionários, Belo Horizonte",
-          "placeId": "ChIJ7_MjFcKZpgAR_ZHsqS-19Lg",
-          "lat": -19.9330706,
-          "lng": -43.9305954,
-          "rating": 4.2,
-          "ratingCount": 3864,
-          "distanceM": 851,
-          "walkMin": 11,
-          "driveMin": 7
         }
       ]
     },
@@ -103,40 +79,16 @@
           "driveMin": 4
         },
         {
-          "name": "Drogaria Araujo - Savassi",
-          "address": "Av. do Contorno, 6115 - Savassi, Belo Horizonte",
-          "placeId": "ChIJqXXXB9CZpgARxmebHo4ED00",
-          "lat": -19.9402234,
-          "lng": -43.9346346,
-          "rating": 4,
-          "ratingCount": 282,
-          "distanceM": 415,
-          "walkMin": 7,
-          "driveMin": 7
-        },
-        {
-          "name": "Droga Raia",
-          "address": "R. Antônio de Albuquerque, 845 - Funcionários, Belo Horizonte",
-          "placeId": "ChIJcaoXLmCXpgARSsl1gAi8zEM",
-          "lat": -19.9376061,
-          "lng": -43.9384167,
-          "rating": 3.6,
-          "ratingCount": 149,
-          "distanceM": 549,
+          "name": "Drogarias Pacheco",
+          "address": "R. Antônio de Albuquerque - Savassi, Belo Horizonte",
+          "placeId": "ChIJ__8DPtqZpgARhEtIEkRa7pI",
+          "lat": -19.9375251,
+          "lng": -43.9381514,
+          "rating": 2.8,
+          "ratingCount": 31,
+          "distanceM": 524,
           "walkMin": 7,
           "driveMin": 6
-        },
-        {
-          "name": "Drogaria Araujo - Avenida",
-          "address": "Av. Afonso Pena, 2700 - Savassi, Belo Horizonte",
-          "placeId": "ChIJfbiEP8GZpgARpL3Ivpk1eQM",
-          "lat": -19.935044,
-          "lng": -43.9290136,
-          "rating": 3.8,
-          "ratingCount": 108,
-          "distanceM": 780,
-          "walkMin": 11,
-          "driveMin": 3
         }
       ]
     },
@@ -144,52 +96,28 @@
       "id": "bakery",
       "places": [
         {
-          "name": "Napolitano Pães e Pastéis",
-          "address": "Rua dos Inconfidentes, 937 - Savassi, Belo Horizonte",
-          "placeId": "ChIJDwbuT9uZpgAREwzAJPDL3xQ",
-          "lat": -19.935888,
-          "lng": -43.934676,
-          "rating": 4.1,
-          "ratingCount": 417,
-          "distanceM": 485,
+          "name": "Boca do Forno Savassi",
+          "address": "Rua Antônio de Albuquerque, 707 - Funcionários, Belo Horizonte",
+          "placeId": "ChIJw7ILQ9qZpgARQ9bc-P0iDXg",
+          "lat": -19.937768,
+          "lng": -43.9372203,
+          "rating": 4.2,
+          "ratingCount": 1233,
+          "distanceM": 423,
           "walkMin": 6,
-          "driveMin": 5
-        },
-        {
-          "name": "Pão da Serra",
-          "address": "R. Paraíba, 789 - Savassi, Belo Horizonte",
-          "placeId": "ChIJWa_L4cKZpgARXTFPdKI6xfI",
-          "lat": -19.9332911,
-          "lng": -43.9326815,
-          "rating": 3.9,
-          "ratingCount": 858,
-          "distanceM": 685,
-          "walkMin": 8,
-          "driveMin": 5
-        },
-        {
-          "name": "Padero Padaria e Cafeteria",
-          "address": "R. Pernambuco, 701 - Funcionários, Belo Horizonte",
-          "placeId": "ChIJI5J50VKZpgARR32Ijkm-v3o",
-          "lat": -19.9334579,
-          "lng": -43.9340827,
-          "rating": 4,
-          "ratingCount": 1066,
-          "distanceM": 746,
-          "walkMin": 9,
-          "driveMin": 6
-        },
-        {
-          "name": "Santíssimo Pão",
-          "address": "R. Benvinda de Carvalho, 148 - Santo Antônio, Belo Horizonte",
-          "placeId": "ChIJW8SbydaZpgARljMMWHrfHnk",
-          "lat": -19.9421276,
-          "lng": -43.9393758,
-          "rating": 4.1,
-          "ratingCount": 600,
-          "distanceM": 907,
-          "walkMin": 13,
           "driveMin": 7
+        },
+        {
+          "name": "Casa Bonomi",
+          "address": "Avenida Afonso Pena, 2600 - Funcionários, Belo Horizonte",
+          "placeId": "ChIJhQIHg8GZpgARrxJqp7ZF7_Y",
+          "lat": -19.9342651,
+          "lng": -43.9295463,
+          "rating": 4.4,
+          "ratingCount": 3139,
+          "distanceM": 778,
+          "walkMin": 11,
+          "driveMin": 4
         },
         {
           "name": "Padaria Cruzeiro",
@@ -198,73 +126,8 @@
           "lat": -19.94168,
           "lng": -43.928098,
           "rating": 4.5,
-          "ratingCount": 508,
+          "ratingCount": 510,
           "distanceM": 946,
-          "walkMin": 15,
-          "driveMin": 6
-        }
-      ]
-    },
-    {
-      "id": "cafe",
-      "places": [
-        {
-          "name": "Copo Café",
-          "address": "Praça da Savassi - R. Antônio de Albuquerque, 626 - Savassi, Belo Horizonte",
-          "placeId": "ChIJ10FD8NqZpgARH6p41d9QPhc",
-          "lat": -19.9378554,
-          "lng": -43.9362333,
-          "rating": 4.7,
-          "ratingCount": 252,
-          "distanceM": 309,
-          "walkMin": 4,
-          "driveMin": 5
-        },
-        {
-          "name": "Yes, Nós Temos Café",
-          "address": "R. Antônio de Albuquerque, 749 - Savassi, Belo Horizonte",
-          "placeId": "ChIJfZTiB5OZpgARjmyO0xN3Eio",
-          "lat": -19.9377673,
-          "lng": -43.9376517,
-          "rating": 4.5,
-          "ratingCount": 439,
-          "distanceM": 467,
-          "walkMin": 6,
-          "driveMin": 6
-        },
-        {
-          "name": "Belô Café — Belo Horizonte",
-          "address": "R. Sergipe, 1329 - Savassi, Belo Horizonte",
-          "placeId": "ChIJ-5YD3CGZpgAR4zb8zDr3Vbk",
-          "lat": -19.9384525,
-          "lng": -43.9382235,
-          "rating": 4.7,
-          "ratingCount": 3805,
-          "distanceM": 588,
-          "walkMin": 8,
-          "driveMin": 7
-        },
-        {
-          "name": "Elisa Café e Torrefação",
-          "address": "R. Sergipe, 1149 - Funcionários, Belo Horizonte",
-          "placeId": "ChIJRYIFVeWZpgARJkZoG15dK7E",
-          "lat": -19.9365842,
-          "lng": -43.937777,
-          "rating": 4.4,
-          "ratingCount": 457,
-          "distanceM": 615,
-          "walkMin": 8,
-          "driveMin": 7
-        },
-        {
-          "name": "Uluru Café",
-          "address": "Av. Afonso Pena, 2925 - Funcionários, Belo Horizonte",
-          "placeId": "ChIJFTqFYdqZpgAR8VXXKwfxUSc",
-          "lat": -19.9366258,
-          "lng": -43.9273919,
-          "rating": 4.4,
-          "ratingCount": 2317,
-          "distanceM": 941,
           "walkMin": 15,
           "driveMin": 6
         }
@@ -308,6 +171,18 @@
           "distanceM": 2731,
           "walkMin": 36,
           "driveMin": 10
+        },
+        {
+          "name": "BH Shopping",
+          "address": "BR-356, 3049, Belvedere, Belo Horizonte, MG",
+          "placeId": null,
+          "lat": -19.9742624,
+          "lng": -43.9445729,
+          "rating": null,
+          "ratingCount": null,
+          "distanceM": 5505,
+          "walkMin": 90,
+          "driveMin": 12
         }
       ]
     },
@@ -315,25 +190,13 @@
       "id": "gym",
       "places": [
         {
-          "name": "the bl4ck gym",
-          "address": "R. Antônio de Albuquerque, 335 - Funcionários, Belo Horizonte",
-          "placeId": "ChIJ0_hjJtGZpgAR6fmjUXzv_EY",
-          "lat": -19.9390581,
-          "lng": -43.93384349999999,
-          "rating": 4.9,
-          "ratingCount": 156,
-          "distanceM": 0,
-          "walkMin": 1,
-          "driveMin": 1
-        },
-        {
           "name": "Academia Smart Fit - Savassi",
           "address": "R. Fernandes Tourinho, 195 - Funcionários, Belo Horizonte",
           "placeId": "ChIJOVrhO7tRzpQR0BRxxSb1IUE",
           "lat": -19.939351,
           "lng": -43.9364606,
-          "rating": 4.1,
-          "ratingCount": 1305,
+          "rating": 4.2,
+          "ratingCount": 1319,
           "distanceM": 379,
           "walkMin": 6,
           "driveMin": 3
@@ -345,7 +208,7 @@
           "lat": -19.9393108,
           "lng": -43.9387744,
           "rating": 4,
-          "ratingCount": 220,
+          "ratingCount": 221,
           "distanceM": 626,
           "walkMin": 9,
           "driveMin": 4
@@ -361,60 +224,12 @@
           "distanceM": 842,
           "walkMin": 10,
           "driveMin": 7
-        },
-        {
-          "name": "Academia DTOX Funcionários",
-          "address": "Av. Getúlio Vargas, 471 - Funcionários, Belo Horizonte",
-          "placeId": "ChIJfcdLhQWZpgARy0CQw0xEZSI",
-          "lat": -19.9344163,
-          "lng": -43.9280982,
-          "rating": 4.4,
-          "ratingCount": 441,
-          "distanceM": 837,
-          "walkMin": 12,
-          "driveMin": 4
         }
       ]
     },
     {
       "id": "laundry",
       "places": [
-        {
-          "name": "Lavanderia Lavô Savassi",
-          "address": "R. Tomé de Souza, 821 - Funcionários, Belo Horizonte",
-          "placeId": "ChIJEdHY6mWZpgARBIqHsLh49sg",
-          "lat": -19.9371772,
-          "lng": -43.934619,
-          "rating": 4.4,
-          "ratingCount": 95,
-          "distanceM": 269,
-          "walkMin": 3,
-          "driveMin": 4
-        },
-        {
-          "name": "Lavanderia 5àsec Savassi",
-          "address": "R. Rio Grande do Norte, 1283 - Savassi, Belo Horizonte",
-          "placeId": "ChIJLcLogsSZpgARxDDQjGj_S98",
-          "lat": -19.9366895,
-          "lng": -43.9322235,
-          "rating": 4.2,
-          "ratingCount": 117,
-          "distanceM": 317,
-          "walkMin": 4,
-          "driveMin": 2
-        },
-        {
-          "name": "LAV70",
-          "address": "R. Grão Mogol, 09 - loja 06 - Carmo, Belo Horizonte",
-          "placeId": "ChIJV8pWrbCZpgARqVBaBgflQAo",
-          "lat": -19.9399926,
-          "lng": -43.9318181,
-          "rating": 4,
-          "ratingCount": 45,
-          "distanceM": 362,
-          "walkMin": 5,
-          "driveMin": 5
-        },
         {
           "name": "Laundre Savassi Lavanderia Self-Service",
           "address": "R. Alagoas, 1460 - Savassi, Belo Horizonte",
@@ -428,81 +243,28 @@
           "driveMin": 3
         },
         {
-          "name": "Lavanderia RAMP Savassi - Belo Horizonte",
-          "address": "R. Maj. Lopes, 42 - São Pedro, Belo Horizonte",
-          "placeId": "ChIJy84qK1mXpgAR3eC_JPCbOYg",
-          "lat": -19.9411907,
-          "lng": -43.9375589,
-          "rating": 5,
-          "ratingCount": 266,
-          "distanceM": 667,
-          "walkMin": 11,
+          "name": "Lavanderia Oceano",
+          "address": "SAVASSI, R. Rio Grande do Norte, 1007 - Lj 2 - Savassi, Belo Horizonte",
+          "placeId": "ChIJ3bk_qsOZpgARfg1T4mgcegM",
+          "lat": -19.9342285,
+          "lng": -43.93146429999999,
+          "rating": 4.8,
+          "ratingCount": 105,
+          "distanceM": 602,
+          "walkMin": 8,
           "driveMin": 6
-        }
-      ]
-    },
-    {
-      "id": "bank",
-      "places": [
-        {
-          "name": "SAVASSI-UBH .",
-          "address": "Avenida do Contorno, 5892 - CTR - Centro, Belo Horizonte",
-          "placeId": "ChIJC-a6csWZpgARmydA_4B7HHM",
-          "lat": -19.9395182,
-          "lng": -43.9337309,
-          "rating": 1.8,
-          "ratingCount": 49,
-          "distanceM": 234,
-          "walkMin": 3,
-          "driveMin": 1
         },
         {
-          "name": "Bradesco",
-          "address": "Avenida Cristóvão Colombo, 92 - Savassi, Belo Horizonte",
-          "placeId": "ChIJOdBJCdyZpgARI2ICC-Pcz-8",
-          "lat": -19.9388585,
-          "lng": -43.9348077,
-          "rating": 2.4,
-          "ratingCount": 20,
-          "distanceM": 258,
-          "walkMin": 3,
-          "driveMin": 2
-        },
-        {
-          "name": "Itaú",
-          "address": "Avenida Cristóvão Colombo, 103 - Savassi, Belo Horizonte",
-          "placeId": "ChIJl1BJvNqZpgARWRFHTle0O9U",
-          "lat": -19.9391373,
-          "lng": -43.9351493,
-          "rating": 3.1,
-          "ratingCount": 78,
-          "distanceM": 282,
-          "walkMin": 4,
-          "driveMin": 4
-        },
-        {
-          "name": "Banco Santander - Agência Select 1812 Savassi",
-          "address": "Avenida do Contorno, 6082 - Funcionários, Belo Horizonte",
-          "placeId": "ChIJQbPzsemZpgARs2TBhwWZkM4",
-          "lat": -19.9398465,
-          "lng": -43.93581390000001,
-          "rating": 3.8,
-          "ratingCount": 20,
-          "distanceM": 369,
-          "walkMin": 6,
-          "driveMin": 2
-        },
-        {
-          "name": "Caixa Econômica Federal",
-          "address": "Avenida do Contorno, 5809 - Santa Efigênia, Belo Horizonte",
-          "placeId": "ChIJJSJrn8WZpgARhw_2groPrio",
-          "lat": -19.9401353,
-          "lng": -43.9314952,
-          "rating": 2.8,
-          "ratingCount": 48,
-          "distanceM": 381,
-          "walkMin": 6,
-          "driveMin": 5
+          "name": "Lavanderia Trem Limpo - Savassi",
+          "address": "R. Alagoas, 730 - Lj 7 - Savassi, Belo Horizonte",
+          "placeId": "ChIJ_xKwLbmZpgAR84jjczMtXQU",
+          "lat": -19.9334034,
+          "lng": -43.936031,
+          "rating": 5,
+          "ratingCount": 64,
+          "distanceM": 757,
+          "walkMin": 10,
+          "driveMin": 6
         }
       ]
     },
@@ -510,64 +272,76 @@
       "id": "hospital",
       "places": [
         {
-          "name": "Centro Médico Unimed",
-          "address": "R. Gonçalves Dias, 201 - Funcionários, Belo Horizonte",
-          "placeId": "ChIJz9hIy8GZpgARPJ2ne-Qo7xI",
-          "lat": -19.933899,
-          "lng": -43.9270144,
-          "rating": 4.3,
-          "ratingCount": 568,
-          "distanceM": 980,
-          "walkMin": 14,
-          "driveMin": 4
+          "name": "Mater Dei Santo Agostinho",
+          "address": "R. Mato Grosso, 1100 - Santo Agostinho, Belo Horizonte",
+          "placeId": "ChIJbVAFp2eXpgAR_tJTs9rvKbs",
+          "lat": -19.9277157,
+          "lng": -43.9503034,
+          "rating": null,
+          "ratingCount": null,
+          "distanceM": 2341,
+          "walkMin": 34,
+          "driveMin": 10
         },
         {
-          "name": "Neocenter Maternidade",
-          "address": "R. Martinho Campos, 25 - Cruzeiro, Belo Horizonte",
-          "placeId": "ChIJkcwxKkOZpgARcwYePwc9aAo",
-          "lat": -19.941873,
-          "lng": -43.9276888,
-          "rating": 4,
-          "ratingCount": 769,
-          "distanceM": 1012,
-          "walkMin": 16,
-          "driveMin": 7
+          "name": "Mater Dei Contorno",
+          "address": "Av. do Contorno, 9000 - Barro Preto, Belo Horizonte",
+          "placeId": "ChIJHb9632uXpgAR-V47J3ihv64",
+          "lat": -19.9267135,
+          "lng": -43.9578577,
+          "rating": null,
+          "ratingCount": null,
+          "distanceM": 3238,
+          "walkMin": 46,
+          "driveMin": 10
         },
         {
-          "name": "Hospital Urológica",
-          "address": "R. Paraíba, 227 - Funcionários, Belo Horizonte",
-          "placeId": "ChIJdQIZGemZpgARyyS-eu3TCoo",
-          "lat": -19.9282738,
-          "lng": -43.9311183,
-          "rating": 3.7,
-          "ratingCount": 774,
-          "distanceM": 1327,
-          "walkMin": 17,
-          "driveMin": 7
+          "name": "Hospital Madre Teresa",
+          "address": "Av. Raja Gabáglia, 1002 - Gutierrez, Belo Horizonte",
+          "placeId": "ChIJc4CNN2KXpgARMa90y5Bk3K8",
+          "lat": -19.94376,
+          "lng": -43.9576844,
+          "rating": null,
+          "ratingCount": null,
+          "distanceM": 3177,
+          "walkMin": 52,
+          "driveMin": 11
         },
         {
-          "name": "Hospital Lifecenter",
-          "address": "Av. do Contorno, 4747 - Funcionários, Belo Horizonte",
-          "placeId": "ChIJDVYZfMCZpgARCS8yNTHryL4",
-          "lat": -19.9351596,
-          "lng": -43.9245031,
-          "rating": 2.8,
-          "ratingCount": 1707,
-          "distanceM": 1233,
-          "walkMin": 19,
-          "driveMin": 6
+          "name": "Hospital Felício Rocho",
+          "address": "Av. do Contorno, 9530 - Barro Preto, Belo Horizonte",
+          "placeId": "ChIJ-88BDkKXpgARPx-DOxyZJNM",
+          "lat": -19.9230828,
+          "lng": -43.9570999,
+          "rating": null,
+          "ratingCount": null,
+          "distanceM": 3414,
+          "walkMin": 49,
+          "driveMin": 12
         },
         {
-          "name": "HOSPITAL SEMPER",
-          "address": "Alameda Ezequiel Dias, 389 - Centro, Belo Horizonte",
-          "placeId": "ChIJg1fWIO-ZpgARtzn4ANeDyOQ",
-          "lat": -19.9259532,
-          "lng": -43.9319453,
-          "rating": 3.2,
-          "ratingCount": 856,
-          "distanceM": 1611,
-          "walkMin": 21,
-          "driveMin": 8
+          "name": "Biocor Instituto (Rede D'Or)",
+          "address": "Alameda Oscar Niemeyer, 217 - Vila da Serra, Nova Lima",
+          "placeId": "ChIJKfdHqP-XpgARpMIQX1799vI",
+          "lat": -19.9814672,
+          "lng": -43.9447964,
+          "rating": null,
+          "ratingCount": null,
+          "distanceM": 6419,
+          "walkMin": 104,
+          "driveMin": 16
+        },
+        {
+          "name": "Hospital Vila da Serra",
+          "address": "Alameda Oscar Niemeyer, 499 - Vila da Serra, Nova Lima",
+          "placeId": "ChIJHX6B-wGYpgAROGPlemvCAIA",
+          "lat": -19.9803125,
+          "lng": -43.9440388,
+          "rating": null,
+          "ratingCount": null,
+          "distanceM": 6272,
+          "walkMin": 102,
+          "driveMin": 17
         }
       ]
     }

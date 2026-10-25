@@ -11,11 +11,9 @@ export type NearbyCategoryId =
   | 'supermarket'
   | 'pharmacy'
   | 'bakery'
-  | 'cafe'
   | 'mall'
   | 'gym'
   | 'laundry'
-  | 'bank'
   | 'hospital';
 
 export type NearbyPlace = {
@@ -48,7 +46,8 @@ export function directionsUrl(origin: NearbyData['origin'], place: NearbyPlace) 
     api: '1',
     origin: `${origin.lat},${origin.lng}`,
     destination: place.placeId ? place.name : `${place.name}, ${place.address}`,
-    travelmode: 'walking',
+    // Hospitals and most malls are a drive away: walking directions would be useless there.
+    travelmode: place.walkMin != null && place.walkMin > WALK_LIMIT_MIN ? 'driving' : 'walking',
   });
   if (place.placeId) params.set('destination_place_id', place.placeId);
   return `https://www.google.com/maps/dir/?${params}`;

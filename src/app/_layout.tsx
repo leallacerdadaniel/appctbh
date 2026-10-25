@@ -69,13 +69,20 @@ function RootStack() {
         <Stack.Protected guard={isSignedIn && !mustChangePassword}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="nearby" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="emergency" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="restaurants/index" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="restaurants/[id]" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="restaurants/dishes" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="nightlife/index" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="nightlife/[id]" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="sports/index" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="services/index" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="services/[id]" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="sports/[id]" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="admin/index" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="admin/[id]" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="beauty/index" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="beauty/[id]" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="apartment/cleaning" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="apartment/contract" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="apartment/roommates" options={{ animation: 'slide_from_right' }} />

@@ -84,7 +84,8 @@ export const demoNext = {
 };
 
 export const contacts = {
-  whatsapp: '5531999999999',
+  /** Chez Toi BH WhatsApp Business, +55 31 99798-8385 (digits only, for wa.me links). */
+  whatsapp: '5531997988385',
 };
 
 export type GuideItem = {
