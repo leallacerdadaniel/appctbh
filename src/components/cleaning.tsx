@@ -19,6 +19,7 @@ import {
   type CleaningVisit,
 } from '@/lib/cleaning';
 import { formatTime } from '@/lib/format';
+import { useHome } from '@/lib/home';
 
 /** Next visit + upcoming / done visits, in one card. */
 export function CleaningVisits() {
@@ -26,9 +27,12 @@ export function CleaningVisits() {
   const { t, lang } = useI18n();
   const c = t.apartment.cleaning;
   const [tab, setTab] = useState<'upcoming' | 'done'>('upcoming');
+  const { cleanings } = useHome();
 
-  const next = upcomingCleanings[0];
-  const visits = tab === 'upcoming' ? upcomingCleanings.slice(1) : pastCleanings;
+  const upcoming = upcomingCleanings(cleanings);
+  const past = pastCleanings(cleanings);
+  const next = upcoming[0];
+  const visits = tab === 'upcoming' ? upcoming.slice(1) : past;
 
   function when(v: CleaningVisit) {
     const n = daysUntil(v.date);
@@ -43,9 +47,11 @@ export function CleaningVisits() {
             {c.next} · {when(next)}
           </AppText>
           <AppText variant="title">{capitalize(formatLongDate(next.date, lang))}</AppText>
-          <AppText variant="callout" color={theme.textSecondary}>
-            {formatTime(next.time, lang)}
-          </AppText>
+          {!!next.time && (
+            <AppText variant="callout" color={theme.textSecondary}>
+              {formatTime(next.time, lang)}
+            </AppText>
+          )}
         </View>
       )}
 
@@ -53,12 +59,12 @@ export function CleaningVisits() {
 
       <View style={styles.tabs}>
         <Chip
-          label={`${c.upcoming} · ${upcomingCleanings.length - 1}`}
+          label={`${c.upcoming} · ${Math.max(upcoming.length - 1, 0)}`}
           selected={tab === 'upcoming'}
           onPress={() => setTab('upcoming')}
         />
         <Chip
-          label={`${c.done} · ${pastCleanings.length}`}
+          label={`${c.done} · ${past.length}`}
           selected={tab === 'done'}
           onPress={() => setTab('done')}
         />
@@ -71,7 +77,7 @@ export function CleaningVisits() {
               key={v.date}
               icon={v.status === 'done' ? 'checkCircle' : 'clock'}
               title={capitalize(formatLongDate(v.date, lang))}
-              value={formatTime(v.time, lang)}
+              value={v.time ? formatTime(v.time, lang) : undefined}
               accessory={
                 <AppText
                   variant="caption"

@@ -9,36 +9,43 @@ import { AppText, Button, Card, InlineMessage, Input } from '@/components/ui';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
-import { DEMO_TEMP_PASSWORD, useAuth } from '@/lib/auth';
-import { demoStudent } from '@/lib/mock-data';
+import { useAuth } from '@/lib/auth';
+import { useHome } from '@/lib/home';
 
 const MIN_LENGTH = 8;
 
 export default function ChangePasswordScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
-  const { changePassword } = useAuth();
+  const { changePassword, lastPassword } = useAuth();
+  const { student } = useHome();
   const { t } = useI18n();
 
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const [failed, setFailed] = useState(false);
 
   const rules = [
     { ok: password.length >= MIN_LENGTH, label: t.changePassword.ruleLength(MIN_LENGTH) },
     { ok: /\d/.test(password), label: t.changePassword.ruleDigit },
-    { ok: password.length > 0 && password !== DEMO_TEMP_PASSWORD, label: t.changePassword.ruleDifferent },
+    { ok: password.length > 0 && password !== lastPassword, label: t.changePassword.ruleDifferent },
   ];
   const valid = rules.every((r) => r.ok) && password === confirm;
   const mismatch = confirm.length > 0 && password !== confirm;
 
   async function submit() {
     setLoading(true);
+    setFailed(false);
     // Show the success state briefly before the guard swaps to the tabs.
     setDone(true);
     await new Promise((r) => setTimeout(r, 900));
-    await changePassword(password);
+    if (!(await changePassword(password))) {
+      setDone(false);
+      setLoading(false);
+      setFailed(true);
+    }
   }
 
   if (done) {
@@ -67,7 +74,7 @@ export default function ChangePasswordScreen() {
         keyboardShouldPersistTaps="handled">
         <View style={{ gap: Spacing.sm }}>
           <Icon name="key" size={28} color={theme.textSecondary} />
-          <AppText variant="display">{t.changePassword.hello(demoStudent.firstName)}</AppText>
+          <AppText variant="display">{t.changePassword.hello(student.firstName)}</AppText>
           <AppText color={theme.textSecondary}>{t.changePassword.intro}</AppText>
         </View>
 
@@ -100,6 +107,7 @@ export default function ChangePasswordScreen() {
             error={mismatch ? 'mismatch' : undefined}
           />
           {mismatch && <InlineMessage kind="error" text={t.changePassword.mismatch} />}
+          {failed && <InlineMessage kind="error" text={t.login.errors.network} />}
           <Button label={t.changePassword.save} onPress={submit} loading={loading} disabled={!valid} />
         </Card>
       </ScrollView>

@@ -15,7 +15,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { formatLongDate, upcomingCleanings } from '@/lib/cleaning';
 import { formatDate, formatTime } from '@/lib/format';
-import { demoApartment, demoContract, demoRoommates } from '@/lib/mock-data';
+import { useHome } from '@/lib/home';
 
 /**
  * "Mon appart" hub: photo, address, Wi‑Fi (used daily), then tiles to the sub-pages
@@ -26,27 +26,28 @@ export default function ApartmentScreen() {
   const toast = useToast();
   const { t, lang } = useI18n();
   const [showWifi, setShowWifi] = useState(false);
+  const { apartment, contract, roommates, cleanings } = useHome();
 
   async function copy(value: string, message: string) {
     await Clipboard.setStringAsync(value);
     toast(message);
   }
 
-  const fullAddress = `${demoApartment.address}, ${demoApartment.complement} — ${demoApartment.neighborhood}, ${demoApartment.city}`;
-  const next = upcomingCleanings[0];
+  const fullAddress = [apartment.address, apartment.complement].filter(Boolean).join(', ');
+  const next = upcomingCleanings(cleanings)[0];
   const nextLabel = next
     ? t.apartment.nextCleaning(
-        `${capitalize(formatLongDate(next.date, lang))} · ${formatTime(next.time, lang)}`,
+        [capitalize(formatLongDate(next.date, lang)), next.time && formatTime(next.time, lang)].filter(Boolean).join(' · '),
       )
     : t.apartment.cleaning.empty;
 
   return (
     <Screen
-      title={demoApartment.nickname}
-      subtitle={`${demoApartment.complement} · ${demoApartment.neighborhood}`}>
+      title={apartment.nickname}
+      subtitle={apartment.complement || undefined}>
       <View style={[styles.photo, Shadow.card, { backgroundColor: theme.fill }]}>
         <Image
-          source={{ uri: demoApartment.photoUrl }}
+          source={apartment.photoUrl ? { uri: apartment.photoUrl } : undefined}
           style={StyleSheet.absoluteFill}
           contentFit="cover"
           transition={200}
@@ -58,7 +59,7 @@ export default function ApartmentScreen() {
           <ListRow
             icon="address"
             title={t.apartment.address}
-            subtitle={demoApartment.address}
+            subtitle={fullAddress}
             accessory={
               // Two actions side by side (a button can't sit inside a pressable row).
               <View style={styles.inline}>
@@ -67,7 +68,7 @@ export default function ApartmentScreen() {
                   label={t.apartment.openMaps}
                   onPress={() =>
                     Linking.openURL(
-                      `https://maps.google.com/?q=${encodeURIComponent(demoApartment.mapsQuery)}`,
+                      `https://maps.google.com/?q=${encodeURIComponent(apartment.mapsQuery)}`,
                     )
                   }
                 />
@@ -79,12 +80,13 @@ export default function ApartmentScreen() {
               </View>
             }
           />
-          <ListRow icon="wifi" title={t.apartment.network} value={demoApartment.wifiName} />
+          <ListRow icon="wifi" title={t.apartment.network} value={apartment.wifiName ?? t.common.soon} />
           <ListRow
             icon="key"
             title={t.apartment.wifiPassword}
-            subtitle={showWifi ? demoApartment.wifiPassword : '••••••••••'}
+            subtitle={!apartment.wifiPassword ? t.common.soon : showWifi ? apartment.wifiPassword : '••••••••••'}
             accessory={
+              !apartment.wifiPassword ? undefined : (
               <View style={styles.inline}>
                 <IconButton
                   icon={showWifi ? 'hide' : 'show'}
@@ -94,9 +96,10 @@ export default function ApartmentScreen() {
                 <IconButton
                   icon="copy"
                   label={t.apartment.copyPassword}
-                  onPress={() => copy(demoApartment.wifiPassword, t.apartment.passwordCopied)}
+                  onPress={() => copy(apartment.wifiPassword ?? '', t.apartment.passwordCopied)}
                 />
               </View>
+              )
             }
           />
         </ListGroup>
@@ -113,13 +116,13 @@ export default function ApartmentScreen() {
           <HubTile
             emoji="📄"
             title={t.apartment.contract}
-            status={t.apartment.contractUntil(demoContract.semester, formatDate(demoContract.moveOut, lang))}
+            status={t.apartment.contractUntil(contract.semester, formatDate(contract.moveOut, lang))}
             onPress={() => router.push('/apartment/contract')}
           />
           <HubTile
             emoji="👥"
             title={t.apartment.roommates}
-            status={demoRoommates.map((r) => r.name.split(' ')[0]).join(', ')}
+            status={roommates.map((r) => r.firstName).join(', ') || '—'}
             onPress={() => router.push('/apartment/roommates')}
           />
           <HubTile

@@ -11,7 +11,7 @@ import { AppText, Card, Chip, PressableScale } from '@/components/ui';
 import { Spacing, TapTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
-import { demoApartment } from '@/lib/mock-data';
+import { useHome } from '@/lib/home';
 import {
   demoNearbyData,
   directionsUrl,
@@ -50,7 +50,8 @@ export default function NearbyScreen() {
   const visible = selected ? categories.filter((c) => c.id === selected) : categories;
 
   // Same address the "Mon appart" tab copies.
-  const apartmentAddress = `${demoApartment.address}, ${demoApartment.complement} — ${demoApartment.neighborhood}, ${demoApartment.city}`;
+  const { apartment } = useHome();
+  const apartmentAddress = [apartment.address, apartment.complement].filter(Boolean).join(', ');
 
   async function copy(value: string) {
     await Clipboard.setStringAsync(value);
@@ -71,9 +72,9 @@ export default function NearbyScreen() {
         <ListGroup inset>
           <ListRow
             icon="address"
-            title={demoApartment.address}
-            subtitle={`${t.nearby.from} · ${demoApartment.neighborhood}`}
-            accessory={addressActions(demoApartment.mapsQuery, apartmentAddress)}
+            title={apartment.address}
+            subtitle={t.nearby.from}
+            accessory={addressActions(apartment.mapsQuery, apartmentAddress)}
           />
           <ListRow
             icon="school"

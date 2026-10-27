@@ -9,10 +9,12 @@ import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { HomeGate } from '@/components/home-gate';
 import { ToastProvider } from '@/components/toast';
 import { useTheme } from '@/hooks/use-theme';
 import { LanguageProvider } from '@/i18n';
 import { AuthProvider, useAuth } from '@/lib/auth';
+import { HomeProvider, useHomeState } from '@/lib/home';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -35,9 +37,11 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <LanguageProvider>
           <AuthProvider>
-            <ToastProvider>
-              <RootStack />
-            </ToastProvider>
+            <HomeProvider>
+              <ToastProvider>
+                <RootStack />
+              </ToastProvider>
+            </HomeProvider>
           </AuthProvider>
         </LanguageProvider>
       </SafeAreaProvider>
@@ -48,8 +52,11 @@ export default function RootLayout() {
 function RootStack() {
   const theme = useTheme();
   const { ready, isSignedIn, mustChangePassword } = useAuth();
+  const { state } = useHomeState();
 
   if (!ready) return null;
+  // Signed in: every screen needs the student's real data, so wait for it here.
+  if (isSignedIn && state.status !== 'ready') return <HomeGate />;
 
   return (
     <>

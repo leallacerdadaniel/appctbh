@@ -19,11 +19,17 @@ const fr = {
     password: 'Mot de passe',
     submit: 'Se connecter',
     forgot: 'Mot de passe oublié ? Écrivez‑nous sur WhatsApp.',
-    demo: (pwd: string) => `Démo : n’importe quel e‑mail · mot de passe « ${pwd} »`,
     errors: {
       invalidEmail: 'Adresse e‑mail invalide.',
       wrongCredentials: 'E‑mail ou mot de passe incorrect.',
+      network: 'Pas de connexion. Vérifiez internet et réessayez.',
     },
+  },
+  gate: {
+    loading: 'Chargement de votre logement',
+    noRental: 'Aucun logement actif pour votre compte pour le moment. Écrivez‑nous sur WhatsApp.',
+    error: 'Impossible de charger vos informations.',
+    retry: 'Réessayer',
   },
   changePassword: {
     hello: (name: string) => `Bonjour ${name} !`,
@@ -519,11 +525,17 @@ const en: Strings = {
     password: 'Password',
     submit: 'Sign in',
     forgot: 'Forgot your password? Message us on WhatsApp.',
-    demo: (pwd: string) => `Demo: any e‑mail · password “${pwd}”`,
     errors: {
       invalidEmail: 'Invalid e‑mail address.',
       wrongCredentials: 'Incorrect e‑mail or password.',
+      network: 'No connection. Check your internet and try again.',
     },
+  },
+  gate: {
+    loading: 'Loading your home',
+    noRental: 'There is no active home on your account right now. Message us on WhatsApp.',
+    error: 'We couldn’t load your information.',
+    retry: 'Try again',
   },
   changePassword: {
     hello: (name: string) => `Hi ${name}!`,

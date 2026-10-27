@@ -1,39 +1,45 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 
+import { appApi, AppApiError } from '@/lib/app-api';
+
 /**
- * Demo auth. Mirrors the real flow (temporary password → mandatory change on
- * first login) so screens can be reviewed before Supabase Auth is wired in.
- * The session survives reloads, like a real Supabase session will.
+ * The app's own login (separate from the website's accounts): e‑mail of the contract + temporary
+ * password created in the admin → mandatory change on first login. The session token is kept so
+ * the student stays signed in; it stops working when the team resets the password or disables
+ * the account.
  */
-export const DEMO_TEMP_PASSWORD = 'ctbh2027';
-const STORAGE_KEY = 'ctbh.demo-session';
+const STORAGE_KEY = 'ctbh.session';
 
-export type SignInError = 'invalidEmail' | 'wrongCredentials';
+export type SignInError = 'invalidEmail' | 'wrongCredentials' | 'network';
 
-type Session = { isSignedIn: boolean; mustChangePassword: boolean; password: string };
+type Session = { token: string | null; mustChangePassword: boolean };
 
 type AuthState = {
   ready: boolean;
   isSignedIn: boolean;
   mustChangePassword: boolean;
+  token: string | null;
+  /** Password typed at sign-in, kept in memory only so the new one can be checked against it. */
+  lastPassword: string | null;
   signIn: (email: string, password: string) => Promise<SignInError | null>;
-  changePassword: (password: string) => Promise<void>;
+  changePassword: (password: string) => Promise<boolean>;
   signOut: () => void;
 };
 
 const AuthContext = createContext<AuthState | null>(null);
 
-const initial: Session = { isSignedIn: false, mustChangePassword: false, password: DEMO_TEMP_PASSWORD };
+const signedOut: Session = { token: null, mustChangePassword: false };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session>(initial);
+  const [session, setSession] = useState<Session>(signedOut);
+  const [lastPassword, setLastPassword] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY)
       .then((raw) => {
-        if (raw) setSession({ ...initial, ...JSON.parse(raw) });
+        if (raw) setSession({ ...signedOut, ...JSON.parse(raw) });
       })
       .catch(() => {})
       .finally(() => setReady(true));
@@ -45,28 +51,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function signIn(email: string, pwd: string): Promise<SignInError | null> {
-    await wait(600);
     if (!email.includes('@')) return 'invalidEmail';
-    if (pwd !== session.password) return 'wrongCredentials';
-    update({ ...session, isSignedIn: true, mustChangePassword: pwd === DEMO_TEMP_PASSWORD });
-    return null;
+    try {
+      const r = await appApi<{ token: string; mustChangePassword: boolean }>('login', { body: { email, password: pwd } });
+      setLastPassword(pwd);
+      update({ token: r.token, mustChangePassword: r.mustChangePassword });
+      return null;
+    } catch (e) {
+      return e instanceof AppApiError && e.code === 'network' ? 'network' : 'wrongCredentials';
+    }
   }
 
   async function changePassword(newPassword: string) {
-    await wait(600);
-    update({ isSignedIn: true, mustChangePassword: false, password: newPassword });
+    try {
+      const r = await appApi<{ token: string }>('change-password', { token: session.token, body: { password: newPassword } });
+      setLastPassword(null);
+      update({ token: r.token, mustChangePassword: false });
+      return true;
+    } catch (e) {
+      if (e instanceof AppApiError && e.code === 'unauthorized') signOut();
+      return false;
+    }
   }
 
   function signOut() {
-    update({ ...session, isSignedIn: false, mustChangePassword: false });
+    setLastPassword(null);
+    update(signedOut);
   }
 
   return (
     <AuthContext.Provider
       value={{
         ready,
-        isSignedIn: session.isSignedIn,
+        isSignedIn: !!session.token,
         mustChangePassword: session.mustChangePassword,
+        token: session.token,
+        lastPassword,
         signIn,
         changePassword,
         signOut,
@@ -80,8 +100,4 @@ export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used inside AuthProvider');
   return ctx;
-}
-
-function wait(ms: number) {
-  return new Promise((r) => setTimeout(r, ms));
 }

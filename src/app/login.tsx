@@ -5,10 +5,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { LanguageSwitch } from '@/components/language-switch';
 import { AppText, Button, Card, InlineMessage, Input } from '@/components/ui';
-import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
-import { DEMO_TEMP_PASSWORD, useAuth, type SignInError } from '@/lib/auth';
+import { useAuth, type SignInError } from '@/lib/auth';
 
 /** Red band with the logo and the language switch, then the sign-in card on the gray canvas. */
 export default function LoginScreen() {
@@ -95,12 +95,6 @@ export default function LoginScreen() {
               {t.login.forgot}
             </AppText>
           </Card>
-
-          <View style={[styles.demo, { borderColor: theme.line }]}>
-            <AppText variant="caption" color={theme.textSecondary} style={{ textAlign: 'center' }}>
-              {t.login.demo(DEMO_TEMP_PASSWORD)}
-            </AppText>
-          </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -128,12 +122,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.gutter,
     paddingTop: Spacing.lg,
     gap: Spacing.lg,
-  },
-  demo: {
-    marginTop: 'auto',
-    borderWidth: StyleSheet.hairlineWidth,
-    borderStyle: 'dashed',
-    borderRadius: Radius.sm,
-    padding: Spacing.sm,
   },
 });

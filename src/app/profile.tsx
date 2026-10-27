@@ -10,7 +10,7 @@ import { Spacing, TapTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { useAuth } from '@/lib/auth';
-import { demoStudent } from '@/lib/mock-data';
+import { useHome } from '@/lib/home';
 
 /** Opened from the initials next to the Home greeting (the tab went to "Voyages"). */
 export default function ProfileScreen() {
@@ -18,15 +18,16 @@ export default function ProfileScreen() {
   const toast = useToast();
   const { signOut } = useAuth();
   const { t } = useI18n();
+  const { student } = useHome();
 
   return (
     <Screen back title={t.profile.title}>
       <Card style={styles.identity}>
-        <Avatar initials={demoStudent.initials} size={56} />
+        <Avatar initials={student.initials} size={56} />
         <View style={{ flex: 1 }}>
-          <AppText variant="title">{demoStudent.fullName}</AppText>
+          <AppText variant="title">{student.fullName}</AppText>
           <AppText variant="callout" color={theme.textSecondary}>
-            {demoStudent.email}
+            {student.email}
           </AppText>
         </View>
       </Card>

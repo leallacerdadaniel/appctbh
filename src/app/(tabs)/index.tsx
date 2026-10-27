@@ -12,8 +12,10 @@ import { AppText, Avatar, Card, PressableScale } from '@/components/ui';
 import { Radius, Shadow, Spacing, TapTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
-import { formatBrl, formatDate, formatShortDate, formatTime } from '@/lib/format';
-import { contacts, demoApartment, demoContract, demoNext, demoRoommates, demoStudent } from '@/lib/mock-data';
+import { formatLongDate, upcomingCleanings } from '@/lib/cleaning';
+import { formatDate, formatTime } from '@/lib/format';
+import { useHome } from '@/lib/home';
+import { contacts } from '@/lib/mock-data';
 import type { NearbyCategoryId } from '@/lib/nearby';
 
 /** Everyday categories shown as circles; they open "À proximité" on that category. */
@@ -31,10 +33,12 @@ export default function HomeScreen() {
   const theme = useTheme();
   const toast = useToast();
   const { t, lang } = useI18n();
-  const { cleaning, payment } = demoNext;
+  const { student, apartment, contract, roommates, cleanings } = useHome();
+  const nextCleaning = upcomingCleanings(cleanings)[0];
 
   async function copyWifi() {
-    await Clipboard.setStringAsync(demoApartment.wifiPassword);
+    if (!apartment.wifiPassword) return toast(t.common.soon);
+    await Clipboard.setStringAsync(apartment.wifiPassword);
     toast(t.home.wifiCopied);
   }
 
@@ -43,16 +47,16 @@ export default function HomeScreen() {
       <View style={styles.greeting}>
         <View style={{ flex: 1, gap: Spacing.xs }}>
           <AppText variant="display">
-            {new Date().getHours() < 18 ? t.home.morning : t.home.evening}, {demoStudent.firstName}
+            {new Date().getHours() < 18 ? t.home.morning : t.home.evening}, {student.firstName}
           </AppText>
-          <AppText color={theme.textSecondary}>{demoApartment.address}</AppText>
+          <AppText color={theme.textSecondary}>{apartment.address}</AppText>
         </View>
         {/* Profile lives here since the tab became "Voyages". */}
         <PressableScale
           accessibilityRole="button"
           accessibilityLabel={t.profile.title}
           onPress={() => router.push('/profile')}>
-          <Avatar initials={demoStudent.initials} size={44} />
+          <Avatar initials={student.initials} size={44} />
         </PressableScale>
       </View>
       <PressableScale
@@ -64,11 +68,11 @@ export default function HomeScreen() {
       </PressableScale>
 
       <HeroCard
-        photo={{ uri: demoApartment.photoUrl }}
+        photo={{ uri: apartment.photoUrl ?? '' }}
         label={t.home.yourHome}
         labelIcon="home"
-        title={demoApartment.nickname}
-        subtitle={`${demoApartment.complement} · ${demoApartment.neighborhood}`}
+        title={apartment.nickname}
+        subtitle={apartment.complement || apartment.address}
         cta={t.home.seeApartment}
         onPress={() => router.navigate('/apartment')}
       />
@@ -79,13 +83,14 @@ export default function HomeScreen() {
             <ListRow
               icon="cleaning"
               title={t.home.cleaning}
-              value={`${t.weekdays[cleaning.weekday]} · ${formatTime(cleaning.time, lang)}`}
-            />
-            <ListRow
-              icon="rent"
-              title={t.home.rentOf(t.months[payment.month])}
-              subtitle={t.home.dueOn(formatShortDate(payment.dueDate, lang))}
-              value={formatBrl(payment.amountBrl, lang)}
+              subtitle={
+                nextCleaning
+                  ? [capitalize(formatLongDate(nextCleaning.date, lang)), nextCleaning.time && formatTime(nextCleaning.time, lang)]
+                      .filter(Boolean)
+                      .join(' · ')
+                  : t.apartment.cleaning.empty
+              }
+              onPress={() => router.push('/apartment/cleaning')}
             />
           </ListGroup>
         </Card>
@@ -97,9 +102,9 @@ export default function HomeScreen() {
             <ListRow
               icon="wifi"
               title={t.home.wifi}
-              subtitle={demoApartment.wifiName}
+              subtitle={apartment.wifiName ?? t.common.soon}
               onPress={copyWifi}
-              accessory={<Icon name="copy" size={17} color={theme.textTertiary} />}
+              accessory={apartment.wifiPassword ? <Icon name="copy" size={17} color={theme.textTertiary} /> : undefined}
             />
             <ListRow
               icon="whatsapp"
@@ -136,17 +141,17 @@ export default function HomeScreen() {
 
       <Section title={t.home.roommates}>
         <Card style={styles.roommates}>
-          {demoRoommates.map((r) => (
-            <View key={r.name} style={styles.roommate}>
+          {roommates.map((r) => (
+            <View key={r.fullName} style={styles.roommate}>
               <Avatar initials={r.initials} size={48} />
-              <AppText variant="callout">{r.name.split(' ')[0]}</AppText>
+              <AppText variant="callout">{r.firstName}</AppText>
             </View>
           ))}
           <View style={{ flex: 1 }} />
           <AppText variant="caption" color={theme.textSecondary} style={styles.contract}>
-            {t.home.contract(demoContract.semester)}
+            {t.home.contract(contract.semester)}
             {'\n'}
-            {formatDate(demoContract.moveIn, lang)} → {formatDate(demoContract.moveOut, lang)}
+            {formatDate(contract.moveIn, lang)} → {formatDate(contract.moveOut, lang)}
           </AppText>
         </Card>
       </Section>
@@ -154,6 +159,8 @@ export default function HomeScreen() {
     </Screen>
   );
 }
+
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 const styles = StyleSheet.create({
   greeting: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, marginBottom: -Spacing.sm },

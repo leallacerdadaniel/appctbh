@@ -12,12 +12,14 @@ import { useTheme } from '@/hooks/use-theme';
 import { useI18n, type Lang } from '@/i18n';
 import { buildEvents, parseIso, toIso, type CalendarEvent, type EventKind } from '@/lib/events';
 import { formatTime } from '@/lib/format';
+import { useHome } from '@/lib/home';
 
 const UPCOMING_COUNT = 6;
 
 export default function CalendarScreen() {
   const theme = useTheme();
   const { t, lang } = useI18n();
+  const { cleanings, contract } = useHome();
 
   const today = new Date();
   const todayIso = toIso(today);
@@ -28,7 +30,10 @@ export default function CalendarScreen() {
 
   // Current year and the next one cover any running semester.
   const year = today.getFullYear();
-  const allEvents = useMemo(() => buildEvents([year, year + 1]), [year]);
+  const allEvents = useMemo(
+    () => buildEvents([year, year + 1], { cleanings, moveIn: contract.moveIn, moveOut: contract.moveOut }),
+    [year, cleanings, contract.moveIn, contract.moveOut],
+  );
   const events = useMemo(() => allEvents.filter((e) => !hidden.has(e.kind)), [allEvents, hidden]);
 
   const kindsByDate = useMemo(() => {

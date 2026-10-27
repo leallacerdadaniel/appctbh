@@ -1,10 +1,9 @@
 import type { Lang } from '@/i18n';
 import type { Localized } from '@/lib/mock-data';
-import { demoNext } from '@/lib/mock-data';
 
 /**
  * Apartment cleaning: visits (done and scheduled) and the supplies the student must keep at home.
- * Demo data until Supabase is wired (the old panel already tracks cleanings per apartment).
+ * Visits come from the website's panel (cleaning_records) through the app-api.
  */
 
 export type CleaningVisit = { date: string; time: string; status: 'done' | 'scheduled' };
@@ -24,24 +23,12 @@ export const cleaningSupplies: CleaningSupply[] = [
   { name: { fr: 'Chiffons', en: 'Cleaning cloths' }, pt: 'Panos de limpeza' },
 ];
 
-const iso = (d: Date) =>
-  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+/** Scheduled visits from today on, soonest first. */
+export const upcomingCleanings = (visits: CleaningVisit[]) =>
+  visits.filter((v) => v.status === 'scheduled' && daysUntil(v.date) >= 0);
 
-/** Demo: weekly visits on the apartment's cleaning day — the last 3 done, the next 4 scheduled. */
-function demoVisits(today = new Date()): CleaningVisit[] {
-  const { weekday, time } = demoNext.cleaning;
-  const next = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  next.setDate(next.getDate() + ((weekday - next.getDay() + 7) % 7));
-  return [-3, -2, -1, 0, 1, 2, 3].map((week) => {
-    const d = new Date(next);
-    d.setDate(d.getDate() + week * 7);
-    return { date: iso(d), time, status: week < 0 ? 'done' : 'scheduled' };
-  });
-}
-
-export const cleaningVisits = demoVisits();
-export const upcomingCleanings = cleaningVisits.filter((v) => v.status === 'scheduled');
-export const pastCleanings = cleaningVisits.filter((v) => v.status === 'done').reverse();
+/** Done visits, most recent first. */
+export const pastCleanings = (visits: CleaningVisit[]) => visits.filter((v) => v.status === 'done').reverse();
 
 /** 2026-10-21 → "mercredi 21 octobre" (fr) · "Wednesday, October 21" (en) */
 export function formatLongDate(isoDate: string, lang: Lang) {

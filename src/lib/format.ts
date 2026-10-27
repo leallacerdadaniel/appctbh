@@ -25,6 +25,13 @@ export function formatBrl(value: number, lang: Lang) {
   return lang === 'fr' ? `R$ ${n}` : `R$${n}`;
 }
 
+/** Rent in the contract's currency: R$ for most contracts, € for the "commission_eur" ones. */
+export function formatMoney(value: number, currency: 'BRL' | 'EUR', lang: Lang) {
+  if (currency === 'BRL') return formatBrl(value, lang);
+  const n = value.toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-US');
+  return lang === 'fr' ? `${n} €` : `€${n}`;
+}
+
 /** 10:00 → 10h00 (fr) · 10:00 AM (en) */
 export function formatTime(hhmm: string, lang: Lang) {
   const [h, m] = hhmm.split(':').map(Number);
