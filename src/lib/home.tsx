@@ -24,10 +24,11 @@ type HomeResponse = {
     cleaning_frequency: string | null;
     cleaning_time: string | null;
     currency: 'BRL' | 'EUR';
+    contract_rent: number | null;
     has_contract: boolean;
   };
   tenant: { move_in_date: string | null; move_out_date: string | null; rent: number | null } | null;
-  info: { wifi_name: string | null; wifi_password: string | null } | null;
+  info: { unit_number?: string | null; wifi_name: string | null; wifi_password: string | null } | null;
   roommates: string[];
   cleanings: { date: string | null; completed: boolean }[];
 };
@@ -72,7 +73,8 @@ function toHome(r: HomeResponse): Home {
     apartment: {
       nickname: r.apartment.title,
       address: location,
-      complement: r.apartment.address_complement?.trim() ?? '',
+      // Apartment number from admin › Apartamentos first, then the site's address complement.
+      complement: [r.info?.unit_number?.trim(), r.apartment.address_complement?.trim()].filter(Boolean).join(', '),
       mapsQuery: location,
       photoUrl: r.apartment.photo,
       wifiName: r.info?.wifi_name || null,
@@ -82,7 +84,7 @@ function toHome(r: HomeResponse): Home {
       semester: r.rental.semester,
       moveIn: r.tenant?.move_in_date ?? r.rental.start_date,
       moveOut: r.tenant?.move_out_date ?? r.rental.end_date,
-      rent: r.tenant?.rent ?? null,
+      rent: r.rental.contract_rent ?? null,
       currency: r.rental.currency,
       hasDocument: r.rental.has_contract,
       cleaningFrequency: r.rental.cleaning_frequency,

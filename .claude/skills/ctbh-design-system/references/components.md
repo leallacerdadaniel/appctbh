@@ -87,6 +87,13 @@ Filter pills: white with hairline border; selected = red fill, white label.
 ## Text (`ui.tsx`)
 `AppText` with `variant` = display | title | body | callout | caption.
 
+## Shared expenses (`expense-ui.tsx`)
+- `DateBlock`: `fill` rounded square, day (title) over the short month (caption). Starts each activity row.
+- `PersonPicker`: roommates as 48 px avatars with the first name underneath; selected = dark ring + small green check. Used for "who paid", "split between", "who pays / to whom". The student comes first as "Vous".
+- `CurrencyToggle`: R$ / € pill switch (`fill` track, white selected pill, like `SegmentedControl`).
+- `AmountField`: the currency switch over a large centered amount (Outfit 44), calculator-style, at the top of the expense and payment forms.
+- Money amounts that are in the student's favour use `success` green; amounts they owe stay in `text` (never error red).
+
 ## Common Issues
 ### "button cannot be a descendant of button" (web console)
 Cause: a `ListRow` with `onPress` whose `accessory` contains another pressable. Solution: a row is either pressable OR has action buttons in its accessory, never both.

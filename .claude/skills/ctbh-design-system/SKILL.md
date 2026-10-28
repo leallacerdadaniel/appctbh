@@ -41,7 +41,7 @@ Go through the Regras, then run the `ctbh-design-review` skill (static check + s
 
 ## Exemplos
 
-**Home (the student's home first):** red bar (logo only) → greeting + address → search pill → apartment hero ("Votre logement", listing photo) → "Cette semaine" card (cleaning, rent) → "Raccourcis" card (Wi‑Fi, WhatsApp, emergencies) → "Autour de chez vous" category circles → roommates → "Sortir à BH" restaurant carousel (6 items) last.
+**Home (the student's home first):** red bar (logo only) → greeting + address + round red profile button → apartment hero ("Votre logement") → "À venir" card (next cleaning, holidays, move-in/out; consecutive holidays in one row) → "Raccourcis" card (Wi‑Fi, WhatsApp, emergencies) → "Autour de chez vous" category circles → "Explorer" invitation card (photo + "Vous ne savez pas quoi faire…") last. No search pill (search lives in Guide), no roommates (they live in Mon appart).
 
 **Restaurant list row:** white card, 88 px square photo with a dark rating pill, bold name, "Italienne • $$$" with unused $ dimmed, "Lourdes • 9 min à pied".
 
@@ -51,7 +51,7 @@ Go through the Regras, then run the `ctbh-design-review` skill (static check + s
 - **Canvas + cards**: content sits in white `Card`s (radius 16, `Shadow.card`) on the gray canvas. No borders on cards; hairlines only inside a card.
 - **Photos first**: places, restaurants and the apartment are shown with a photo whenever one exists; the rating sits on the photo in a dark pill.
 - **Sections explain themselves**: title + one-line subtitle; "Voir plus ›" when there is a full list.
-- **Red accents**: brand bar, primary button, active tab, list-row icons, back arrow, small accents (selected filter). Errors never use brand red: `error` + icon + text.
+- **Red accents**: brand bar, primary button, active tab, list-row icons, back arrow, small accents (selected filter), the round profile button on Home (red circle, white person icon). Errors never use brand red: `error` + icon + text.
 - **Categories and hub tiles** use emoji (`CategoryCircle`, `HubTile`); UI controls use `Icon`. No emoji anywhere else.
 - **Hub + sub-pages, not long pages**: a tab screen shows what is used daily plus `HubTile`s (with a live status line) leading to sub-pages (`src/app/<tab>/<topic>.tsx`, `Screen back`). Never stack every topic on one page.
 - **No uppercase titles**, sentence case everywhere.
@@ -85,3 +85,5 @@ When the owner approves or rejects a visual decision, add one line here with the
 - 2026-10-16: "não gostei que na barra superior tem o bairro, deixar apenas a logo": brand bar shows only the logo (+ back arrow on pushed screens).
 - 2026-10-16: "achei que focou muito em restaurante": Home now opens on the apartment, restaurants moved to the end. Tab bar labels were clipped → custom `FloatingTabBar`.
 - 2026-10-16: owner chose DUO Gourmet as the main reference (references/duo.md). Gray canvas + white cards with soft shadow, red brand bar on every screen, photo cards and carousels, emoji category circles, floating tab bar. Supersedes the "no boxes / no shadows" rules of v2.
+- 2026-10-28: Home reorganised: "Cette semaine" became "À venir" (next dates from the calendar), roommates and the search pill removed, "Explorer" invitation card at the end. A checklist of first steps and a weekly outing idea were tried and rejected ("não gostei"). The profile entry as a white pill with the word "Profil" was rejected ("muito grande, truncando as frases"): it is now a compact red circle with a person icon (the owner adds the drawing).
+- 2026-10-28: shared expenses redesigned after "achei ela muito básica": balance card with roommates' avatars, activity grouped by month with date blocks and what each expense means for the student ("vous avez prêté" in green / "vous devez"), avatar pickers, large calculator-style amount with an R$ / € switch. No category emoji (owner's choice).

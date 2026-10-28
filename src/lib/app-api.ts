@@ -5,7 +5,17 @@
  */
 const BASE_URL = process.env.EXPO_PUBLIC_APP_API_URL ?? '';
 
-export type ApiError = 'wrongCredentials' | 'unauthorized' | 'noRental' | 'noContract' | 'tooShort' | 'network' | 'server';
+export type ApiError =
+  | 'wrongCredentials'
+  | 'unauthorized'
+  | 'noRental'
+  | 'noContract'
+  | 'tooShort'
+  | 'invalid'
+  | 'forbidden'
+  | 'notFound'
+  | 'network'
+  | 'server';
 
 export class AppApiError extends Error {
   constructor(public code: ApiError) {

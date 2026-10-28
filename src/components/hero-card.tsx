@@ -8,7 +8,7 @@ import { Fonts, Radius, Shadow, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { usePlacePhoto } from '@/lib/place-photo';
 
-type Photo = { uri: string } | { placeId: string };
+type Photo = { uri: string } | { placeId: string } | { asset: number };
 
 /**
  * Large photo card with a dark layer: label, title, subtitle and a white pill button (DUO reference).
@@ -47,7 +47,7 @@ export function HeroCard({
       ) : (
         <View style={[styles.photo, { backgroundColor: theme.fill }]}>
           <Image
-            source={{ uri: (photo as { uri: string }).uri }}
+            source={'asset' in photo ? photo.asset : { uri: (photo as { uri: string }).uri }}
             style={StyleSheet.absoluteFill}
             contentFit="cover"
             transition={200}

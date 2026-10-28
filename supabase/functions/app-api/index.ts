@@ -9,6 +9,13 @@
 //   /app-api/home             (Authorization: Bearer)  → dados do aluno (app_home_for)
 //   /app-api/change-password  { password }             → { token }
 //   /app-api/contract         (Authorization: Bearer)  → { url } link temporário do PDF
+//   Despesas compartilhadas entre colegas (grupo = locação do aluno; valores em centavos de R$):
+//   /app-api/expenses           → { me, members, expenses, settlements }
+//   /app-api/expense-save       { id?, description, amountCents, currency, paidBy, spentOn, splitMode, shares }
+//   /app-api/expense-delete     { id }            (só quem lançou)
+//   /app-api/settlement-save    { from, to, amountCents, currency, paidOn }  (o aluno tem de ser um dos dois)
+//   currency: 'BRL' (padrão) ou 'EUR'; os saldos são por moeda, sem conversão.
+//   /app-api/settlement-delete  { id }            (só quem lançou)
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -163,6 +170,222 @@ async function contract(req: Request) {
   return json({ url: signed.signedUrl, fileName: k.file_name });
 }
 
+// ---------- despesas compartilhadas ----------
+const MAX_CENTS = 10_000_000; // R$ 100 000, trava contra erro de digitação
+const isCents = (n: unknown, min: number) => Number.isInteger(n) && (n as number) >= min && (n as number) <= MAX_CENTS;
+const isCurrency = (c: unknown) => c === 'BRL' || c === 'EUR';
+const isDate = (s: unknown) => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(Date.parse(s));
+
+/** Locação do aluno e todos os colegas dela (inquilinos ativos, com ou sem acesso ao app). */
+async function group(cp: string) {
+  const { data: rentalId } = await db.rpc('app_rental_for', { p_cp: cp });
+  if (!rentalId) return null;
+  const { data: tenants } = await db
+    .from('rental_tenants')
+    .select('counterparty_id')
+    .eq('rental_id', rentalId)
+    .eq('is_active', true);
+  const ids = [...new Set((tenants ?? []).map((t) => t.counterparty_id as string))];
+  const [{ data: people }, { data: accounts }] = await Promise.all([
+    db.from('finance_counterparties').select('id, name').in('id', ids),
+    db.from('app_students').select('counterparty_id, display_name').in('counterparty_id', ids),
+  ]);
+  const shown = new Map((accounts ?? []).map((a) => [a.counterparty_id, (a.display_name ?? '').trim()]));
+  const members = (people ?? [])
+    .map((p) => ({ id: p.id as string, name: shown.get(p.id) || (p.name as string) }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+  return { rentalId: rentalId as string, members, ids: new Set(ids) };
+}
+
+async function expenses(req: Request) {
+  const who = await readToken(req);
+  if (!who) return json({ error: 'unauthorized' }, 401);
+  const g = await group(who.cp);
+  if (!g) return json({ error: 'noRental' }, 404);
+  const [{ data: rows, error: e1 }, { data: settlements, error: e2 }] = await Promise.all([
+    db
+      .from('app_expenses')
+      .select('id, description, amount_cents, currency, paid_by, spent_on, split_mode, created_by, created_at, app_expense_shares(counterparty_id, amount_cents)')
+      .eq('rental_id', g.rentalId)
+      .order('spent_on', { ascending: false })
+      .order('created_at', { ascending: false }),
+    db
+      .from('app_settlements')
+      .select('id, from_cp, to_cp, amount_cents, currency, paid_on, created_by, created_at')
+      .eq('rental_id', g.rentalId)
+      .order('paid_on', { ascending: false })
+      .order('created_at', { ascending: false }),
+  ]);
+  if (e1 || e2) return json({ error: 'server' }, 500);
+  return json({
+    me: who.cp,
+    members: g.members,
+    expenses: (rows ?? []).map((r) => ({
+      id: r.id,
+      description: r.description,
+      amountCents: r.amount_cents,
+      currency: r.currency,
+      paidBy: r.paid_by,
+      spentOn: r.spent_on,
+      splitMode: r.split_mode,
+      createdBy: r.created_by,
+      createdAt: r.created_at,
+      shares: ((r.app_expense_shares ?? []) as { counterparty_id: string; amount_cents: number }[]).map((s) => ({
+        cp: s.counterparty_id,
+        amountCents: s.amount_cents,
+      })),
+    })),
+    settlements: (settlements ?? []).map((s) => ({
+      id: s.id,
+      from: s.from_cp,
+      to: s.to_cp,
+      amountCents: s.amount_cents,
+      currency: s.currency,
+      paidOn: s.paid_on,
+      createdBy: s.created_by,
+      createdAt: s.created_at,
+    })),
+  });
+}
+
+type ExpenseBody = {
+  id?: string;
+  description?: string;
+  amountCents?: number;
+  currency?: string;
+  paidBy?: string;
+  spentOn?: string;
+  splitMode?: string;
+  shares?: { cp?: string; amountCents?: number }[];
+};
+
+async function expenseSave(req: Request, body: ExpenseBody) {
+  const who = await readToken(req);
+  if (!who) return json({ error: 'unauthorized' }, 401);
+  const g = await group(who.cp);
+  if (!g) return json({ error: 'noRental' }, 404);
+
+  const description = String(body.description ?? '').trim();
+  const shares = Array.isArray(body.shares) ? body.shares : [];
+  const sharesOk =
+    shares.length > 0 &&
+    new Set(shares.map((s) => s.cp)).size === shares.length &&
+    shares.every((s) => g.ids.has(String(s.cp)) && isCents(s.amountCents, 0)) &&
+    shares.some((s) => (s.amountCents as number) > 0) &&
+    shares.reduce((sum, s) => sum + (s.amountCents as number), 0) === body.amountCents;
+  if (
+    description.length < 1 ||
+    description.length > 80 ||
+    !isCents(body.amountCents, 1) ||
+    !isCurrency(body.currency ?? 'BRL') ||
+    !g.ids.has(String(body.paidBy)) ||
+    !isDate(body.spentOn) ||
+    (body.splitMode !== 'equal' && body.splitMode !== 'exact') ||
+    !sharesOk
+  ) {
+    return json({ error: 'invalid' }, 400);
+  }
+
+  const fields = {
+    description,
+    amount_cents: body.amountCents,
+    currency: body.currency ?? 'BRL',
+    paid_by: body.paidBy,
+    spent_on: body.spentOn,
+    split_mode: body.splitMode,
+    updated_at: new Date().toISOString(),
+  };
+  const newShares = (expenseId: string) =>
+    shares.map((s) => ({ expense_id: expenseId, counterparty_id: s.cp, amount_cents: s.amountCents }));
+
+  if (body.id) {
+    const { data: old } = await db
+      .from('app_expenses')
+      .select('id, created_by, rental_id, app_expense_shares(counterparty_id, amount_cents)')
+      .eq('id', body.id)
+      .maybeSingle();
+    if (!old || old.rental_id !== g.rentalId) return json({ error: 'notFound' }, 404);
+    if (old.created_by !== who.cp) return json({ error: 'forbidden' }, 403);
+    const { error: e1 } = await db.from('app_expenses').update(fields).eq('id', body.id);
+    if (e1) return json({ error: 'server' }, 500);
+    await db.from('app_expense_shares').delete().eq('expense_id', body.id);
+    const { error: e2 } = await db.from('app_expense_shares').insert(newShares(body.id));
+    if (e2) {
+      // devolve as partes antigas para a despesa não ficar sem divisão
+      await db.from('app_expense_shares').insert(
+        ((old.app_expense_shares ?? []) as { counterparty_id: string; amount_cents: number }[]).map((s) => ({
+          expense_id: body.id,
+          ...s,
+        })),
+      );
+      return json({ error: 'server' }, 500);
+    }
+    return json({ id: body.id });
+  }
+
+  const { data: created, error: e1 } = await db
+    .from('app_expenses')
+    .insert({ ...fields, rental_id: g.rentalId, created_by: who.cp })
+    .select('id')
+    .single();
+  if (e1 || !created) return json({ error: 'server' }, 500);
+  const { error: e2 } = await db.from('app_expense_shares').insert(newShares(created.id));
+  if (e2) {
+    await db.from('app_expenses').delete().eq('id', created.id);
+    return json({ error: 'server' }, 500);
+  }
+  return json({ id: created.id });
+}
+
+/** Apaga uma despesa ou um acerto do grupo do aluno, se foi ele quem lançou. */
+async function deleteOwn(req: Request, table: 'app_expenses' | 'app_settlements', id: unknown) {
+  const who = await readToken(req);
+  if (!who) return json({ error: 'unauthorized' }, 401);
+  const g = await group(who.cp);
+  if (!g) return json({ error: 'noRental' }, 404);
+  const { data: row } = await db.from(table).select('created_by, rental_id').eq('id', String(id ?? '')).maybeSingle();
+  if (!row || row.rental_id !== g.rentalId) return json({ error: 'notFound' }, 404);
+  if (row.created_by !== who.cp) return json({ error: 'forbidden' }, 403);
+  const { error } = await db.from(table).delete().eq('id', String(id));
+  if (error) return json({ error: 'server' }, 500);
+  return json({ ok: true });
+}
+
+async function settlementSave(req: Request, body: { from?: string; to?: string; amountCents?: number; currency?: string; paidOn?: string }) {
+  const who = await readToken(req);
+  if (!who) return json({ error: 'unauthorized' }, 401);
+  const g = await group(who.cp);
+  if (!g) return json({ error: 'noRental' }, 404);
+  const from = String(body.from ?? '');
+  const to = String(body.to ?? '');
+  if (
+    !g.ids.has(from) ||
+    !g.ids.has(to) ||
+    from === to ||
+    (from !== who.cp && to !== who.cp) ||
+    !isCents(body.amountCents, 1) ||
+    !isCurrency(body.currency ?? 'BRL') ||
+    !isDate(body.paidOn)
+  ) {
+    return json({ error: 'invalid' }, 400);
+  }
+  const { data, error } = await db
+    .from('app_settlements')
+    .insert({
+      rental_id: g.rentalId,
+      from_cp: from,
+      to_cp: to,
+      amount_cents: body.amountCents,
+      currency: body.currency ?? 'BRL',
+      paid_on: body.paidOn,
+      created_by: who.cp,
+    })
+    .select('id')
+    .single();
+  if (error || !data) return json({ error: 'server' }, 500);
+  return json({ id: data.id });
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
   if (req.method !== 'POST') return json({ error: 'method' }, 405);
@@ -178,6 +401,16 @@ Deno.serve(async (req) => {
         return await changePassword(req, body);
       case 'contract':
         return await contract(req);
+      case 'expenses':
+        return await expenses(req);
+      case 'expense-save':
+        return await expenseSave(req, body);
+      case 'expense-delete':
+        return await deleteOwn(req, 'app_expenses', body.id);
+      case 'settlement-save':
+        return await settlementSave(req, body);
+      case 'settlement-delete':
+        return await deleteOwn(req, 'app_settlements', body.id);
       default:
         return json({ error: 'notFound' }, 404);
     }

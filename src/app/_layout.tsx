@@ -14,6 +14,7 @@ import { ToastProvider } from '@/components/toast';
 import { useTheme } from '@/hooks/use-theme';
 import { LanguageProvider } from '@/i18n';
 import { AuthProvider, useAuth } from '@/lib/auth';
+import { ExpensesProvider } from '@/lib/expenses';
 import { HomeProvider, useHomeState } from '@/lib/home';
 
 SplashScreen.preventAutoHideAsync();
@@ -38,9 +39,11 @@ export default function RootLayout() {
         <LanguageProvider>
           <AuthProvider>
             <HomeProvider>
-              <ToastProvider>
-                <RootStack />
-              </ToastProvider>
+              <ExpensesProvider>
+                <ToastProvider>
+                  <RootStack />
+                </ToastProvider>
+              </ExpensesProvider>
             </HomeProvider>
           </AuthProvider>
         </LanguageProvider>
@@ -93,6 +96,10 @@ function RootStack() {
           <Stack.Screen name="apartment/cleaning" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="apartment/contract" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="apartment/roommates" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="expenses/index" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="expenses/[id]" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="expenses/edit" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="expenses/settle" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="travel/[id]" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="attraction/[id]" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="festival/[id]" options={{ animation: 'slide_from_right' }} />

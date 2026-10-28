@@ -39,3 +39,13 @@ export function formatTime(hhmm: string, lang: Lang) {
   const suffix = h < 12 ? 'AM' : 'PM';
   return `${((h + 11) % 12) + 1}:${String(m).padStart(2, '0')} ${suffix}`;
 }
+
+/** Centavos → "R$ 12,50" / "12,50 €" (fr) · "R$12.50" / "€12.50" (en), always two decimals. */
+export function formatCents(cents: number, lang: Lang, currency: 'BRL' | 'EUR' = 'BRL') {
+  const n = (cents / 100).toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  if (currency === 'EUR') return lang === 'fr' ? `${n} €` : `€${n}`;
+  return lang === 'fr' ? `R$ ${n}` : `R$${n}`;
+}

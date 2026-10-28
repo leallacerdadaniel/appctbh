@@ -4,17 +4,21 @@ import { Linking, ScrollView, StyleSheet, View } from 'react-native';
 
 import { CategoryCircle } from '@/components/category-circle';
 import { HeroCard } from '@/components/hero-card';
-import { Icon } from '@/components/icon';
+import { Icon, type IconName } from '@/components/icon';
 import { ListGroup, ListRow } from '@/components/list';
 import { Screen, Section } from '@/components/screen';
 import { useToast } from '@/components/toast';
-import { AppText, Avatar, Card, PressableScale } from '@/components/ui';
-import { Radius, Shadow, Spacing, TapTarget } from '@/constants/theme';
+import { AppText, Card, PressableScale } from '@/components/ui';
+import { Fonts, Radius, Shadow, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
-import { formatLongDate, upcomingCleanings } from '@/lib/cleaning';
-import { formatDate, formatTime } from '@/lib/format';
+import { getAttraction } from '@/lib/attractions';
+import { formatLongDate } from '@/lib/cleaning';
+import type { EventKind } from '@/lib/events';
+import { formatTime } from '@/lib/format';
+import { useBalanceLabel } from '@/lib/expenses';
 import { useHome } from '@/lib/home';
+import { upcomingEvents } from '@/lib/home-feed';
 import { contacts } from '@/lib/mock-data';
 import type { NearbyCategoryId } from '@/lib/nearby';
 
@@ -29,12 +33,25 @@ const CATEGORIES: { id: NearbyCategoryId; emoji: string }[] = [
   { id: 'hospital', emoji: '🏥' },
 ];
 
+const EVENT_ICON: Record<EventKind, IconName> = {
+  national: 'calendar',
+  city: 'calendar',
+  optional: 'calendar',
+  cleaning: 'cleaning',
+  contract: 'key',
+};
+
+/** Photo of the "Explorer" invitation card. */
+const EXPLORE_PHOTO = getAttraction('praca-liberdade')?.photo;
+
 export default function HomeScreen() {
   const theme = useTheme();
   const toast = useToast();
   const { t, lang } = useI18n();
-  const { student, apartment, contract, roommates, cleanings } = useHome();
-  const nextCleaning = upcomingCleanings(cleanings)[0];
+  const { student, apartment, contract, cleanings } = useHome();
+  const balance = useBalanceLabel();
+  const colon = lang === 'fr' ? ' : ' : ': ';
+  const upcoming = upcomingEvents({ cleanings, moveIn: contract.moveIn, moveOut: contract.moveOut });
 
   async function copyWifi() {
     if (!apartment.wifiPassword) return toast(t.common.soon);
@@ -49,24 +66,20 @@ export default function HomeScreen() {
           <AppText variant="display">
             {new Date().getHours() < 18 ? t.home.morning : t.home.evening}, {student.firstName}
           </AppText>
-          <AppText color={theme.textSecondary}>{apartment.address}</AppText>
+          <AppText color={theme.textSecondary}>
+            {[apartment.address, apartment.complement].filter(Boolean).join(', ')}
+          </AppText>
         </View>
         {/* Profile lives here since the tab became "Voyages". */}
         <PressableScale
           accessibilityRole="button"
           accessibilityLabel={t.profile.title}
-          onPress={() => router.push('/profile')}>
-          <Avatar initials={student.initials} size={44} />
+          hitSlop={6}
+          onPress={() => router.push('/profile')}
+          style={[styles.profile, Shadow.card, { backgroundColor: theme.brand }]}>
+          <Icon name="profile" size={16} color={theme.onBrand} />
         </PressableScale>
       </View>
-      <PressableScale
-        accessibilityRole="search"
-        onPress={() => router.navigate({ pathname: '/guide', params: { focus: '1' } })}
-        style={[styles.search, Shadow.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
-        <Icon name="search" size={18} color={theme.textSecondary} />
-        <AppText color={theme.textSecondary}>{t.home.searchPlaceholder}</AppText>
-      </PressableScale>
-
       <HeroCard
         photo={{ uri: apartment.photoUrl ?? '' }}
         label={t.home.yourHome}
@@ -77,21 +90,35 @@ export default function HomeScreen() {
         onPress={() => router.navigate('/apartment')}
       />
 
-      <Section title={t.home.week} subtitle={t.home.weekHint}>
+      <Section
+        title={t.home.upcoming}
+        subtitle={t.home.upcomingHint}
+        action={t.home.seeCalendar}
+        onAction={() => router.navigate('/calendar')}>
         <Card style={styles.listCard}>
           <ListGroup inset>
-            <ListRow
-              icon="cleaning"
-              title={t.home.cleaning}
-              subtitle={
-                nextCleaning
-                  ? [capitalize(formatLongDate(nextCleaning.date, lang)), nextCleaning.time && formatTime(nextCleaning.time, lang)]
-                      .filter(Boolean)
-                      .join(' · ')
-                  : t.apartment.cleaning.empty
-              }
-              onPress={() => router.push('/apartment/cleaning')}
-            />
+            {upcoming.length === 0 ? (
+              <ListRow icon="calendar" title={t.home.nothingSoon} />
+            ) : (
+              upcoming.map((e) => (
+                <ListRow
+                  key={e.id}
+                  icon={EVENT_ICON[e.kind]}
+                  title={e.title[lang]}
+                  subtitle={[
+                    capitalize(formatLongDate(e.date, lang)) +
+                      (e.endDate ? ` → ${formatLongDate(e.endDate, lang)}` : ''),
+                    e.time && formatTime(e.time, lang),
+                    e.kind !== 'cleaning' && e.kind !== 'contract' && t.calendar.kinds[e.kind],
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')}
+                  onPress={() =>
+                    e.kind === 'cleaning' ? router.push('/apartment/cleaning') : router.navigate('/calendar')
+                  }
+                />
+              ))
+            )}
           </ListGroup>
         </Card>
       </Section>
@@ -99,18 +126,46 @@ export default function HomeScreen() {
       <Section title={t.home.shortcuts}>
         <Card style={styles.listCard}>
           <ListGroup inset>
+            {/* Network and password written out; tapping the row copies the password (the pill says so). */}
             <ListRow
               icon="wifi"
               title={t.home.wifi}
-              subtitle={apartment.wifiName ?? t.common.soon}
+              subtitle={
+                apartment.wifiName || apartment.wifiPassword
+                  ? [
+                      apartment.wifiName && `${t.apartment.network}${colon}${apartment.wifiName}`,
+                      apartment.wifiPassword && `${t.apartment.password}${colon}${apartment.wifiPassword}`,
+                    ]
+                      .filter(Boolean)
+                      .join('\n')
+                  : t.common.soon
+              }
               onPress={copyWifi}
-              accessory={apartment.wifiPassword ? <Icon name="copy" size={17} color={theme.textTertiary} /> : undefined}
+              accessibilityLabel={apartment.wifiPassword ? t.apartment.copyPassword : undefined}
+              accessory={
+                apartment.wifiPassword ? (
+                  <View style={[styles.copyPill, { backgroundColor: theme.fill }]}>
+                    <Icon name="copy" size={14} color={theme.text} />
+                    <AppText variant="caption" style={{ fontFamily: Fonts.bodyMedium }}>
+                      {t.home.copy}
+                    </AppText>
+                  </View>
+                ) : (
+                  <View />
+                )
+              }
             />
             <ListRow
               icon="whatsapp"
               title={t.home.writeUs}
               subtitle="WhatsApp"
               onPress={() => Linking.openURL(`https://wa.me/${contacts.whatsapp}`)}
+            />
+            <ListRow
+              icon="rent"
+              title={t.expenses.homeRow}
+              subtitle={balance || t.expenses.subtitle}
+              onPress={() => router.push('/expenses')}
             />
             <ListRow
               icon="emergency"
@@ -139,23 +194,16 @@ export default function HomeScreen() {
         </ScrollView>
       </Section>
 
-      <Section title={t.home.roommates}>
-        <Card style={styles.roommates}>
-          {roommates.map((r) => (
-            <View key={r.fullName} style={styles.roommate}>
-              <Avatar initials={r.initials} size={48} />
-              <AppText variant="callout">{r.firstName}</AppText>
-            </View>
-          ))}
-          <View style={{ flex: 1 }} />
-          <AppText variant="caption" color={theme.textSecondary} style={styles.contract}>
-            {t.home.contract(contract.semester)}
-            {'\n'}
-            {formatDate(contract.moveIn, lang)} → {formatDate(contract.moveOut, lang)}
-          </AppText>
-        </Card>
-      </Section>
-
+      {EXPLORE_PHOTO && (
+        <HeroCard
+          photo={{ asset: EXPLORE_PHOTO }}
+          label={t.home.exploreLabel}
+          labelIcon="map"
+          title={t.home.exploreTitle}
+          cta={t.home.exploreCta}
+          onPress={() => router.navigate('/travel')}
+        />
+      )}
     </Screen>
   );
 }
@@ -164,20 +212,17 @@ const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 const styles = StyleSheet.create({
   greeting: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, marginBottom: -Spacing.sm },
-  search: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    minHeight: TapTarget + 6,
-    paddingHorizontal: Spacing.md,
-    borderRadius: Radius.pill,
-    borderWidth: StyleSheet.hairlineWidth,
-  },
+  profile: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   bleed: { marginHorizontal: -Spacing.gutter },
   // Vertical padding leaves room for the circles' shadow.
   categories: { gap: 4, paddingHorizontal: Spacing.gutter - 6, paddingVertical: 6 },
   listCard: { paddingVertical: 0 },
-  roommates: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
-  roommate: { alignItems: 'center', gap: Spacing.xs, width: 56 },
-  contract: { textAlign: 'right' },
+  copyPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: Radius.pill,
+  },
 });

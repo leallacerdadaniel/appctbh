@@ -15,6 +15,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { formatLongDate, upcomingCleanings } from '@/lib/cleaning';
 import { formatDate, formatTime } from '@/lib/format';
+import { useBalanceLabel } from '@/lib/expenses';
 import { useHome } from '@/lib/home';
 
 /**
@@ -27,6 +28,7 @@ export default function ApartmentScreen() {
   const { t, lang } = useI18n();
   const [showWifi, setShowWifi] = useState(false);
   const { apartment, contract, roommates, cleanings } = useHome();
+  const balance = useBalanceLabel();
 
   async function copy(value: string, message: string) {
     await Clipboard.setStringAsync(value);
@@ -124,6 +126,12 @@ export default function ApartmentScreen() {
             title={t.apartment.roommates}
             status={roommates.map((r) => r.firstName).join(', ') || '—'}
             onPress={() => router.push('/apartment/roommates')}
+          />
+          <HubTile
+            emoji="💸"
+            title={t.expenses.tile}
+            status={balance}
+            onPress={() => router.push('/expenses')}
           />
           <HubTile
             emoji="📍"

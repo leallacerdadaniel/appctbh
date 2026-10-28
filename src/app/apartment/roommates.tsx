@@ -20,7 +20,7 @@ export default function RoommatesScreen() {
             <View style={styles.row}>
               <Avatar initials={r.initials} size={48} />
               <View style={{ flex: 1 }}>
-                <AppText style={{ fontFamily: Fonts.bodyMedium }}>{r.firstName}</AppText>
+                <AppText style={{ fontFamily: Fonts.bodyMedium }}>{r.fullName}</AppText>
                 <AppText variant="callout" color={theme.textSecondary}>
                   {t.apartment.roommateLabel}
                 </AppText>
