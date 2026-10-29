@@ -9,7 +9,7 @@ import { Icon, type IconName } from '@/components/icon';
 import { ListGroup, ListRow } from '@/components/list';
 import { Screen, Section } from '@/components/screen';
 import { useToast } from '@/components/toast';
-import { Card, PressableScale } from '@/components/ui';
+import { AppText, Card, PressableScale } from '@/components/ui';
 import { Radius, Shadow, TapTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
@@ -27,7 +27,8 @@ export default function ApartmentScreen() {
   const toast = useToast();
   const { t, lang } = useI18n();
   const [showWifi, setShowWifi] = useState(false);
-  const { apartment, contract, roommates, cleanings } = useHome();
+  const { apartment, contract, roommates, cleanings, payments } = useHome();
+  const pendingRent = payments.filter((m) => !m.paid).length;
   const balance = useBalanceLabel();
 
   async function copy(value: string, message: string) {
@@ -35,6 +36,7 @@ export default function ApartmentScreen() {
     toast(message);
   }
 
+  // The unit number gets its own row; the copied address still carries it (for deliveries / rides).
   const fullAddress = [apartment.address, apartment.complement].filter(Boolean).join(', ');
   const next = upcomingCleanings(cleanings)[0];
   const nextLabel = next
@@ -44,9 +46,7 @@ export default function ApartmentScreen() {
     : t.apartment.cleaning.empty;
 
   return (
-    <Screen
-      title={apartment.nickname}
-      subtitle={apartment.complement || undefined}>
+    <Screen title={apartment.nickname}>
       <View style={[styles.photo, Shadow.card, { backgroundColor: theme.fill }]}>
         <Image
           source={apartment.photoUrl ? { uri: apartment.photoUrl } : undefined}
@@ -58,10 +58,21 @@ export default function ApartmentScreen() {
 
       <Card style={styles.listCard}>
         <ListGroup inset>
+          {apartment.complement ? (
+            <ListRow
+              icon="apartment"
+              title={t.apartment.unit}
+              accessory={
+                <AppText variant="display" color={theme.brand}>
+                  {apartment.complement}
+                </AppText>
+              }
+            />
+          ) : null}
           <ListRow
             icon="address"
             title={t.apartment.address}
-            subtitle={fullAddress}
+            subtitle={apartment.address}
             accessory={
               // Two actions side by side (a button can't sit inside a pressable row).
               <View style={styles.inline}>
@@ -132,6 +143,12 @@ export default function ApartmentScreen() {
             title={t.expenses.tile}
             status={balance}
             onPress={() => router.push('/expenses')}
+          />
+          <HubTile
+            emoji="💳"
+            title={t.apartment.payments.title}
+            status={pendingRent ? t.apartment.payments.pending(pendingRent) : t.apartment.payments.upToDate}
+            onPress={() => router.push('/apartment/payments')}
           />
           <HubTile
             emoji="📍"

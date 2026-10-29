@@ -10,7 +10,10 @@ import type { CleaningVisit } from '@/lib/cleaning';
 const MOVE_OUT_NOTICE = 30;
 const MAX_UPCOMING = 4;
 
-/** Next cleaning + next holidays + move-in/out when relevant, soonest first. Before arrival, starts on move-in day. */
+/**
+ * Next cleaning + next holidays + move-in/out when relevant, soonest first. Before arrival, the rest starts on
+ * move-in day, but a cleaning scheduled before arrival (the move-in prep) still shows.
+ */
 export function upcomingEvents(
   student: { cleanings: CleaningVisit[]; moveIn: string; moveOut: string },
   today = new Date(),
@@ -19,7 +22,7 @@ export function upcomingEvents(
   const todayIso = toIso(today);
   const from = student.moveIn > todayIso ? student.moveIn : todayIso;
   const scheduled = student.cleanings.filter((c) => c.status === 'scheduled');
-  const events = buildEvents([year, year + 1], { ...student, cleanings: scheduled }).filter((e) => e.date >= from);
+  const events = buildEvents([year, year + 1], { ...student, cleanings: scheduled }).filter((e) => e.date >= (e.kind === 'cleaning' ? todayIso : from));
 
   let cleaningShown = false;
   const kept: UpcomingEvent[] = [];

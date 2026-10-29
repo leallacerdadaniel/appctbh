@@ -94,6 +94,8 @@ function RootStack() {
           <Stack.Screen name="beauty/index" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="beauty/[id]" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="apartment/cleaning" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="apartment/feedback" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="apartment/payments" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="apartment/contract" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="apartment/roommates" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="expenses/index" options={{ animation: 'slide_from_right' }} />

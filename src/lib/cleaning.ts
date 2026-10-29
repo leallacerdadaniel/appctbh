@@ -6,7 +6,22 @@ import type { Localized } from '@/lib/mock-data';
  * Visits come from the website's panel (cleaning_records) through the app-api.
  */
 
-export type CleaningVisit = { date: string; time: string; status: 'done' | 'scheduled' };
+export type CleaningFeedback = { rating: number; comment: string };
+
+export type CleaningVisit = {
+  id?: string;
+  date: string;
+  time: string;
+  status: 'done' | 'scheduled';
+  /** Last day the student can rate this visit (done visits only). */
+  feedbackUntil?: string;
+  /** The signed-in student's own rating (roommates' ratings are never sent). */
+  feedback?: CleaningFeedback | null;
+};
+
+/** Done visit still inside the 7-day window to give or edit a rating. */
+export const canRate = (v: CleaningVisit) =>
+  v.status === 'done' && !!v.id && !!v.feedbackUntil && daysUntil(v.feedbackUntil) >= 0;
 
 /** Product names in the student's language + the Portuguese name to find it at the supermarket. */
 export type CleaningSupply = { name: Localized; pt: string };

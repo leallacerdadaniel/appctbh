@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { Icon } from '@/components/icon';
 import { ListGroup, ListRow } from '@/components/list';
 import { Section } from '@/components/screen';
 import { useToast } from '@/components/toast';
@@ -11,6 +12,7 @@ import { Fonts, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import {
+  canRate,
   cleaningSupplies,
   daysUntil,
   formatLongDate,
@@ -72,22 +74,42 @@ export function CleaningVisits() {
 
       {visits.length ? (
         <ListGroup inset>
-          {visits.map((v) => (
-            <ListRow
-              key={v.date}
-              icon={v.status === 'done' ? 'checkCircle' : 'clock'}
-              title={capitalize(formatLongDate(v.date, lang))}
-              value={v.time ? formatTime(v.time, lang) : undefined}
-              accessory={
-                <AppText
-                  variant="caption"
-                  color={v.status === 'done' ? theme.success : theme.textSecondary}
-                  style={{ fontFamily: Fonts.bodyMedium }}>
-                  {v.status === 'done' ? c.statusDone : c.statusScheduled}
-                </AppText>
-              }
-            />
-          ))}
+          {visits.map((v) => {
+            const open = canRate(v);
+            return (
+              <ListRow
+                key={v.date}
+                icon={v.status === 'done' ? 'checkCircle' : 'clock'}
+                title={capitalize(formatLongDate(v.date, lang))}
+                value={v.time ? formatTime(v.time, lang) : undefined}
+                onPress={open ? () => router.push({ pathname: '/apartment/feedback', params: { id: v.id } }) : undefined}
+                accessibilityLabel={open ? `${c.rate} · ${formatLongDate(v.date, lang)}` : undefined}
+                accessory={
+                  v.feedback ? (
+                    // Own rating, editable while the window is open.
+                    <View style={styles.rated} accessibilityLabel={c.stars(v.feedback.rating)}>
+                      <Icon name="star" size={13} color={theme.brand} />
+                      <AppText variant="caption" style={{ fontFamily: Fonts.bodyMedium }}>
+                        {v.feedback.rating}
+                      </AppText>
+                      {open && <Icon name="chevronRight" size={15} color={theme.textTertiary} />}
+                    </View>
+                  ) : open ? (
+                    <AppText variant="caption" color={theme.brand} style={{ fontFamily: Fonts.bodyMedium }}>
+                      {c.rate}
+                    </AppText>
+                  ) : (
+                    <AppText
+                      variant="caption"
+                      color={v.status === 'done' ? theme.success : theme.textSecondary}
+                      style={{ fontFamily: Fonts.bodyMedium }}>
+                      {v.status === 'done' ? c.statusDone : c.statusScheduled}
+                    </AppText>
+                  )
+                }
+              />
+            );
+          })}
         </ListGroup>
       ) : (
         <AppText variant="callout" color={theme.textSecondary}>
@@ -155,4 +177,5 @@ const styles = StyleSheet.create({
   supply: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, paddingVertical: 12 },
   pt: { textAlign: 'right', maxWidth: '45%' },
   actions: { gap: 4, marginTop: Spacing.xs },
+  rated: { flexDirection: 'row', alignItems: 'center', gap: 4 },
 });

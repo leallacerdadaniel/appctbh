@@ -16,6 +16,8 @@
 //   /app-api/settlement-save    { from, to, amountCents, currency, paidOn }  (o aluno tem de ser um dos dois)
 //   currency: 'BRL' (padrão) ou 'EUR'; os saldos são por moeda, sem conversão.
 //   /app-api/settlement-delete  { id }            (só quem lançou)
+//   Avaliação das faxinas (uma por aluno, editável até 7 dias depois da faxina):
+//   /app-api/cleaning-feedback  { cleaningId, rating (1–5), comment }
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -386,6 +388,56 @@ async function settlementSave(req: Request, body: { from?: string; to?: string; 
   return json({ id: data.id });
 }
 
+const FEEDBACK_DAYS = 7;
+
+/** Data de hoje em BH (AAAA-MM-DD), para o prazo da avaliação não depender do fuso do servidor. */
+const todayBH = () => new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+const plusDays = (iso: string, n: number) => {
+  const d = new Date(`${iso}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+};
+
+/** Grava (ou atualiza) a avaliação do aluno para uma faxina realizada da sua locação, dentro do prazo. */
+async function cleaningFeedback(req: Request, body: { cleaningId?: string; rating?: number; comment?: string }) {
+  const who = await readToken(req);
+  if (!who) return json({ error: 'unauthorized' }, 401);
+  // Contrato principal + continuação (Chada e Jorge em 2027/1): as faxinas de maio também valem.
+  const { data: rentalIds } = await db.rpc('app_rentals_for', { p_cp: who.cp });
+  if (!rentalIds?.length) return json({ error: 'noRental' }, 404);
+
+  const rating = body.rating;
+  const comment = String(body.comment ?? '').trim();
+  if (!Number.isInteger(rating) || (rating as number) < 1 || (rating as number) > 5 || comment.length > 500) {
+    return json({ error: 'invalid' }, 400);
+  }
+
+  const { data: k } = await db
+    .from('cleaning_records')
+    .select('id, rental_id, scheduled_date, completed, completed_at')
+    .eq('id', String(body.cleaningId ?? ''))
+    .maybeSingle();
+  if (!k || !(rentalIds as string[]).includes(k.rental_id) || !k.completed || !k.scheduled_date) {
+    return json({ error: 'notFound' }, 404);
+  }
+  const doneOn = k.completed_at
+    ? new Date(k.completed_at).toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' })
+    : k.scheduled_date;
+  const start = doneOn > k.scheduled_date ? doneOn : k.scheduled_date;
+  if (todayBH() > plusDays(start, FEEDBACK_DAYS)) return json({ error: 'forbidden' }, 403);
+
+  const { error } = await db.from('app_cleaning_feedback').upsert({
+    cleaning_id: k.id,
+    counterparty_id: who.cp,
+    rental_id: k.rental_id,
+    rating,
+    comment,
+    updated_at: new Date().toISOString(),
+  });
+  if (error) return json({ error: 'server' }, 500);
+  return json({ ok: true });
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
   if (req.method !== 'POST') return json({ error: 'method' }, 405);
@@ -411,6 +463,8 @@ Deno.serve(async (req) => {
         return await settlementSave(req, body);
       case 'settlement-delete':
         return await deleteOwn(req, 'app_settlements', body.id);
+      case 'cleaning-feedback':
+        return await cleaningFeedback(req, body);
       default:
         return json({ error: 'notFound' }, 404);
     }

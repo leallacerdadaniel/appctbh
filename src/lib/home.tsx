@@ -30,8 +30,21 @@ type HomeResponse = {
   tenant: { move_in_date: string | null; move_out_date: string | null; rent: number | null } | null;
   info: { unit_number?: string | null; wifi_name: string | null; wifi_password: string | null } | null;
   roommates: string[];
-  cleanings: { date: string | null; completed: boolean }[];
+  cleanings: {
+    id: string;
+    date: string | null;
+    /** Time set for this visit on the website ("10:00:00"); falls back to the contract's usual time. */
+    time?: string | null;
+    completed: boolean;
+    feedback_until: string | null;
+    feedback: { rating: number; comment: string } | null;
+  }[];
+  /** Missing until the payments migration (20261029_app_payments.sql) is applied. */
+  payments?: { month: string; paid: boolean }[];
+  deposit?: { amount: number; currency: string; status: string; returned_date: string | null } | null;
 };
+
+export type Deposit = { amount: number; currency: 'BRL' | 'EUR'; returned: boolean; returnedDate: string | null };
 
 export type Person = { firstName: string; fullName: string; initials: string };
 
@@ -58,6 +71,9 @@ export type Home = {
   roommates: Person[];
   /** Cleanings with a date, oldest first. */
   cleanings: CleaningVisit[];
+  /** Monthly rent status only (amounts never reach the app), oldest month first. */
+  payments: { month: string; paid: boolean }[];
+  deposit: Deposit | null;
 };
 
 export function person(name: string): Person {
@@ -91,8 +107,24 @@ function toHome(r: HomeResponse): Home {
     },
     roommates: r.roommates.map(person),
     cleanings: r.cleanings
-      .filter((c): c is { date: string; completed: boolean } => !!c.date)
-      .map((c) => ({ date: c.date, time: r.rental.cleaning_time?.slice(0, 5) ?? '', status: c.completed ? 'done' : 'scheduled' })),
+      .filter((c): c is HomeResponse['cleanings'][number] & { date: string } => !!c.date)
+      .map((c) => ({
+        id: c.id,
+        date: c.date,
+        time: (c.time ?? r.rental.cleaning_time)?.slice(0, 5) ?? '',
+        status: c.completed ? 'done' : 'scheduled',
+        feedbackUntil: c.feedback_until ?? undefined,
+        feedback: c.feedback,
+      })),
+    payments: r.payments ?? [],
+    deposit: r.deposit
+      ? {
+          amount: r.deposit.amount,
+          currency: r.deposit.currency === 'EUR' ? 'EUR' : 'BRL',
+          returned: r.deposit.status === 'returned',
+          returnedDate: r.deposit.returned_date,
+        }
+      : null,
   };
 }
 
@@ -102,7 +134,8 @@ type HomeState =
   | { status: 'noRental' }
   | { status: 'error' };
 
-const HomeContext = createContext<{ state: HomeState; reload: () => void } | null>(null);
+/** reload shows the loading screen again; refresh swaps the data in place (after a save). */
+const HomeContext = createContext<{ state: HomeState; reload: () => void; refresh: () => void } | null>(null);
 
 export function HomeProvider({ children }: { children: ReactNode }) {
   const { token, signOut } = useAuth();
@@ -128,7 +161,7 @@ export function HomeProvider({ children }: { children: ReactNode }) {
     load();
   }
 
-  return <HomeContext.Provider value={{ state, reload }}>{children}</HomeContext.Provider>;
+  return <HomeContext.Provider value={{ state, reload, refresh: load }}>{children}</HomeContext.Provider>;
 }
 
 export function useHomeState() {

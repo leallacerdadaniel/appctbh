@@ -45,6 +45,7 @@ const REGISTRY = {
   chevronRight: { ios: 'chevron.right', material: 'chevron_right', glyph: 0xe5cc },
   chevronLeft: { ios: 'chevron.left', material: 'arrow_back_ios_new', glyph: 0xe2ea },
   chevronDown: { ios: 'chevron.down', material: 'expand_more', glyph: 0xe5cf },
+  chevronUp: { ios: 'chevron.up', material: 'expand_less', glyph: 0xe5ce },
   restaurant: { ios: 'fork.knife', material: 'restaurant', glyph: 0xe56c },
   supermarket: { ios: 'cart', material: 'shopping_cart', glyph: 0xe8cc },
   pharmacy: { ios: 'pills', material: 'local_pharmacy', glyph: 0xe550 },
