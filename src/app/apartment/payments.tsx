@@ -55,16 +55,26 @@ export default function PaymentsScreen() {
             <>
               <View style={{ gap: 2 }}>
                 <AppText variant="display">{formatMoney(deposit.amount, deposit.currency, lang)}</AppText>
-                <AppText variant="callout" color={deposit.returned ? theme.success : theme.textSecondary}>
-                  {deposit.returned
+                <AppText
+                  variant="callout"
+                  color={
+                    deposit.status === 'returned'
+                      ? theme.success
+                      : deposit.status === 'pending'
+                        ? theme.warning
+                        : theme.textSecondary
+                  }>
+                  {deposit.status === 'returned'
                     ? deposit.returnedDate
                       ? p.returnedOn(formatDate(deposit.returnedDate, lang))
                       : p.returnedShort
-                    : p.withUs}
+                    : deposit.status === 'pending'
+                      ? p.depositPending
+                      : p.withUs}
                 </AppText>
               </View>
 
-              {!deposit.returned && (
+              {deposit.status !== 'returned' && (
                 <>
                   <View style={[styles.divider, { backgroundColor: theme.line }]} />
                   {/* Short line always visible; the full rule only for whoever wants it. */}

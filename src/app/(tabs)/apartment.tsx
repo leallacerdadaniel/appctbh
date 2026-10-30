@@ -16,6 +16,7 @@ import { useI18n } from '@/i18n';
 import { formatLongDate, upcomingCleanings } from '@/lib/cleaning';
 import { formatDate, formatTime } from '@/lib/format';
 import { useBalanceLabel } from '@/lib/expenses';
+import { useHandovers } from '@/lib/handovers';
 import { useHome } from '@/lib/home';
 
 /**
@@ -27,8 +28,12 @@ export default function ApartmentScreen() {
   const toast = useToast();
   const { t, lang } = useI18n();
   const [showWifi, setShowWifi] = useState(false);
-  const { apartment, contract, roommates, cleanings, payments } = useHome();
-  const pendingRent = payments.filter((m) => !m.paid).length;
+  const { apartment, contract, roommates, cleanings, payments, deposit } = useHome();
+  // Unpaid rent months + the deposit when the student has not paid it yet.
+  const pendingRent = payments.filter((m) => !m.paid).length + (deposit?.status === 'pending' ? 1 : 0);
+  const handovers = useHandovers();
+  const handoverStatus = (date: string | null | undefined) =>
+    date ? t.apartment.handover.on(formatDate(date, lang)) : t.apartment.handover.notYet;
   const balance = useBalanceLabel();
 
   async function copy(value: string, message: string) {
@@ -149,6 +154,18 @@ export default function ApartmentScreen() {
             title={t.apartment.payments.title}
             status={pendingRent ? t.apartment.payments.pending(pendingRent) : t.apartment.payments.upToDate}
             onPress={() => router.push('/apartment/payments')}
+          />
+          <HubTile
+            emoji="🔑"
+            title={t.apartment.handover.checkin.title}
+            status={handoverStatus(handovers?.checkin.date)}
+            onPress={() => router.push('/apartment/checkin')}
+          />
+          <HubTile
+            emoji="🧳"
+            title={t.apartment.handover.checkout.title}
+            status={handoverStatus(handovers?.checkout.date)}
+            onPress={() => router.push('/apartment/checkout')}
           />
           <HubTile
             emoji="📍"

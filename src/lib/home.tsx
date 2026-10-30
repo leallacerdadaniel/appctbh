@@ -44,7 +44,13 @@ type HomeResponse = {
   deposit?: { amount: number; currency: string; status: string; returned_date: string | null } | null;
 };
 
-export type Deposit = { amount: number; currency: 'BRL' | 'EUR'; returned: boolean; returnedDate: string | null };
+/** pending = the student has not paid it yet; held = paid, kept by Chez Toi; returned = given back. */
+export type Deposit = {
+  amount: number;
+  currency: 'BRL' | 'EUR';
+  status: 'pending' | 'held' | 'returned';
+  returnedDate: string | null;
+};
 
 export type Person = { firstName: string; fullName: string; initials: string };
 
@@ -121,7 +127,7 @@ function toHome(r: HomeResponse): Home {
       ? {
           amount: r.deposit.amount,
           currency: r.deposit.currency === 'EUR' ? 'EUR' : 'BRL',
-          returned: r.deposit.status === 'returned',
+          status: r.deposit.status === 'returned' ? 'returned' : r.deposit.status === 'pending' ? 'pending' : 'held',
           returnedDate: r.deposit.returned_date,
         }
       : null,

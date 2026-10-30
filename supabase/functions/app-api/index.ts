@@ -18,6 +18,9 @@
 //   /app-api/settlement-delete  { id }            (só quem lançou)
 //   Avaliação das faxinas (uma por aluno, editável até 7 dias depois da faxina):
 //   /app-api/cleaning-feedback  { cleaningId, rating (1–5), comment }
+//   Check-in e check-out (entrega e devolução do apartamento, cadastradas no site):
+//   /app-api/handovers           → { checkin, checkout } (data, quem recebeu/devolveu, se há PDF assinado)
+//   /app-api/handover-document   { kind: 'checkin' | 'checkout' } → { url } link temporário do PDF assinado
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -438,6 +441,82 @@ async function cleaningFeedback(req: Request, body: { cleaningId?: string; ratin
   return json({ ok: true });
 }
 
+// ---------- check-in / check-out ----------
+// Check-in: checkin_inspections (site), etapas "Apartamento entregue" (delivered_at, delivered_to_tenant_id)
+// e "Vistoria assinada" (signed_pdf_url, bucket checkin-documents). As etapas antes do aluno ficam de fora.
+// Check-out: checkout_handovers (a criar no site, mesmo formato): returned_at, returned_by_tenant_id,
+// signed_pdf_url. Enquanto a tabela não existir, o check-out aparece como "ainda não feito".
+// Com continuação (Chada e Jorge), o check-in é o do contrato principal e o check-out o do último contrato.
+type Handover = { date: string | null; by: string | null; byMe: boolean; hasDocument: boolean };
+const HANDOVER = {
+  checkin: { table: 'checkin_inspections', date: 'delivered_at', by: 'delivered_to_tenant_id' },
+  checkout: { table: 'checkout_handovers', date: 'returned_at', by: 'returned_by_tenant_id' },
+} as const;
+const HANDOVER_BUCKET = 'checkin-documents';
+
+/** Contrato que vale para cada momento: o primeiro para o check-in, o que termina por último para o check-out. */
+async function handoverRentals(cp: string) {
+  const { data: ids } = await db.rpc('app_rentals_for', { p_cp: cp });
+  if (!ids?.length) return null;
+  const { data: rentals } = await db.from('apartment_rentals').select('id, end_date').in('id', ids);
+  const last = [...(rentals ?? [])].sort((a, b) => String(b.end_date).localeCompare(String(a.end_date)))[0];
+  return { checkin: ids[0] as string, checkout: (last?.id as string) ?? (ids[0] as string) };
+}
+
+async function handoverRow(kind: keyof typeof HANDOVER, rentalId: string) {
+  const h = HANDOVER[kind];
+  const { data } = await db
+    .from(h.table)
+    .select(`${h.date}, ${h.by}, signed_pdf_url`)
+    .eq('rental_id', rentalId)
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  // tabela ainda não criada (check-out) ou sem registro: data é null
+  return data as Record<string, string | null> | null;
+}
+
+async function handovers(req: Request) {
+  const who = await readToken(req);
+  if (!who) return json({ error: 'unauthorized' }, 401);
+  const rentals = await handoverRentals(who.cp);
+  if (!rentals) return json({ error: 'noRental' }, 404);
+
+  const out: Record<string, Handover> = {};
+  for (const kind of ['checkin', 'checkout'] as const) {
+    const row = await handoverRow(kind, rentals[kind]);
+    const tenantId = row?.[HANDOVER[kind].by] ?? null;
+    let by: string | null = null;
+    let byMe = false;
+    if (tenantId) {
+      const { data: t } = await db.from('rental_tenants').select('counterparty_id').eq('id', tenantId).maybeSingle();
+      if (t) {
+        byMe = t.counterparty_id === who.cp;
+        const [{ data: c }, { data: s }] = await Promise.all([
+          db.from('finance_counterparties').select('name').eq('id', t.counterparty_id).maybeSingle(),
+          db.from('app_students').select('display_name').eq('counterparty_id', t.counterparty_id).maybeSingle(),
+        ]);
+        by = (s?.display_name ?? '').trim() || c?.name || null;
+      }
+    }
+    out[kind] = { date: row?.[HANDOVER[kind].date] ?? null, by, byMe, hasDocument: !!row?.signed_pdf_url };
+  }
+  return json(out);
+}
+
+async function handoverDocument(req: Request, body: { kind?: string }) {
+  const who = await readToken(req);
+  if (!who) return json({ error: 'unauthorized' }, 401);
+  if (body.kind !== 'checkin' && body.kind !== 'checkout') return json({ error: 'invalid' }, 400);
+  const rentals = await handoverRentals(who.cp);
+  if (!rentals) return json({ error: 'noRental' }, 404);
+  const row = await handoverRow(body.kind, rentals[body.kind]);
+  if (!row?.signed_pdf_url) return json({ error: 'notFound' }, 404);
+  const { data: signed, error } = await db.storage.from(HANDOVER_BUCKET).createSignedUrl(row.signed_pdf_url, 600);
+  if (error || !signed) return json({ error: 'server' }, 500);
+  return json({ url: signed.signedUrl });
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
   if (req.method !== 'POST') return json({ error: 'method' }, 405);
@@ -465,6 +544,10 @@ Deno.serve(async (req) => {
         return await deleteOwn(req, 'app_settlements', body.id);
       case 'cleaning-feedback':
         return await cleaningFeedback(req, body);
+      case 'handovers':
+        return await handovers(req);
+      case 'handover-document':
+        return await handoverDocument(req, body);
       default:
         return json({ error: 'notFound' }, 404);
     }
