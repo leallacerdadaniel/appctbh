@@ -3,6 +3,7 @@ import { createContext, useCallback, useContext, useEffect, useState, type React
 import { appApi, AppApiError } from '@/lib/app-api';
 import { useAuth } from '@/lib/auth';
 import type { CleaningVisit } from '@/lib/cleaning';
+import type { Localized } from '@/lib/mock-data';
 
 /**
  * The signed-in student's real data (apartment, contract, roommates, cleanings), loaded once from
@@ -28,7 +29,12 @@ type HomeResponse = {
     has_contract: boolean;
   };
   tenant: { move_in_date: string | null; move_out_date: string | null; rent: number | null } | null;
-  info: { unit_number?: string | null; wifi_name: string | null; wifi_password: string | null } | null;
+  info: {
+    unit_number?: string | null;
+    wifi_name: string | null;
+    wifi_password: string | null;
+    trash_info?: { fr?: string; en?: string; photos?: { url: string }[] } | null;
+  } | null;
   roommates: string[];
   cleanings: {
     id: string;
@@ -64,6 +70,8 @@ export type Home = {
     photoUrl: string | null;
     wifiName: string | null;
     wifiPassword: string | null;
+    /** Trash instructions from the admin; null when nothing was entered for this apartment. */
+    trash: { text: Localized; photos: string[] } | null;
   };
   contract: {
     semester: string;
@@ -88,6 +96,15 @@ export function person(name: string): Person {
   return { firstName: parts[0] ?? '', fullName: name.trim(), initials };
 }
 
+/** If only one language was filled in, it is shown in both. */
+function toTrash(raw: NonNullable<HomeResponse['info']>['trash_info']): Home['apartment']['trash'] {
+  const fr = raw?.fr?.trim() ?? '';
+  const en = raw?.en?.trim() ?? '';
+  const photos = (raw?.photos ?? []).map((p) => p.url).filter(Boolean);
+  if (!fr && !en && !photos.length) return null;
+  return { text: { fr: fr || en, en: en || fr }, photos };
+}
+
 function toHome(r: HomeResponse): Home {
   const location = r.apartment.location?.trim() ?? '';
   return {
@@ -101,6 +118,7 @@ function toHome(r: HomeResponse): Home {
       photoUrl: r.apartment.photo,
       wifiName: r.info?.wifi_name || null,
       wifiPassword: r.info?.wifi_password || null,
+      trash: toTrash(r.info?.trash_info),
     },
     contract: {
       semester: r.rental.semester,

@@ -9,6 +9,7 @@ import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { BirthdayGreeting } from '@/components/birthday-greeting';
 import { HomeGate } from '@/components/home-gate';
 import { ToastProvider } from '@/components/toast';
 import { useTheme } from '@/hooks/use-theme';
@@ -54,7 +55,7 @@ export default function RootLayout() {
 
 function RootStack() {
   const theme = useTheme();
-  const { ready, isSignedIn, mustChangePassword } = useAuth();
+  const { ready, isSignedIn, mustChangePassword, token } = useAuth();
   const { state } = useHomeState();
 
   if (!ready) return null;
@@ -100,6 +101,8 @@ function RootStack() {
           <Stack.Screen name="apartment/checkout" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="apartment/contract" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="apartment/roommates" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="apartment/rules" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="apartment/trash" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="expenses/index" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="expenses/[id]" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="expenses/edit" options={{ animation: 'slide_from_right' }} />
@@ -110,6 +113,7 @@ function RootStack() {
           <Stack.Screen name="profile" options={{ animation: 'slide_from_right' }} />
         </Stack.Protected>
       </Stack>
+      {isSignedIn && !mustChangePassword && <BirthdayGreeting key={token} />}
     </>
   );
 }

@@ -21,6 +21,8 @@
 //   Check-in e check-out (entrega e devolução do apartamento, cadastradas no site):
 //   /app-api/handovers           → { checkin, checkout } (data, quem recebeu/devolveu, se há PDF assinado)
 //   /app-api/handover-document   { kind: 'checkin' | 'checkout' } → { url } link temporário do PDF assinado
+//   Aniversário (a data de nascimento nunca sai do banco):
+//   /app-api/birthday            → { show } true uma única vez por ano, no dia do aniversário
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -135,6 +137,15 @@ async function home(req: Request) {
   await db.from('app_students').update({ last_seen_at: new Date().toISOString() }).eq('counterparty_id', who.cp);
   if (!data) return json({ error: 'noRental' }, 404);
   return json(data);
+}
+
+/** Confere e já marca: quem recebe show = true não recebe de novo no mesmo ano. */
+async function birthday(req: Request) {
+  const who = await readToken(req);
+  if (!who) return json({ error: 'unauthorized' }, 401);
+  const { data, error } = await db.rpc('app_claim_birthday', { p_cp: who.cp });
+  if (error) return json({ error: 'server' }, 500);
+  return json({ show: data === true });
 }
 
 async function changePassword(req: Request, body: { password?: string }) {
@@ -548,6 +559,8 @@ Deno.serve(async (req) => {
         return await handovers(req);
       case 'handover-document':
         return await handoverDocument(req, body);
+      case 'birthday':
+        return await birthday(req);
       default:
         return json({ error: 'notFound' }, 404);
     }

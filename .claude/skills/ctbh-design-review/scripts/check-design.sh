@@ -21,8 +21,8 @@ check() {
 # Icons go through src/components/icon.tsx only.
 check "Icon library imported outside icon.tsx" "from 'lucide-react-native'|from 'expo-symbols'" "src/components/icon.tsx"
 
-# Red only in its fixed places: brand bar, login band, list icons, primary button, chips, active tab, Home profile button.
-check "brand color outside its fixed places" "theme\.brand\b|Brand\.red" "src/components/(ui|list|brand-bar|floating-tab-bar).tsx|src/app/login.tsx|src/app/\(tabs\)/index.tsx|src/constants/theme.ts"
+# Red only in its fixed places: brand bar, login band, list icons, primary button, chips, active tab, Home profile button, birthday card.
+check "brand color outside its fixed places" "theme\.brand\b|Brand\.red" "src/components/(ui|list|brand-bar|floating-tab-bar|birthday-greeting).tsx|src/app/login.tsx|src/app/\(tabs\)/index.tsx|src/constants/theme.ts"
 check "brandSoft is retired" "brandSoft"
 
 # Screens appear whole: no staggered entrances.

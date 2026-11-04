@@ -79,6 +79,9 @@ export default function PaymentsScreen() {
                   <View style={[styles.divider, { backgroundColor: theme.line }]} />
                   {/* Short line always visible; the full rule only for whoever wants it. */}
                   <AppText variant="callout">{p.depositNote}</AppText>
+                  <AppText variant="callout" color={theme.textSecondary}>
+                    {p.depositCare}
+                  </AppText>
                   <PressableScale
                     accessibilityRole="button"
                     accessibilityState={{ expanded: stepsOpen }}

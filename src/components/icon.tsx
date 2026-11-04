@@ -76,6 +76,8 @@ const REGISTRY = {
   map: { ios: 'map', material: 'map', glyph: 0xe55b },
   medal: { ios: 'medal.fill', material: 'military_tech', glyph: 0xea3f },
   checkCircle: { ios: 'checkmark.circle', material: 'check_circle', glyph: 0xe86c },
+  warning: { ios: 'exclamationmark.triangle', material: 'warning', glyph: 0xe002 },
+  cake: { ios: 'birthday.cake', material: 'cake', glyph: 0xe7e9 },
 } as const satisfies Record<string, Entry>;
 
 export type IconName = keyof typeof REGISTRY;

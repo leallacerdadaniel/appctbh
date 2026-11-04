@@ -28,7 +28,7 @@ export default function ApartmentScreen() {
   const toast = useToast();
   const { t, lang } = useI18n();
   const [showWifi, setShowWifi] = useState(false);
-  const { apartment, contract, roommates, cleanings, payments, deposit } = useHome();
+  const { apartment, contract, cleanings, payments, deposit } = useHome();
   // Unpaid rent months + the deposit when the student has not paid it yet.
   const pendingRent = payments.filter((m) => !m.paid).length + (deposit?.status === 'pending' ? 1 : 0);
   const handovers = useHandovers();
@@ -125,6 +125,21 @@ export default function ApartmentScreen() {
 
       <Section title={t.apartment.info}>
         <HubGrid>
+          {/* Most useful first; check-in and check-out only matter at the start and end of the stay. */}
+          <HubTile
+            emoji="📋"
+            title={t.apartment.rules.title}
+            status={t.apartment.rules.tileStatus}
+            onPress={() => router.push('/apartment/rules')}
+          />
+          {apartment.trash && (
+            <HubTile
+              emoji="🗑️"
+              title={t.apartment.trash.title}
+              status={t.apartment.trash.tileStatus}
+              onPress={() => router.push('/apartment/trash')}
+            />
+          )}
           <HubTile
             emoji="🧹"
             title={t.apartment.cleaning.title}
@@ -132,16 +147,10 @@ export default function ApartmentScreen() {
             onPress={() => router.push('/apartment/cleaning')}
           />
           <HubTile
-            emoji="📄"
-            title={t.apartment.contract}
-            status={t.apartment.contractUntil(contract.semester, formatDate(contract.moveOut, lang))}
-            onPress={() => router.push('/apartment/contract')}
-          />
-          <HubTile
-            emoji="👥"
-            title={t.apartment.roommates}
-            status={roommates.map((r) => r.firstName).join(', ') || '—'}
-            onPress={() => router.push('/apartment/roommates')}
+            emoji="💳"
+            title={t.apartment.payments.title}
+            status={pendingRent ? t.apartment.payments.pending(pendingRent) : t.apartment.payments.upToDate}
+            onPress={() => router.push('/apartment/payments')}
           />
           <HubTile
             emoji="💸"
@@ -150,10 +159,16 @@ export default function ApartmentScreen() {
             onPress={() => router.push('/expenses')}
           />
           <HubTile
-            emoji="💳"
-            title={t.apartment.payments.title}
-            status={pendingRent ? t.apartment.payments.pending(pendingRent) : t.apartment.payments.upToDate}
-            onPress={() => router.push('/apartment/payments')}
+            emoji="📄"
+            title={t.apartment.contract}
+            status={t.apartment.contractUntil(contract.semester, formatDate(contract.moveOut, lang))}
+            onPress={() => router.push('/apartment/contract')}
+          />
+          <HubTile
+            emoji="📍"
+            title={t.apartment.neighborhood}
+            status={t.apartment.aroundHint}
+            onPress={() => router.push('/nearby')}
           />
           <HubTile
             emoji="🔑"
@@ -166,12 +181,6 @@ export default function ApartmentScreen() {
             title={t.apartment.handover.checkout.title}
             status={handoverStatus(handovers?.checkout.date)}
             onPress={() => router.push('/apartment/checkout')}
-          />
-          <HubTile
-            emoji="📍"
-            title={t.apartment.neighborhood}
-            status={t.apartment.aroundHint}
-            onPress={() => router.push('/nearby')}
           />
         </HubGrid>
       </Section>

@@ -31,6 +31,12 @@ const fr = {
     error: 'Impossible de charger vos informations.',
     retry: 'Réessayer',
   },
+  birthday: {
+    title: 'Joyeux anniversaire',
+    name: (name: string) => `${name} !`,
+    body: 'Toute l’équipe Chez Toi BH vous souhaite une très belle journée.',
+    close: 'Fermer',
+  },
   changePassword: {
     hello: (name: string) => `Bonjour ${name} !`,
     intro: 'C’est votre premier accès. Choisissez un mot de passe personnel pour continuer.',
@@ -153,6 +159,43 @@ const fr = {
       you: 'Vous',
       docPending: 'Document signé : bientôt disponible.',
     },
+    trash: {
+      title: 'Poubelles',
+      tileStatus: 'Consignes pour vos déchets',
+      subtitle: 'Les consignes pour votre logement.',
+      enlarge: 'Agrandir la photo',
+      close: 'Fermer',
+    },
+    rules: {
+      title: 'Règles',
+      tileStatus: 'Silence de 22h à 7h',
+      screenTitle: 'Règles de l’appartement',
+      subtitle: 'À lire attentivement et à respecter pendant votre séjour.',
+      quietTitle: 'Heures de silence',
+      quietHours: 'De 22h à 7h',
+      quietNote: 'Le respect des heures de silence est obligatoire. Les nuisances sonores peuvent entraîner une amende.',
+      forbiddenTitle: 'Ce qui est interdit',
+      forbiddenIntro: 'Les activités suivantes sont strictement interdites.',
+      forbidden: [
+        'Fêtes, événements ou réunions bruyantes (musique, cris, etc.) sans accord écrit préalable.',
+        'Mauvais usage de l’interphone, par exemple appeler d’autres appartements entre 22h et 7h.',
+        'Parler fort ou faire du bruit dans les parties communes (couloirs, hall, ascenseurs) entre 22h et 7h.',
+        'Mal jeter ses déchets. Respectez toujours les règles de tri de l’immeuble et de la ville.',
+        'Circuler dans les parties communes en vêtements mouillés ou sans tenue correcte (par exemple en sous-vêtements). C’est considéré comme choquant au Brésil.',
+        'Fumer à l’intérieur de l’appartement. Il n’est permis de fumer que dans les espaces extérieurs prévus à cet effet, s’il y en a.',
+      ],
+      toiletTitle: 'Toilettes',
+      toiletWarning:
+        'Ne jetez jamais de papier toilette, de cotons-tiges, de mouchoirs ni aucun autre objet dans les toilettes. Cela les bouchera et les réparations de plomberie pourront vous être facturées. Utilisez la poubelle de la salle de bain.',
+      toiletWhy:
+        'Au Brésil, la plomberie est différente de celle de nombreux pays. Le papier ou tout autre objet jeté dans les toilettes bouche les canalisations et peut causer de graves dégâts dans l’appartement.',
+      remindersTitle: 'Rappels',
+      reminders: [
+        'Fermez toujours la porte à clé en quittant l’appartement.',
+        'Respectez vos voisins et le personnel de l’immeuble (porteiros).',
+        'Signalez immédiatement tout problème de maintenance à votre contact Chez Toi BH.',
+      ],
+    },
     payments: {
       title: 'Paiements',
       subtitle: 'Loyer et caution.',
@@ -168,6 +211,8 @@ const fr = {
       returnedOn: (date: string) => `Restituée le ${date}`,
       returnedShort: 'Restituée',
       depositNote: 'Restituée à la fin du contrat.',
+      depositCare:
+        'Prenez soin de l’appartement et de ce qu’il contient. Les objets cassés, les taches sur les serviettes ou les draps et les autres dégâts peuvent être déduits de votre dépôt de garantie. Si quelque chose se casse ou s’abîme, prévenez-nous tout de suite : nous vous aiderons volontiers à trouver une solution.',
       howItWorks: 'Comment ça marche ?',
       steps: [
         'Le contrat se termine.',
@@ -675,6 +720,12 @@ const en: Strings = {
     error: 'We couldn’t load your information.',
     retry: 'Try again',
   },
+  birthday: {
+    title: 'Happy birthday',
+    name: (name: string) => `${name}!`,
+    body: 'The whole Chez Toi BH team wishes you a wonderful day.',
+    close: 'Close',
+  },
   changePassword: {
     hello: (name: string) => `Hi ${name}!`,
     intro: 'This is your first sign‑in. Choose a personal password to continue.',
@@ -797,6 +848,43 @@ const en: Strings = {
       you: 'You',
       docPending: 'Signed document: available soon.',
     },
+    trash: {
+      title: 'Trash',
+      tileStatus: 'How to handle your trash',
+      subtitle: 'The instructions for your apartment.',
+      enlarge: 'Enlarge photo',
+      close: 'Close',
+    },
+    rules: {
+      title: 'Rules',
+      tileStatus: 'Quiet hours 10 PM to 7 AM',
+      screenTitle: 'Apartment rules',
+      subtitle: 'Please read carefully and follow these rules during your stay.',
+      quietTitle: 'Quiet hours',
+      quietHours: '10 PM to 7 AM',
+      quietNote: 'Respecting quiet hours is mandatory. Noise violations may result in fines.',
+      forbiddenTitle: 'What is not allowed',
+      forbiddenIntro: 'The following activities are strictly prohibited.',
+      forbidden: [
+        'Parties, events or gatherings with loud noise (music, shouting, etc.) without prior written approval.',
+        'Improper use of the intercom, such as calling other apartments between 10 PM and 7 AM.',
+        'Loud talking or noises in common areas (hallways, lobby, elevators) between 10 PM and 7 AM.',
+        'Incorrect garbage disposal. Always follow the building’s and city’s waste separation regulations.',
+        'Walking in common areas with wet clothes or without proper clothing (e.g., only in underwear). This is considered offensive in Brazil.',
+        'Smoking inside the apartment. Smoking is only allowed in designated outdoor areas, if available.',
+      ],
+      toiletTitle: 'Toilet',
+      toiletWarning:
+        'Do not flush toilet paper, cotton swabs, tissues or any other items down the toilet. This will cause clogging and you may be charged for plumbing repairs. Use the trash bin in the bathroom.',
+      toiletWhy:
+        'In Brazil, the plumbing system is different from many countries. Flushing paper or other items will clog the pipes and may cause serious damage to the apartment.',
+      remindersTitle: 'Reminders',
+      reminders: [
+        'Always lock the door when leaving the apartment.',
+        'Be respectful to your neighbors and to building staff (porteiros).',
+        'Report any maintenance issues immediately to your Chez Toi BH contact.',
+      ],
+    },
     payments: {
       title: 'Payments',
       subtitle: 'Rent and security deposit.',
@@ -812,6 +900,8 @@ const en: Strings = {
       returnedOn: (date: string) => `Returned on ${date}`,
       returnedShort: 'Returned',
       depositNote: 'Returned at the end of the contract.',
+      depositCare:
+        'Please take good care of the apartment and its belongings. Broken items, stains on towels or bed linen, and other damages may be deducted from your security deposit. If something breaks or gets damaged, please let us know right away: we’re happy to help find a solution.',
       howItWorks: 'How does it work?',
       steps: [
         'The contract ends.',
