@@ -23,6 +23,8 @@
 //   /app-api/handover-document   { kind: 'checkin' | 'checkout' } → { url } link temporário do PDF assinado
 //   Aniversário (a data de nascimento nunca sai do banco):
 //   /app-api/birthday            → { show } true uma única vez por ano, no dia do aniversário
+//   Uso do app (aba "Uso" do admin); as buscas são gravadas sem identificar o aluno:
+//   /app-api/track               { events: [{ kind, name, item?, at }], searches?: [{ query, results, at }] }
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -146,6 +148,47 @@ async function birthday(req: Request) {
   const { data, error } = await db.rpc('app_claim_birthday', { p_cp: who.cp });
   if (error) return json({ error: 'server' }, 500);
   return json({ show: data === true });
+}
+
+/** Recebe um lote de uso. A data vem do aparelho; se vier estranha, vale a hora em que chegou. */
+async function track(req: Request, body: { events?: unknown; searches?: unknown }) {
+  const who = await readToken(req);
+  if (!who) return json({ error: 'unauthorized' }, 401);
+
+  const now = Date.now();
+  const when = (value: unknown) => {
+    const t = Date.parse(String(value));
+    return new Date(Number.isFinite(t) && t <= now && t >= now - 7 * 86_400_000 ? t : now).toISOString();
+  };
+  const text = (value: unknown) => (typeof value === 'string' ? value.trim().slice(0, 100) : '');
+  const list = (value: unknown) => (Array.isArray(value) ? (value.slice(0, 100) as Record<string, unknown>[]) : []);
+
+  const events = list(body.events)
+    .filter((e) => (e?.kind === 'screen' || e?.kind === 'action') && text(e.name))
+    .map((e) => ({
+      counterparty_id: who.cp,
+      kind: e.kind,
+      name: text(e.name),
+      item: text(e.item) || null,
+      occurred_at: when(e.at),
+    }));
+  const searches = list(body.searches)
+    .filter((s) => text(s?.query).length >= 2)
+    .map((s) => ({
+      query: text(s.query).toLowerCase(),
+      results: Math.max(0, Math.floor(Number(s.results) || 0)),
+      occurred_at: when(s.at),
+    }));
+
+  if (events.length > 0) {
+    const { error } = await db.from('app_events').insert(events);
+    if (error) return json({ error: 'server' }, 500);
+  }
+  if (searches.length > 0) {
+    const { error } = await db.from('app_searches').insert(searches);
+    if (error) return json({ error: 'server' }, 500);
+  }
+  return json({ ok: true });
 }
 
 async function changePassword(req: Request, body: { password?: string }) {
@@ -561,6 +604,8 @@ Deno.serve(async (req) => {
         return await handoverDocument(req, body);
       case 'birthday':
         return await birthday(req);
+      case 'track':
+        return await track(req, body);
       default:
         return json({ error: 'notFound' }, 404);
     }

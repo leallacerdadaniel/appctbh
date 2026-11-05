@@ -18,10 +18,11 @@ import { formatDate, formatTime } from '@/lib/format';
 import { useBalanceLabel } from '@/lib/expenses';
 import { useHandovers } from '@/lib/handovers';
 import { useHome } from '@/lib/home';
+import { trackAction } from '@/lib/usage';
 
 /**
  * "Mon appart" hub: photo, address, Wi‑Fi (used daily), then tiles to the sub-pages
- * (cleaning, contract, roommates, around). Each tile shows a live status line.
+ * (rules, cleaning, payments, contract, around). Each tile shows a live status line.
  */
 export default function ApartmentScreen() {
   const theme = useTheme();
@@ -114,7 +115,10 @@ export default function ApartmentScreen() {
                 <IconButton
                   icon="copy"
                   label={t.apartment.copyPassword}
-                  onPress={() => copy(apartment.wifiPassword ?? '', t.apartment.passwordCopied)}
+                  onPress={() => {
+                    trackAction('copy_wifi');
+                    copy(apartment.wifiPassword ?? '', t.apartment.passwordCopied);
+                  }}
                 />
               </View>
               )

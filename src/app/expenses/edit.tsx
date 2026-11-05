@@ -22,6 +22,7 @@ import {
   type ExpensesData,
 } from '@/lib/expenses';
 import { formatCents, formatShortDate } from '@/lib/format';
+import { trackAction } from '@/lib/usage';
 
 /** New expense, or edit one (?id=) that the student added. */
 export default function ExpenseFormScreen() {
@@ -119,6 +120,7 @@ function Form({ data, id }: { data: ExpensesData; id?: string }) {
         splitMode: mode,
         shares,
       });
+      if (!id) trackAction('expense_added');
       toast(t.expenses.saved);
       router.back();
     } catch {

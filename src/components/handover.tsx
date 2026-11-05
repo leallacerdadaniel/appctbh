@@ -47,7 +47,7 @@ export function HandoverScreen({ kind }: { kind: HandoverKind }) {
               {k.docNote}
             </AppText>
             {doc ? (
-              <DocumentCard doc={doc} />
+              <DocumentCard doc={doc} usageItem={kind} />
             ) : (
               !data.hasDocument && (
                 <AppText variant="callout" color={theme.textSecondary}>

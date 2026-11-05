@@ -11,6 +11,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { toIso } from '@/lib/events';
 import { centsToInput, parseCents, useExpenseAction, useExpenses, type Currency } from '@/lib/expenses';
+import { trackAction } from '@/lib/usage';
 
 /**
  * Records "A paid B" (the Pix happens outside the app). Prefilled from a roommate's balance.
@@ -56,6 +57,7 @@ export default function SettleScreen() {
     setSaving(true);
     try {
       await act('settlement-save', { from, to, amountCents: cents, currency, paidOn: toIso(new Date()) });
+      trackAction('settlement_added');
       toast(t.expenses.saved);
       router.back();
     } catch {

@@ -1,5 +1,5 @@
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { useCallback, useMemo, useRef, useState, type ComponentRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import { Linking, StyleSheet, TextInput, View } from 'react-native';
 import Animated, { FadeIn, LinearTransition } from 'react-native-reanimated';
 
@@ -21,11 +21,14 @@ import { nightPlaces } from '@/lib/nightlife';
 import { services } from '@/lib/services';
 import { sportPlaces } from '@/lib/sports';
 import { displayName, restaurants } from '@/lib/restaurants';
+import { trackAction, trackSearch } from '@/lib/usage';
 
 /**
  * "Guide": everything for living in BH — eating (restaurants, dishes), going out at night, sport, everyday needs
  * (nearby places, emergencies) and the practical info. Exploring and travel live in Explorer.
  */
+const SEARCH_SETTLE_MS = 1500;
+
 export default function GuideScreen() {
   const theme = useTheme();
   const { t, lang } = useI18n();
@@ -68,6 +71,14 @@ export default function GuideScreen() {
       ),
     };
   }, [q, lang, t]);
+
+  // Counts once the student stops typing, so "res", "rest", "resta" don't become three searches.
+  useEffect(() => {
+    if (!results) return;
+    const found = Object.values(results).reduce((total, list) => total + list.length, 0);
+    const timer = setTimeout(() => trackSearch(q, found), SEARCH_SETTLE_MS);
+    return () => clearTimeout(timer);
+  }, [q, results]);
 
   const empty =
     results &&
@@ -319,7 +330,10 @@ export default function GuideScreen() {
           <Button
             label={t.guide.askWhatsapp}
             icon={<Icon name="whatsapp" size={17} color={theme.onBrand} />}
-            onPress={() => Linking.openURL(`https://wa.me/${contacts.whatsapp}`)}
+            onPress={() => {
+              trackAction('open_whatsapp', 'guide');
+              Linking.openURL(`https://wa.me/${contacts.whatsapp}`);
+            }}
           />
         </Card>
       )}

@@ -8,9 +8,10 @@ import { Fonts, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { downloadDocument, openDocument, type AppDocument } from '@/lib/documents';
+import { trackAction } from '@/lib/usage';
 
-/** A PDF the student can open or download (contract today; inspection reports later). */
-export function DocumentCard({ doc }: { doc: AppDocument }) {
+/** A PDF the student can open or download (contract and signed inspection reports). */
+export function DocumentCard({ doc, usageItem }: { doc: AppDocument; usageItem: 'contract' | 'checkin' | 'checkout' }) {
   const theme = useTheme();
   const toast = useToast();
   const { t } = useI18n();
@@ -20,6 +21,7 @@ export function DocumentCard({ doc }: { doc: AppDocument }) {
   async function run(action: 'open' | 'download') {
     setBusy(action);
     setFailed(false);
+    trackAction('open_document', usageItem);
     try {
       if (action === 'open') await openDocument(doc);
       else {

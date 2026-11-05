@@ -109,26 +109,6 @@ export const guide: GuideItem[] = [
     keywords: ['internet', 'wifi', 'réseau', 'network', 'box', 'router'],
   },
   {
-    id: 'trash',
-    title: { fr: 'Poubelles', en: 'Trash' },
-    category: { fr: 'Appartement', en: 'Apartment' },
-    body: {
-      fr: 'Déposez les sacs au local poubelles du rez‑de‑chaussée. Le recyclage passe le mardi et le vendredi.',
-      en: 'Leave bags in the trash room on the ground floor. Recycling is collected on Tuesdays and Fridays.',
-    },
-    keywords: ['lixo', 'déchets', 'recyclage', 'recycling', 'garbage', 'poubelle'],
-  },
-  {
-    id: 'cleaning',
-    title: { fr: 'Ménage', en: 'Cleaning' },
-    category: { fr: 'Services', en: 'Services' },
-    body: {
-      fr: 'Le ménage des espaces communs est inclus une fois par semaine. Laissez le sol dégagé le jour du passage.',
-      en: 'Cleaning of shared areas is included once a week. Keep the floor clear on cleaning day.',
-    },
-    keywords: ['limpeza', 'faxina', 'nettoyage', 'housekeeping'],
-  },
-  {
     id: 'payment',
     title: { fr: 'Paiement du loyer', en: 'Paying rent' },
     category: { fr: 'Paiements', en: 'Payments' },

@@ -13,6 +13,7 @@ import { appApi, AppApiError } from '@/lib/app-api';
 import { useAuth } from '@/lib/auth';
 import { canRate, formatLongDate } from '@/lib/cleaning';
 import { useHome, useHomeState } from '@/lib/home';
+import { trackAction } from '@/lib/usage';
 
 /** Rating (1–5) + optional comment for one done cleaning, open for 7 days. One per student. */
 export default function CleaningFeedbackScreen() {
@@ -38,6 +39,7 @@ export default function CleaningFeedbackScreen() {
     setSaving(true);
     try {
       await appApi('cleaning-feedback', { token, body: { cleaningId: id, rating, comment: comment.trim() } });
+      trackAction('cleaning_rated');
       refresh();
       toast(c.saved);
       router.back();

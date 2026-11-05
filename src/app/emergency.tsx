@@ -8,6 +8,7 @@ import { Card } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { contacts } from '@/lib/mock-data';
+import { trackAction } from '@/lib/usage';
 
 /** Brazil's public emergency numbers, free from any phone. */
 const NUMBERS = [
@@ -62,7 +63,10 @@ export default function EmergencyScreen() {
               icon="whatsapp"
               title={t.emergency.writeUs}
               subtitle="WhatsApp"
-              onPress={() => Linking.openURL(`https://wa.me/${contacts.whatsapp}`)}
+              onPress={() => {
+                trackAction('open_whatsapp', 'emergency');
+                Linking.openURL(`https://wa.me/${contacts.whatsapp}`);
+              }}
             />
           </ListGroup>
         </Card>

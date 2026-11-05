@@ -21,6 +21,7 @@ import { useHome } from '@/lib/home';
 import { upcomingEvents } from '@/lib/home-feed';
 import { contacts } from '@/lib/mock-data';
 import type { NearbyCategoryId } from '@/lib/nearby';
+import { trackAction } from '@/lib/usage';
 
 /** Everyday categories shown as circles; they open "À proximité" on that category. */
 const CATEGORIES: { id: NearbyCategoryId; emoji: string }[] = [
@@ -56,6 +57,7 @@ export default function HomeScreen() {
   async function copyWifi() {
     if (!apartment.wifiPassword) return toast(t.common.soon);
     await Clipboard.setStringAsync(apartment.wifiPassword);
+    trackAction('copy_wifi');
     toast(t.home.wifiCopied);
   }
 
@@ -159,7 +161,10 @@ export default function HomeScreen() {
               icon="whatsapp"
               title={t.home.writeUs}
               subtitle="WhatsApp"
-              onPress={() => Linking.openURL(`https://wa.me/${contacts.whatsapp}`)}
+              onPress={() => {
+                trackAction('open_whatsapp', 'home');
+                Linking.openURL(`https://wa.me/${contacts.whatsapp}`);
+              }}
             />
             <ListRow
               icon="rent"

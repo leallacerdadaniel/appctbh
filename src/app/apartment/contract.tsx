@@ -42,7 +42,7 @@ export default function ContractScreen() {
           )}
         </ListGroup>
       </Card>
-      {doc && <DocumentCard doc={doc} />}
+      {doc && <DocumentCard doc={doc} usageItem="contract" />}
     </Screen>
   );
 }

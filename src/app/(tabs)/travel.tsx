@@ -16,6 +16,7 @@ import { ATTRACTION_GROUPS, attractions, getAttraction, type Attraction } from '
 import { festivals, getFestival, type FestivalItem } from '@/lib/festivals';
 import { MUST_GO } from '@/lib/must-go';
 import { WALK_LIMIT_MIN } from '@/lib/nearby';
+import { trackAction } from '@/lib/usage';
 import {
   destinations,
   getDestination,
@@ -40,7 +41,10 @@ export default function ExploreScreen() {
       <SegmentedControl
         options={SEGMENTS.map((x) => ({ value: x, label: t.explore.segments[x] }))}
         value={segment}
-        onChange={setSegment}
+        onChange={(next) => {
+          trackAction('explorer_tab', next);
+          setSegment(next);
+        }}
       />
       {segment === 'bh' ? <BhAttractions /> : segment === 'events' ? <Events /> : <Trips region={segment} />}
     </Screen>
