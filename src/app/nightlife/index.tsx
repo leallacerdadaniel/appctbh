@@ -9,6 +9,7 @@ import { Fonts, Radius, Shadow, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { WALK_LIMIT_MIN } from '@/lib/nearby';
+import { useTimes } from '@/lib/places';
 import { NIGHT_KINDS, nightPlaces, type NightPlace } from '@/lib/nightlife';
 
 /** "Sortir le soir": bars and clubs, with the reminder that many BH parties are one-offs. */
@@ -56,7 +57,8 @@ export default function NightlifeScreen() {
 }
 
 /** Same row as the restaurants: square photo, name, vibe, area • distance, when to go. */
-function NightRow({ place: p }: { place: NightPlace }) {
+function NightRow({ place: raw }: { place: NightPlace }) {
+  const p = useTimes(raw);
   const theme = useTheme();
   const { t, lang } = useI18n();
   const far = p.walkMin != null && p.walkMin > WALK_LIMIT_MIN;

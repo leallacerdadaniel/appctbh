@@ -19,6 +19,17 @@ export function formatShortDate(iso: string, lang: Lang) {
   });
 }
 
+/** Sun, Nov 15 (en) · dim. 15 nov. (fr). `year`: add the year when it isn't this one. */
+export function formatDayDate(iso: string, lang: Lang, year = false) {
+  const [y, m, d] = iso.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-US', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    year: year && y !== new Date().getFullYear() ? 'numeric' : undefined,
+  });
+}
+
 /** Brazilian reais with the reader's grouping: R$ 2 400 (fr) · R$2,400 (en) */
 export function formatBrl(value: number, lang: Lang) {
   const n = value.toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-US');

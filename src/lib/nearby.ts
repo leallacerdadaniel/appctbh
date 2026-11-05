@@ -1,10 +1,8 @@
 import type { Lang } from '@/i18n';
-import demoNearby from '@/data/nearby-demo.json';
 
 /**
- * Places around the student's apartment, precomputed by `scripts/nearby.py`
- * (Google Geocoding + Places + Distance Matrix) so the Google key never ships in the app.
- * Later: one row per apartment in Supabase, read for the signed-in student's apartment.
+ * Places around the student's apartment, precomputed per apartment by `scripts/apartment_places.py`
+ * (Google Places + Distance Matrix) so the Google key never ships in the app. See `lib/places.tsx`.
  */
 
 export type NearbyCategoryId =
@@ -35,16 +33,14 @@ export type NearbyData = {
   categories: { id: NearbyCategoryId; places: NearbyPlace[] }[];
 };
 
-export const demoNearbyData = demoNearby as NearbyData;
-
 /** Over this, walking is not realistic and the car time is shown too (same rule as location-info). */
 export const WALK_LIMIT_MIN = 20;
 
 /** Walking directions from the apartment, in the Google Maps app when installed. */
-export function directionsUrl(origin: NearbyData['origin'], place: NearbyPlace) {
+export function directionsUrl(origin: string, place: NearbyPlace) {
   const params = new URLSearchParams({
     api: '1',
-    origin: `${origin.lat},${origin.lng}`,
+    origin,
     destination: place.placeId ? place.name : `${place.name}, ${place.address}`,
     // Hospitals and most malls are a drive away: walking directions would be useless there.
     travelmode: place.walkMin != null && place.walkMin > WALK_LIMIT_MIN ? 'driving' : 'walking',

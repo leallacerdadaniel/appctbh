@@ -13,9 +13,8 @@ import { Fonts, Radius, Shadow, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { getAttraction } from '@/lib/attractions';
-import { formatLongDate } from '@/lib/cleaning';
 import type { EventKind } from '@/lib/events';
-import { formatTime } from '@/lib/format';
+import { formatDayDate, formatTime } from '@/lib/format';
 import { useBalanceLabel } from '@/lib/expenses';
 import { useHome } from '@/lib/home';
 import { upcomingEvents } from '@/lib/home-feed';
@@ -49,10 +48,10 @@ export default function HomeScreen() {
   const theme = useTheme();
   const toast = useToast();
   const { t, lang } = useI18n();
-  const { student, apartment, contract, cleanings } = useHome();
+  const { student, apartment, contract, cleanings, roommates } = useHome();
   const balance = useBalanceLabel();
   const colon = lang === 'fr' ? ' : ' : ': ';
-  const upcoming = upcomingEvents({ cleanings, moveIn: contract.moveIn, moveOut: contract.moveOut });
+  const upcoming = upcomingEvents({ cleanings, ...contract });
 
   async function copyWifi() {
     if (!apartment.wifiPassword) return toast(t.common.soon);
@@ -108,8 +107,8 @@ export default function HomeScreen() {
                   icon={EVENT_ICON[e.kind]}
                   title={e.title[lang]}
                   subtitle={[
-                    capitalize(formatLongDate(e.date, lang)) +
-                      (e.endDate ? ` → ${formatLongDate(e.endDate, lang)}` : ''),
+                    capitalize(formatDayDate(e.date, lang)) +
+                      (e.endDate ? ` → ${formatDayDate(e.endDate, lang)}` : ''),
                     e.time && formatTime(e.time, lang),
                     e.kind !== 'cleaning' && e.kind !== 'contract' && t.calendar.kinds[e.kind],
                   ]
@@ -166,12 +165,15 @@ export default function HomeScreen() {
                 Linking.openURL(`https://wa.me/${contacts.whatsapp}`);
               }}
             />
-            <ListRow
-              icon="rent"
-              title={t.expenses.homeRow}
-              subtitle={balance || t.expenses.subtitle}
-              onPress={() => router.push('/expenses')}
-            />
+            {/* Nobody to split with when the student lives alone. */}
+            {roommates.length > 0 && (
+              <ListRow
+                icon="rent"
+                title={t.expenses.homeRow}
+                subtitle={balance || t.expenses.subtitle}
+                onPress={() => router.push('/expenses')}
+              />
+            )}
             <ListRow
               icon="emergency"
               title={t.home.emergency}

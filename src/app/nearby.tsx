@@ -8,19 +8,17 @@ import { ListGroup, ListRow } from '@/components/list';
 import { Screen, Section } from '@/components/screen';
 import { useToast } from '@/components/toast';
 import { AppText, Card, Chip, PressableScale } from '@/components/ui';
-import { Spacing, TapTarget } from '@/constants/theme';
+import { Fonts, Spacing, TapTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { useHome } from '@/lib/home';
 import {
-  demoNearbyData,
   directionsUrl,
-  formatDistance,
-  formatRating,
   WALK_LIMIT_MIN,
   type NearbyCategoryId,
   type NearbyPlace,
 } from '@/lib/nearby';
+import { useFromHome, usePlaces } from '@/lib/places';
 
 const CATEGORY_ICONS: Record<NearbyCategoryId, IconName> = {
   supermarket: 'supermarket',
@@ -34,6 +32,7 @@ const CATEGORY_ICONS: Record<NearbyCategoryId, IconName> = {
 
 // Official campus address (skema.edu, checked 2026-10-19).
 const SKEMA_ADDRESS = 'Av. do Contorno, 5456 – Savassi, Belo Horizonte – MG, 30110-036';
+const SKEMA_SHORT = 'Av. do Contorno, 5456 – Savassi';
 
 const mapsUrl = (query: string) => `https://maps.google.com/?q=${encodeURIComponent(query)}`;
 
@@ -41,12 +40,13 @@ const mapsUrl = (query: string) => `https://maps.google.com/?q=${encodeURICompon
 export default function NearbyScreen() {
   const theme = useTheme();
   const toast = useToast();
-  const { t, lang } = useI18n();
+  const { t } = useI18n();
   const { category } = useLocalSearchParams<{ category?: NearbyCategoryId }>();
   const [selected, setSelected] = useState<NearbyCategoryId | null>(category ?? null);
 
-  const data = demoNearbyData;
-  const categories = data.categories.filter((c) => c.places.length > 0);
+  const data = usePlaces()?.nearby;
+  const skemaTime = useFromHome(data?.skema);
+  const categories = (data?.categories ?? []).filter((c) => c.places.length > 0);
   const visible = selected ? categories.filter((c) => c.id === selected) : categories;
 
   // Same address the "Mon appart" tab copies.
@@ -79,42 +79,35 @@ export default function NearbyScreen() {
           <ListRow
             icon="school"
             title={t.nearby.skema}
-            subtitle={[
-              SKEMA_ADDRESS,
-              [
-                data.skema.distanceM != null ? formatDistance(data.skema.distanceM, lang) : null,
-                // Same rule as the places below: past the walking limit, show the car time.
-                data.skema.walkMin == null
-                  ? null
-                  : data.skema.walkMin > WALK_LIMIT_MIN && data.skema.driveMin != null
-                    ? t.nearby.drive(data.skema.driveMin)
-                    : t.nearby.walk(data.skema.walkMin),
-              ]
-                .filter(Boolean)
-                .join(' · '),
-            ]
-              .filter(Boolean)
-              .join('\n')}
+            subtitle={[SKEMA_SHORT, skemaTime].filter(Boolean).join('\n')}
             accessory={addressActions(SKEMA_ADDRESS, SKEMA_ADDRESS)}
           />
         </ListGroup>
       </Card>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.bleed}
-        contentContainerStyle={styles.chips}>
-        <Chip label={t.nearby.all} selected={selected === null} onPress={() => setSelected(null)} />
-        {categories.map((c) => (
-          <Chip
-            key={c.id}
-            label={t.nearby.categories[c.id]}
-            selected={selected === c.id}
-            onPress={() => setSelected(selected === c.id ? null : c.id)}
-          />
-        ))}
-      </ScrollView>
+      {!data && (
+        <AppText variant="caption" color={theme.textSecondary} style={{ textAlign: 'center' }}>
+          {t.nearby.preparing}
+        </AppText>
+      )}
+
+      {data && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.bleed}
+          contentContainerStyle={styles.chips}>
+          <Chip label={t.nearby.all} selected={selected === null} onPress={() => setSelected(null)} />
+          {categories.map((c) => (
+            <Chip
+              key={c.id}
+              label={t.nearby.categories[c.id]}
+              selected={selected === c.id}
+              onPress={() => setSelected(selected === c.id ? null : c.id)}
+            />
+          ))}
+        </ScrollView>
+      )}
 
       {visible.map((c) => (
         <Section key={c.id} title={t.nearby.categories[c.id]}>
@@ -145,28 +138,37 @@ export default function NearbyScreen() {
 
 function PlaceRow({ place, icon }: { place: NearbyPlace; icon: IconName }) {
   const theme = useTheme();
-  const { t, lang } = useI18n();
+  const { t } = useI18n();
+  const { apartment } = useHome();
   const far = place.walkMin != null && place.walkMin > WALK_LIMIT_MIN;
-  const details = [
+  const time =
     place.walkMin == null
       ? null
       : far && place.driveMin != null
         ? t.nearby.drive(place.driveMin)
-        : t.nearby.walk(place.walkMin),
-    place.distanceM != null ? formatDistance(place.distanceM, lang) : null,
-    place.rating != null ? `★ ${formatRating(place.rating, place.ratingCount, lang)}` : null,
-  ]
-    .filter(Boolean)
-    .join(' · ');
+        : t.nearby.walk(place.walkMin);
 
   return (
     <ListRow
       icon={icon}
       title={place.name}
-      subtitle={`${details}\n${place.address}`}
+      subtitle={place.address.replace(/, Belo Horizonte.*$/, '')}
       accessibilityLabel={`${place.name}, ${t.nearby.directions}`}
-      onPress={() => Linking.openURL(directionsUrl(demoNearbyData.origin, place))}
-      accessory={<Icon name="directions" size={16} color={theme.textTertiary} />}
+      onPress={() => Linking.openURL(directionsUrl(apartment.mapsQuery, place))}
+      accessory={
+        <View style={styles.time}>
+          {!!time && (
+            <AppText variant="caption" style={{ fontFamily: Fonts.bodyMedium }}>
+              {time}
+            </AppText>
+          )}
+          {place.rating != null && (
+            <AppText variant="caption" color={theme.textSecondary}>
+              ★ {place.rating.toFixed(1)}
+            </AppText>
+          )}
+        </View>
+      }
     />
   );
 }
@@ -187,6 +189,7 @@ function IconButton({ icon, label, onPress }: { icon: IconName; label: string; o
 const styles = StyleSheet.create({
   listCard: { paddingVertical: 0 },
   inline: { flexDirection: 'row' },
+  time: { alignItems: 'flex-end', gap: 2 },
   notice: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.md },
   iconButton: {
     width: TapTarget,

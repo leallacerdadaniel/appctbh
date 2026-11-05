@@ -11,7 +11,7 @@ import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n, type Lang } from '@/i18n';
 import { buildEvents, parseIso, toIso, type CalendarEvent, type EventKind } from '@/lib/events';
-import { formatTime } from '@/lib/format';
+import { formatDayDate, formatTime } from '@/lib/format';
 import { useHome } from '@/lib/home';
 
 const UPCOMING_COUNT = 6;
@@ -31,8 +31,8 @@ export default function CalendarScreen() {
   // Current year and the next one cover any running semester.
   const year = today.getFullYear();
   const allEvents = useMemo(
-    () => buildEvents([year, year + 1], { cleanings, moveIn: contract.moveIn, moveOut: contract.moveOut }),
-    [year, cleanings, contract.moveIn, contract.moveOut],
+    () => buildEvents([year, year + 1], { cleanings, ...contract }),
+    [year, cleanings, contract],
   );
   const events = useMemo(() => allEvents.filter((e) => !hidden.has(e.kind)), [allEvents, hidden]);
 
@@ -205,9 +205,9 @@ function EventList({
       {events.map((event, i) => {
         const color = eventColor(theme, event.kind);
         const details = [
-          event.ptName && event.ptName !== event.title[lang] ? event.ptName : null,
-          capitalize(longDate(event.date, lang)),
+          capitalize(formatDayDate(event.date, lang, true)),
           event.time ? formatTime(event.time, lang) : null,
+          event.ptName && event.ptName !== event.title[lang] ? event.ptName : null,
         ]
           .filter(Boolean)
           .join(' · ');

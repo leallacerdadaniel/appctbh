@@ -13,7 +13,8 @@ import { AppText, Button, Card, PressableScale } from '@/components/ui';
 import { Radius, Spacing, TapTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
-import { formatDistance, formatRating } from '@/lib/nearby';
+import { formatRating } from '@/lib/nearby';
+import { useFromHome, useTimes } from '@/lib/places';
 import { displayName, getRestaurant, mapsUrl } from '@/lib/restaurants';
 
 export default function RestaurantScreen() {
@@ -21,20 +22,11 @@ export default function RestaurantScreen() {
   const toast = useToast();
   const { t, lang } = useI18n();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const r = getRestaurant(id);
+  const r = useTimes(getRestaurant(id));
+  const fromHome = useFromHome(r);
 
   if (!r) return <Redirect href="/restaurants" />;
 
-  const fromHome =
-    r.walkMin == null
-      ? null
-      : [
-          r.distanceM != null ? formatDistance(r.distanceM, lang) : null,
-          t.restaurants.walk(r.walkMin),
-          r.driveMin != null ? t.restaurants.drive(r.driveMin) : null,
-        ]
-          .filter(Boolean)
-          .join(' · ');
 
   return (
     <Screen back title={displayName(r)} subtitle={`${r.cuisine[lang]} · ${r.neighborhood}`}>

@@ -17,6 +17,7 @@ import { LanguageProvider } from '@/i18n';
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { ExpensesProvider } from '@/lib/expenses';
 import { HomeProvider, useHomeState } from '@/lib/home';
+import { PlacesProvider } from '@/lib/places';
 import { UsageTracker } from '@/lib/usage';
 
 SplashScreen.preventAutoHideAsync();
@@ -42,9 +43,11 @@ export default function RootLayout() {
           <AuthProvider>
             <HomeProvider>
               <ExpensesProvider>
-                <ToastProvider>
-                  <RootStack />
-                </ToastProvider>
+                <PlacesProvider>
+                  <ToastProvider>
+                    <RootStack />
+                  </ToastProvider>
+                </PlacesProvider>
               </ExpensesProvider>
             </HomeProvider>
           </AuthProvider>

@@ -11,28 +11,18 @@ import { AppText, Button, Card } from '@/components/ui';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
-import { formatDistance } from '@/lib/nearby';
+import { useFromHome, useTimes } from '@/lib/places';
 import { getSportPlace, sportMapsUrl } from '@/lib/sports';
 
 export default function SportPlaceScreen() {
   const theme = useTheme();
   const { t, lang } = useI18n();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const p = getSportPlace(id);
+  const p = useTimes(getSportPlace(id));
+  const fromHome = useFromHome(p);
 
   if (!p) return <Redirect href="/sports" />;
 
-  const fromHome =
-    p.walkMin == null
-      ? null
-      : [
-          p.distanceM != null ? formatDistance(p.distanceM, lang) : null,
-          // Out-of-town places (wakeboard) would show "574 min walk".
-          p.walkMin <= 60 ? t.restaurants.walk(p.walkMin) : null,
-          p.driveMin != null ? t.restaurants.drive(p.driveMin) : null,
-        ]
-          .filter(Boolean)
-          .join(' · ');
 
   return (
     <Screen back title={p.name} subtitle={`${p.kind[lang]} · ${p.neighborhood}`}>

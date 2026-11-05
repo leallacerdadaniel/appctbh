@@ -12,6 +12,7 @@ import { Fonts, Radius, Shadow, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { WALK_LIMIT_MIN } from '@/lib/nearby';
+import { useTimes } from '@/lib/places';
 import { usePlacePhoto } from '@/lib/place-photo';
 import { displayName, restaurants, type Restaurant, type Tier } from '@/lib/restaurants';
 
@@ -67,7 +68,8 @@ export default function RestaurantsScreen() {
 }
 
 /** DUO-style row: square photo with the rating on it, then name, cuisine • price, area • distance. */
-function RestaurantRow({ restaurant: r }: { restaurant: Restaurant }) {
+function RestaurantRow({ restaurant: raw }: { restaurant: Restaurant }) {
+  const r = useTimes(raw);
   const theme = useTheme();
   const { t, lang } = useI18n();
   const photo = usePlacePhoto(r.placeId, 300);

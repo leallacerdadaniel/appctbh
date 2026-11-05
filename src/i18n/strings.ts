@@ -132,7 +132,8 @@ const fr = {
     nextCleaning: (when: string) => `Prochain : ${when}`,
     roommateLabel: 'Colocataire',
     neighborhood: 'Le quartier',
-    contractHint: 'Votre contrat et ses dates',
+    contractHint: 'Votre contrat signé',
+    contractSoon: 'Votre contrat signé sera bientôt disponible ici.',
     handover: {
       checkin: {
         title: 'Check-in',
@@ -232,6 +233,7 @@ const fr = {
       statusDone: 'Réalisé',
       empty: 'Aucun ménage pour l’instant.',
       suppliesTitle: 'Produits à avoir',
+      suppliesProduct: 'Produit',
       suppliesIntro:
         'La professionnelle n’apporte aucun produit. S’ils manquent, elle ne pourra pas faire le ménage. Ayez toujours à la maison :',
       inPortuguese: 'En portugais',
@@ -266,6 +268,7 @@ const fr = {
     directions: 'Itinéraire',
     back: 'Retour',
     hint: 'Touchez un lieu pour l’itinéraire dans Google Maps.',
+    preparing: 'Les lieux autour de votre appartement seront bientôt disponibles.',
     hospitalNotice:
       'Les hôpitaux privés de référence de BH. Avant d’y aller, vérifiez auprès de votre assurance santé que l’hôpital est couvert. En cas d’urgence vitale, appelez le 192 (SAMU).',
     restaurantsLink: 'Restaurants : voir notre sélection',
@@ -819,7 +822,8 @@ const en: Strings = {
     nextCleaning: (when: string) => `Next: ${when}`,
     roommateLabel: 'Roommate',
     neighborhood: 'Neighbourhood',
-    contractHint: 'Your contract and its dates',
+    contractHint: 'Your signed contract',
+    contractSoon: 'Your signed contract will be available here soon.',
     handover: {
       checkin: {
         title: 'Check-in',
@@ -919,6 +923,7 @@ const en: Strings = {
       statusDone: 'Done',
       empty: 'No cleaning yet.',
       suppliesTitle: 'Supplies to have',
+      suppliesProduct: 'Product',
       suppliesIntro:
         'She does not bring any cleaning products. If the supplies are not available, she will not be able to clean. Please always have:',
       inPortuguese: 'In Portuguese',
@@ -953,6 +958,7 @@ const en: Strings = {
     directions: 'Directions',
     back: 'Back',
     hint: 'Tap a place for directions in Google Maps.',
+    preparing: 'Places around your apartment will be available soon.',
     hospitalNotice:
       'BH’s leading private hospitals. Before going, check with your health insurance that the hospital is covered. In a life-threatening emergency, call 192 (SAMU).',
     restaurantsLink: 'Restaurants: see our picks',

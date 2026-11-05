@@ -29,7 +29,7 @@ export default function ApartmentScreen() {
   const toast = useToast();
   const { t, lang } = useI18n();
   const [showWifi, setShowWifi] = useState(false);
-  const { apartment, contract, cleanings, payments, deposit } = useHome();
+  const { apartment, contract, cleanings, payments, deposit, roommates } = useHome();
   // Unpaid rent months + the deposit when the student has not paid it yet.
   const pendingRent = payments.filter((m) => !m.paid).length + (deposit?.status === 'pending' ? 1 : 0);
   const handovers = useHandovers();
@@ -156,12 +156,15 @@ export default function ApartmentScreen() {
             status={pendingRent ? t.apartment.payments.pending(pendingRent) : t.apartment.payments.upToDate}
             onPress={() => router.push('/apartment/payments')}
           />
-          <HubTile
-            emoji="💸"
-            title={t.expenses.tile}
-            status={balance}
-            onPress={() => router.push('/expenses')}
-          />
+          {/* Nobody to split with when the student lives alone. */}
+          {roommates.length > 0 && (
+            <HubTile
+              emoji="💸"
+              title={t.expenses.tile}
+              status={balance}
+              onPress={() => router.push('/expenses')}
+            />
+          )}
           <HubTile
             emoji="📄"
             title={t.apartment.contract}

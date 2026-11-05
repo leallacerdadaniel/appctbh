@@ -1,21 +1,22 @@
 import { useEffect, useState } from 'react';
 
 import { DocumentCard } from '@/components/document-card';
-import { ListGroup, ListRow } from '@/components/list';
 import { Screen } from '@/components/screen';
-import { Card } from '@/components/ui';
+import { AppText, Card } from '@/components/ui';
+import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { appApi } from '@/lib/app-api';
 import { useAuth } from '@/lib/auth';
 import type { AppDocument } from '@/lib/documents.types';
-import { formatDate, formatMoney } from '@/lib/format';
 import { useHome } from '@/lib/home';
 
 export default function ContractScreen() {
-  const { t, lang } = useI18n();
+  const theme = useTheme();
+  const { t } = useI18n();
   const { token } = useAuth();
   const { contract } = useHome();
   const [doc, setDoc] = useState<AppDocument | null>(null);
+  const [loading, setLoading] = useState(contract.hasDocument);
 
   // The PDF lives in the private "rental-contracts" bucket: ask app-api for a short-lived link.
   useEffect(() => {
@@ -27,22 +28,23 @@ export default function ContractScreen() {
           source: { kind: 'url', url: r.url },
         }),
       )
-      .catch(() => setDoc(null));
+      .catch(() => setDoc(null))
+      .finally(() => setLoading(false));
   }, [token, contract.hasDocument, contract.semester]);
 
   return (
     <Screen back title={t.apartment.contract} subtitle={t.apartment.contractHint}>
-      <Card style={{ paddingVertical: 0 }}>
-        <ListGroup>
-          <ListRow title={t.apartment.semester} value={contract.semester} />
-          <ListRow title={t.apartment.moveIn} value={formatDate(contract.moveIn, lang)} />
-          <ListRow title={t.apartment.moveOut} value={formatDate(contract.moveOut, lang)} />
-          {contract.rent != null && (
-            <ListRow title={t.apartment.monthlyRent} value={formatMoney(contract.rent, contract.currency, lang)} />
-          )}
-        </ListGroup>
-      </Card>
-      {doc && <DocumentCard doc={doc} usageItem="contract" />}
+      {doc ? (
+        <DocumentCard doc={doc} usageItem="contract" />
+      ) : (
+        !loading && (
+          <Card>
+            <AppText variant="callout" color={theme.textSecondary}>
+              {t.apartment.contractSoon}
+            </AppText>
+          </Card>
+        )
+      )}
     </Screen>
   );
 }

@@ -1,5 +1,6 @@
 import type { Lang } from '@/i18n';
 import type { CleaningVisit } from '@/lib/cleaning';
+import type { StudentDate } from '@/lib/home';
 import { holidaysForYear, type HolidayKind } from '@/lib/holidays';
 
 export type EventKind = HolidayKind | 'cleaning' | 'contract';
@@ -22,11 +23,18 @@ export function parseIso(iso: string) {
   return new Date(y, m - 1, d);
 }
 
-/** Holidays for the given years + the student's cleanings and move‑in/out (real data). */
-export function buildEvents(
-  years: number[],
-  student: { cleanings: CleaningVisit[]; moveIn: string; moveOut: string },
-): CalendarEvent[] {
+export type StudentDates = {
+  cleanings: CleaningVisit[];
+  /** Filled in on the site. No arrival event without it: the contract start is not the arrival. */
+  arrival: StudentDate | null;
+  departure: StudentDate | null;
+  /** Contract start and end. */
+  moveIn: string;
+  moveOut: string;
+};
+
+/** Holidays for the given years + the student's cleanings, arrival and departure (real data). */
+export function buildEvents(years: number[], student: StudentDates): CalendarEvent[] {
   const events: CalendarEvent[] = [];
 
   for (const year of years) {
@@ -51,9 +59,25 @@ export function buildEvents(
     });
   }
 
+  if (student.arrival) {
+    events.push({
+      id: 'move-in',
+      date: student.arrival.date,
+      kind: 'contract',
+      title: { fr: 'Arrivée dans l’appartement', en: 'Move‑in day' },
+      time: student.arrival.time || undefined,
+    });
+  }
   events.push(
-    { id: 'move-in', date: student.moveIn, kind: 'contract', title: { fr: 'Arrivée dans l’appartement', en: 'Move‑in day' } },
-    { id: 'move-out', date: student.moveOut, kind: 'contract', title: { fr: 'Départ de l’appartement', en: 'Move‑out day' } },
+    student.departure
+      ? {
+          id: 'move-out',
+          date: student.departure.date,
+          kind: 'contract',
+          title: { fr: 'Départ de l’appartement', en: 'Move‑out day' },
+          time: student.departure.time || undefined,
+        }
+      : { id: 'move-out', date: student.moveOut, kind: 'contract', title: { fr: 'Fin du contrat', en: 'End of contract' } },
   );
 
   return events.sort((a, b) => a.date.localeCompare(b.date));

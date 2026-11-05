@@ -10,6 +10,7 @@ import { Fonts, Radius, Shadow, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { WALK_LIMIT_MIN } from '@/lib/nearby';
+import { useTimes } from '@/lib/places';
 import { SPORT_GROUPS, sportPlaces, type SportGroup, type SportPlace } from '@/lib/sports';
 
 /** "Faire du sport": running spots, gym chains and places for each sport, filtered by chips. */
@@ -65,7 +66,8 @@ export default function SportsScreen() {
 }
 
 /** Same row as the restaurants: square photo, name, kind, area • distance. */
-function SportRow({ place: p }: { place: SportPlace }) {
+function SportRow({ place: raw }: { place: SportPlace }) {
+  const p = useTimes(raw);
   const theme = useTheme();
   const { t, lang } = useI18n();
   const far = p.walkMin != null && p.walkMin > WALK_LIMIT_MIN;

@@ -10,6 +10,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { BEAUTY_GROUPS, beautyPlaces, type BeautyGroup, type BeautyPlace } from '@/lib/beauty';
 import { WALK_LIMIT_MIN } from '@/lib/nearby';
+import { useUnitTimes } from '@/lib/places';
 
 /** "Beauté et bien-être": hair, nails, brows, hair removal and spas, filtered by chips. */
 export default function BeautyScreen() {
@@ -64,7 +65,8 @@ export default function BeautyScreen() {
 }
 
 /** Name, kind, area • distance; no photo (owner's decision). */
-function BeautyRow({ place: p }: { place: BeautyPlace }) {
+function BeautyRow({ place: raw }: { place: BeautyPlace }) {
+  const p = useUnitTimes(raw);
   const theme = useTheme();
   const { t, lang } = useI18n();
   const far = p.walkMin != null && p.walkMin > WALK_LIMIT_MIN;

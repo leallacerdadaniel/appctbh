@@ -9,6 +9,7 @@ import { Fonts, Radius, Shadow, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { WALK_LIMIT_MIN } from '@/lib/nearby';
+import { useTimes } from '@/lib/places';
 import { displayName, type Restaurant } from '@/lib/restaurants';
 
 const CARD_WIDTH = 220;
@@ -28,8 +29,9 @@ export function RatingPill({ rating }: { rating: number }) {
 }
 
 /** "Lourdes • 9 min à pied", or the car time when walking is not realistic. */
-export function useDistanceLabel(r: Pick<Restaurant, 'walkMin' | 'driveMin'>) {
+export function useDistanceLabel(place: Pick<Restaurant, 'placeId'>) {
   const { t } = useI18n();
+  const r = useTimes(place) as Pick<Restaurant, 'walkMin' | 'driveMin'>;
   if (r.walkMin == null) return null;
   return r.walkMin > WALK_LIMIT_MIN && r.driveMin != null
     ? t.restaurants.drive(r.driveMin)

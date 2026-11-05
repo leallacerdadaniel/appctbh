@@ -12,6 +12,8 @@ import type { Localized } from '@/lib/mock-data';
  */
 
 /** Raw answer of the database function app_home_for. */
+export type StudentDate = { date: string; time: string | null };
+
 type HomeResponse = {
   student: { name: string; email: string };
   must_change_password: boolean;
@@ -29,6 +31,8 @@ type HomeResponse = {
     has_contract: boolean;
   };
   tenant: { move_in_date: string | null; move_out_date: string | null; rent: number | null } | null;
+  arrival?: StudentDate | null;
+  departure?: StudentDate | null;
   info: {
     unit_number?: string | null;
     wifi_name: string | null;
@@ -77,6 +81,9 @@ export type Home = {
     semester: string;
     moveIn: string;
     moveOut: string;
+    /** Real dates from the site's Chegada and Saída pages, once filled in. */
+    arrival: StudentDate | null;
+    departure: StudentDate | null;
     rent: number | null;
     currency: 'BRL' | 'EUR';
     hasDocument: boolean;
@@ -124,6 +131,8 @@ function toHome(r: HomeResponse): Home {
       semester: r.rental.semester,
       moveIn: r.tenant?.move_in_date ?? r.rental.start_date,
       moveOut: r.tenant?.move_out_date ?? r.rental.end_date,
+      arrival: r.arrival ?? null,
+      departure: r.departure ?? null,
       rent: r.rental.contract_rent ?? null,
       currency: r.rental.currency,
       hasDocument: r.rental.has_contract,

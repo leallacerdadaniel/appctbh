@@ -10,27 +10,18 @@ import { AppText, Button, Card } from '@/components/ui';
 import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
-import { formatDistance } from '@/lib/nearby';
+import { useFromHome, useTimes } from '@/lib/places';
 import { getNightPlace, nightMapsUrl } from '@/lib/nightlife';
 
 export default function NightPlaceScreen() {
   const theme = useTheme();
   const { t, lang } = useI18n();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const p = getNightPlace(id);
+  const p = useTimes(getNightPlace(id));
+  const fromHome = useFromHome(p);
 
   if (!p) return <Redirect href="/nightlife" />;
 
-  const fromHome =
-    p.walkMin == null
-      ? null
-      : [
-          p.distanceM != null ? formatDistance(p.distanceM, lang) : null,
-          t.restaurants.walk(p.walkMin),
-          p.driveMin != null ? t.restaurants.drive(p.driveMin) : null,
-        ]
-          .filter(Boolean)
-          .join(' · ');
 
   return (
     <Screen back title={p.name} subtitle={`${p.vibe[lang]} · ${p.neighborhood}`}>

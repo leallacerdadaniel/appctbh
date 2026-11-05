@@ -1,6 +1,5 @@
 import { daysUntil } from '@/lib/cleaning';
-import { buildEvents, parseIso, toIso, type CalendarEvent, type EventKind } from '@/lib/events';
-import type { CleaningVisit } from '@/lib/cleaning';
+import { buildEvents, parseIso, toIso, type CalendarEvent, type EventKind, type StudentDates } from '@/lib/events';
 
 /**
  * "À venir" on the Home screen: the next dates from data the app already has.
@@ -15,12 +14,13 @@ const MAX_UPCOMING = 4;
  * move-in day, but a cleaning scheduled before arrival (the move-in prep) still shows.
  */
 export function upcomingEvents(
-  student: { cleanings: CleaningVisit[]; moveIn: string; moveOut: string },
+  student: StudentDates,
   today = new Date(),
 ): UpcomingEvent[] {
   const year = today.getFullYear();
   const todayIso = toIso(today);
-  const from = student.moveIn > todayIso ? student.moveIn : todayIso;
+  const start = student.arrival?.date ?? student.moveIn;
+  const from = start > todayIso ? start : todayIso;
   const scheduled = student.cleanings.filter((c) => c.status === 'scheduled');
   const events = buildEvents([year, year + 1], { ...student, cleanings: scheduled }).filter((e) => e.date >= (e.kind === 'cleaning' ? todayIso : from));
 

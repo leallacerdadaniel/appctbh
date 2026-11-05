@@ -12,15 +12,15 @@ import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { beautyMapsUrl, getBeautyPlace, type BeautyPlace, type BeautyUnit } from '@/lib/beauty';
-import { formatDistance } from '@/lib/nearby';
+import { useFromHome, useUnitTimes } from '@/lib/places';
 
 export default function BeautyPlaceScreen() {
   const theme = useTheme();
   const { t, lang } = useI18n();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const p = getBeautyPlace(id);
+  const p = useUnitTimes(getBeautyPlace(id));
   // Chains: the student picks a unit; the closest one is shown first.
-  const [unitId, setUnitId] = useState(p?.units[0].placeId);
+  const [unitId, setUnitId] = useState<string>();
 
   if (!p) return <Redirect href="/beauty" />;
 
@@ -64,18 +64,9 @@ export default function BeautyPlaceScreen() {
 /** Distance, address, phone, website, hours and directions of one location. */
 function UnitDetails({ place: p, unit: u }: { place: BeautyPlace; unit: BeautyUnit }) {
   const theme = useTheme();
-  const { t, lang } = useI18n();
+  const { t } = useI18n();
+  const fromHome = useFromHome(u);
 
-  const fromHome =
-    u.walkMin == null
-      ? null
-      : [
-          u.distanceM != null ? formatDistance(u.distanceM, lang) : null,
-          u.walkMin <= 60 ? t.restaurants.walk(u.walkMin) : null,
-          u.driveMin != null ? t.restaurants.drive(u.driveMin) : null,
-        ]
-          .filter(Boolean)
-          .join(' · ');
 
   return (
     <>

@@ -57,7 +57,7 @@ export function CleaningVisits() {
         </View>
       )}
 
-      <View style={[styles.divider, { backgroundColor: theme.line }]} />
+      {next && <View style={[styles.divider, { backgroundColor: theme.line }]} />}
 
       <View style={styles.tabs}>
         <Chip
@@ -137,7 +137,7 @@ export function CleaningSupplies() {
       <Card style={{ gap: Spacing.sm }}>
         <View style={styles.tableHead}>
           <AppText variant="caption" color={theme.textSecondary} style={{ flex: 1 }}>
-            {c.suppliesTitle}
+            {c.suppliesProduct}
           </AppText>
           <AppText variant="caption" color={theme.textSecondary}>
             {c.inPortuguese}

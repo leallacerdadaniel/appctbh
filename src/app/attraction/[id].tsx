@@ -12,26 +12,17 @@ import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { attractionMapsUrl, getAttraction } from '@/lib/attractions';
-import { formatDistance } from '@/lib/nearby';
+import { useFromHome, useTimes } from '@/lib/places';
 
 export default function AttractionScreen() {
   const theme = useTheme();
   const { t, lang } = useI18n();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const a = getAttraction(id);
+  const a = useTimes(getAttraction(id));
+  const fromHome = useFromHome(a);
 
   if (!a) return <Redirect href="/travel" />;
 
-  const fromHome =
-    a.walkMin == null
-      ? null
-      : [
-          a.distanceM != null ? formatDistance(a.distanceM, lang) : null,
-          t.explore.walk(a.walkMin),
-          a.driveMin != null ? t.explore.drive(a.driveMin) : null,
-        ]
-          .filter(Boolean)
-          .join(' · ');
 
   return (
     <Screen back title={a.name} subtitle={`${a.neighborhood} · ${t.explore.groups[a.group]}`}>

@@ -16,6 +16,7 @@ import { ATTRACTION_GROUPS, attractions, getAttraction, type Attraction } from '
 import { festivals, getFestival, type FestivalItem } from '@/lib/festivals';
 import { MUST_GO } from '@/lib/must-go';
 import { WALK_LIMIT_MIN } from '@/lib/nearby';
+import { useTimes } from '@/lib/places';
 import { trackAction } from '@/lib/usage';
 import {
   destinations,
@@ -82,7 +83,8 @@ function BhAttractions() {
   );
 }
 
-function AttractionCard({ attraction: a }: { attraction: Attraction }) {
+function AttractionCard({ attraction: raw }: { attraction: Attraction }) {
+  const a = useTimes(raw);
   const theme = useTheme();
   const { t } = useI18n();
   const far = a.walkMin != null && a.walkMin > WALK_LIMIT_MIN;

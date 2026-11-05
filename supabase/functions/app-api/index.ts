@@ -138,7 +138,47 @@ async function home(req: Request) {
   if (error) return json({ error: 'server' }, 500);
   await db.from('app_students').update({ last_seen_at: new Date().toISOString() }).eq('counterparty_id', who.cp);
   if (!data) return json({ error: 'noRental' }, 404);
-  return json(data);
+  return json({ ...data, ...(await arrivalAndDeparture(who.cp)) });
+}
+
+/**
+ * Chegada e saída reais do aluno, preenchidas em Chegada e Saída no site. Sem data preenchida vem
+ * null: o início do contrato não é a chegada, e o app mostra o fim do contrato com esse nome.
+ */
+async function arrivalAndDeparture(cp: string) {
+  const { data: rentals } = await db.rpc('app_rentals_for', { p_cp: cp });
+  const { data: tenants } = await db
+    .from('rental_tenants')
+    .select('id, arrival_confirmed_date, arrival_time')
+    .eq('counterparty_id', cp)
+    .eq('is_active', true)
+    .in('rental_id', rentals ?? []);
+  const { data: departures } = await db
+    .from('apartment_departures')
+    .select('departure_date, checkout_datetime')
+    .in('tenant_id', (tenants ?? []).map((t) => t.id));
+
+  const first = (tenants ?? [])
+    .filter((t) => t.arrival_confirmed_date)
+    .sort((a, b) => a.arrival_confirmed_date.localeCompare(b.arrival_confirmed_date))[0];
+  const timeZone = 'America/Sao_Paulo';
+  const last = (departures ?? [])
+    .map((d) => {
+      const at = d.checkout_datetime ? new Date(d.checkout_datetime) : null;
+      const day = at?.toLocaleDateString('en-CA', { timeZone }) ?? null;
+      const date = (d.departure_date ?? day) as string | null;
+      const time = at && day === date
+        ? at.toLocaleTimeString('en-GB', { timeZone, hour: '2-digit', minute: '2-digit' })
+        : null;
+      return { date, time };
+    })
+    .filter((d) => d.date)
+    .sort((a, b) => b.date!.localeCompare(a.date!))[0];
+
+  return {
+    arrival: first ? { date: first.arrival_confirmed_date, time: first.arrival_time?.slice(0, 5) ?? null } : null,
+    departure: last ?? null,
+  };
 }
 
 /** Confere e já marca: quem recebe show = true não recebe de novo no mesmo ano. */
@@ -254,6 +294,23 @@ async function group(cp: string) {
     .map((p) => ({ id: p.id as string, name: shown.get(p.id) || (p.name as string) }))
     .sort((a, b) => a.name.localeCompare(b.name));
   return { rentalId: rentalId as string, members, ids: new Set(ids) };
+}
+
+/** Lugares e distâncias do apartamento do aluno; null enquanto o apartamento não foi calculado. */
+async function places(req: Request) {
+  const who = await readToken(req);
+  if (!who) return json({ error: 'unauthorized' }, 401);
+  const { data: rentalId } = await db.rpc('app_rental_for', { p_cp: who.cp });
+  if (!rentalId) return json({ error: 'noRental' }, 404);
+  const { data: rental } = await db.from('apartment_rentals').select('apartment_id').eq('id', rentalId).maybeSingle();
+  if (!rental?.apartment_id) return json({ places: null });
+  const { data, error } = await db
+    .from('app_apartment_places')
+    .select('nearby, times')
+    .eq('apartment_id', rental.apartment_id)
+    .maybeSingle();
+  if (error) return json({ error: 'server' }, 500);
+  return json({ places: data });
 }
 
 async function expenses(req: Request) {
@@ -606,6 +663,8 @@ Deno.serve(async (req) => {
         return await birthday(req);
       case 'track':
         return await track(req, body);
+      case 'places':
+        return await places(req);
       default:
         return json({ error: 'notFound' }, 404);
     }

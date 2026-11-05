@@ -7,7 +7,8 @@ extended with more everyday categories, coordinates and place_id so the app can 
 Results are precomputed and bundled/stored, so the Google key never ships inside the app.
 
 Usage (from App CTBH/app):
-    python3 scripts/nearby.py "Rua Antônio de Albuquerque, 335 - Funcionários, Belo Horizonte" > src/data/nearby-demo.json
+    python3 scripts/nearby.py "Rua X, 123 - Bairro, Belo Horizonte"   # one address, for checking
+All the apartments: scripts/apartment_places.py.
 
 Key: GOOGLE_MAPS_API_KEY from the environment, or from ~/Desktop/Chez Toi BH/.env.
 APIs used: Geocoding, Places (Nearby Search), Distance Matrix.
@@ -81,11 +82,23 @@ CATEGORIES = [
     {"id": "gym", "type": "gym", "keyword": "academia", "radius": 1500, "min_reviews": 150,
      "chains": [("Smart Fit", r"smart ?fit"), ("BlueFit", r"bluefit"), ("Contorno do Corpo", r"contorno do corpo"),
                 ("Pratique Fitness", r"pratique"), ("Bodytech", r"bodytech")],
-     "exception": {"min_rating": 4.5, "min_reviews": 500}},
+     "exception": {"min_rating": 4.5, "min_reviews": 500},
+     # Owner, 2026-11-05: online gyms have no place to go to (seen in Prado: Livel FITBOX).
+     "exclude": r"\bonline\b|\bvirtual\b"},
     # Laundries (owner, 2026-10-19): quality first, then proximity — good rating, enough reviews, walkable.
     {"id": "laundry", "type": "laundry", "keyword": "lavanderia", "radius": 2000, "min_reviews": 50,
      "min_rating": 4.5, "max_walk": 15, "exclude": r"sof[aá]|tapete|estofad|cortina"},
 ]
+
+
+_cache = {}
+
+
+def cached(name, fetch):
+    """Fixed places don't move between apartments: look them up only once per run."""
+    if name not in _cache:
+        _cache[name] = fetch()
+    return _cache[name]
 
 
 def load_key():
@@ -262,8 +275,8 @@ def hospital_places(loc, key):
     reviews are mostly about waiting times (2.6 to 4 for all of them) and don't reflect the ranking."""
     out = []
     for h in HOSPITALS:
-        d = gmaps_get("place/details/json", {"place_id": h["placeId"], "fields": "geometry"}, key)
-        g = d["result"]["geometry"]["location"]
+        g = cached(f"hospital {h['placeId']}", lambda: gmaps_get(
+            "place/details/json", {"place_id": h["placeId"], "fields": "geometry"}, key)["result"]["geometry"]["location"])
         out.append({**h, "lat": g["lat"], "lng": g["lng"], "rating": None, "ratingCount": None})
     times = matrix(loc, [f"{h['lat']},{h['lng']}" for h in out], key)
     return sorted([{**h, **t} for h, t in zip(out, times)], key=lambda h: h.get("driveMin", 999))
@@ -300,12 +313,8 @@ def with_times(loc, places, key):
     return sorted(merged, key=lambda p: p["walkMin"])
 
 
-def main():
-    if len(sys.argv) < 2:
-        sys.exit('Usage: python3 scripts/nearby.py "Rua X, 123 - Bairro, Belo Horizonte"')
-    key = load_key()
-    loc, formatted = geocode(" ".join(sys.argv[1:]), key)
-
+def around(loc, key):
+    """SKEMA and the everyday places around one apartment."""
     skema = matrix(loc, [SKEMA_ADDRESS], key)[0]
 
     categories = []
@@ -315,7 +324,7 @@ def main():
     malls = []
     for m, t in zip(SHOPPING_MALLS, matrix(loc, [m["address"] for m in SHOPPING_MALLS], key)):
         if "walkMin" in t:
-            g, _ = geocode(m["address"], key)
+            g = cached(f"mall {m['address']}", lambda: geocode(m["address"], key)[0])
             malls.append({"name": m["name"], "address": m["address"], "placeId": None,
                           "lat": g["lat"], "lng": g["lng"], "rating": None, "ratingCount": None, **t})
     malls.sort(key=lambda p: p["walkMin"])
@@ -323,12 +332,15 @@ def main():
     categories.insert(3, {"id": "mall", "places": malls})
 
     categories.append({"id": "hospital", "places": hospital_places(loc, key)})
+    return {"skema": skema, "categories": categories}
 
-    print(json.dumps({
-        "origin": {"address": formatted, **loc},
-        "skema": skema,
-        "categories": categories,
-    }, ensure_ascii=False, indent=2))
+
+def main():
+    if len(sys.argv) < 2:
+        sys.exit('Usage: python3 scripts/nearby.py "Rua X, 123 - Bairro, Belo Horizonte"')
+    key = load_key()
+    loc, formatted = geocode(" ".join(sys.argv[1:]), key)
+    print(json.dumps({"origin": {"address": formatted, **loc}, **around(loc, key)}, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":
