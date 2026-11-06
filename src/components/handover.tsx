@@ -37,17 +37,14 @@ export function HandoverScreen({ kind }: { kind: HandoverKind }) {
       {data?.date ? (
         <>
           <Card style={{ paddingVertical: 0 }}>
-            <ListGroup>
-              <ListRow title={k.date} value={formatDate(data.date, lang)} />
-              {data.by && <ListRow title={k.by} value={data.byMe ? h.you : data.by} />}
+            <ListGroup inset>
+              <ListRow icon="calendar" title={k.date} value={formatDate(data.date, lang)} />
+              {data.by && <ListRow icon="profile" title={k.by} value={data.byMe ? h.you : data.by} />}
             </ListGroup>
           </Card>
           <View style={{ gap: Spacing.sm }}>
-            <AppText variant="callout" color={theme.textSecondary}>
-              {k.docNote}
-            </AppText>
             {doc ? (
-              <DocumentCard doc={doc} usageItem={kind} />
+              <DocumentCard doc={doc} title={k.docTitle} usageItem={kind} />
             ) : (
               !data.hasDocument && (
                 <AppText variant="callout" color={theme.textSecondary}>
@@ -55,6 +52,9 @@ export function HandoverScreen({ kind }: { kind: HandoverKind }) {
                 </AppText>
               )
             )}
+            <AppText variant="caption" color={theme.textSecondary}>
+              {k.docNote}
+            </AppText>
           </View>
         </>
       ) : (

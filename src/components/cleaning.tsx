@@ -23,7 +23,7 @@ import {
 import { formatTime } from '@/lib/format';
 import { useHome } from '@/lib/home';
 
-/** Next visit + upcoming / done visits, in one card. */
+/** Upcoming / done visits in date order, with the next visit marked first. */
 export function CleaningVisits() {
   const theme = useTheme();
   const { t, lang } = useI18n();
@@ -33,8 +33,7 @@ export function CleaningVisits() {
 
   const upcoming = upcomingCleanings(cleanings);
   const past = pastCleanings(cleanings);
-  const next = upcoming[0];
-  const visits = tab === 'upcoming' ? upcoming.slice(1) : past;
+  const visits = tab === 'upcoming' ? upcoming : past;
 
   function when(v: CleaningVisit) {
     const n = daysUntil(v.date);
@@ -43,25 +42,9 @@ export function CleaningVisits() {
 
   return (
     <Card style={{ gap: Spacing.md }}>
-      {next && (
-        <View style={{ gap: 2 }}>
-          <AppText variant="caption" color={theme.textSecondary}>
-            {c.next} · {when(next)}
-          </AppText>
-          <AppText variant="title">{capitalize(formatLongDate(next.date, lang))}</AppText>
-          {!!next.time && (
-            <AppText variant="callout" color={theme.textSecondary}>
-              {formatTime(next.time, lang)}
-            </AppText>
-          )}
-        </View>
-      )}
-
-      {next && <View style={[styles.divider, { backgroundColor: theme.line }]} />}
-
       <View style={styles.tabs}>
         <Chip
-          label={`${c.upcoming} · ${Math.max(upcoming.length - 1, 0)}`}
+          label={`${c.upcoming} · ${upcoming.length}`}
           selected={tab === 'upcoming'}
           onPress={() => setTab('upcoming')}
         />
@@ -74,13 +57,16 @@ export function CleaningVisits() {
 
       {visits.length ? (
         <ListGroup inset>
-          {visits.map((v) => {
+          {visits.map((v, i) => {
             const open = canRate(v);
+            const isNext = tab === 'upcoming' && i === 0;
             return (
               <ListRow
                 key={v.date}
                 icon={v.status === 'done' ? 'checkCircle' : 'clock'}
                 title={capitalize(formatLongDate(v.date, lang))}
+                subtitle={isNext ? `${c.next} · ${when(v)}` : undefined}
+                subtitleColor={isNext ? theme.brand : undefined}
                 value={v.time ? formatTime(v.time, lang) : undefined}
                 onPress={open ? () => router.push({ pathname: '/apartment/feedback', params: { id: v.id } }) : undefined}
                 accessibilityLabel={open ? `${c.rate} · ${formatLongDate(v.date, lang)}` : undefined}
@@ -98,14 +84,11 @@ export function CleaningVisits() {
                     <AppText variant="caption" color={theme.brand} style={{ fontFamily: Fonts.bodyMedium }}>
                       {c.rate}
                     </AppText>
-                  ) : (
-                    <AppText
-                      variant="caption"
-                      color={v.status === 'done' ? theme.success : theme.textSecondary}
-                      style={{ fontFamily: Fonts.bodyMedium }}>
-                      {v.status === 'done' ? c.statusDone : c.statusScheduled}
+                  ) : v.status === 'done' ? (
+                    <AppText variant="caption" color={theme.success} style={{ fontFamily: Fonts.bodyMedium }}>
+                      {c.statusDone}
                     </AppText>
-                  )
+                  ) : undefined
                 }
               />
             );
@@ -171,7 +154,6 @@ export function CleaningSupplies() {
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 const styles = StyleSheet.create({
-  divider: { height: StyleSheet.hairlineWidth },
   tabs: { flexDirection: 'row', gap: Spacing.sm },
   tableHead: { flexDirection: 'row', paddingTop: 4 },
   supply: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, paddingVertical: 12 },

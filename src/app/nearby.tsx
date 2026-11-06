@@ -11,6 +11,7 @@ import { AppText, Card, Chip, PressableScale } from '@/components/ui';
 import { Fonts, Spacing, TapTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
+import { shortAddress } from '@/lib/format';
 import { useHome } from '@/lib/home';
 import {
   directionsUrl,
@@ -72,8 +73,8 @@ export default function NearbyScreen() {
         <ListGroup inset>
           <ListRow
             icon="address"
-            title={apartment.address}
-            subtitle={t.nearby.from}
+            title={t.nearby.apartment}
+            subtitle={shortAddress(apartment.address)}
             accessory={addressActions(apartment.mapsQuery, apartmentAddress)}
           />
           <ListRow

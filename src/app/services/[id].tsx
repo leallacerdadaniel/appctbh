@@ -3,9 +3,8 @@ import { Redirect, useLocalSearchParams } from 'expo-router';
 import { Linking, StyleSheet, View } from 'react-native';
 
 import { Icon } from '@/components/icon';
-import { ListGroup, ListRow } from '@/components/list';
 import { Screen } from '@/components/screen';
-import { AppText, Card } from '@/components/ui';
+import { AppText, Button, Card } from '@/components/ui';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
@@ -41,12 +40,19 @@ export default function ServiceScreen() {
         </View>
       </Card>
 
-      <Card style={{ paddingVertical: 0 }}>
-        <ListGroup inset>
-          <ListRow icon="download" title={t.services.app} onPress={() => Linking.openURL(appUrl(s))} />
-          <ListRow icon="website" title={t.services.website} onPress={() => Linking.openURL(s.website)} />
-        </ListGroup>
-      </Card>
+      <View>
+        <Button
+          label={t.services.app}
+          icon={<Icon name="download" size={17} color={theme.onBrand} />}
+          onPress={() => Linking.openURL(appUrl(s))}
+        />
+        <Button
+          variant="plain"
+          label={t.services.website}
+          icon={<Icon name="website" size={17} color={theme.text} />}
+          onPress={() => Linking.openURL(s.website)}
+        />
+      </View>
 
       <AppText variant="caption" color={theme.textSecondary} style={{ textAlign: 'center' }}>
         {t.services.source}

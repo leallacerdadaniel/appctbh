@@ -4,14 +4,26 @@ import { Platform, StyleSheet, View } from 'react-native';
 import { Icon } from '@/components/icon';
 import { useToast } from '@/components/toast';
 import { AppText, Button, Card, InlineMessage } from '@/components/ui';
-import { Fonts, Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { downloadDocument, openDocument, type AppDocument } from '@/lib/documents';
 import { trackAction } from '@/lib/usage';
 
 /** A PDF the student can open or download (contract and signed inspection reports). */
-export function DocumentCard({ doc, usageItem }: { doc: AppDocument; usageItem: 'contract' | 'checkin' | 'checkout' }) {
+export function DocumentCard({
+  doc,
+  title,
+  meta,
+  usageItem,
+}: {
+  doc: AppDocument;
+  /** What the document is. The file name is only used when downloading. */
+  title: string;
+  /** Shown before "PDF" (e.g. the semester). */
+  meta?: string;
+  usageItem: 'contract' | 'checkin' | 'checkout';
+}) {
   const theme = useTheme();
   const toast = useToast();
   const { t } = useI18n();
@@ -37,41 +49,38 @@ export function DocumentCard({ doc, usageItem }: { doc: AppDocument; usageItem: 
   }
 
   const size = doc.sizeBytes
-    ? ` · ${Math.max(1, Math.round(doc.sizeBytes / 1024))} ${t.apartment.kilobytes}`
-    : '';
+    ? `${Math.max(1, Math.round(doc.sizeBytes / 1024))} ${t.apartment.kilobytes}`
+    : null;
 
   return (
     <Card style={{ gap: Spacing.md }}>
       <View style={styles.row}>
-        <Icon name="document" size={22} color={theme.textSecondary} />
-        <View style={{ flex: 1 }}>
-          <AppText style={{ fontFamily: Fonts.bodyMedium }}>{doc.fileName}</AppText>
+        <View style={[styles.thumb, { backgroundColor: theme.fill }]}>
+          <Icon name="document" size={26} color={theme.brand} />
+        </View>
+        <View style={{ flex: 1, gap: 2 }}>
+          <AppText variant="title">{title}</AppText>
           <AppText variant="caption" color={theme.textSecondary}>
-            {t.apartment.document}
-            {size}
+            {[meta, 'PDF', size].filter(Boolean).join(' · ')}
           </AppText>
         </View>
       </View>
-      <View style={styles.actions}>
-        <View style={{ flex: 1 }}>
-          <Button
-            variant="secondary"
-            label={t.apartment.open}
-            icon={<Icon name="show" size={17} color={theme.text} />}
-            loading={busy === 'open'}
-            disabled={busy !== null}
-            onPress={() => run('open')}
-          />
-        </View>
-        <View style={{ flex: 1 }}>
-          <Button
-            label={t.apartment.download}
-            icon={<Icon name="download" size={17} color={theme.onBrand} />}
-            loading={busy === 'download'}
-            disabled={busy !== null}
-            onPress={() => run('download')}
-          />
-        </View>
+      <View>
+        <Button
+          label={t.apartment.open}
+          icon={<Icon name="show" size={17} color={theme.onBrand} />}
+          loading={busy === 'open'}
+          disabled={busy !== null}
+          onPress={() => run('open')}
+        />
+        <Button
+          variant="plain"
+          label={t.apartment.download}
+          icon={<Icon name="download" size={17} color={theme.text} />}
+          loading={busy === 'download'}
+          disabled={busy !== null}
+          onPress={() => run('download')}
+        />
       </View>
       {failed && <InlineMessage kind="error" text={t.apartment.documentError} />}
     </Card>
@@ -80,5 +89,5 @@ export function DocumentCard({ doc, usageItem }: { doc: AppDocument; usageItem: 
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
-  actions: { flexDirection: 'row', gap: Spacing.sm },
+  thumb: { width: 52, height: 52, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
 });

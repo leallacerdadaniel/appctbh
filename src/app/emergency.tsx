@@ -1,10 +1,9 @@
 import { router } from 'expo-router';
 import { Linking, StyleSheet } from 'react-native';
 
-import { Icon } from '@/components/icon';
 import { ListGroup, ListRow } from '@/components/list';
 import { Screen, Section } from '@/components/screen';
-import { Card } from '@/components/ui';
+import { AppText, Card } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { contacts } from '@/lib/mock-data';
@@ -33,10 +32,13 @@ export default function EmergencyScreen() {
                 icon="phone"
                 title={t.emergency.services[n.id]}
                 subtitle={t.emergency.hints[n.id]}
-                value={n.number}
                 accessibilityLabel={`${t.emergency.services[n.id]}, ${n.number}`}
                 onPress={() => Linking.openURL(`tel:${n.number}`)}
-                accessory={<Icon name="phone" size={16} color={theme.textTertiary} />}
+                accessory={
+                  <AppText variant="display" color={theme.brand}>
+                    {n.number}
+                  </AppText>
+                }
               />
             ))}
           </ListGroup>

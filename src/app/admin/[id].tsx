@@ -4,7 +4,7 @@ import { Linking, StyleSheet, View } from 'react-native';
 import { Icon } from '@/components/icon';
 import { ListGroup, ListRow } from '@/components/list';
 import { Screen, Section } from '@/components/screen';
-import { AppText, Button, Card } from '@/components/ui';
+import { AppText, Button, Card, StepNumber } from '@/components/ui';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
@@ -30,11 +30,14 @@ export default function AdminProcedureScreen() {
       <Section title={t.admin.steps}>
         <Card style={styles.list}>
           {p.steps.map((step, i) => (
-            <View key={i} style={[styles.row, i > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderColor: theme.line }]}>
-              <AppText>{`${i + 1}. ${step.title[lang]}`}</AppText>
-              <AppText variant="callout" color={theme.textSecondary}>
-                {step.body[lang]}
-              </AppText>
+            <View key={i} style={[styles.step, i > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderColor: theme.line }]}>
+              <StepNumber n={i + 1} />
+              <View style={{ flex: 1, gap: 4 }}>
+                <AppText>{step.title[lang]}</AppText>
+                <AppText variant="callout" color={theme.textSecondary}>
+                  {step.body[lang]}
+                </AppText>
+              </View>
             </View>
           ))}
         </Card>
@@ -42,11 +45,11 @@ export default function AdminProcedureScreen() {
 
       <Section title={p.documentsTitle[lang]}>
         <Card style={styles.list}>
-          {p.documents.map((doc, i) => (
-            <View key={i} style={[styles.row, i > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderColor: theme.line }]}>
-              <AppText>{`• ${doc[lang]}`}</AppText>
-            </View>
-          ))}
+          <ListGroup inset>
+            {p.documents.map((doc) => (
+              <ListRow key={doc.en} icon="document" title={doc[lang]} />
+            ))}
+          </ListGroup>
         </Card>
         {p.documentsNote && (
           <AppText variant="callout" color={theme.textSecondary}>
@@ -112,5 +115,5 @@ export default function AdminProcedureScreen() {
 const styles = StyleSheet.create({
   notice: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.md },
   list: { paddingVertical: 0 },
-  row: { paddingVertical: 14, gap: 4 },
+  step: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.md, paddingVertical: 14 },
 });

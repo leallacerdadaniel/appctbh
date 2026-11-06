@@ -37,17 +37,22 @@ export function ListGroup({ children, inset = false }: { children: ReactNode; in
 export function ListRow({
   title,
   subtitle,
+  subtitleColor,
   value,
   icon,
+  muted = false,
   onPress,
   accessory,
   accessibilityLabel,
 }: {
   title: string;
   subtitle?: string;
+  subtitleColor?: string;
   /** Short text on the right (e.g. "R$ 2 400", "Copier"). */
   value?: string;
   icon?: IconName;
+  /** Gray title and icon, for something that isn't relevant yet. */
+  muted?: boolean;
   onPress?: () => void;
   /** Replaces the default chevron. */
   accessory?: ReactNode;
@@ -57,11 +62,11 @@ export function ListRow({
 
   const content = (pressed: boolean) => (
     <View style={[styles.row, pressed && { opacity: 0.55 }]}>
-      {icon && <Icon name={icon} size={ICON_SIZE} color={theme.brand} />}
+      {icon && <Icon name={icon} size={ICON_SIZE} color={muted ? theme.textTertiary : theme.brand} />}
       <View style={styles.text}>
-        <AppText>{title}</AppText>
+        <AppText color={muted ? theme.textSecondary : undefined}>{title}</AppText>
         {subtitle && (
-          <AppText variant="callout" color={theme.textSecondary}>
+          <AppText variant="callout" color={subtitleColor ?? theme.textSecondary}>
             {subtitle}
           </AppText>
         )}

@@ -4,7 +4,7 @@ import { Icon } from '@/components/icon';
 import { ListGroup, ListRow } from '@/components/list';
 import { Screen, Section } from '@/components/screen';
 import { AppText, Card } from '@/components/ui';
-import { Spacing } from '@/constants/theme';
+import { Fonts, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 
@@ -15,7 +15,7 @@ export default function RulesScreen() {
   const r = t.apartment.rules;
 
   return (
-    <Screen back title={r.screenTitle} subtitle={r.subtitle}>
+    <Screen back title={r.screenTitle}>
       <Section title={r.quietTitle}>
         <Card style={{ gap: 2 }}>
           <AppText variant="display">{r.quietHours}</AppText>
@@ -25,27 +25,26 @@ export default function RulesScreen() {
         </Card>
       </Section>
 
-      <Section title={r.forbiddenTitle} subtitle={r.forbiddenIntro}>
+      {/* The one rule foreigners don't expect, and it can cost them money: before the list. */}
+      <Card style={[styles.warning, { backgroundColor: theme.errorSoft }]}>
+        <Icon name="warning" size={20} color={theme.error} />
+        <View style={{ flex: 1, gap: 4 }}>
+          <AppText color={theme.error} style={{ fontFamily: Fonts.bodyMedium }}>
+            {r.toiletTitle}
+          </AppText>
+          <AppText variant="callout" color={theme.error}>
+            {r.toiletText}
+          </AppText>
+        </View>
+      </Card>
+
+      <Section title={r.forbiddenTitle}>
         <Card style={styles.listCard}>
           <ListGroup inset>
             {r.forbidden.map((rule) => (
-              <ListRow key={rule} icon="close" title={rule} />
+              <ListRow key={rule.title} icon="close" title={rule.title} subtitle={rule.detail} />
             ))}
           </ListGroup>
-        </Card>
-      </Section>
-
-      <Section title={r.toiletTitle}>
-        <Card style={{ gap: Spacing.md, backgroundColor: theme.errorSoft }}>
-          <View style={styles.warning}>
-            <Icon name="warning" size={20} color={theme.error} />
-            <AppText variant="callout" color={theme.error} style={{ flex: 1 }}>
-              {r.toiletWarning}
-            </AppText>
-          </View>
-          <AppText variant="callout" color={theme.textSecondary}>
-            {r.toiletWhy}
-          </AppText>
         </Card>
       </Section>
 

@@ -14,7 +14,7 @@ import { Radius, Shadow, TapTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { formatLongDate, upcomingCleanings } from '@/lib/cleaning';
-import { formatDate, formatTime } from '@/lib/format';
+import { formatDate, formatTime, isFutureMonth, shortAddress } from '@/lib/format';
 import { useBalanceLabel } from '@/lib/expenses';
 import { useHandovers } from '@/lib/handovers';
 import { useHome } from '@/lib/home';
@@ -30,8 +30,9 @@ export default function ApartmentScreen() {
   const { t, lang } = useI18n();
   const [showWifi, setShowWifi] = useState(false);
   const { apartment, contract, cleanings, payments, deposit, roommates } = useHome();
-  // Unpaid rent months + the deposit when the student has not paid it yet.
-  const pendingRent = payments.filter((m) => !m.paid).length + (deposit?.status === 'pending' ? 1 : 0);
+  // Unpaid rent months already due + the deposit when the student has not paid it yet.
+  const pendingRent =
+    payments.filter((m) => !m.paid && !isFutureMonth(m.month)).length + (deposit?.status === 'pending' ? 1 : 0);
   const handovers = useHandovers();
   const handoverStatus = (date: string | null | undefined) =>
     date ? t.apartment.handover.on(formatDate(date, lang)) : t.apartment.handover.notYet;
@@ -78,7 +79,7 @@ export default function ApartmentScreen() {
           <ListRow
             icon="address"
             title={t.apartment.address}
-            subtitle={apartment.address}
+            subtitle={shortAddress(apartment.address)}
             accessory={
               // Two actions side by side (a button can't sit inside a pressable row).
               <View style={styles.inline}>

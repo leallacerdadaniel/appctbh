@@ -227,6 +227,19 @@ export function InlineMessage({ kind, text }: { kind: 'error' | 'success'; text:
   );
 }
 
+/* ---------- Step number ---------- */
+
+export function StepNumber({ n }: { n: number }) {
+  const theme = useTheme();
+  return (
+    <View style={[styles.stepNumber, { backgroundColor: theme.fill }]}>
+      <AppText variant="caption" style={{ fontFamily: Fonts.bodyMedium }}>
+        {n}
+      </AppText>
+    </View>
+  );
+}
+
 /* ---------- Avatar ---------- */
 
 export function Avatar({ initials, size = 40 }: { initials: string; size?: number }) {
@@ -261,6 +274,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.lg,
     padding: Spacing.md,
   },
+  stepNumber: { width: 24, height: 24, borderRadius: Radius.sm, alignItems: 'center', justifyContent: 'center' },
   chip: {
     borderWidth: 1,
     minHeight: 36,

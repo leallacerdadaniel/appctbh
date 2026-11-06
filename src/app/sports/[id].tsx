@@ -69,13 +69,13 @@ export default function SportPlaceScreen() {
         </View>
       </Card>
 
-      <HoursCard hours={p.hours} />
-
       <Button
         label={t.restaurants.directions}
         icon={<Icon name="directions" size={17} color={theme.onBrand} />}
         onPress={() => Linking.openURL(sportMapsUrl(p))}
       />
+
+      <HoursCard hours={p.hours} />
 
       <AppText variant="caption" color={theme.textSecondary} style={{ textAlign: 'center' }}>
         {t.sports.source}

@@ -14,7 +14,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { getAttraction } from '@/lib/attractions';
 import type { EventKind } from '@/lib/events';
-import { formatDayDate, formatTime } from '@/lib/format';
+import { formatDayDate, formatTime, shortAddress } from '@/lib/format';
 import { useBalanceLabel } from '@/lib/expenses';
 import { useHome } from '@/lib/home';
 import { upcomingEvents } from '@/lib/home-feed';
@@ -68,7 +68,7 @@ export default function HomeScreen() {
             {new Date().getHours() < 18 ? t.home.morning : t.home.evening}, {student.firstName}
           </AppText>
           <AppText color={theme.textSecondary}>
-            {[apartment.address, apartment.complement].filter(Boolean).join(', ')}
+            {[shortAddress(apartment.address), apartment.complement].filter(Boolean).join(', ')}
           </AppText>
         </View>
         {/* Profile lives here since the tab became "Voyages". */}
@@ -86,7 +86,11 @@ export default function HomeScreen() {
         label={t.home.yourHome}
         labelIcon="home"
         title={apartment.nickname}
-        subtitle={apartment.complement || apartment.address}
+        subtitle={
+          /^\d/.test(apartment.complement)
+            ? `${t.apartment.unit} ${apartment.complement}`
+            : apartment.complement || shortAddress(apartment.address)
+        }
         cta={t.home.seeApartment}
         onPress={() => router.navigate('/apartment')}
       />

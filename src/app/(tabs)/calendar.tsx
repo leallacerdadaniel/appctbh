@@ -226,9 +226,12 @@ function EventList({
                   {details}
                 </AppText>
               </View>
-              <AppText variant="caption" color={color} style={{ fontFamily: Fonts.bodyMedium }}>
-                {t.calendar.kinds[event.kind]}
-              </AppText>
+              {/* Same rule as Home: the title of a cleaning or contract event already says what it is. */}
+              {event.kind !== 'cleaning' && event.kind !== 'contract' && (
+                <AppText variant="caption" color={color} style={{ fontFamily: Fonts.bodyMedium }}>
+                  {t.calendar.kinds[event.kind]}
+                </AppText>
+              )}
             </PressableScale>
           </Animated.View>
         );

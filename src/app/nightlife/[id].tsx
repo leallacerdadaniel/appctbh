@@ -78,13 +78,13 @@ export default function NightPlaceScreen() {
         </Card>
       )}
 
-      <HoursCard hours={p.hours} />
-
       <Button
         label={t.restaurants.directions}
         icon={<Icon name="directions" size={17} color={theme.onBrand} />}
         onPress={() => Linking.openURL(nightMapsUrl(p))}
       />
+
+      <HoursCard hours={p.hours} />
 
       <AppText variant="caption" color={theme.textSecondary} style={{ textAlign: 'center' }}>
         {t.nightlife.source}

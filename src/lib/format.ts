@@ -1,5 +1,20 @@
 import type { Lang } from '@/i18n';
 
+/** "Rua Turfa, 833 - Prado. Belo Horizonte - MG" → "Rua Turfa, 833 – Prado". Display only: copy and maps keep the full address. */
+export function shortAddress(address: string) {
+  return address
+    .replace(/[\s.,-]*Belo Horizonte(\s*-\s*MG)?/, '')
+    .replace(/[.,\s]+$/, '')
+    .replace(/\s+-\s+/g, ' – ');
+}
+
+/** "2027-02-01" → true while February 2027 hasn't started yet. */
+export function isFutureMonth(iso: string) {
+  const now = new Date();
+  const current = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  return iso.slice(0, 7) > current;
+}
+
 /** 2027-01-20 → 20/01/2027 (fr) · Jan 20, 2027 (en) */
 export function formatDate(iso: string, lang: Lang) {
   const [y, m, d] = iso.split('-').map(Number);

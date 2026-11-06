@@ -35,7 +35,7 @@ export default function ContractScreen() {
   return (
     <Screen back title={t.apartment.contract} subtitle={t.apartment.contractHint}>
       {doc ? (
-        <DocumentCard doc={doc} usageItem="contract" />
+        <DocumentCard doc={doc} title={t.apartment.document} meta={contract.semester} usageItem="contract" />
       ) : (
         !loading && (
           <Card>

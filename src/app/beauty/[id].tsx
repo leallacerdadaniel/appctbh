@@ -88,13 +88,13 @@ function UnitDetails({ place: p, unit: u }: { place: BeautyPlace; unit: BeautyUn
         </ListGroup>
       </Card>
 
-      <HoursCard hours={u.hours} />
-
       <Button
         label={t.restaurants.directions}
         icon={<Icon name="directions" size={17} color={theme.onBrand} />}
         onPress={() => Linking.openURL(beautyMapsUrl(p, u))}
       />
+
+      <HoursCard hours={u.hours} />
     </>
   );
 }
