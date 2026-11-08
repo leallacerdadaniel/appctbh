@@ -1,0 +1,61 @@
+/**
+ * Strings of the "chores" feature. `en` must mirror `fr` (typed below), and both are mounted
+ * in src/i18n/strings.ts as `t.chores`.
+ */
+export const fr = {
+  title: 'Tâches de la maison',
+  subtitle: 'Qui fait quoi cette semaine, à tour de rôle entre colocataires.',
+  thisWeek: 'Cette semaine',
+  weekOf: (date: string) => `Semaine du ${date}`,
+  progress: (done: number, total: number) => `${done} sur ${total} faites`,
+  you: 'Vous',
+  done: 'Fait',
+  todo: 'À faire',
+  markDone: 'Marquer comme fait',
+  markUndone: 'Marquer comme à faire',
+  doneToast: 'Tâche faite, merci',
+  undoneToast: 'Tâche remise à faire',
+  swap: 'Échanger',
+  swapQuestion: 'Qui prend votre tour cette semaine ?',
+  swapToast: (name: string) => `${name} prend votre tour cette semaine`,
+  cancel: 'Annuler',
+  takenBy: (name: string) => `Échangé : ${name} s’en occupe`,
+  nextWeeks: 'Les 3 prochaines semaines',
+  nextWeeksHint: 'La rotation tourne toute seule chaque lundi.',
+  howItWorks:
+    'Personne n’a besoin d’organiser : chaque lundi, la tâche passe à la personne suivante. Le ménage hebdomadaire fait par Chez Toi est à part.',
+  cleaningLink: 'Voir le ménage Chez Toi',
+  groceriesLink: 'Les courses de la maison',
+  groceriesHint: 'Ajoutez le ticket aux dépenses partagées',
+  groceriesTitle: 'Courses de la maison',
+  error: 'Impossible d’enregistrer, réessayez.',
+};
+
+export const en: typeof fr = {
+  title: 'House chores',
+  subtitle: 'Who does what this week, taking turns between roommates.',
+  thisWeek: 'This week',
+  weekOf: (date: string) => `Week of ${date}`,
+  progress: (done: number, total: number) => `${done} of ${total} done`,
+  you: 'You',
+  done: 'Done',
+  todo: 'To do',
+  markDone: 'Mark as done',
+  markUndone: 'Mark as to do',
+  doneToast: 'Chore done, thanks',
+  undoneToast: 'Chore back to do',
+  swap: 'Swap',
+  swapQuestion: 'Who takes your turn this week?',
+  swapToast: (name: string) => `${name} takes your turn this week`,
+  cancel: 'Cancel',
+  takenBy: (name: string) => `Swapped: ${name} takes care of it`,
+  nextWeeks: 'Next 3 weeks',
+  nextWeeksHint: 'The rotation moves on by itself every Monday.',
+  howItWorks:
+    'Nobody has to organize it: every Monday each chore passes to the next person. The weekly cleaning done by Chez Toi is separate.',
+  cleaningLink: 'See the Chez Toi cleaning',
+  groceriesLink: 'House shopping',
+  groceriesHint: 'Add the receipt to the shared expenses',
+  groceriesTitle: 'House shopping',
+  error: 'Could not save, try again.',
+};

@@ -1,7 +1,8 @@
 import * as Clipboard from 'expo-clipboard';
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { Linking, ScrollView, StyleSheet, View } from 'react-native';
 
+import { BellButton } from '@/components/bell-button';
 import { CategoryCircle } from '@/components/category-circle';
 import { HeroCard } from '@/components/hero-card';
 import { Icon } from '@/components/icon';
@@ -13,7 +14,18 @@ import { Radius, Shadow, Spacing, TapTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { formatBrl, formatDate, formatShortDate, formatTime } from '@/lib/format';
-import { contacts, demoApartment, demoContract, demoNext, demoRoommates, demoStudent } from '@/lib/mock-data';
+import { contacts, demoApartment, demoNext, demoStudent } from '@/lib/mock-data';
+import { useStore } from '@/store/index';
+import { stay } from '@/store/seed';
+import {
+  choreWeek,
+  currentInvoice,
+  isOpen,
+  me,
+  monthLabel,
+  roommates,
+  thisWeek,
+} from '@/store/selectors';
 import type { NearbyCategoryId } from '@/lib/nearby';
 
 /** Everyday categories shown as circles; they open "À proximité" on that category. */
@@ -31,7 +43,11 @@ export default function HomeScreen() {
   const theme = useTheme();
   const toast = useToast();
   const { t, lang } = useI18n();
-  const { cleaning, payment } = demoNext;
+  const { cleaning } = demoNext;
+  const invoice = useStore((s) => currentInvoice(s));
+  const openCount = useStore((s) => s.requests.filter(isOpen).length);
+  const myChores = useStore((s) => choreWeek(s, thisWeek()).filter((c) => c.assignee === me().id && !c.done));
+  const extras = invoice?.charges.filter((c) => c.kind !== 'rent').reduce((sum, c) => sum + c.amountBrl, 0) ?? 0;
 
   async function copyWifi() {
     await Clipboard.setStringAsync(demoApartment.wifiPassword);
@@ -54,6 +70,7 @@ export default function HomeScreen() {
           onPress={() => router.push('/profile')}>
           <Avatar initials={demoStudent.initials} size={44} />
         </PressableScale>
+        <BellButton />
       </View>
       <PressableScale
         accessibilityRole="search"
@@ -81,12 +98,36 @@ export default function HomeScreen() {
               title={t.home.cleaning}
               value={`${t.weekdays[cleaning.weekday]} · ${formatTime(cleaning.time, lang)}`}
             />
-            <ListRow
-              icon="rent"
-              title={t.home.rentOf(t.months[payment.month])}
-              subtitle={t.home.dueOn(formatShortDate(payment.dueDate, lang))}
-              value={formatBrl(payment.amountBrl, lang)}
-            />
+            {invoice && (
+              <ListRow
+                icon="rent"
+                title={t.home.rentOf(monthLabel(invoice.month, lang).split(' ')[0])}
+                subtitle={
+                  extras > 0
+                    ? t.home.withExtras(formatShortDate(invoice.dueDate, lang), formatBrl(extras, lang))
+                    : t.home.dueOn(formatShortDate(invoice.dueDate, lang))
+                }
+                value={formatBrl(invoice.totalBrl, lang)}
+                onPress={() => router.push('/apartment/bill' as Href)}
+              />
+            )}
+            {myChores.map(({ chore }) => (
+              <ListRow
+                key={chore.id}
+                icon="taskDone"
+                title={t.home.myChore}
+                subtitle={chore.name[lang]}
+                onPress={() => router.push('/house/chores' as Href)}
+              />
+            ))}
+            {openCount > 0 && (
+              <ListRow
+                icon="pending"
+                title={t.home.openRequests(openCount)}
+                subtitle={t.home.openRequestsHint}
+                onPress={() => router.push('/requests' as Href)}
+              />
+            )}
           </ListGroup>
         </Card>
       </Section>
@@ -100,6 +141,12 @@ export default function HomeScreen() {
               subtitle={demoApartment.wifiName}
               onPress={copyWifi}
               accessory={<Icon name="copy" size={17} color={theme.textTertiary} />}
+            />
+            <ListRow
+              icon="plus"
+              title={t.home.requestService}
+              subtitle={t.home.requestServiceHint}
+              onPress={() => router.push('/requests/new' as Href)}
             />
             <ListRow
               icon="whatsapp"
@@ -136,17 +183,17 @@ export default function HomeScreen() {
 
       <Section title={t.home.roommates}>
         <Card style={styles.roommates}>
-          {demoRoommates.map((r) => (
-            <View key={r.name} style={styles.roommate}>
+          {roommates().map((r) => (
+            <View key={r.id} style={styles.roommate}>
               <Avatar initials={r.initials} size={48} />
-              <AppText variant="callout">{r.name.split(' ')[0]}</AppText>
+              <AppText variant="callout">{r.firstName}</AppText>
             </View>
           ))}
           <View style={{ flex: 1 }} />
           <AppText variant="caption" color={theme.textSecondary} style={styles.contract}>
-            {t.home.contract(demoContract.semester)}
+            {t.home.contract(stay.semester)}
             {'\n'}
-            {formatDate(demoContract.moveIn, lang)} → {formatDate(demoContract.moveOut, lang)}
+            {formatDate(stay.moveIn, lang)} → {formatDate(stay.moveOut, lang)}
           </AppText>
         </Card>
       </Section>

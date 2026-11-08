@@ -1,3 +1,10 @@
+import { fr as requestsFr, en as requestsEn } from './features/requests';
+import { fr as billFr, en as billEn } from './features/bill';
+import { fr as houseFr, en as houseEn } from './features/house';
+import { fr as choresFr, en as choresEn } from './features/chores';
+import { fr as expensesFr, en as expensesEn } from './features/expenses';
+import { fr as remindersFr, en as remindersEn } from './features/reminders';
+
 /**
  * Every user-facing string lives here. `en` must mirror the shape of `fr`
  * (enforced by the Strings type), so a missing translation fails typecheck.
@@ -5,6 +12,12 @@
 
 const fr = {
   languageName: 'Français',
+  requests: requestsFr,
+  bill: billFr,
+  house: houseFr,
+  chores: choresFr,
+  expenses: expensesFr,
+  reminders: remindersFr,
   common: {
     soon: 'Bientôt disponible',
     back: 'Retour',
@@ -78,6 +91,12 @@ const fr = {
     ourPicks: 'Sortir à BH',
     ourPicksHint: 'Nos restaurants préférés, choisis pour la qualité',
     dueOn: (date: string) => `Avant le ${date}`,
+    withExtras: (date: string, extras: string) => `Avant le ${date} · dont ${extras} d’extras`,
+    openRequests: (n: number) => (n === 1 ? '1 demande en cours' : `${n} demandes en cours`),
+    openRequestsHint: 'Suivre l’avancement',
+    myChore: 'Ma tâche de la semaine',
+    requestService: 'Demander un service',
+    requestServiceHint: 'Ménage, laverie, chef, transfert, réparation',
     restaurants: 'Restaurants',
     restaurantsHint: 'Notre sélection des bonnes tables',
   },
@@ -483,6 +502,12 @@ const fr = {
     language: 'Langue',
     contact: 'Nous contacter',
     signOut: 'Se déconnecter',
+    reminders: 'Rappels et agenda',
+    notices: 'Notifications',
+    resetDemo: 'Réinitialiser la démo',
+    resetDemoHint: 'Efface les demandes et dépenses créées sur ce téléphone',
+    resetDemoConfirm: 'Toucher encore pour confirmer',
+    resetDemoDone: 'Démo réinitialisée',
   },
   weekdays: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
   months: [
@@ -505,6 +530,12 @@ export type Strings = typeof fr;
 
 const en: Strings = {
   languageName: 'English',
+  requests: requestsEn,
+  bill: billEn,
+  house: houseEn,
+  chores: choresEn,
+  expenses: expensesEn,
+  reminders: remindersEn,
   common: {
     soon: 'Coming soon',
     back: 'Back',
@@ -578,6 +609,12 @@ const en: Strings = {
     ourPicks: 'Going out in BH',
     ourPicksHint: 'Our favourite restaurants, picked for quality',
     dueOn: (date: string) => `Due ${date}`,
+    withExtras: (date: string, extras: string) => `Due ${date} · incl. ${extras} of extras`,
+    openRequests: (n: number) => (n === 1 ? '1 open request' : `${n} open requests`),
+    openRequestsHint: 'Follow the progress',
+    myChore: 'My chore this week',
+    requestService: 'Request a service',
+    requestServiceHint: 'Cleaning, laundry, chef, transfer, repairs',
     restaurants: 'Restaurants',
     restaurantsHint: 'Our pick of good places to eat',
   },
@@ -983,6 +1020,12 @@ const en: Strings = {
     language: 'Language',
     contact: 'Contact us',
     signOut: 'Sign out',
+    reminders: 'Reminders and calendar',
+    notices: 'Notifications',
+    resetDemo: 'Reset the demo',
+    resetDemoHint: 'Clears the requests and expenses created on this phone',
+    resetDemoConfirm: 'Tap again to confirm',
+    resetDemoDone: 'Demo reset',
   },
   weekdays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
   months: [

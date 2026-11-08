@@ -21,7 +21,12 @@ export function formatShortDate(iso: string, lang: Lang) {
 
 /** Brazilian reais with the reader's grouping: R$ 2 400 (fr) · R$2,400 (en) */
 export function formatBrl(value: number, lang: Lang) {
-  const n = value.toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-US');
+  // Whole amounts stay short (R$ 2 400); amounts with cents always show two (R$ 30,30).
+  const cents = !Number.isInteger(Math.round(value * 100) / 100);
+  const n = value.toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-US', {
+    minimumFractionDigits: cents ? 2 : 0,
+    maximumFractionDigits: 2,
+  });
   return lang === 'fr' ? `R$ ${n}` : `R$${n}`;
 }
 

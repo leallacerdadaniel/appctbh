@@ -1,3 +1,5 @@
+import { router, type Href } from 'expo-router';
+import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Icon } from '@/components/icon';
@@ -11,6 +13,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { useAuth } from '@/lib/auth';
 import { demoStudent } from '@/lib/mock-data';
+import { resetDemo } from '@/store/index';
 
 /** Opened from the initials next to the Home greeting (the tab went to "Voyages"). */
 export default function ProfileScreen() {
@@ -18,6 +21,7 @@ export default function ProfileScreen() {
   const toast = useToast();
   const { signOut } = useAuth();
   const { t } = useI18n();
+  const [confirmReset, setConfirmReset] = useState(false);
 
   return (
     <Screen back title={t.profile.title}>
@@ -36,6 +40,28 @@ export default function ProfileScreen() {
           <ListRow icon="website" title={t.profile.language} accessory={<LanguageSwitch />} />
           <ListRow icon="key" title={t.profile.changePassword} onPress={() => toast(t.common.soon)} />
           <ListRow icon="mail" title={t.profile.contact} onPress={() => toast(t.common.soon)} />
+        </ListGroup>
+      </Card>
+
+      <Card style={{ paddingVertical: 0 }}>
+        <ListGroup inset>
+          <ListRow icon="bell" title={t.profile.notices} onPress={() => router.push('/notices' as Href)} />
+          <ListRow
+            icon="calendarCheck"
+            title={t.profile.reminders}
+            onPress={() => router.push('/reminders' as Href)}
+          />
+          <ListRow
+            icon="sync"
+            title={confirmReset ? t.profile.resetDemoConfirm : t.profile.resetDemo}
+            subtitle={t.profile.resetDemoHint}
+            onPress={() => {
+              if (!confirmReset) return setConfirmReset(true);
+              resetDemo();
+              setConfirmReset(false);
+              toast(t.profile.resetDemoDone);
+            }}
+          />
         </ListGroup>
       </Card>
 

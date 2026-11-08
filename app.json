@@ -37,7 +37,22 @@
       ],
       "expo-localization",
       "expo-sharing",
-      "expo-asset"
+      "expo-asset",
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "Chez Toi BH adds your cleanings, rent due dates and bookings to your calendar."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Chez Toi BH attaches photos to your maintenance requests.",
+          "cameraPermission": "Chez Toi BH takes photos for your maintenance requests."
+        }
+      ],
+      "expo-notifications",
+      "expo-document-picker"
     ],
     "experiments": {
       "typedRoutes": true,

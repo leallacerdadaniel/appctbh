@@ -9,6 +9,7 @@ import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { ReminderEngine } from '@/components/reminder-engine';
 import { ToastProvider } from '@/components/toast';
 import { useTheme } from '@/hooks/use-theme';
 import { LanguageProvider } from '@/i18n';
@@ -54,6 +55,7 @@ function RootStack() {
   return (
     <>
       <StatusBar style="light" />
+      {isSignedIn && !mustChangePassword && <ReminderEngine />}
       <Stack
         screenOptions={{
           headerShown: false,
@@ -90,6 +92,26 @@ function RootStack() {
           <Stack.Screen name="attraction/[id]" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="festival/[id]" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="profile" options={{ animation: 'slide_from_right' }} />
+          {[
+            'apartment/bill',
+            'apartment/rules',
+            'apartment/inventory',
+            'apartment/documents',
+            'requests/index',
+            'requests/new',
+            'requests/service/[id]',
+            'requests/maintenance',
+            'requests/stay-change',
+            'requests/gourmet',
+            'requests/[id]',
+            'house/chores',
+            'house/expenses/index',
+            'house/expenses/new',
+            'reminders',
+            'notices',
+          ].map((name) => (
+            <Stack.Screen key={name} name={name} options={{ animation: 'slide_from_right' }} />
+          ))}
         </Stack.Protected>
       </Stack>
     </>
