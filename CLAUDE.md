@@ -29,17 +29,22 @@ próprio artefato).
 | 2, 3, 5, 7, 8, 11 | Banco, login, apartamento, faxinas, contas da casa, lugares | **Em parte pelo Arthur (27/10 a 07/11)**: `app-api` + tabelas `app_*`; caixas marcadas no plano em 08/11 |
 | 4, 6, 9, 10, 12 a 18 | Painel, pedidos, avisos, chegada, emergência, línguas, comunidade, lojas | Não iniciadas |
 
-## Como o app fala com o banco (desde 27/10/2026, trabalho do Arthur)
+## Onde mora cada coisa (08/11/2026)
 
-- O app só fala com a Edge Function `app-api` (`supabase/functions/app-api`, publicada no projeto do
-  site como `bright-service`); cliente em `src/lib/app-api.ts`. Login próprio em `app_students`.
-- Rodar local: `.env.local` (fora do Git) com
-  `EXPO_PUBLIC_APP_API_URL=https://miucfiiporxhvvbefonh.supabase.co/functions/v1/bright-service`.
-- Tabelas do app: `app_*` no banco do site, migrações em `supabase/migrations` deste repositório.
+- **Código:** repositório `leallacerdadaniel/appctbh` (remoto `origin`); o do Arthur (`arthurhp14/ctbh-app`)
+  ficou como remoto `arthur`, só referência. O Arthur parou de mexer no app em 07/11/2026.
+- **Desenvolvimento:** projeto Supabase **`appctbh`** (`gxhvhacqemdwwebsftcd`, organização Chez Toi BH), com a
+  estrutura das tabelas do site que o app lê, as tabelas `app_*`, a `app-api` e dados fictícios.
+  SQL em `supabase/appctbh/` (001 estrutura do site, 002 tabelas e funções do app, 003 dados de teste).
+  A conta de teste fica no `.env.local` (fora do Git).
+- **Produção:** banco do site (`miucfiiporxhvvbefonh`), função `bright-service` (a `app-api` do Arthur) e
+  tabelas `app_*`. **Nunca escrever no banco do site** sem aprovação do Daniel: lá só leitura do catálogo.
   Nunca escrever em `rental_tenants` nem `apartment_rentals` (gatilho refaz mensalidades e faxinas).
-- Tabela ou função nova passa antes pela homologação (DECISÃO-4 no plano).
-- O trabalho em modo local de 06/11 (extras e pedidos, fatura com extras, lembretes, agenda, tarefas
-  da casa, `src/store`) está no stash do GitHub Desktop (`git stash list`), para portar sobre a `app-api`.
+- O conector Supabase desta conta escreve nos dois projetos: conferir o `project_id` antes de cada
+  `apply_migration`, `execute_sql` ou `deploy_edge_function`.
+- O app fala só com a `app-api` (`src/lib/app-api.ts`), endereço em `EXPO_PUBLIC_APP_API_URL` no `.env.local`.
+- O trabalho em modo local de 06/11 (extras e pedidos, fatura com extras, lembretes, agenda, tarefas da casa)
+  está na branch `arquivo/modo-local-0611`, para portar sobre a `app-api`, uma onda por vez.
 
 ## Armadilhas conhecidas (08/11/2026)
 
