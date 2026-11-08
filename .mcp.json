@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "supabase-cheztoi-leitura": {
+      "type": "http",
+      "url": "https://mcp.supabase.com/mcp?project_ref=miucfiiporxhvvbefonh&read_only=true",
+      "headers": { "Authorization": "Bearer ${SUPABASE_CHEZTOI_TOKEN}" }
+    }
+  }
+}
