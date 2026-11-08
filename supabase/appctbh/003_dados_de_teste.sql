@@ -33,7 +33,7 @@ begin
     (chloe, 'Chloé Dubois', 'client', 'chloe.teste@appctbh.test', 'Française', '2003-01-18', inicio, fim);
 
   insert into public.apartments (id, title, location, address_complement, price, bedrooms, bathrooms, slug, latitude, longitude, max_residents)
-  values (ap, 'Apê de teste Savassi', 'Rua Antônio de Albuquerque, 335 - Funcionários. Belo Horizonte - MG', 'Apto 802',
+  values (ap, 'Apê de teste Savassi', 'Rua Antônio de Albuquerque, 335 - Funcionários. Belo Horizonte - MG', null,
           2400, 3, 2, 'teste-savassi', -19.93660000, -43.93460000, 3);
 
   insert into public.app_apartment_info (apartment_id, wifi_name, wifi_password, unit_number, trash_info)

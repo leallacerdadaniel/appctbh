@@ -1,5 +1,5 @@
 import * as Clipboard from 'expo-clipboard';
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { useState } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
 
@@ -17,6 +17,7 @@ import { formatDate, formatTime, isFutureMonth, shortAddress } from '@/lib/forma
 import { useBalanceLabel } from '@/lib/expenses';
 import { useHandovers } from '@/lib/handovers';
 import { useHome } from '@/lib/home';
+import { isOpen, useRequests } from '@/lib/requests';
 import { trackAction } from '@/lib/usage';
 
 /**
@@ -36,6 +37,8 @@ export default function ApartmentScreen() {
   const handoverStatus = (date: string | null | undefined) =>
     date ? t.apartment.handover.on(formatDate(date, lang)) : t.apartment.handover.notYet;
   const balance = useBalanceLabel();
+  const { state: requestsState } = useRequests();
+  const openRequests = requestsState.status === 'ready' ? requestsState.data.requests.filter(isOpen).length : 0;
 
   async function copy(value: string, message: string) {
     await Clipboard.setStringAsync(value);
@@ -140,6 +143,12 @@ export default function ApartmentScreen() {
             title={t.apartment.cleaning.title}
             status={nextLabel}
             onPress={() => router.push('/apartment/cleaning')}
+          />
+          <HubTile
+            emoji="🛎️"
+            title={t.requests.tile}
+            status={openRequests ? t.requests.openCount(openRequests) : t.requests.tileIdle}
+            onPress={() => router.push('/requests' as Href)}
           />
           <HubTile
             emoji="💳"

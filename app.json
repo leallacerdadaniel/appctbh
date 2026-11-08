@@ -37,7 +37,14 @@
       ],
       "expo-localization",
       "expo-sharing",
-      "expo-asset"
+      "expo-asset",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Chez Toi BH attaches photos to your maintenance requests.",
+          "cameraPermission": "Chez Toi BH takes photos for your maintenance requests."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

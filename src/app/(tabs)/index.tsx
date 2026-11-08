@@ -1,11 +1,12 @@
 import * as Clipboard from 'expo-clipboard';
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { Linking, ScrollView, StyleSheet, View } from 'react-native';
 
 import { CategoryCircle } from '@/components/category-circle';
 import { HeroCard } from '@/components/hero-card';
 import { Icon, type IconName } from '@/components/icon';
 import { ListGroup, ListRow } from '@/components/list';
+import { requestTitle } from '@/components/request-ui';
 import { Screen, Section } from '@/components/screen';
 import { useToast } from '@/components/toast';
 import { AppText, Card, PressableScale } from '@/components/ui';
@@ -20,6 +21,7 @@ import { useHome } from '@/lib/home';
 import { upcomingEvents } from '@/lib/home-feed';
 import { contacts } from '@/lib/mock-data';
 import type { NearbyCategoryId } from '@/lib/nearby';
+import { isOpen, useRequests } from '@/lib/requests';
 import { trackAction } from '@/lib/usage';
 
 /** Everyday categories shown as circles; they open "À proximité" on that category. */
@@ -52,6 +54,8 @@ export default function HomeScreen() {
   const balance = useBalanceLabel();
   const colon = lang === 'fr' ? ' : ' : ': ';
   const upcoming = upcomingEvents({ cleanings, ...contract });
+  const { state: requestsState } = useRequests();
+  const openRequests = requestsState.status === 'ready' ? requestsState.data.requests.filter(isOpen) : [];
 
   async function copyWifi() {
     if (!apartment.wifiPassword) return toast(t.common.soon);
@@ -93,6 +97,20 @@ export default function HomeScreen() {
         cta={t.home.seeApartment}
         onPress={() => router.navigate('/apartment')}
       />
+
+      {/* Only while the team is working on something for the student. */}
+      {openRequests.length > 0 && (
+        <Card style={styles.listCard}>
+          <ListGroup inset>
+            <ListRow
+              icon="receipt"
+              title={t.requests.openCount(openRequests.length)}
+              subtitle={openRequests.map((r) => requestTitle(r, t, lang)).join(', ')}
+              onPress={() => router.push('/requests' as Href)}
+            />
+          </ListGroup>
+        </Card>
+      )}
 
       <Section
         title={t.home.upcoming}
@@ -167,6 +185,12 @@ export default function HomeScreen() {
                 trackAction('open_whatsapp', 'home');
                 Linking.openURL(`https://wa.me/${contacts.whatsapp}`);
               }}
+            />
+            <ListRow
+              icon="plus"
+              title={t.requests.homeNew}
+              subtitle={t.requests.homeNewHint}
+              onPress={() => router.push('/requests/new' as Href)}
             />
             {/* Nobody to split with when the student lives alone. */}
             {roommates.length > 0 && (

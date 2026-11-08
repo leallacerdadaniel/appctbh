@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { useState, type ReactNode } from 'react';
+import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BrandBar } from '@/components/brand-bar';
@@ -10,7 +10,8 @@ import { useTheme } from '@/hooks/use-theme';
 
 /**
  * Every screen: red BrandBar (fixed) + scrollable gray canvas with a centered 560px column.
- * `back` for screens pushed over the tabs; `header` for extra content right under the bar.
+ * `back` for screens pushed over the tabs; `header` for extra content right under the bar;
+ * `onRefresh` adds pull-to-refresh (the spinner shows until the promise settles).
  */
 export function Screen({
   title,
@@ -18,15 +19,28 @@ export function Screen({
   children,
   header,
   back = false,
+  onRefresh,
 }: {
   title?: string;
   subtitle?: string;
   children: ReactNode;
   header?: ReactNode;
   back?: boolean;
+  onRefresh?: () => Promise<unknown>;
 }) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
+  const [refreshing, setRefreshing] = useState(false);
+
+  async function refresh() {
+    if (!onRefresh) return;
+    setRefreshing(true);
+    try {
+      await onRefresh();
+    } finally {
+      setRefreshing(false);
+    }
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
@@ -34,7 +48,17 @@ export function Screen({
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}
-        keyboardShouldPersistTaps="handled">
+        keyboardShouldPersistTaps="handled"
+        refreshControl={
+          onRefresh ? (
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={refresh}
+              tintColor={theme.textSecondary}
+              colors={[theme.textSecondary]}
+            />
+          ) : undefined
+        }>
         {header}
         <View style={[styles.column, { paddingTop: Spacing.lg }]}>
           {title && (

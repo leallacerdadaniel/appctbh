@@ -18,6 +18,7 @@ import { AuthProvider, useAuth } from '@/lib/auth';
 import { ExpensesProvider } from '@/lib/expenses';
 import { HomeProvider, useHomeState } from '@/lib/home';
 import { PlacesProvider } from '@/lib/places';
+import { RequestsProvider } from '@/lib/requests';
 import { UsageTracker } from '@/lib/usage';
 
 SplashScreen.preventAutoHideAsync();
@@ -44,9 +45,11 @@ export default function RootLayout() {
             <HomeProvider>
               <ExpensesProvider>
                 <PlacesProvider>
-                  <ToastProvider>
-                    <RootStack />
-                  </ToastProvider>
+                  <RequestsProvider>
+                    <ToastProvider>
+                      <RootStack />
+                    </ToastProvider>
+                  </RequestsProvider>
                 </PlacesProvider>
               </ExpensesProvider>
             </HomeProvider>
@@ -114,6 +117,13 @@ function RootStack() {
           <Stack.Screen name="attraction/[id]" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="festival/[id]" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="profile" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="requests/index" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="requests/new" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="requests/service/[id]" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="requests/maintenance" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="requests/stay-change" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="requests/gourmet" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="requests/[id]" options={{ animation: 'slide_from_right' }} />
         </Stack.Protected>
       </Stack>
       {isSignedIn && !mustChangePassword && <BirthdayGreeting key={token} />}

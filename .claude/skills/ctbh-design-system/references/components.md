@@ -7,6 +7,7 @@ Every screen. Draws the red `BrandBar` on top, then a scrollable gray canvas wit
 - `title` / `subtitle`: `display` title and secondary line under the bar.
 - `back`: pushed screens — white back arrow in the bar.
 - `header`: extra content right under the bar (Home greeting).
+- `onRefresh`: pull-to-refresh; pass a function returning a promise (the spinner stays until it settles). Used by "Mes demandes" and a request's page.
 - `Reveal` is kept for old call sites and renders immediately (screens appear whole).
 
 ## BrandBar (`brand-bar.tsx`)
@@ -93,6 +94,17 @@ Filter pills: white with hairline border; selected = red fill, white label.
 - `CurrencyToggle`: R$ / € pill switch (`fill` track, white selected pill, like `SegmentedControl`).
 - `AmountField`: the currency switch over a large centered amount (Outfit 44), calculator-style, at the top of the expense and payment forms.
 - Money amounts that are in the student's favour use `success` green; amounts they owe stay in `text` (never error red).
+
+## Requests (`request-ui.tsx`, screens in `src/app/requests/`)
+- `StatusPill`: caption pill, `fill` background; done = `success` on `successSoft`, in progress = `warning`, confirmed = `text`, the rest `textSecondary`. Never brand red.
+- `Timeline`: newest step first, dot + rail; "Envoyée / Sent" for the student's first step, then date · time (Belo Horizonte) · "Chez Toi" or "Vous", and the team's note.
+- `DateChips` (horizontal scroller that bleeds to the card's edges, "Aujourd’hui", "Demain", "Lun. 10 nov.") and `TimeChips` (wrapping) — both inside a `Card`.
+- `Stepper`: − value + with 44 pt round `fill` buttons; sits in a `ListRow` accessory (quantity, people).
+- `StarRating`: 5 × 44 pt stars, `star` yellow when chosen (like `RatingPill`).
+- `Notice`: icon + callout on `fill`, only inside a card (on the canvas the `fill` barely shows); `warning` tone for urgent repairs.
+- `RequestsGate`: renders the screen once the requests are loaded, a retry card if the first load failed.
+- Catalog extras are `HubTile`s with the catalog's emoji, grouped by category with a small label; free requests are `ListRow`s.
+- Forms: one `Card` per group of fields (`FieldLabel` + chips), inputs always inside a card, one primary button at the end; cancel is a secondary button that asks "Appuyez encore pour annuler" (no Alert).
 
 ## Common Issues
 ### "button cannot be a descendant of button" (web console)

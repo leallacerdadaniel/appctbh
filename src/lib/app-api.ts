@@ -4,6 +4,12 @@
  * returns is sent as a Bearer header.
  */
 const BASE_URL = process.env.EXPO_PUBLIC_APP_API_URL ?? '';
+/**
+ * Requests (wave 6) live in a second function, "app-requests", in the same Supabase project; it accepts
+ * the same session token. Defaults to the sibling of the app-api URL.
+ */
+const REQUESTS_URL =
+  process.env.EXPO_PUBLIC_REQUESTS_API_URL ?? BASE_URL.replace(/\/[^/]*$/, '/app-requests');
 
 export type ApiError =
   | 'wrongCredentials'
@@ -15,7 +21,9 @@ export type ApiError =
   | 'forbidden'
   | 'notFound'
   | 'network'
-  | 'server';
+  | 'server'
+  | 'tooSoon'
+  | 'taken';
 
 export class AppApiError extends Error {
   constructor(public code: ApiError) {
@@ -23,10 +31,21 @@ export class AppApiError extends Error {
   }
 }
 
-export async function appApi<T>(route: string, options: { token?: string | null; body?: unknown } = {}): Promise<T> {
+type CallOptions = { token?: string | null; body?: unknown };
+
+export function appApi<T>(route: string, options: CallOptions = {}): Promise<T> {
+  return call<T>(BASE_URL, route, options);
+}
+
+/** Same as appApi, for the "app-requests" function. */
+export function requestsApi<T>(route: string, options: CallOptions = {}): Promise<T> {
+  return call<T>(REQUESTS_URL, route, options);
+}
+
+async function call<T>(base: string, route: string, options: CallOptions): Promise<T> {
   let res: Response;
   try {
-    res = await fetch(`${BASE_URL}/${route}`, {
+    res = await fetch(`${base}/${route}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
