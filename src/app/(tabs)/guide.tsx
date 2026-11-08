@@ -1,24 +1,32 @@
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
-import { Linking, StyleSheet, TextInput, View } from 'react-native';
-import Animated, { FadeIn, LinearTransition } from 'react-native-reanimated';
+import { Linking, StyleSheet, TextInput } from 'react-native';
 
 import { HubGrid, HubTile } from '@/components/hub-tile';
 import { Icon } from '@/components/icon';
 import { ListGroup, ListRow } from '@/components/list';
 import { Screen, Section } from '@/components/screen';
-import { normalize, SearchField } from '@/components/search-field';
-import { AppText, Button, Card, PressableScale } from '@/components/ui';
+import { SearchField } from '@/components/search-field';
+import { AppText, Button, Card } from '@/components/ui';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { useI18n, type Lang } from '@/i18n';
+import { useI18n } from '@/i18n';
 import { adminProcedures } from '@/lib/admin';
-import { attractions } from '@/lib/attractions';
 import { beautyPlaces } from '@/lib/beauty';
 import { dishes } from '@/lib/dishes';
-import { contacts, guide, type GuideItem } from '@/lib/mock-data';
+import {
+  BEAUTY_GROUP_KEYWORDS,
+  GUIDE_SECTIONS,
+  makeMatcher,
+  nearbyWords,
+  sectionWords,
+  SPORT_GROUP_KEYWORDS,
+} from '@/lib/guide-search';
+import { contacts } from '@/lib/mock-data';
 import { nightPlaces } from '@/lib/nightlife';
+import { usePlaces } from '@/lib/places';
 import { services } from '@/lib/services';
+import { strings } from '@/i18n/strings';
 import { sportPlaces } from '@/lib/sports';
 import { displayName, restaurants } from '@/lib/restaurants';
 import { trackAction, trackSearch } from '@/lib/usage';
@@ -35,7 +43,7 @@ export default function GuideScreen() {
   const params = useLocalSearchParams<{ focus?: string; q?: string }>();
   const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
   const [query, setQuery] = useState('');
-  const [openId, setOpenId] = useState<string | null>(null);
+  const nearby = usePlaces()?.nearby;
 
   // Arriving from the Home search bar or a shortcut (e.g. "Urgences").
   useFocusEffect(
@@ -45,52 +53,61 @@ export default function GuideScreen() {
     }, [params.q, params.focus]),
   );
 
-  const q = normalize(query.trim());
+  const q = query.trim();
 
-  // One search over everything the Guide covers; both languages so "ménage" works in EN mode.
+  // Only what the Guide shows, in FR, EN and PT, so "ménage" or "farmácia" work in any language.
   const results = useMemo(() => {
-    if (!q) return null;
-    const has = (parts: string[]) => normalize(parts.join(' ')).includes(q);
+    const has = makeMatcher(q);
+    if (!has) return null;
+    const both = <K extends string>(pick: (s: typeof strings.fr) => Record<K, string>, key: K) => [
+      pick(strings.fr)[key],
+      pick(strings.en)[key],
+    ];
+    const nearbyHits = (nearby?.categories ?? []).flatMap((c) =>
+      c.places.filter((p) => has([p.name])).map((p) => ({ ...p, category: c.id })),
+    );
     return {
-      info: guide.filter((g) =>
-        has([...Object.values(g.title), ...Object.values(g.category), g.body[lang], ...g.keywords]),
+      sections: GUIDE_SECTIONS.filter((sec) => has(sectionWords(sec))),
+      nearbyCategories: (Object.keys(t.nearby.categories) as (keyof typeof t.nearby.categories)[]).filter((id) =>
+        has(nearbyWords(id)),
       ),
+      nearbyPlaces: nearbyHits,
       restaurants: restaurants.filter((r) => has([r.name, ...Object.values(r.cuisine), r.neighborhood])),
-      places: attractions.filter((a) => has([a.name, a.neighborhood])),
-      dishes: dishes.filter((d) => has([d.name, ...Object.values(d.description)])),
+      dishes: dishes.filter((d) => has([d.name])),
       night: nightPlaces.filter((p) => has([p.name, ...Object.values(p.vibe), p.neighborhood])),
       sport: sportPlaces.filter((p) =>
-        has([p.name, ...Object.values(p.kind), p.neighborhood, ...p.groups.flatMap((g) => [t.sports.groups[g]])]),
+        has([
+          p.name,
+          ...Object.values(p.kind),
+          p.neighborhood,
+          ...p.groups.flatMap((g) => [...both((s) => s.sports.groups, g), ...(SPORT_GROUP_KEYWORDS[g] ?? [])]),
+        ]),
       ),
-      services: services.filter((s) => has([s.name, ...Object.values(s.kind), t.services.groups[s.group]])),
-      admin: adminProcedures.filter((p) =>
-        has([p.title, ...Object.values(p.kind), ...Object.values(p.summary), ...p.keywords]),
+      services: services.filter((s) =>
+        has([s.name, ...Object.values(s.kind), ...both((x) => x.services.groups, s.group)]),
       ),
+      admin: adminProcedures.filter((p) => has([p.title, ...Object.values(p.kind), ...p.keywords])),
       beauty: beautyPlaces.filter((p) =>
-        has([p.name, ...Object.values(p.kind), ...Object.values(p.description), ...p.neighborhoods, t.beauty.groups[p.group]]),
+        has([
+          p.name,
+          ...Object.values(p.kind),
+          ...p.neighborhoods,
+          ...both((s) => s.beauty.groups, p.group),
+          ...BEAUTY_GROUP_KEYWORDS[p.group],
+        ]),
       ),
     };
-  }, [q, lang, t]);
+  }, [q, nearby, t]);
 
   // Counts once the student stops typing, so "res", "rest", "resta" don't become three searches.
   useEffect(() => {
     if (!results) return;
     const found = Object.values(results).reduce((total, list) => total + list.length, 0);
-    const timer = setTimeout(() => trackSearch(q, found), SEARCH_SETTLE_MS);
+    const timer = setTimeout(() => trackSearch(q.toLowerCase(), found), SEARCH_SETTLE_MS);
     return () => clearTimeout(timer);
   }, [q, results]);
 
-  const empty =
-    results &&
-    !results.info.length &&
-    !results.restaurants.length &&
-    !results.places.length &&
-    !results.dishes.length &&
-    !results.night.length &&
-    !results.sport.length &&
-    !results.services.length &&
-    !results.beauty.length &&
-    !results.admin.length;
+  const empty = results && Object.values(results).every((list) => list.length === 0);
 
   return (
     <Screen title={t.guide.title} subtitle={t.guide.subtitle}>
@@ -106,12 +123,7 @@ export default function GuideScreen() {
         <>
           <Section title={t.guide.start} subtitle={t.guide.startHint}>
             <HubGrid>
-              <HubTile
-                emoji="🛂"
-                title={t.admin.title}
-                status={t.admin.status}
-                onPress={() => router.push('/admin')}
-              />
+              <HubTile emoji="🛂" title={t.admin.title} status={t.admin.status} onPress={() => router.push('/admin')} />
               <HubTile
                 emoji="📱"
                 title={t.services.title}
@@ -182,15 +194,48 @@ export default function GuideScreen() {
 
       {results && !empty && (
         <>
-          {results.info.length > 0 && (
-            <Section title={t.guide.info}>
-              <InfoList
-                items={results.info}
-                lang={lang}
-                // A single match (e.g. from the "Urgences" shortcut) opens directly.
-                openId={results.info.length === 1 ? results.info[0].id : openId}
-                onToggle={setOpenId}
-              />
+          {results.sections.length > 0 && (
+            <Section title={t.guide.resultsSections}>
+              <Card style={styles.listCard}>
+                <ListGroup>
+                  {results.sections.map((sec) => (
+                    <ListRow key={sec.id} title={sec.title(t)} onPress={() => router.push(sec.path)} />
+                  ))}
+                </ListGroup>
+              </Card>
+            </Section>
+          )}
+          {(results.nearbyCategories.length > 0 || results.nearbyPlaces.length > 0) && (
+            <Section title={t.nearby.title}>
+              <Card style={styles.listCard}>
+                <ListGroup>
+                  {results.nearbyCategories.map((id) => (
+                    <ListRow
+                      key={id}
+                      title={t.nearby.categories[id]}
+                      onPress={() =>
+                        router.push({
+                          pathname: '/nearby',
+                          params: { category: id },
+                        })
+                      }
+                    />
+                  ))}
+                  {results.nearbyPlaces.map((p) => (
+                    <ListRow
+                      key={`${p.category}-${p.placeId ?? p.name}`}
+                      title={p.name}
+                      subtitle={t.nearby.categories[p.category]}
+                      onPress={() =>
+                        router.push({
+                          pathname: '/nearby',
+                          params: { category: p.category },
+                        })
+                      }
+                    />
+                  ))}
+                </ListGroup>
+              </Card>
             </Section>
           )}
           {results.restaurants.length > 0 && (
@@ -202,7 +247,12 @@ export default function GuideScreen() {
                       key={r.id}
                       title={displayName(r)}
                       subtitle={`${r.cuisine[lang]} · ${r.neighborhood}`}
-                      onPress={() => router.push({ pathname: '/restaurants/[id]', params: { id: r.id } })}
+                      onPress={() =>
+                        router.push({
+                          pathname: '/restaurants/[id]',
+                          params: { id: r.id },
+                        })
+                      }
                     />
                   ))}
                 </ListGroup>
@@ -214,7 +264,16 @@ export default function GuideScreen() {
               <Card style={styles.listCard}>
                 <ListGroup>
                   {results.dishes.map((d) => (
-                    <ListRow key={d.id} title={d.name} onPress={() => router.push('/restaurants/dishes')} />
+                    <ListRow
+                      key={d.id}
+                      title={d.name}
+                      onPress={() =>
+                        router.push({
+                          pathname: '/restaurants/dishes',
+                          params: { dish: d.id },
+                        })
+                      }
+                    />
                   ))}
                 </ListGroup>
               </Card>
@@ -229,7 +288,12 @@ export default function GuideScreen() {
                       key={p.id}
                       title={p.name}
                       subtitle={`${p.vibe[lang]} · ${p.neighborhood}`}
-                      onPress={() => router.push({ pathname: '/nightlife/[id]', params: { id: p.id } })}
+                      onPress={() =>
+                        router.push({
+                          pathname: '/nightlife/[id]',
+                          params: { id: p.id },
+                        })
+                      }
                     />
                   ))}
                 </ListGroup>
@@ -245,7 +309,12 @@ export default function GuideScreen() {
                       key={p.id}
                       title={p.name}
                       subtitle={`${p.kind[lang]} · ${p.neighborhood}`}
-                      onPress={() => router.push({ pathname: '/sports/[id]', params: { id: p.id } })}
+                      onPress={() =>
+                        router.push({
+                          pathname: '/sports/[id]',
+                          params: { id: p.id },
+                        })
+                      }
                     />
                   ))}
                 </ListGroup>
@@ -261,7 +330,12 @@ export default function GuideScreen() {
                       key={s.id}
                       title={s.name}
                       subtitle={s.kind[lang]}
-                      onPress={() => router.push({ pathname: '/services/[id]', params: { id: s.id } })}
+                      onPress={() =>
+                        router.push({
+                          pathname: '/services/[id]',
+                          params: { id: s.id },
+                        })
+                      }
                     />
                   ))}
                 </ListGroup>
@@ -277,7 +351,12 @@ export default function GuideScreen() {
                       key={p.id}
                       title={p.title}
                       subtitle={p.kind[lang]}
-                      onPress={() => router.push({ pathname: '/admin/[id]', params: { id: p.id } })}
+                      onPress={() =>
+                        router.push({
+                          pathname: '/admin/[id]',
+                          params: { id: p.id },
+                        })
+                      }
                     />
                   ))}
                 </ListGroup>
@@ -293,23 +372,12 @@ export default function GuideScreen() {
                       key={p.id}
                       title={p.name}
                       subtitle={`${p.kind[lang]} · ${p.neighborhoods.join(', ')}`}
-                      onPress={() => router.push({ pathname: '/beauty/[id]', params: { id: p.id } })}
-                    />
-                  ))}
-                </ListGroup>
-              </Card>
-            </Section>
-          )}
-          {results.places.length > 0 && (
-            <Section title={t.guide.resultsPlaces}>
-              <Card style={styles.listCard}>
-                <ListGroup>
-                  {results.places.map((a) => (
-                    <ListRow
-                      key={a.id}
-                      title={a.name}
-                      subtitle={a.neighborhood}
-                      onPress={() => router.push({ pathname: '/attraction/[id]', params: { id: a.id } })}
+                      onPress={() =>
+                        router.push({
+                          pathname: '/beauty/[id]',
+                          params: { id: p.id },
+                        })
+                      }
                     />
                   ))}
                 </ListGroup>
@@ -341,61 +409,7 @@ export default function GuideScreen() {
   );
 }
 
-/** Practical info as an accordion inside one card. */
-function InfoList({
-  items,
-  lang,
-  openId,
-  onToggle,
-}: {
-  items: GuideItem[];
-  lang: Lang;
-  openId: string | null;
-  onToggle: (id: string | null) => void;
-}) {
-  const theme = useTheme();
-  return (
-    <Card style={styles.listCard}>
-      {items.map((item, i) => {
-        const open = openId === item.id;
-        return (
-          <Animated.View key={item.id} layout={LinearTransition.duration(200)}>
-            {i > 0 && <View style={[styles.divider, { backgroundColor: theme.line }]} />}
-            <PressableScale
-              accessibilityRole="button"
-              accessibilityState={{ expanded: open }}
-              onPress={() => onToggle(open ? null : item.id)}
-              style={styles.infoRow}>
-              <View style={styles.infoHead}>
-                <View style={{ flex: 1, gap: 2 }}>
-                  <AppText>{item.title[lang]}</AppText>
-                  <AppText variant="caption" color={theme.textSecondary}>
-                    {item.category[lang]}
-                  </AppText>
-                </View>
-                <View style={{ transform: [{ rotate: open ? '180deg' : '0deg' }] }}>
-                  <Icon name="chevronDown" size={18} color={theme.textTertiary} />
-                </View>
-              </View>
-              {open && (
-                <Animated.View entering={FadeIn.duration(200)}>
-                  <AppText variant="callout" color={theme.textSecondary} style={{ marginTop: Spacing.sm }}>
-                    {item.body[lang]}
-                  </AppText>
-                </Animated.View>
-              )}
-            </PressableScale>
-          </Animated.View>
-        );
-      })}
-    </Card>
-  );
-}
-
 const styles = StyleSheet.create({
   listCard: { paddingVertical: 0 },
-  divider: { height: StyleSheet.hairlineWidth },
-  infoRow: { paddingVertical: 14 },
-  infoHead: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
   empty: { gap: Spacing.md, alignItems: 'center', paddingVertical: Spacing.xl },
 });

@@ -85,8 +85,7 @@ export default function HomeScreen() {
         photo={{ uri: apartment.photoUrl ?? '' }}
         label={t.home.yourHome}
         labelIcon="home"
-        title={apartment.nickname}
-        subtitle={
+        title={
           /^\d/.test(apartment.complement)
             ? `${t.apartment.unit} ${apartment.complement}`
             : apartment.complement || shortAddress(apartment.address)

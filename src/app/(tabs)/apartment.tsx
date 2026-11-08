@@ -1,5 +1,4 @@
 import * as Clipboard from 'expo-clipboard';
-import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
@@ -10,7 +9,7 @@ import { ListGroup, ListRow } from '@/components/list';
 import { Screen, Section } from '@/components/screen';
 import { useToast } from '@/components/toast';
 import { AppText, Card, PressableScale } from '@/components/ui';
-import { Radius, Shadow, TapTarget } from '@/constants/theme';
+import { TapTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { formatLongDate, upcomingCleanings } from '@/lib/cleaning';
@@ -53,16 +52,7 @@ export default function ApartmentScreen() {
     : t.apartment.cleaning.empty;
 
   return (
-    <Screen title={apartment.nickname}>
-      <View style={[styles.photo, Shadow.card, { backgroundColor: theme.fill }]}>
-        <Image
-          source={apartment.photoUrl ? { uri: apartment.photoUrl } : undefined}
-          style={StyleSheet.absoluteFill}
-          contentFit="cover"
-          transition={200}
-        />
-      </View>
-
+    <Screen title={t.tabs.apartment}>
       <Card style={styles.listCard}>
         <ListGroup inset>
           {apartment.complement ? (
@@ -212,7 +202,6 @@ function IconButton({ icon, label, onPress }: { icon: IconName; label: string; o
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 const styles = StyleSheet.create({
-  photo: { width: '100%', aspectRatio: 16 / 10, borderRadius: Radius.lg, overflow: 'hidden' },
   listCard: { paddingVertical: 0 },
   inline: { flexDirection: 'row' },
   iconButton: {

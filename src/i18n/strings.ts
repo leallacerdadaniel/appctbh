@@ -403,7 +403,7 @@ const fr = {
   guide: {
     title: 'Guide',
     subtitle: 'Tout pour vivre à Belo Horizonte.',
-    searchPlaceholder: 'Wi‑Fi, restaurant, pharmacie',
+    searchPlaceholder: 'Restaurant, pharmacie, CPF',
     clear: 'Effacer',
     noResults: (q: string) => `Rien trouvé pour « ${q} »`,
     noResultsHint: 'Essayez un autre mot, ou posez directement la question à l’équipe.',
@@ -416,8 +416,6 @@ const fr = {
     dailyHint: 'Autour de chez vous',
     eat: 'Manger et sortir',
     eatHint: 'Les bonnes tables, les plats du coin et les soirées',
-    info: 'Infos pratiques',
-    infoHint: 'L’appartement, les paiements, la ville',
     resultsNight: 'Sortir le soir',
     sport: 'Sport et bien-être',
     sportHint: 'Bouger, se détendre, prendre soin de soi',
@@ -430,7 +428,7 @@ const fr = {
     nearbyStatus: 'Courses, pharmacie et sport',
     emergencyStatus: 'Numéros utiles',
     resultsRestaurants: 'Restaurants',
-    resultsPlaces: 'Lieux à visiter',
+    resultsSections: 'Rubriques',
     resultsDishes: 'Plats à goûter',
   },
   sports: {
@@ -1091,7 +1089,7 @@ const en: Strings = {
   guide: {
     title: 'Guide',
     subtitle: 'Everything for living in Belo Horizonte.',
-    searchPlaceholder: 'Wi‑Fi, restaurant, pharmacy',
+    searchPlaceholder: 'Restaurant, pharmacy, CPF',
     clear: 'Clear',
     noResults: (q: string) => `Nothing found for “${q}”`,
     noResultsHint: 'Try another word, or ask the team directly.',
@@ -1104,8 +1102,6 @@ const en: Strings = {
     dailyHint: 'Around your home',
     eat: 'Eat and go out',
     eatHint: 'Good restaurants, local dishes and nightlife',
-    info: 'Practical info',
-    infoHint: 'The apartment, payments, the city',
     resultsNight: 'Night life',
     sport: 'Sport and well-being',
     sportHint: 'Move, relax, look after yourself',
@@ -1118,7 +1114,7 @@ const en: Strings = {
     nearbyStatus: 'Groceries, pharmacy and gym',
     emergencyStatus: 'Useful numbers',
     resultsRestaurants: 'Restaurants',
-    resultsPlaces: 'Places to visit',
+    resultsSections: 'Sections',
     resultsDishes: 'Food to try',
   },
   sports: {

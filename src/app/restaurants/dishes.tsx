@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -18,7 +18,10 @@ import { getDestination } from '@/lib/travel';
 /** "Plats à goûter": traditional food of Minas Gerais and Brazil, with where to try it in BH. */
 export default function DishesScreen() {
   const { t } = useI18n();
-  const [region, setRegion] = useState<DishRegion>('mg');
+  // From the Guide search: open on that dish (its region, the dish first).
+  const { dish: picked } = useLocalSearchParams<{ dish?: string }>();
+  const pickedDish = dishes.find((d) => d.id === picked);
+  const [region, setRegion] = useState<DishRegion>(pickedDish?.region ?? 'mg');
 
   return (
     <Screen back title={t.dishes.title} subtitle={t.dishes.subtitle}>
@@ -33,6 +36,7 @@ export default function DishesScreen() {
       <View style={{ gap: Spacing.lg }}>
         {dishes
           .filter((d) => d.region === region)
+          .sort((a, b) => Number(b.id === pickedDish?.id) - Number(a.id === pickedDish?.id))
           .map((d) => (
             <DishCard key={d.id} dish={d} />
           ))}
