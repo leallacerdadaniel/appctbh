@@ -27,7 +27,8 @@ próprio artefato).
 | 0 | O app demo | **Concluída** (05/11/2026) |
 | 1 | Acessos e ambiente | Quase: Lovable, Supabase (admin) e GitHub do site liberados; falta a homologação e levar a branch para a `main` |
 | 2, 3, 5, 7, 8, 11 | Banco, login, apartamento, faxinas, contas da casa, lugares | **Em parte pelo Arthur (27/10 a 07/11)**: `app-api` + tabelas `app_*`; caixas marcadas no plano em 08/11 |
-| 4, 6, 9, 10, 12 a 18 | Painel, pedidos, avisos, chegada, emergência, línguas, comunidade, lojas | Não iniciadas |
+| 6 | Pedidos e extras | **Pronta no desenvolvimento (08/11/2026)**: branch `onda-6-pedidos`, função `app-requests` e tabelas `app_requests*` só no `appctbh` |
+| 4, 9, 10, 12 a 18 | Painel, avisos, chegada, emergência, línguas, comunidade, lojas | Não iniciadas |
 
 ## Onde mora cada coisa (08/11/2026)
 
