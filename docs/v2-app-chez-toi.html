@@ -1,0 +1,352 @@
+<title>V2 do app Chez Toi</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: faixa vermelha da marca com o resumo, depois seções empilhadas em cartões brancos sobre o canvas cinza
+   (a mesma linguagem do plano de ondas e do app). */
+:root{
+  --marca:#E80C20; --vinho:#8E0614; --sobre:#FFFFFF;
+  --canvas:#F4F4F2; --card:#FFFFFF; --fill:#EFEEEA; --line:#E7E5E0;
+  --ink:#141414; --ink2:#5F5E5A; --ink3:#8A8883;
+  --ok:#1F7A4D; --ok-soft:#ECFDF3; --meio:#9A4A06; --meio-soft:#FEF6EC; --nao:#B42318; --nao-soft:#FEF3F2;
+  --azul:#1D5FD1; --azul-soft:#EEF4FF;
+  --display:"Outfit","Avenir Next","Helvetica Neue",Arial,sans-serif;
+  --sans:"Inter","Helvetica Neue",Arial,system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --marca:#D50B1D; --vinho:#5E0410; --canvas:#121212; --card:#1C1B1A; --fill:#262523; --line:#2E2D2B;
+    --ink:#EDECE9; --ink2:#A8A6A1; --ink3:#86847F;
+    --ok:#6FCF97; --ok-soft:#14291D; --meio:#F2A65A; --meio-soft:#2E2111; --nao:#F97066; --nao-soft:#2F1614;
+    --azul:#84ADFF; --azul-soft:#152238; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --marca:#D50B1D; --vinho:#5E0410; --canvas:#121212; --card:#1C1B1A; --fill:#262523; --line:#2E2D2B;
+  --ink:#EDECE9; --ink2:#A8A6A1; --ink3:#86847F;
+  --ok:#6FCF97; --ok-soft:#14291D; --meio:#F2A65A; --meio-soft:#2E2111; --nao:#F97066; --nao-soft:#2F1614;
+  --azul:#84ADFF; --azul-soft:#152238; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--canvas);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;margin:0}
+p,h1,h2,h3,ul,ol{margin:0}
+ul,ol{padding-left:1.2em}
+a{color:inherit}
+:focus-visible{outline:2.5px solid var(--azul);outline-offset:2px;border-radius:4px}
+code{font-family:var(--mono);font-size:.84em;background:var(--fill);padding:1px 5px;border-radius:5px;color:var(--ink2);overflow-wrap:anywhere}
+.gutter{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.miolo{max-width:980px;margin:0 auto}
+
+/* faixa */
+.faixa{background:linear-gradient(135deg,#EE1427 0%,#D20B1E 45%,var(--vinho) 100%);color:var(--sobre)}
+.faixa .miolo{padding-block:clamp(26px,5vw,48px) clamp(28px,5vw,52px);display:grid;gap:14px}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;opacity:.85}
+h1{font-family:var(--display);font-weight:300;font-size:clamp(34px,6vw,54px);line-height:1.04;letter-spacing:-.025em;text-wrap:balance}
+.lead{font-size:16.5px;max-width:66ch;color:rgba(255,255,255,.9)}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chips span{font-size:12.5px;font-weight:500;padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.16);color:#fff;font-variant-numeric:tabular-nums}
+
+/* índice */
+.indice{display:flex;flex-wrap:wrap;gap:8px;padding-block:18px 0}
+.indice a{font-size:13px;font-weight:500;text-decoration:none;padding:6px 12px;border-radius:999px;background:var(--card);border:1px solid var(--line);color:var(--ink2)}
+.indice a:hover{color:var(--ink);border-color:var(--ink3)}
+
+main.miolo{display:grid;gap:clamp(36px,5vw,56px);padding-block:clamp(22px,4vw,34px) 96px}
+.sec{display:grid;gap:16px}
+.sec-cab{display:grid;gap:6px}
+.rot{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--marca)}
+h2{font-family:var(--display);font-weight:400;font-size:clamp(23px,3.2vw,30px);letter-spacing:-.02em;line-height:1.15;text-wrap:balance}
+h3{font-family:var(--display);font-weight:500;font-size:17px;letter-spacing:-.01em;line-height:1.25}
+.sec-cab p{color:var(--ink2);max-width:70ch}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px 20px;display:grid;gap:10px;min-width:0}
+.card p,.card li{font-size:14.5px}
+.card ul{display:grid;gap:5px}
+.muted{color:var(--ink2)}
+.grid2{display:grid;gap:14px}
+@media (min-width:760px){.grid2{grid-template-columns:1fr 1fr}}
+.grid3{display:grid;gap:14px}
+@media (min-width:860px){.grid3{grid-template-columns:repeat(3,1fr)}}
+
+/* resumo */
+.resumo{display:grid;gap:10px;counter-reset:r}
+.resumo li{list-style:none;display:grid;grid-template-columns:26px 1fr;gap:10px;align-items:start}
+.resumo li::before{counter-increment:r;content:counter(r);font-family:var(--mono);font-size:12px;width:26px;height:26px;border-radius:8px;background:var(--fill);color:var(--ink2);display:grid;place-items:center}
+.resumo{padding:0}
+
+/* tags */
+.tag{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap;letter-spacing:.02em;vertical-align:1px}
+.t-alto{background:var(--nao-soft);color:var(--nao)}
+.t-medio{background:var(--meio-soft);color:var(--meio)}
+.t-baixo{background:var(--fill);color:var(--ink2)}
+.t-ok{background:var(--ok-soft);color:var(--ok)}
+.t-dev{background:var(--azul-soft);color:var(--azul)}
+.t-ct{background:var(--fill);color:var(--ink)}
+
+/* tabelas */
+.tabela{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:var(--card)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:14px}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);background:var(--fill)}
+tr:last-child td{border-bottom:0}
+td.n{font-family:var(--mono);color:var(--ink3);font-size:12.5px;width:34px}
+td.esf{white-space:nowrap}
+
+/* itens de achado */
+.achados{display:grid;gap:10px}
+.achado{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:grid;gap:6px;border-left-width:4px}
+.achado.alto{border-left-color:var(--nao)}
+.achado.medio{border-left-color:var(--meio)}
+.achado b{font-weight:600}
+.achado p{font-size:14px;color:var(--ink2)}
+.achado .onde{font-family:var(--mono);font-size:12px;color:var(--ink3)}
+
+/* tour */
+.tour{display:grid;gap:8px;padding:0}
+.tour li{list-style:none;display:grid;grid-template-columns:110px 1fr;gap:12px;font-size:14px;padding:8px 0;border-bottom:1px solid var(--line)}
+.tour li:last-child{border-bottom:0}
+.tour b{font-weight:600}
+.tour i{font-style:normal;color:var(--ink2)}
+@media (max-width:520px){.tour li{grid-template-columns:1fr;gap:2px}}
+
+/* fases */
+.fases{display:grid;gap:14px}
+@media (min-width:860px){.fases{grid-template-columns:repeat(3,1fr)}}
+.fase .quando{font-family:var(--mono);font-size:12px;color:var(--marca)}
+
+/* decisões */
+.decisoes{display:grid;gap:10px;padding:0;counter-reset:d}
+.decisoes li{list-style:none;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px 14px 54px;position:relative;font-size:14.5px}
+.decisoes li::before{counter-increment:d;content:counter(d);position:absolute;left:16px;top:14px;width:26px;height:26px;border-radius:50%;background:var(--marca);color:#fff;font-family:var(--mono);font-size:12px;display:grid;place-items:center}
+.decisoes b{font-weight:600}
+.decisoes .rec{display:block;margin-top:4px;color:var(--ink2);font-size:13.5px}
+
+.nota{font-size:13px;color:var(--ink3)}
+.rodape{border-top:1px solid var(--line);padding-top:20px;display:grid;gap:8px}
+.rodape p{font-size:13px;color:var(--ink2);max-width:76ch}
+</style>
+
+<header class="faixa gutter">
+  <div class="miolo">
+    <p class="eyebrow">Chez Toi BH · para a conversa com o Arthur</p>
+    <h1>V2 do app do morador</h1>
+    <p class="lead">O que a V2 já tem, o que ainda não funciona, o que muda no design e no tour, o resultado da revisão de segurança e o caminho até a App Store e o Google Play. Fechado em 09/11/2026 a partir do código, do banco de desenvolvimento e de três revisões independentes (design, segurança e lojas).</p>
+    <div class="chips">
+      <span>86 telas · francês e inglês</span><span>10 funções no servidor</span><span>12 telas no painel do site</span><span>App: 14 commits à frente da main</span><span>Nada em produção ainda</span>
+    </div>
+  </div>
+</header>
+
+<div class="gutter"><nav class="miolo indice" aria-label="Seções">
+  <a href="#resumo">Resumo</a><a href="#tem">O que a V2 tem</a><a href="#falta">O que falta</a><a href="#design">Design e tour</a><a href="#seguranca">Segurança</a><a href="#lojas">Lojas</a><a href="#plano">Plano</a><a href="#decisoes">Decisões</a>
+</nav></div>
+
+<main class="miolo gutter">
+
+  <section class="sec" id="resumo">
+    <div class="sec-cab"><p class="rot">Resumo</p><h2>Em cinco pontos</h2></div>
+    <div class="card">
+      <ol class="resumo">
+        <li><span><b>A V2 está pronta no desenvolvimento</b> (projeto Supabase <code>appctbh</code>), testada no simulador. Em produção continua a versão do Arthur (<code>bright-service</code> no banco do site).</span></li>
+        <li><span><b>Para lançar faltam quatro frentes:</b> levar tabelas e funções para produção (homologação), corrigir três falhas altas de segurança, configurar o build das lojas e escrever os textos legais.</span></li>
+        <li><span><b>No design, um problema bloqueia:</b> o tour do app trava a tela em alguns casos. O resto são melhorias de organização: Comunidade e Saúde estão escondidas, a aba Séjour virou gaveta e o texto grande quebra várias telas.</span></li>
+        <li><span><b>Prazo realista até enviar às lojas: 4 a 6 semanas</b> (até 8, se o Google demorar no D-U-N-S). Custo das lojas: US$ 99 por ano (Apple) e US$ 25 uma vez (Google).</span></li>
+        <li><span><b>Dez decisões para amanhã</b>, no fim da página. A principal: onde e como a V2 vai para produção sem afetar o site.</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="sec" id="tem">
+    <div class="sec-cab"><p class="rot">Pronto no desenvolvimento</p><h2>O que a V2 tem</h2>
+      <p>Tudo abaixo roda no banco de desenvolvimento e foi visto no simulador do iPhone, salvo o painel do site, que só passou pelo build (o site aponta para o banco de produção e não pode ser rodado localmente).</p></div>
+    <div class="grid3">
+      <div class="card"><h3>Conta e acesso</h3><ul>
+        <li>Login novo com foto de BH</li><li>Primeiro acesso pela ficha do site (nascimento + passaporte)</li><li>Esqueci a senha, sessão no cofre do celular</li><li>Acesso até 30 dias depois da saída</li><li>Excluir a conta pelo app</li></ul></div>
+      <div class="card"><h3>A casa</h3><ul>
+        <li>Apartamento, Wi‑Fi, regras obrigatórias com aceite</li><li>Faxinas, faxineira e avaliação</li><li>Tarefas da casa com rodízio e contas divididas (R$ e €)</li><li>Visitas na portaria, encomendas, perfis dos colegas</li></ul></div>
+      <div class="card"><h3>Pedidos</h3><ul>
+        <li>Catálogo de extras com preço, faturado no aluguel</li><li>Manutenção com fotos, cômodo e urgência</li><li>Late checkout, early check-in, espaço gourmet</li><li>Linha do tempo, cancelar e avaliar</li></ul></div>
+      <div class="card"><h3>Viver BH</h3><ul>
+        <li>Explorer por categorias, agenda de BH lida todo dia + curadoria</li><li>Autour de moi (Google Maps, sem custo)</li><li>Destinos com zoom, guia, português com áudio</li><li>Recap mensal e modo sem internet</li></ul></div>
+      <div class="card"><h3>Comunidade</h3><ul>
+        <li>Mural (todos ou só o apartamento)</li><li>Viagens em grupo com conversa dentro do app</li><li>Eventos da Chez Toi com presença</li><li>Carta, denúncia, bloqueio, IA moderando, nenhum link</li></ul></div>
+      <div class="card"><h3>Ajuda e cuidado</h3><ul>
+        <li>Charlotte (IA) com contrato e dados do aluno, foto do problema</li><li>SOS, seção Saúde, celular roubado</li><li>Feedback com resposta, pesquisa de satisfação, indicação</li><li>Cartão para a família</li></ul></div>
+    </div>
+    <div class="card"><h3>Painel da equipe no site <span class="tag t-dev">branch app/painel-do-app</span></h3>
+      <p class="muted">12 telas no grupo "App do aluno": pedidos, encomendas, agenda de BH, faxineiras, avisos, acesso ao app (convite, nova senha, correções da ficha), moderação da comunidade, eventos, feedback, pesquisas, indicações e catálogo de extras. Commitadas, sem push e nunca abertas no navegador.</p></div>
+  </section>
+
+  <section class="sec" id="falta">
+    <div class="sec-cab"><p class="rot">Lacunas</p><h2>O que falta e o que não funciona</h2></div>
+    <div class="grid2">
+      <div class="card"><h3>Bloqueia o lançamento</h3><ul>
+        <li><b>Nada da V2 está em produção.</b> As tabelas novas e 7 funções existem só no <code>appctbh</code>; a <code>bright-service</code> de produção tem mudanças do Arthur que não estão no repositório.</li>
+        <li><b>O app nunca teve build nativo</b> (só Expo Go): sem <code>eas.json</code>, sem ícone Android próprio, com permissões genéricas.</li>
+        <li><b>Painel não testado</b> com login de verdade: precisa de um ambiente de homologação.</li>
+        <li><b>Segurança:</b> três falhas altas (seção abaixo).</li>
+        <li><b>Textos legais e link de privacidade</b> dentro do app; aviso de uso de IA de terceiros.</li></ul></div>
+      <div class="card"><h3>Funciona pela metade</h3><ul>
+        <li>"Esqueci a senha" por e-mail espera o serviço de e-mail (Resend); hoje vai para a fila da equipe.</li>
+        <li>Charlotte ainda não conhece Saúde e Comunidade (base a regenerar).</li>
+        <li>Guia, Explorer e cartilha moram dentro do app: mudar exige nova versão.</li>
+        <li>Recado da equipe e resposta ao feedback saem numa língua só.</li>
+        <li>Primeiro acesso depende de passaporte e nascimento na ficha: não sabemos quantas fichas têm os dois.</li>
+        <li>Agenda: Belotur ainda sem resposta; "mais bem avaliados" sem a chave do Google.</li></ul></div>
+      <div class="card"><h3>Ainda não existe</h3><ul>
+        <li>Push, lembretes e agenda do celular (onda 9), widget, Wi‑Fi com um toque.</li>
+        <li>Painel: ficha do morador e do apartamento, subir contrato e laudo, agenda de faxina editável, regras e guia editáveis, histórico de quem mudou o quê.</li>
+        <li>Inventário e vistoria com fotos; documentos do aluno com validade.</li>
+        <li>Conversa com a equipe dentro do app (hoje é WhatsApp); SOS que avisa a equipe e manda a localização.</li></ul></div>
+      <div class="card"><h3>Engenharia</h3><ul>
+        <li>Nenhum teste automático no app.</li>
+        <li>Sem monitoramento de erros e sem atualização pelo ar (EAS Update).</li>
+        <li>21 pacotes atrás da versão do SDK 58 (<code>npx expo install --fix</code>).</li>
+        <li>Rotina de virada de semestre (arquivar quem saiu, ativar a nova turma).</li></ul></div>
+    </div>
+  </section>
+
+  <section class="sec" id="design">
+    <div class="sec-cab"><p class="rot">Revisão de design</p><h2>Design, usabilidade e o tour</h2>
+      <p>Revisão feita tela a tela no simulador, com a conta de teste. O foco foi o que um aluno francês na primeira semana não encontra ou não entende.</p></div>
+    <div class="tabela"><table>
+      <thead><tr><th>#</th><th>Onde</th><th>Problema</th><th>Proposta</th><th>Esforço</th></tr></thead>
+      <tbody>
+        <tr><td class="n">1</td><td>Tour</td><td><b>Trava o app</b> quando o alvo está fora da tela (Accueil rolado, ou o sino de outra aba). Tela escura, sem balão nem "Passer"; e reabre sozinho a cada abertura.</td><td>Pular passos sem alvo visível, manter o balão na tela, tocar no fundo avança, rolar ao topo antes de começar.</td><td class="esf"><span class="tag t-alto">P (bloqueia)</span></td></tr>
+        <tr><td class="n">2</td><td>Explorer</td><td>"Pratique" (Saúde, celular roubado, português, papéis) fica fora da tela: 7 categorias, cabem 6.</td><td>Pratique na 2ª posição e rolar até a categoria ativa.</td><td class="esf">P</td></tr>
+        <tr><td class="n">3</td><td>Maison / Accueil</td><td>Comunidade escondida no bloco "À l'immeuble"; eventos e viagens não aparecem no Accueil nem na Agenda.</td><td>Seção "Entre résidents" na Maison; card "Prochain événement" no Accueil; eventos e viagens na Agenda.</td><td class="esf">M</td></tr>
+        <tr><td class="n">4</td><td>Chegada</td><td>Onboarding empilhado: primeiro acesso, regras (8 telas), tour (9 passos), checklist e banner; três páginas dizem quase o mesmo (Premiers pas, Papiers, Applis).</td><td>Uma página "Premiers pas" com abas; tour como item da checklist, não automático.</td><td class="esf">M</td></tr>
+        <tr><td class="n">5</td><td>Séjour › Aide</td><td>Virou gaveta (8 linhas); o recap aparece três vezes; tour e recap com o mesmo ícone.</td><td>"Aide" com Charlotte, WhatsApp e tour; nova seção "Votre séjour" com recap, avis, parrainage e carte famille.</td><td class="esf">P</td></tr>
+        <tr><td class="n">6</td><td>Todo o app</td><td>Texto grande (Dynamic Type) quebra títulos, o FR/EN, os botões do endereço e as abas.</td><td>Limite de ampliação nos títulos e pills; botões do endereço em 2×2.</td><td class="esf">M</td></tr>
+        <tr><td class="n">7</td><td>Accueil</td><td>Quatro botões fortes disputando o fim da tela (Payer, C'est fait, Répondre, recap vermelho).</td><td>Vermelho só para o aluguel; os outros em secundário.</td><td class="esf">P</td></tr>
+        <tr><td class="n">8</td><td>Pedidos</td><td>"Faire une demande" e "Signaler un problème" falam os dois de reparo; no Accueil o mesmo fluxo se chama "Services".</td><td>"Services en plus (payants)" e "Un problème ? (gratuit)", iguais em todo lugar.</td><td class="esf">P</td></tr>
+        <tr><td class="n">9</td><td>Explorer</td><td>Repetições: "Autour de moi" em duas categorias, Pharmacie em dois atalhos que fazem coisas diferentes, Inhotim duas vezes.</td><td>Um atalho só com "Chez moi / Où je suis"; não repetir o destino em destaque.</td><td class="esf">M</td></tr>
+        <tr><td class="n">10</td><td>Viagem em grupo</td><td>Página só de texto, embora o destino tenha foto no Explorer.</td><td>Foto do destino no topo e botão "Je participe" fixo.</td><td class="esf">M</td></tr>
+      </tbody></table></div>
+    <div class="grid2">
+      <div class="card"><h3>Tour proposto (8 passos, sem passo final)</h3>
+        <ol class="tour">
+          <li><b>Bienvenue</b><i>Bonjour, moi c'est Charlotte ! L'essentiel de l'app en 30 secondes.</i></li>
+          <li><b>Votre adresse</b><i>Uber, 99, copier ou montrer au chauffeur, d'une touche. Na chegada: a checklist.</i></li>
+          <li><b>Raccourcis</b><i>Wi‑Fi copié d'une touche, services, colocs. SOS : urgences et santé.</i></li>
+          <li><b>En haut</b><i>Vos initiales : profil et langue FR/EN. La cloche : les avis de l'équipe.</i></li>
+          <li><b>Charlotte</b><i>Une question, une panne ? Écrivez-moi ou envoyez une photo, jour et nuit.</i></li>
+          <li><b>Explorer</b><i>Sorties, restos, voyages en groupe. Dans Pratique : santé, portugais, téléphone volé.</i></li>
+          <li><b>Maison</b><i>Wi‑Fi, règles, tâches et comptes entre colocs, et la communauté des résidents.</i></li>
+          <li><b>Séjour</b><i>Demandes, loyer, contrat et aide. Ce tour se refait ici, dans Aide.</i></li>
+        </ol>
+        <p class="nota">Hoje são 9 passos; todos os alvos existem, mas nenhum apresenta Comunidade, Saúde, Pratique ou onde trocar a língua.</p></div>
+      <div class="card"><h3>Ajustes rápidos (até 30 min cada)</h3><ul>
+        <li>"un toque" é português: trocar por "d'une touche" no tour e no aviso do aluguel.</li>
+        <li>Botão central com rótulo de acessibilidade "Charlotte, votre assistante".</li>
+        <li>Tirar o "Bientôt disponible" do Wi‑Fi: "Demandez à l'équipe".</li>
+        <li>"Supprimer mon compte" abaixo de "Se déconnecter", em cinza.</li>
+        <li>Vermelho #E80C20 sobre o cinza dá contraste 4,17:1 (abaixo do mínimo): usar #D20B1E nos links e no SOS.</li>
+        <li>Ícone próprio para "Mes récaps"; explicar "portaria" (l'accueil de l'immeuble).</li>
+        <li>Datas dos avisos em inglês saem no formato brasileiro (19/11 19:00).</li></ul></div>
+    </div>
+  </section>
+
+  <section class="sec" id="seguranca">
+    <div class="sec-cab"><p class="rot">Revisão de segurança</p><h2>Segurança</h2>
+      <p>Revisão só de leitura do app, das funções, do banco de desenvolvimento e das telas do painel. Nenhum problema crítico. <b>A produção (<code>bright-service</code> e o banco do site) não foi revisada</b> e precisa da mesma auditoria antes do lançamento.</p></div>
+    <div class="achados">
+      <div class="achado alto"><span><span class="tag t-alto">Alto</span> <b>O primeiro acesso troca a senha de uma conta que já existe</b></span><p>Quem tem data de nascimento e passaporte de um aluno (colega, ex-parceiro, cópia do passaporte) toma a conta sem código nem aviso, e ainda vê telefone e contatos de emergência. Correção: primeiro acesso só para conta sem senha; conta ativa passa pelo código por e-mail, com aviso ao aluno; mascarar os contatos.</p><span class="onde">app-api: first-access-verify / first-access-complete</span></div>
+      <div class="achado alto"><span><span class="tag t-alto">Alto</span> <b>O login não tem limite de tentativas</b></span><p>Permite força bruta e reuso de senhas vazadas, e cada tentativa custa CPU no servidor. Correção: contador por e-mail e por IP, com espera progressiva.</p><span class="onde">app-api: login</span></div>
+      <div class="achado alto"><span><span class="tag t-alto">Alto</span> <b>As travas de tentativas furam com pedidos em paralelo</b></span><p>Código de redefinição, primeiro acesso, pedidos de nova senha e o limite diário da Charlotte contam e gravam em passos separados. Correção: contadores atômicos no banco.</p><span class="onde">app-api, app-assistant</span></div>
+      <div class="achado medio"><span><span class="tag t-medio">Médio</span> <b>Sessão continua valendo depois do fim do acesso</b></span><p>Só o login e o Início conferem os 30 dias; as outras funções aceitam o token por até 120 dias, e sair do app não revoga no servidor.</p></div>
+      <div class="achado medio"><span><span class="tag t-medio">Médio</span> <b>Permissões do banco largas demais</b></span><p>A equipe consegue ler os hashes de senha pelo painel; os limites por coluna não valem porque a tabela inteira tem UPDATE; o papel anônimo tem acesso amplo. O site tem cadastro público, então qualquer pessoa vira "authenticated". Correção: retirar tudo e conceder só as colunas necessárias.</p></div>
+      <div class="achado medio"><span><span class="tag t-medio">Médio</span> <b>Moderação por IA publica quando falha</b></span><p>Um texto feito para quebrar a resposta da IA sai publicado como "não conferido"; e não há limite de posts por aluno (cada um chama o modelo maior). Correção: na dúvida, segurar; limite diário; modelo menor para moderar.</p></div>
+      <div class="achado medio"><span><span class="tag t-medio">Médio</span> <b>Charlotte</b></span><p>O app manda o histórico que quiser (dá para forjar respostas anteriores); um link externo pode disparar uma pergunta sozinho; o PDF do contrato vai para a API em toda pergunta (precisa estar na política de privacidade).</p></div>
+      <div class="achado medio"><span><span class="tag t-medio">Médio</span> <b>Painel: convite gera senha nova para qualquer conta ativa</b></span><p>Qualquer pessoa da equipe pode entrar como um aluno sem que ele saiba. Correção: só administrador, com aviso por e-mail ao aluno.</p></div>
+      <div class="achado medio"><span><span class="tag t-medio">Médio</span> <b>Excluir a conta deixa dados para trás</b></span><p>Uso do app, uso da Charlotte, correções, histórico de moderação e fotos no Storage ficam; e a exclusão não é atômica (LGPD).</p></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><h3>Baixo</h3><ul>
+        <li>Login um pouco mais lento quando o e-mail existe (dá para descobrir quem tem conta).</li>
+        <li>Links da agenda sem validação de esquema (no app e no painel); o robô de eventos aceita domínios que apontam para IP interno.</li>
+        <li>Link externo pode anexar arquivo do aparelho num chamado de manutenção.</li>
+        <li>A função de fotos do Google é pública e sem limite de volume (custo).</li>
+        <li>A regra "sem links" é fácil de contornar ("exemplo ponto com"): é política, não barreira.</li>
+        <li>Versões de pacotes das funções sem fixar; a chave das sessões sai da chave de serviço do Supabase.</li></ul></div>
+      <div class="card"><h3>O que está sólido</h3><ul>
+        <li>Token assinado conferido em toda chamada, com versão da sessão e status da conta.</li>
+        <li>Senha com PBKDF2 e comparação em tempo constante.</li>
+        <li>Toda rota filtra pelo aluno do token: ninguém lê pedido, despesa, visita ou post de outro.</li>
+        <li>RLS ligada nas 63 tabelas; buckets privados com links de 10 minutos.</li>
+        <li>Nenhum segredo nos dois repositórios; sessão no cofre do celular.</li></ul></div>
+    </div>
+  </section>
+
+  <section class="sec" id="lojas">
+    <div class="sec-cab"><p class="rot">Publicação</p><h2>Caminho até a App Store e o Google Play</h2>
+      <p>O app não usa compra dentro do app (serviço físico, pago por fora), tem exclusão de conta, denúncia, bloqueio e carta: isso já atende as regras mais duras. Os bloqueios são de configuração, de conta e de texto.</p></div>
+    <div class="grid2">
+      <div class="card"><h3>Bloqueios no projeto <span class="tag t-dev">dev</span></h3><ul>
+        <li>Backend de produção definido e variáveis de ambiente no EAS (hoje o endereço vem do <code>.env.local</code>, que não vai para o build).</li>
+        <li>Criar <code>eas.json</code>, projeto EAS e atualizações pelo ar.</li>
+        <li>Ícone do Android ainda é o do Expo.</li>
+        <li>Desligar permissões que o app não usa (microfone, localização sempre, movimento, Face ID) e as herdadas no Android.</li>
+        <li>Link da política de privacidade no Perfil e no login.</li>
+        <li>Aceite explícito do uso de IA de terceiros (Anthropic) antes da Charlotte e na carta; botão "Signaler cette réponse" nas respostas da IA (Google).</li>
+        <li>Manifesto de privacidade iOS e <code>usesNonExemptEncryption: false</code>; atualizar 21 pacotes; primeiro build de teste.</li>
+        <li>Tirar "Bientôt disponible" de onde faltar dado: a conta de demonstração precisa estar completa.</li></ul></div>
+      <div class="card"><h3>Com a Chez Toi <span class="tag t-ct">Chez Toi</span></h3><ul>
+        <li>D-U-N-S com razão social e endereço exatos do CNPJ (Apple: até 5 dias úteis; Google: até 30 dias).</li>
+        <li>E-mail @cheztoibh.com.br para as contas e domínio verificado no Google.</li>
+        <li>Apple Developer e Google Play como organização (não pessoa física: evita a regra de 12 testadores por 14 dias).</li>
+        <li>Política de privacidade (LGPD: passaporte, nascimento, fotos, IA, retenção), termos e página web de exclusão de conta, em FR, EN e PT, revisados por advogado.</li>
+        <li>Declaração de "trader" para a União Europeia (os alunos franceses baixam na loja da França).</li>
+        <li>Conta de demonstração completa para os revisores; material de loja em FR, EN e PT.</li>
+        <li>Confirmar os direitos das fotos do guia (destinos, atrações, pratos).</li></ul></div>
+    </div>
+    <div class="tabela"><table>
+      <thead><tr><th>Quando</th><th>Chez Toi</th><th>Desenvolvimento</th></tr></thead>
+      <tbody>
+        <tr><td>Semana 1</td><td>D-U-N-S, e-mails, início dos textos legais, decisão do identificador do app</td><td><code>eas.json</code>, <code>app.json</code>, ícones, permissões, primeiro build de teste</td></tr>
+        <tr><td>Semanas 2–3</td><td>Contas Apple e Google como organização, DSA, material de loja</td><td>Backend de produção (homologação), correções de segurança, link de privacidade e aceite da IA</td></tr>
+        <tr><td>Semanas 3–5</td><td>Questionários de privacidade, idade e dados; conta de demonstração</td><td>TestFlight e teste interno com a equipe e alguns alunos</td></tr>
+        <tr><td>Semanas 4–6</td><td>Revisão final dos textos</td><td>Envio: Apple costuma revisar em até 48 h; Google em alguns dias</td></tr>
+      </tbody></table></div>
+    <p class="nota">Custos: Apple US$ 99/ano; Google US$ 25 uma vez; D-U-N-S grátis; EAS grátis para começar (15 builds por plataforma/mês) ou US$ 19/mês. Não precisa de Mac. Variáveis: uso da API da Anthropic e a revisão jurídica. A Apple permite distribuição "unlisted" (só por link), o que combina com um app só para moradores.</p>
+  </section>
+
+  <section class="sec" id="plano">
+    <div class="sec-cab"><p class="rot">Proposta</p><h2>Como fechar a V2</h2>
+      <p>A V2 de lançamento é o que já existe, com segurança e operação no nível de produção. O que ainda não existe fica para a V3, exceto o push, que entra porque o build nativo é feito de qualquer jeito.</p></div>
+    <div class="fases">
+      <div class="card fase"><span class="quando">Semanas 1–2</span><h3>Endurecer</h3><ul>
+        <li>As três falhas altas e as médias de banco e sessão</li><li>Tour corrigido e reescrito; ajustes rápidos de design</li><li>Pratique visível, Comunidade com seção própria, Aide reorganizada</li><li>Configuração do EAS, ícones, permissões, privacidade, aceite da IA</li><li>Testes das rotas de login e de autorização</li></ul></div>
+      <div class="card fase"><span class="quando">Semanas 2–4</span><h3>Levar para produção</h3><ul>
+        <li>Homologação: cópia da estrutura do banco do site, sem dados de alunos</li><li>Juntar os commits do Arthur e a <code>bright-service</code></li><li>Migrações do app em produção, com backup antes</li><li>Painel testado na homologação e depois no site</li><li>Push (onda 9), e-mail transacional, monitoramento de erros</li></ul></div>
+      <div class="card fase"><span class="quando">Semanas 4–6</span><h3>Testar e publicar</h3><ul>
+        <li>TestFlight e teste interno com a equipe e 5 a 10 alunos</li><li>Conta de demonstração e material de loja</li><li>Envio às duas lojas</li><li>Rotina de virada de semestre</li></ul></div>
+    </div>
+    <div class="card"><h3>Fica para a V3</h3>
+      <p class="muted">Ficha do morador e do apartamento no painel, contrato e laudo pelo painel, regras e guia editáveis, inventário e vistoria com fotos, documentos com validade, conversa com a equipe dentro do app, SOS que avisa a equipe, Wi‑Fi com um toque, widget, agenda do celular, mais línguas (português e espanhol), guia lido do banco.</p></div>
+  </section>
+
+  <section class="sec" id="decisoes">
+    <div class="sec-cab"><p class="rot">Para amanhã</p><h2>Decisões para fechar com o Arthur</h2></div>
+    <ol class="decisoes">
+      <li><b>Onde a V2 roda em produção.</b><span class="rec">Recomendação: um banco só (o do site), com as tabelas <code>app_*</code> que só acrescentam, depois de testar numa homologação clonada da estrutura, com backup antes. Quem faz a migração e em que dia.</span></li>
+      <li><b>Os commits do Arthur depois de 07/11</b> (a <code>bright-service</code> de produção tem mudanças que não estão no GitHub).<span class="rec">Ele sobe no repositório para juntar com a V2 antes da homologação.</span></li>
+      <li><b>Homologação do painel.</b><span class="rec">O site precisa ler o endereço do banco por variável de ambiente (hoje é fixo no código) para testar o painel sem tocar em produção.</span></li>
+      <li><b>Quem opera o quê na equipe.</b><span class="rec">Moderação da comunidade, fila de pedidos, correções da ficha, convites: papéis admin e equipe, e quem pode gerar senha para aluno (recomendação: só admin).</span></li>
+      <li><b>Primeiro acesso só para conta sem senha.</b><span class="rec">Conta já ativa troca senha pelo código por e-mail. Isso depende do e-mail transacional (Resend com domínio cheztoibh.com.br).</span></li>
+      <li><b>Contas das lojas em nome da Chez Toi.</b><span class="rec">Quem pede o D-U-N-S e quem assina como representante.</span></li>
+      <li><b>Identificador do app</b>, que não muda depois do primeiro envio.<span class="rec"><code>br.com.cheztoibh.app</code> (o inverso do domínio) ou o atual <code>br.cheztoibh.app</code>.</span></li>
+      <li><b>Distribuição.</b><span class="rec">Aberta nas lojas ou "unlisted" na Apple (só por link). Países: Brasil e União Europeia no mínimo.</span></li>
+      <li><b>Orçamento da IA.</b><span class="rec">Modelo menor para a moderação, limite diário por aluno na Charlotte e na comunidade, alerta de gasto.</span></li>
+      <li><b>Escopo da V2.</b><span class="rec">Confirmar o corte proposto acima (V2 = endurecer + produção + push + lojas; o resto na V3) e quem toca cada frente.</span></li>
+    </ol>
+  </section>
+
+  <footer class="rodape">
+    <p><b>Fontes.</b> Código das branches <code>onda-6-pedidos</code> (app) e <code>app/painel-do-app</code> (site), banco de desenvolvimento <code>appctbh</code>, plano de ondas (versão 22) e três revisões feitas em 09/11/2026: design e usabilidade no simulador do iPhone, segurança só de leitura, e regras atuais da Apple, do Google e da Expo (SDK 58).</p>
+    <p>O detalhe de cada item, com arquivo e linha, está nos relatórios das revisões e no plano de ondas.</p>
+  </footer>
+</main>
