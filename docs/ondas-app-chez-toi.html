@@ -155,7 +155,7 @@ h2{font-family:var(--display);font-weight:400;font-size:clamp(24px,3.4vw,32px);l
     <p class="logo"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 15.5 16 6l11 9.5V27a1 1 0 0 1-1 1h-6.5v-7.5h-7V28H6a1 1 0 0 1-1-1z" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/></svg>Chez Toi BH</p>
     <h1>Do app demo ao app que nenhum estudante quer largar</h1>
     <p class="lead">Dezenove ondas, na ordem em que as dependências mandam. O painel mora no site da Chez Toi e alimenta o perfil de cada morador; o app lê o mesmo banco. Marque as caixas conforme andar: o que você marcar fica salvo para todo mundo que abrir este link.</p>
-    <div class="meta"><span>Expo SDK 58 e Expo Router</span><span>Supabase da Chez Toi</span><span>Painel no site (Lovable)</span><span>iOS e Android</span><span id="atualizado">Atualizado em 09/11/2026 às 15:17</span></div>
+    <div class="meta"><span>Expo SDK 58 e Expo Router</span><span>Supabase da Chez Toi</span><span>Painel no site (Lovable)</span><span>iOS e Android</span><span id="atualizado">Atualizado em 09/11/2026 às 18:18</span></div>
     <!-- span#atualizado: dia e hora da última atualização deste arquivo, horário de Brasília.
          Toda vez que este HTML mudar, o carimbo muda junto, antes de republicar. -->
   </div>
@@ -208,13 +208,13 @@ h2{font-family:var(--display);font-weight:400;font-size:clamp(24px,3.4vw,32px);l
       <div class="dl"><code>R17</code><b>Várias línguas</b><span class="tag ok">Pronto</span><p>Francês e inglês, com a escolha guardada. Mais línguas: onda 13.</p></div>
       <div class="dl"><code>R18</code><b>Botão de emergência</b><span class="tag meio">Parcial</span><p>Tela com 192, 190, 193, hospitais e WhatsApp. Sem alerta para a equipe nem localização. Onda 12.</p></div>
       <div class="dl"><code>R19</code><b>Barbeiros e manicures perto da SKEMA</b><span class="tag meio">Parcial</span><p>Os lugares existem no guia de beleza, sem filtro pela distância da SKEMA. Onda 11.</p></div>
-      <div class="dl"><code>R20</code><b>Avaliação e feedback</b><span class="tag meio">Parcial</span><p>Avaliação da faxina (1 a 5 estrelas e comentário, uma por aluno, em até 7 dias). Feedback geral: onda 14.</p></div>
-      <div class="dl"><code>R21</code><b>Indique um amigo</b><span class="tag nao">Não existe</span><p>Onda 14.</p></div>
+      <div class="dl"><code>R20</code><b>Avaliação e feedback</b><span class="tag meio">Desenvolvimento</span><p>Avaliação da faxina e de cada pedido concluído; desde 09/11/2026 (desenvolvimento) feedback geral com resposta da equipe e pesquisa de satisfação no meio e no fim da estadia. Onda 14.</p></div>
+      <div class="dl"><code>R21</code><b>Indique um amigo</b><span class="tag meio">Desenvolvimento</span><p>Código pessoal para compartilhar; a equipe registra no painel quem chegou com o código (09/11/2026). Onda 14.</p></div>
       <div class="dl"><code>R22</code><b>Late checkout e check-in</b><span class="tag meio">Desenvolvimento</span><p>Pedido com horário e aviso de taxa no aluguel, pronto no <code>appctbh</code>. Onda 6.</p></div>
       <div class="dl"><code>R23</code><b>Escala de tarefas</b><span class="tag meio">Desenvolvimento</span><p>Tarefas criadas pelos moradores, com rodízio semanal, troca e feito; a minha tarefa aparece no Início. Onda 7.</p></div>
       <div class="dl"><code>R24</code><b>Espaço gourmet</b><span class="tag meio">Desenvolvimento</span><p>Reserva com horário, convidados e conflito de horário, pronta no <code>appctbh</code>; o espaço é cadastrado por prédio. Onda 6.</p></div>
       <div class="dl"><code>R25</code><b>Documentos do morador</b><span class="tag meio">Parcial</span><p>Documentos com título pelo tipo (contrato, laudos). Passaporte, visto e RNM do aluno: onda 5.</p></div>
-      <div class="dl"><code>R26</code><b>Comunidade</b><span class="tag nao">Não existe</span><p>Aniversário com mensagem uma vez por ano; lista de colegas em Maison. Comunidade: onda 15.</p></div>
+      <div class="dl"><code>R26</code><b>Comunidade</b><span class="tag meio">Desenvolvimento</span><p>Mural, viagens em grupo, eventos da Chez Toi, denúncia e bloqueio, com a IA moderando e a equipe decidindo (09/11/2026). Onda 15.</p></div>
       <div class="dl"><code>R27</code><b>Sincronizar com a agenda do celular</b><span class="tag nao">Não existe</span><p>Pedido de 05/11/2026. O Calendário do app mostra feriados e eventos, mas nada vai para a agenda do aluno. Onda 9.</p></div>
     </div>
   </section>
@@ -315,30 +315,32 @@ const ONDAS = [
    pronto:"o site continua funcionando igual, e um aluno de teste só enxerga o que é dele."},
 
   {n:3, t:"Login de verdade", tags:[["back","backend"],["app","app"]],
-   por:"Feito em parte pelo Arthur em 27 e 28/10: o app tem login próprio em <code>app_students</code>, separado das contas do site, com troca obrigatória da senha no primeiro acesso. Falta o convite pelo painel, o esqueci a senha e a exclusão de conta.",
+   por:"Feito em parte pelo Arthur em 27 e 28/10: o app tem login próprio em <code>app_students</code>, separado das contas do site, com troca obrigatória da senha no primeiro acesso. <em>O resto ficou pronto no desenvolvimento em 09/11/2026:</em> convite e nova senha pelo painel (função <code>app-admin</code>), \"esqueci a senha\", sessão no cofre do celular, acesso até 30 dias depois da saída e excluir a conta.",
    itens:[
      "Login próprio do app pela função <code>app-api</code>, no lugar do login demo (escolha do Arthur, 27/10/2026)",
-     "Convite pelo painel: a equipe cadastra o aluno e ele recebe o e-mail com a senha provisória",
+     "Convite pelo painel: a equipe gera a senha provisória e manda por WhatsApp ou e-mail (pronto no desenvolvimento em 09/11/2026; o e-mail sai quando houver <code>RESEND_API_KEY</code>)",
      "Troca obrigatória da senha no primeiro acesso, gravada no servidor",
-     "\"Esqueci a senha\" por e-mail, com link que abre o app, além do WhatsApp",
-     "Sessão guardada com segurança no aparelho",
-     "Acesso que se encerra sozinho depois da saída, com prazo para baixar recibos e documentos",
-     "Excluir a conta pelo próprio app (exigência das lojas)"
+     "\"Esqueci a senha\": código de 6 dígitos por e-mail; sem e-mail configurado, o pedido aparece na tela Acesso ao app do painel e a equipe manda uma senha provisória (pronto no desenvolvimento em 09/11/2026)",
+     "Sessão guardada com segurança no aparelho (Keychain e Keystore, pronto no desenvolvimento em 09/11/2026)",
+     "Acesso que se encerra sozinho depois da saída, com prazo para baixar recibos e documentos (30 dias, com aviso em Séjour; pronto no desenvolvimento em 09/11/2026)",
+     "Excluir a conta pelo próprio app (exigência das lojas; pronto no desenvolvimento em 09/11/2026, em Profil › Supprimer mon compte)"
    ],
    pronto:"um aluno convidado pelo painel entra no app e vê o próprio nome e apartamento."},
 
   {n:4, t:"O painel no site da Chez Toi", tags:[["painel","painel"],["back","backend"]],
-   por:"<em>Pedido de 05/11/2026:</em> a equipe controla tudo pelo site e alimenta o perfil de cada morador de lá. O app nunca tem conteúdo que só um desenvolvedor consegue mudar. <em>Primeira tela feita em 08/11/2026:</em> \u201cServiços extras do app\u201d (preços do catálogo) no painel, na branch local <code>app/catalogo-extras</code> do repositório do site; ainda sem teste no navegador (DESCOBERTA-2).",
+   por:"<em>Pedido de 05/11/2026:</em> a equipe controla tudo pelo site e alimenta o perfil de cada morador de lá. O app nunca tem conteúdo que só um desenvolvedor consegue mudar. <em>Primeira tela feita em 08/11/2026:</em> \u201cServiços extras do app\u201d (preços do catálogo) no painel, na branch local <code>app/catalogo-extras</code> do repositório do site; ainda sem teste no navegador (DESCOBERTA-2). <em>Em 09/11/2026, mais 11 telas</em> no grupo \"App do aluno\", na branch local <code>app/painel-do-app</code> do site: pedidos, encomendas, agenda de BH, faxineiras, avisos, acesso ao app, moderação da comunidade, eventos, feedback, pesquisas e indicações. Nenhuma testada no navegador: o site aponta para produção, onde essas tabelas e a função <code>app-admin</code> ainda não existem.",
    itens:[
      "Área da equipe no site, com papéis: administração, operação e só leitura",
      "Ficha do morador: dados, estadia, apartamento, contrato, documentos e histórico de pedidos",
      "Ficha do apartamento: wifi, regras, inventário, fotos, moradores atuais e anteriores",
      "Subir contrato e laudo de vistoria em PDF direto na ficha",
-     "Fila de pedidos com responsável, prazo e resposta que chega ao app",
+     "Fila de pedidos com responsável, prazo e resposta que chega ao app (tela Pedidos na branch local <code>app/painel-do-app</code> do site, 09/11/2026: andamento, recado, taxa, data e fotos; responsável e prazo ainda não)",
      "Agenda de limpeza por apartamento, editável",
-     "Comunicados para um morador, um apartamento ou todos",
+     "Comunicados para um morador, um apartamento ou todos (tela Avisos na branch local <code>app/painel-do-app</code> do site, 09/11/2026, com quantos leram)",
      "Cartilha, regras e guia editáveis no painel",
-     "Trilha de quem mudou o quê"
+     "Trilha de quem mudou o quê",
+     "Acesso ao app (convidar, nova senha, desligar), moderação da comunidade, eventos da Chez Toi, feedback, pesquisas e indicações: telas na branch local <code>app/painel-do-app</code> do site em 09/11/2026, sem teste no navegador",
+     "Encomendas, agenda de BH (links e esconder eventos) e faxineira de cada apartamento: telas na branch local <code>app/painel-do-app</code> do site em 09/11/2026, sem teste no navegador"
    ],
    pronto:"a equipe leva um aluno do cadastro ao app sem tocar em código."},
 
@@ -371,7 +373,7 @@ const ONDAS = [
      "Linha do tempo de cada pedido: recebido, agendado, em andamento, concluído",
      "Late checkout e early check-in, com regra de antecedência e resposta da equipe",
      "Reserva do espaço gourmet onde o prédio tiver, com calendário e regras",
-     "Painel: fila com prazo, responsável e resposta",
+     "Painel: fila com prazo, responsável e resposta (tela Pedidos na branch local <code>app/painel-do-app</code> do site, 09/11/2026)",
      "Vistoria de saída com fotos, comparada com a de entrada<span class=\"prop\">proposta</span>",
      "Visitas na portaria: o aluno cadastra o convidado (nome e dia) e avisa a portaria por WhatsApp com a mensagem pronta em português (pronto no desenvolvimento em 09/11/2026)"
    ],
@@ -415,7 +417,7 @@ const ONDAS = [
      "Lembretes pessoais criados pelo próprio aluno",
      "Comunicado do painel vira push e fica guardado na central de avisos",
      "Preferências: o que receber e em que língua",
-     "Encomendas: o aluno avisa o que espera, a equipe marca \"chegou na portaria\" e o aviso cai no sino (pronto no desenvolvimento em 09/11/2026; falta a tela da equipe no painel)",
+     "Encomendas: o aluno avisa o que espera, a equipe marca \"chegou na portaria\" e o aviso cai no sino (pronto no desenvolvimento em 09/11/2026; tela Encomendas na branch local <code>app/painel-do-app</code> do site)",
      "Widget na tela de bloqueio e na tela inicial: senha do wifi, endereço, próxima faxina, minha tarefa e o atalho \"voltar pra casa\" (Uber) (aprovado em 08/11/2026; precisa do build de desenvolvimento desta onda, não roda no Expo Go)"
    ],
    pronto:"um comunicado enviado pelo painel chega no celular do aluno em segundos, e a faxina remarcada no painel muda sozinha na agenda do celular dele."},
@@ -447,8 +449,8 @@ const ONDAS = [
      "Como chegar na SKEMA: ônibus, a pé e Uber<span class=\"prop\">proposta</span>",
      "Calendário acadêmico da SKEMA junto dos feriados<span class=\"prop\">proposta</span>",
      "Indicações da equipe (\"must go\") publicadas pelo painel",
-     "Agenda de BH automática: robô diário que lê o Palácio das Artes, o CCBB BH e os dados abertos da PBH (só o que os termos permitem, com link para a fonte) e os links que a equipe colar (Sympla, 2LIV, Raro); carrossel \"Cette semaine à BH\" na Explorer e página com filtros (pronto no desenvolvimento em 09/11/2026; falta a Belotur autorizar e a tela de links no painel). Primeira curadoria em 09/11/2026: 36 eventos da Sympla, inclusive o Raro e as casas de Nova Lima; a 2LIV não tinha nada à venda",
-     "Os mais bem avaliados do Google perto de casa: restaurantes, bares e cafés a até 15 minutos a pé, com nota, número de avaliações e preço, e um toque abre o lugar no Google Maps; as seleções da equipe continuam (pedido de 09/11/2026; pronto no app, falta rodar o script com a chave do Google)",
+     "Agenda de BH automática: robô diário que lê o Palácio das Artes, o CCBB BH e os dados abertos da PBH (só o que os termos permitem, com link para a fonte) e os links que a equipe colar (Sympla, 2LIV, Raro); carrossel \"Cette semaine à BH\" na Explorer e página com filtros (pronto no desenvolvimento em 09/11/2026; e-mail pedindo autorização à Belotur preparado em 09/11/2026; tela de links na branch local <code>app/painel-do-app</code> do site). Primeira curadoria em 09/11/2026: 36 eventos da Sympla, inclusive o Raro e as casas de Nova Lima; a 2LIV não tinha nada à venda",
+     "Os mais bem avaliados do Google perto de casa: restaurantes, bares e cafés a até 15 minutos a pé, com nota, número de avaliações e preço, e um toque abre o lugar no Google Maps; as seleções da equipe continuam (pedido de 09/11/2026; no mesmo dia o Daniel decidiu seguir sem a chave do Google: a lista fica escondida e o \"Autour de moi\" cobre)",
      "\"Autour de moi\" onde o aluno estiver, em BH ou viajando (Rio, Lençóis): restaurantes, bares, cafés, farmácia, caixa eletrônico e mercado abrem o Google Maps já buscando em volta dele, de graça (links do Maps não usam chave nem são cobrados) e sem o app ler a localização; na Explorer, em Pour vous e Voyages (pedido de 09/11/2026, pronto no desenvolvimento). A busca ao vivo dentro do app ficou de fora pelo custo: de US$ 70 a US$ 1.850 por mês para 100 alunos"
    ],
    pronto:"a equipe acrescenta um restaurante no painel e ele aparece no app sem nova versão."},
@@ -462,8 +464,8 @@ const ONDAS = [
      "Seguro saúde do aluno e hospitais que aceitam",
      "Aviso no painel quando o botão é usado",
      "Testado com o celular sem internet",
-     "Seção Saúde: urgências, onde ir (UPA, hospitais, farmácias 24h), receita no Brasil, seguro e reembolso, saúde mental e vacinas (pedido de 08/11/2026; PESQUISA-2, publicar só o que a equipe confirmar)",
-     "Roubaram meu celular: feito para o colega ajudar no celular dele (9 passos com fontes oficiais: bloquear o aparelho e o chip, bancos e Pix, boletim online de MG, Cbloc, WhatsApp, avisar a Chez Toi) e o preparo \"antes que aconteça\" (pronto no desenvolvimento em 09/11/2026; conferir o número da Vivo)"
+     "Seção Saúde: urgências, onde ir (UPA, hospitais, farmácias 24h), receita no Brasil, seguro e reembolso, saúde mental e vacinas (pedido de 08/11/2026; pronto no desenvolvimento em 09/11/2026 com as respostas da equipe: endereço da UPA Centro-Sul, Mater Dei Contorno e Lifecenter 24h, pagar e pedir reembolso, Araujo, Doctoralia (médicos e psicólogos em francês ou inglês) e frases para a recepção; o CVV 188 saiu por só atender em português; SUS para estrangeiros, seguro da SKEMA e vacinas ficaram de fora a pedido da equipe)",
+     "Roubaram meu celular: feito para o colega ajudar no celular dele (9 passos com fontes oficiais: bloquear o aparelho e o chip, bancos e Pix, boletim online de MG, Cbloc, WhatsApp, avisar a Chez Toi) e o preparo \"antes que aconteça\" (pronto no desenvolvimento em 09/11/2026; o 1058 da Vivo foi conferido pelo Daniel)"
    ],
    pronto:"em três toques o aluno liga para o serviço certo, e a equipe fica sabendo."},
 
@@ -481,11 +483,11 @@ const ONDAS = [
   {n:14, fase:"Fase 4 · Relação e comunidade", t:"Avaliação, feedback e indicação", tags:[["app","app"],["painel","painel"]],
    por:"O aluno satisfeito é o melhor canal de venda da Chez Toi. Esta onda mede a satisfação e transforma em indicação.",
    itens:[
-     "Avaliação rápida de cada serviço concluído (1 a 5 e comentário)",
-     "Feedback geral para a Chez Toi a qualquer momento, com resposta no app",
-     "Pesquisa de satisfação no meio e no fim da estadia",
-     "Indique um amigo: código pessoal, acompanhamento no painel e recompensa definida pela Chez Toi",
-     "Avaliação de saída que vira depoimento, com autorização do aluno<span class=\"prop\">proposta</span>",
+     "Avaliação rápida de cada serviço concluído (1 a 5 e comentário; pronto no desenvolvimento em 08/11/2026, nos pedidos da onda 6)",
+     "Feedback geral para a Chez Toi a qualquer momento, com resposta no app (pronto no desenvolvimento em 09/11/2026: Séjour › Donner mon avis; a resposta da equipe cai no sino)",
+     "Pesquisa de satisfação no meio e no fim da estadia (pronto no desenvolvimento em 09/11/2026: nota de 0 a 10 e quatro notas de 1 a 5, com convite no Início)",
+     "Indique um amigo: código pessoal, acompanhamento no painel e recompensa definida pela Chez Toi (pronto no desenvolvimento em 09/11/2026; a equipe escreve a recompensa no painel)",
+     "Avaliação de saída que vira depoimento, com autorização do aluno (na pesquisa do fim da estadia, pronto no desenvolvimento em 09/11/2026)",
      "Reservar o próximo semestre direto do app<span class=\"prop\">proposta</span>",
      "Espaço dos pais: cartão para a família com endereço, contato da Chez Toi, emergência e datas, enviado pelo compartilhar do celular (pronto no desenvolvimento em 09/11/2026); o link com página própria depende de uma página no site",
      "Retrospectiva mensal no estilo do Spotify (e a do semestre no fim): lugares descobertos, dias em BH e fora, cidades, bairro preferido, português aprendido e as fotos do mês, com cartão para o story do Instagram. Lugares pela localização do celular (só com permissão, guardada só no aparelho) e pelas fotos que o aluno escolhe (pedido de 09/11/2026, pronto no desenvolvimento em 09/11/2026; o registro em segundo plano precisa do build da onda 9)"
@@ -493,15 +495,15 @@ const ONDAS = [
    pronto:"o painel mostra a nota de cada serviço e quantas indicações viraram contrato."},
 
   {n:15, t:"Comunidade", tags:[["app","app"],["painel","decisão"]],
-   por:"Comunidade é o que mais encanta e o que mais dá trabalho: alguém tem de moderar. <em>Começa pequena</em>, com o que a equipe controla.",
+   por:"Comunidade é o que mais encanta e o que mais dá trabalho: alguém tem de moderar. <em>Começa pequena</em>, com o que a equipe controla. <em>Decidido e pronto no desenvolvimento em 09/11/2026:</em> a IA lê cada post, comentário e viagem antes de publicar; o que ela segura vai para a equipe no painel, e 3 denúncias escondem o conteúdo até a equipe decidir (função <code>app-community</code>; falta a chave da IA no <code>appctbh</code>).",
    itens:[
-     "Decidir o formato e quem modera",
-     "Mural do apartamento e do prédio, só entre moradores",
-     "Eventos da Chez Toi com confirmação de presença",
-     "Desapego entre turmas: o que fica para o próximo semestre<span class=\"prop\">proposta</span>",
+     "Decidir o formato e quem modera (decidido em 09/11/2026: a IA modera e a equipe decide o que ela segura)",
+     "Mural só entre moradores: entre colegas do apartamento ou de todos os residentes (pronto no desenvolvimento em 09/11/2026)",
+     "Eventos da Chez Toi com confirmação de presença (pronto no desenvolvimento em 09/11/2026; a equipe cria no painel e o aviso cai no sino de todos)",
+     "Desapego entre turmas: \"Je donne / je vends\" no mural (pronto no desenvolvimento em 09/11/2026)",
      "Conversa com ex-moradores da mesma escola<span class=\"prop\">proposta</span>",
-     "Denunciar e bloquear (exigência das lojas para conteúdo de usuário)",
-     "Viagens em grupo: um aluno propõe destino e datas, os outros entram, e o app intermedia transporte e hospedagem com parceiros da Chez Toi (pedido de 08/11/2026)",
+     "Denunciar e bloquear (exigência das lojas para conteúdo de usuário; pronto no desenvolvimento em 09/11/2026, com a carta da comunidade aceita antes do primeiro post). Nenhum link em nada que o aluno escreve, no app, na função e no banco (decisão do Daniel, 09/11/2026)",
+     "Viagens em grupo: um aluno propõe destino e datas, os outros entram, e o app intermedia transporte e hospedagem com parceiros da Chez Toi (pedido de 08/11/2026; versão simples pronto no desenvolvimento em 09/11/2026: propor, entrar, conversa da viagem dentro do app só para quem vai (sem link de grupo do WhatsApp, decisão do Daniel) e um botão para pedir transporte ou hospedagem à Chez Toi; parceiros depois)",
      "Perfil de cada morador: escola, cidade, línguas, Instagram e uma frase, visível para os colegas só se o aluno ligar a opção (pronto no desenvolvimento em 09/11/2026)"
    ],
    pronto:"a equipe publica um evento e vê quem confirmou, e qualquer post pode ser denunciado."},

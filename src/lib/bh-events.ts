@@ -142,14 +142,17 @@ function dedupe(events: BhEvent[]) {
 }
 
 /**
- * For the carousel: what starts in the next 7 days first (by date), then what is already on.
+ * For the carousel: what starts in the next 7 days first (by date), then what is already on. Events without a
+ * photo go after all the others (owner, 2026-11-09: "dão uma enfeiada no feed"), so with the carousel's limit
+ * they only show when there aren't enough with a photo.
  */
 export function thisWeek(events: BhEvent[], category?: BhEventCategory, today = todayBh()) {
   const until = addDays(today, 6);
   const pool = category ? events.filter((e) => e.category === category) : events;
   const upcoming = pool.filter((e) => !isOngoing(e, today) && bhDay(e.startsAt) <= until);
   const ongoing = pool.filter((e) => isOngoing(e, today));
-  return [...upcoming, ...ongoing];
+  const ordered = [...upcoming, ...ongoing];
+  return [...ordered.filter((e) => e.imageUrl), ...ordered.filter((e) => !e.imageUrl)];
 }
 
 export type DayGroup = { day: string; events: BhEvent[] };

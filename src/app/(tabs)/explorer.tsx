@@ -6,8 +6,10 @@ import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { AroundMe } from '@/components/around-me';
 import { BhEventsSection } from '@/components/bh-events-ui';
 import { CharlotteFace } from '@/components/charlotte';
+import { GroupTripsEntry } from '@/components/community-ui';
 import { ExplorerContent } from '@/components/explorer-content';
 import { GuideContent } from '@/components/guide-content';
+import { HealthEntry } from '@/components/health-ui';
 import { TonightCarousel } from '@/components/home-v3';
 import { Icon, type IconName } from '@/components/icon';
 import { Carousel, RestaurantPhotoCard } from '@/components/photo-card';
@@ -223,6 +225,7 @@ function CategoryContent({ category }: { category: Category }) {
     case 'trips':
       return (
         <>
+          <GroupTripsEntry />
           <AroundMe />
           <ExplorerContent segments={['mg', 'br', 'sa']} />
         </>
@@ -232,6 +235,7 @@ function CategoryContent({ category }: { category: Category }) {
         <>
           <PortugueseEntry />
           <PhoneStolenEntry />
+          <HealthEntry />
           <GuideContent query="" only={['around', 'start', 'daily']} />
         </>
       );

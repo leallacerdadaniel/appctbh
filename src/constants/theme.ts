@@ -9,6 +9,8 @@ export const Brand = {
   red: '#E80C20',
   redPressed: '#C70A1B',
   onRed: '#FFFFFF',
+  /** The brand bar's gradient (owner, 2026-11-09: "um pouco de tom escuro"): brand red to a deep wine. */
+  barGradient: ['#EE1427', '#D20B1E', '#8E0614'] as const,
 } as const;
 
 export const Colors = {

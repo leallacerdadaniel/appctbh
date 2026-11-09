@@ -181,6 +181,7 @@ export function requestIcon(req: TeamRequest, catalog: CatalogItem[] = []): Icon
 export function requestErrorText(error: unknown, t: Strings) {
   const e = t.requests.errors;
   const code = error instanceof AppApiError ? error.code : 'server';
+  if (code === 'links') return t.common.noLinks;
   if (code === 'tooSoon') return e.tooSoon;
   if (code === 'taken') return e.taken;
   if (code === 'invalid') return e.invalid;

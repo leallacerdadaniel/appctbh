@@ -184,6 +184,7 @@ export function useChoreStatus() {
 /** Error code of a failed call → the sentence to show. */
 export function choreErrorText(error: unknown, t: ReturnType<typeof useI18n>['t'], fallback: 'server' | 'action') {
   const code = error instanceof AppApiError ? error.code : 'server';
+  if (code === 'links') return t.common.noLinks;
   if (code === 'invalid') return t.chores.errors.invalid;
   if (code === 'notFound') return t.chores.notFound;
   return t.chores.errors[fallback];

@@ -25,6 +25,13 @@
 //   /app-api/birthday            → { show } true uma única vez por ano, no dia do aniversário
 //   Uso do app (aba "Uso" do admin); as buscas são gravadas sem identificar o aluno:
 //   /app-api/track               { events: [{ kind, name, item?, at }], searches?: [{ query, results, at }] }
+//   Conta (014_acesso_e_conta.sql, 09/11/2026):
+//   /app-api/password-reset-request  { email, lang }  → { ok, channel: 'email' | 'team' }  (mesma resposta exista ou não a conta)
+//   /app-api/password-reset-confirm  { email, code, password } → { token }  (código de 6 dígitos por e-mail, 15 min, 5 tentativas)
+//   /app-api/account-delete          { password, reason? }     → { ok }  (apaga o que é só do app; contrato e financeiro ficam)
+//   O acesso termina 30 dias depois da saída (app_access_until): login e home respondem 'accessEnded'.
+//   E-mail: segredos RESEND_API_KEY e RESEND_FROM ("Chez Toi BH <app@cheztoibh.com.br>"). Sem eles, o pedido de
+//   nova senha vai para a fila do painel (Acesso ao app) e a equipe manda uma senha provisória.
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -113,6 +120,7 @@ async function login(body: { email?: string; password?: string }) {
   if (!account || account.status !== 'active' || !(await checkPassword(password, account.password_hash))) {
     return json({ error: 'wrongCredentials' }, 401);
   }
+  if (accessEnded(await accessUntil(account.counterparty_id))) return json({ error: 'accessEnded' }, 403);
 
   const { data: acc } = await db
     .from('app_students')
@@ -134,11 +142,219 @@ async function login(body: { email?: string; password?: string }) {
 async function home(req: Request) {
   const who = await readToken(req);
   if (!who) return json({ error: 'unauthorized' }, 401);
+  const until = await accessUntil(who.cp);
+  if (accessEnded(until)) return json({ error: 'accessEnded' }, 403);
   const { data, error } = await db.rpc('app_home_for', { p_cp: who.cp });
   if (error) return json({ error: 'server' }, 500);
   await db.from('app_students').update({ last_seen_at: new Date().toISOString() }).eq('counterparty_id', who.cp);
   if (!data) return json({ error: 'noRental' }, 404);
-  return json({ ...data, ...(await arrivalAndDeparture(who.cp)) });
+  return json({ ...data, ...(await arrivalAndDeparture(who.cp)), accessUntil: until });
+}
+
+// ---------- acesso que termina sozinho e conta (todayBH: ver a avaliação das faxinas, mais abaixo) ----------
+
+/** Último dia em que o aluno entra (saída + 30 dias), ou null quando não há locação ativa. */
+async function accessUntil(cp: string): Promise<string | null> {
+  const { data } = await db.rpc('app_access_until', { p_cp: cp });
+  return typeof data === 'string' ? data : null;
+}
+const accessEnded = (until: string | null) => until !== null && until < todayBH();
+
+const EMAIL_KEY = Deno.env.get('RESEND_API_KEY') ?? '';
+const EMAIL_FROM = Deno.env.get('RESEND_FROM') ?? '';
+const emailEnabled = () => !!EMAIL_KEY && !!EMAIL_FROM;
+
+async function sendEmail(to: string, subject: string, text: string) {
+  if (!emailEnabled()) return false;
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${EMAIL_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: EMAIL_FROM, to: [to], subject, text }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+const RESET_MINUTES = 15;
+const RESET_ATTEMPTS = 5;
+const RESETS_PER_HOUR = 3;
+
+async function codeHash(id: string, code: string) {
+  return hex(await crypto.subtle.digest('SHA-256', enc.encode(`ctbh-app-reset:${SERVICE_KEY}:${id}:${code}`)));
+}
+
+function sameText(a: string, b: string) {
+  let diff = a.length ^ b.length;
+  for (let i = 0; i < Math.min(a.length, b.length); i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+async function lookupActive(email: string) {
+  const { data: rows } = await db.rpc('app_login_lookup', { p_email: email });
+  const account = rows?.length === 1 ? rows[0] : null;
+  return account && account.status === 'active' ? (account as { counterparty_id: string; session_version: number }) : null;
+}
+
+async function passwordResetRequest(body: { email?: string; lang?: string }) {
+  const email = String(body.email ?? '').trim();
+  const lang = body.lang === 'en' ? 'en' : 'fr';
+  if (!email.includes('@')) return json({ error: 'invalid' }, 400);
+  const channel = emailEnabled() ? 'email' : 'team';
+  // A resposta é a mesma exista ou não a conta: o app não revela quem tem acesso.
+  const done = json({ ok: true, channel });
+
+  const account = await lookupActive(email);
+  if (!account) return done;
+  const cp = account.counterparty_id;
+  const since = new Date(Date.now() - 3_600_000).toISOString();
+  const { count } = await db
+    .from('app_password_resets')
+    .select('id', { count: 'exact', head: true })
+    .eq('counterparty_id', cp)
+    .gte('created_at', since);
+  if ((count ?? 0) >= RESETS_PER_HOUR) return done;
+
+  const id = crypto.randomUUID();
+  if (channel === 'email') {
+    const code = String(crypto.getRandomValues(new Uint32Array(1))[0] % 1_000_000).padStart(6, '0');
+    const { error } = await db.from('app_password_resets').insert({
+      id,
+      counterparty_id: cp,
+      channel,
+      code_hash: await codeHash(id, code),
+      expires_at: new Date(Date.now() + RESET_MINUTES * 60_000).toISOString(),
+      lang,
+    });
+    if (error) return json({ error: 'server' }, 500);
+    await sendEmail(
+      email,
+      lang === 'en' ? `Chez Toi BH: your code ${code}` : `Chez Toi BH : votre code ${code}`,
+      lang === 'en'
+        ? `Your code to choose a new password in the Chez Toi BH app: ${code}\n\nIt is valid for ${RESET_MINUTES} minutes. If you did not ask for it, ignore this e-mail: your password does not change.`
+        : `Votre code pour choisir un nouveau mot de passe dans l'app Chez Toi BH : ${code}\n\nIl est valable ${RESET_MINUTES} minutes. Si vous ne l'avez pas demandé, ignorez cet e-mail : votre mot de passe ne change pas.`,
+    );
+    return done;
+  }
+
+  // Sem e-mail configurado: o pedido aparece no painel (Acesso ao app) e a equipe manda uma senha provisória.
+  const { data: open } = await db
+    .from('app_password_resets')
+    .select('id')
+    .eq('counterparty_id', cp)
+    .eq('channel', 'team')
+    .is('handled_at', null)
+    .gt('expires_at', new Date().toISOString())
+    .limit(1);
+  if (!open?.length) {
+    const { error } = await db.from('app_password_resets').insert({
+      id,
+      counterparty_id: cp,
+      channel,
+      expires_at: new Date(Date.now() + 7 * 86_400_000).toISOString(),
+      lang,
+    });
+    if (error) return json({ error: 'server' }, 500);
+  }
+  return done;
+}
+
+async function passwordResetConfirm(body: { email?: string; code?: string; password?: string }) {
+  const email = String(body.email ?? '').trim();
+  const code = String(body.code ?? '').replace(/\D/g, '');
+  const password = String(body.password ?? '');
+  if (password.length < 8) return json({ error: 'tooShort' }, 400);
+  if (code.length !== 6) return json({ error: 'invalidCode' }, 400);
+  const account = await lookupActive(email);
+  if (!account) return json({ error: 'invalidCode' }, 400);
+  const cp = account.counterparty_id;
+
+  const { data: reset } = await db
+    .from('app_password_resets')
+    .select('id, code_hash, attempts, expires_at')
+    .eq('counterparty_id', cp)
+    .eq('channel', 'email')
+    .is('used_at', null)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (!reset || Date.parse(reset.expires_at) < Date.now() || reset.attempts >= RESET_ATTEMPTS) {
+    return json({ error: 'expired' }, 400);
+  }
+  if (!sameText(await codeHash(reset.id, code), reset.code_hash)) {
+    await db.from('app_password_resets').update({ attempts: reset.attempts + 1 }).eq('id', reset.id);
+    return json({ error: 'invalidCode' }, 400);
+  }
+  if (accessEnded(await accessUntil(cp))) return json({ error: 'accessEnded' }, 403);
+
+  const version = account.session_version + 1;
+  const now = new Date().toISOString();
+  const { error } = await db
+    .from('app_students')
+    .update({ password_hash: await hashPassword(password), must_change_password: false, session_version: version, updated_at: now })
+    .eq('counterparty_id', cp);
+  if (error) return json({ error: 'server' }, 500);
+  await db.from('app_password_resets').update({ used_at: now }).eq('id', reset.id);
+  return json({ token: await makeToken(cp, version) });
+}
+
+/**
+ * Excluir a conta (exigência das lojas). Apaga o que é só do app e do aluno: perfil, aparelhos, o que ele
+ * publicou na comunidade, avisos, avaliações, visitas e encomendas. Ficam com a Chez Toi o contrato, os
+ * pagamentos, os pedidos (faturados), as despesas divididas com os colegas e o aceite das regras.
+ */
+async function accountDelete(req: Request, body: { password?: string; reason?: string }) {
+  const who = await readToken(req);
+  if (!who) return json({ error: 'unauthorized' }, 401);
+  const cp = who.cp;
+  const { data: acc } = await db.from('app_students').select('password_hash').eq('counterparty_id', cp).maybeSingle();
+  if (!acc?.password_hash || !(await checkPassword(String(body.password ?? ''), acc.password_hash))) {
+    return json({ error: 'wrongCredentials' }, 403);
+  }
+
+  const results = await Promise.all([
+    db.from('app_profiles').delete().eq('counterparty_id', cp),
+    db.from('app_devices').delete().eq('counterparty_id', cp),
+    db.from('app_community_posts').delete().eq('author_cp', cp),
+    db.from('app_community_comments').delete().eq('author_cp', cp),
+    db.from('app_trips').delete().eq('creator_cp', cp),
+    db.from('app_trip_members').delete().eq('counterparty_id', cp),
+    db.from('app_community_event_rsvps').delete().eq('counterparty_id', cp),
+    db.from('app_community_blocks').delete().or(`blocker_cp.eq.${cp},blocked_cp.eq.${cp}`),
+    db.from('app_community_terms').delete().eq('counterparty_id', cp),
+    db.from('app_community_reports').delete().eq('reporter_cp', cp),
+    db.from('app_feedback').delete().eq('counterparty_id', cp),
+    db.from('app_surveys').delete().eq('counterparty_id', cp),
+    db.from('app_referral_codes').delete().eq('counterparty_id', cp),
+    db.from('app_cleaning_feedback').delete().eq('counterparty_id', cp),
+    db.from('app_visitors').delete().eq('counterparty_id', cp),
+    db.from('app_packages').delete().eq('counterparty_id', cp),
+    db.from('app_notice_reads').delete().eq('counterparty_id', cp),
+    db.from('app_notices').delete().eq('counterparty_id', cp),
+    db.from('app_password_resets').delete().eq('counterparty_id', cp),
+  ]);
+  if (results.some((r) => r.error)) return json({ error: 'server' }, 500);
+
+  const { data: me } = await db.from('app_students').select('session_version').eq('counterparty_id', cp).single();
+  const now = new Date().toISOString();
+  const { error } = await db
+    .from('app_students')
+    .update({
+      status: 'disabled',
+      password_hash: null,
+      display_name: null,
+      must_change_password: true,
+      session_version: (me?.session_version ?? 0) + 1,
+      deleted_at: now,
+      updated_at: now,
+    })
+    .eq('counterparty_id', cp);
+  if (error) return json({ error: 'server' }, 500);
+  const reason = String(body.reason ?? '').trim().slice(0, 500) || null;
+  await db.from('app_account_deletions').insert({ counterparty_id: cp, reason });
+  return json({ ok: true });
 }
 
 /**
@@ -668,6 +884,12 @@ Deno.serve(async (req) => {
         return await track(req, body);
       case 'places':
         return await places(req);
+      case 'password-reset-request':
+        return await passwordResetRequest(body);
+      case 'password-reset-confirm':
+        return await passwordResetConfirm(body);
+      case 'account-delete':
+        return await accountDelete(req, body);
       default:
         return json({ error: 'notFound' }, 404);
     }

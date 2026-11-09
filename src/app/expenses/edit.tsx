@@ -23,6 +23,7 @@ import {
 } from '@/lib/expenses';
 import { formatCents, formatShortDate } from '@/lib/format';
 import { trackAction } from '@/lib/usage';
+import { hasLink } from '@/lib/no-links';
 
 /** New expense, or edit one (?id=) that the student added. */
 export default function ExpenseFormScreen() {
@@ -97,6 +98,7 @@ function Form({ data, id }: { data: ExpensesData; id?: string }) {
     setError(null);
     if (!cents) return setError(t.expenses.errors.amount);
     if (!description.trim()) return setError(t.expenses.errors.description);
+    if (hasLink(description)) return setError(t.common.noLinks);
     let shares;
     if (mode === 'equal') {
       if (people.length === 0) return setError(t.expenses.errors.people);

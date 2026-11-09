@@ -155,6 +155,12 @@ export default function MaisonScreen() {
             status={packagesStatus || t.houseSocial.packages.tileEmpty}
             onPress={() => router.push('/house/packages' as Href)}
           />
+          <HubTile
+            emoji="🤝"
+            title={t.community.hubRow}
+            status={t.community.hubRowSubtitle}
+            onPress={() => router.push('/community' as Href)}
+          />
         </HubGrid>
       </Section>
 

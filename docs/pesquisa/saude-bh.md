@@ -74,11 +74,11 @@ Pesquisa feita em 08/11/2026 (todas as consultas na mesma data). "Não confirmad
 Avisar sempre: "informação geral, não substitui atendimento médico".
 
 ## 9. Fatos que a equipe Chez Toi deve confirmar
-1. UPA Centro-Sul: endereço, horário e telefone atuais; qual UBS atende cada prédio.
-2. Cada hospital: PS 24h, quais seguros internacionais aceitam e se há faturamento direto, valores, idioma.
-3. Lojas Araujo 24h mais próximas da Savassi/Funcionários.
-4. Regras atuais do SUS para estrangeiros não residentes (cadastro e documentos) com a Secretaria Municipal de Saúde (156).
-5. Qual seguro a SKEMA exige dos alunos e como o reembolso funciona.
-6. Opções de telemedicina, dentista e ginecologia em francês/inglês.
-7. Vacinas exigidas/recomendadas hoje (Anvisa/Ministério).
-8. Se Mater Dei Contorno e Lifecenter têm PS 24h, e seus endereços.
+1. UPA Centro-Sul: endereço, horário e telefone atuais; qual UBS atende cada prédio. - precisamos verificar, so colocar o end da upa
+2. Cada hospital: PS 24h, quais seguros internacionais aceitam e se há faturamento direto, valores, idioma. - geralmente vao cobrar e depois eles tem que pedir reembolso
+3. Lojas Araujo 24h mais próximas da Savassi/Funcionários. - araujo tem pra tudo que eh lado em bh e quase todas sao 24hs
+4. Regras atuais do SUS para estrangeiros não residentes (cadastro e documentos) com a Secretaria Municipal de Saúde (156). - nao sabemos, melhor nao nos metermos
+5. Qual seguro a SKEMA exige dos alunos e como o reembolso funciona. - melhor nao nos metermos
+6. Opções de telemedicina, dentista e ginecologia em francês/inglês. - falar do doctoralia onde eles podem achar opcoes
+7. Vacinas exigidas/recomendadas hoje (Anvisa/Ministério). - nao nos meter
+8. Se Mater Dei Contorno e Lifecenter têm PS 24h, e seus endereços. - sim, pesquisa no google

@@ -37,8 +37,11 @@ próprio artefato).
 | 5, 7, 9 (parte) | Pix, tarefas da casa, sino de avisos | **Prontos no desenvolvimento (08/11/2026)**: função `app-house`, tabelas `app_chores*`, `app_notices*`, `app_payment_info`, `app_devices` |
 | 16 | Assistente de IA | **Pronto no desenvolvimento (08/11/2026)**: função `app-assistant` (Claude Opus 5.5, esforço baixo); falta o segredo `ANTHROPIC_API_KEY` no `appctbh` |
 | Visual v3 | Navegação e cara nova (Airbnb + Revolut) | **Pronta no desenvolvimento (08/11/2026)**: abas Accueil · Explorer · Assistente no centro · Maison · Séjour; desenho em https://claude.ai/artifact/F8BRwXetJgskUp4xuh6nLj |
-| 4 (parte) | Painel: preços dos extras | Branch local `app/catalogo-extras` no repositório do site, sem push e sem teste no navegador |
-| 4, 9, 10, 12 a 18 | Painel, avisos, chegada, emergência, línguas, comunidade, lojas | Não iniciadas |
+| 3 (resto) | Convite, esqueci a senha, sessão segura, fim do acesso, excluir conta | **Pronto no desenvolvimento (09/11/2026)**: `app-api` v3 e `app-admin` no `appctbh` |
+| 14 | Feedback, pesquisa de satisfação, indicação | **Pronto no desenvolvimento (09/11/2026)**: função `app-feedback` |
+| 15 | Comunidade: mural, viagens em grupo, eventos, denúncia e bloqueio, IA moderando | **Pronto no desenvolvimento (09/11/2026)**: função `app-community`; falta `ANTHROPIC_API_KEY` |
+| 4 (parte) | Painel: preços dos extras e 11 telas do "App do aluno" | Branches locais `app/catalogo-extras` e `app/painel-do-app` (esta parte da outra) no repositório do site, sem commit da segunda, sem push e sem teste no navegador |
+| 4 (resto), 9, 10, 12, 13, 16 a 18 | Ficha do morador e do apartamento, push, chegada, emergência, línguas, lojas | Não iniciadas ou em parte |
 
 ## Onde mora cada coisa (08/11/2026)
 
@@ -55,6 +58,14 @@ próprio artefato).
   `app_bh_event_links` (links colados pela equipe: Sympla, 2LIV, Raro, Belotur); esconder evento com `hidden = true`.
   Link da Sympla Bileto (`bileto.sympla.com.br`) não traz dados no HTML: digitar `title`, `starts_at` e `venue` no link.
   Primeira curadoria (26 eventos da Sympla; a 2LIV não tinha nada à venda) em `docs/pesquisa/agenda-bh.md` 7.10.
+  014 acesso e conta (`app_password_resets`, `app_account_deletions`, `app_access_until`: saída + 30 dias),
+  015 comunidade (mural, comentários, `app_trips`, eventos da Chez Toi com presença, denúncia, bloqueio, suspensão,
+  carta aceita, histórico de moderação; a equipe decide por `app_team_moderate` e `app_team_suspend`),
+  016 feedback, pesquisa de satisfação e indicação (`app_feedback`, `app_surveys`, `app_referral_*`),
+  017 políticas da equipe para o painel (pedidos, fotos dos chamados, faxineira, leituras dos avisos),
+  018 dados fictícios da comunidade (posts de Hugo e Chloé, viagem a Ouro Preto, apéro de boas-vindas).
+  019 nenhum link no que o aluno escreve (`app_has_link` + regras `*_no_links` em todas as tabelas de texto livre) e a
+  conversa da viagem (`app_community_comments.trip_id`); a coluna do link do WhatsApp das viagens saiu (019b).
   A conta de teste fica no `.env.local` (fora do Git).
 - **Produção:** banco do site (`miucfiiporxhvvbefonh`), função `bright-service` (a `app-api` do Arthur) e
   tabelas `app_*`. **Nunca escrever no banco do site** sem aprovação do Daniel: lá só leitura do catálogo.
@@ -68,9 +79,29 @@ próprio artefato).
   sino) num canvas claro; telas empurradas mantêm a barra vermelha com o logo. SOS fica nos atalhos do Início.
   O Início da chegada (foto e 5 passos) aparece de 7 dias antes a 14 dias depois da chegada; para ver no
   simulador, abrir `exp://localhost:8081/--/?welcome=1`.
-- Funções do app no `appctbh`: `app-api` (login e dados, com a correção da data de saída),
-  `app-requests`, `app-house`, `app-assistant`. Todas usam o mesmo token; o app chega a elas por
-  `houseApi`, `requestsApi`, `assistantApi` em `src/lib/app-api.ts`.
+- Funções do app no `appctbh`: `app-api` (login e dados, com a correção da data de saída; desde 09/11 também
+  "esqueci a senha", excluir a conta e o fim do acesso 30 dias depois da saída), `app-requests`, `app-house`,
+  `app-assistant`, `app-community` (comunidade, com a IA moderando) e `app-feedback` (feedback, pesquisa,
+  indicação). Todas usam o mesmo token; o app chega a elas por `houseApi`, `requestsApi`, `assistantApi`,
+  `communityApi`, `feedbackApi` em `src/lib/app-api.ts`. A `app-admin` é do painel (JWT da equipe, papéis
+  admin e equipe): lista alunos, convida (senha provisória mostrada uma vez), desliga e religa.
+- Segredos que faltam no `appctbh`: `ANTHROPIC_API_KEY` (Charlotte e moderação) e, para e-mail, `RESEND_API_KEY` +
+  `RESEND_FROM`. Sem e-mail, o "esqueci a senha" vira pedido na tela Acesso ao app do painel; sem a chave da IA,
+  o que o aluno publica entra no ar marcado `unchecked` para a equipe conferir.
+- Login (09/11/2026): sessão no Keychain/Keystore (`expo-secure-store`, migra a de antes); `src/app/forgot-password.tsx`
+  (fora do login) e `src/app/account-delete.tsx` (Perfil › Supprimer mon compte). Não sair da conta de teste no
+  simulador: entrar de novo pede a senha do `.env.local`.
+- Comunidade (09/11/2026, onda 15): `src/app/community/` (mural com Tout le monde / Mon appart, viagens em grupo,
+  eventos, carta, denúncia, bloqueio), entradas em Maison (tile 🤝) e Explorer › Voyages ("Partir en groupe").
+  A carta (`COMMUNITY_TERMS_VERSION` em `src/lib/community.ts` e na função) é pedida antes do primeiro post.
+  Decisão do Daniel: a IA modera e a equipe participa; 3 denúncias escondem o conteúdo até a equipe decidir.
+- **Nenhum link do aluno, em lugar nenhum** (Daniel, 09/11/2026: "se for malicioso nos complicamos"). Três barreiras:
+  o cliente (`src/lib/no-links.ts`, checado em `call()` de `src/lib/app-api.ts` para todo corpo, menos a Charlotte e o
+  `track`; erro `links` → `t.common.noLinks`), a `app-community` (erro `links`) e o banco (019). O Instagram do perfil
+  continua só como nome de usuário. As viagens não têm mais grupo do WhatsApp: a conversa é dentro do app, só de quem vai.
+- Transição em teste (09/11/2026): zoom nativo do iOS 18+ (`Link.AppleZoom`, Expo Router, alfa) dos cartões de destino
+  em Explorer › Voyages (`src/components/explorer-content.tsx`) para `src/app/travel/[id].tsx` (`Link.AppleZoomTarget`).
+  O filho do `Link asChild` precisa de estilo achatado (`StyleSheet.flatten`).
 - Regras da casa obrigatórias (08/11/2026): `src/app/rules-intro.tsx` abre por cima das abas até o aluno
   assinar a versão atual (`RULES_VERSION` em `src/lib/rules-intro.ts`; mudou a regra, sobe a versão). O aceite
   vai para `app_rules_acceptances` pela `app-house` (`rules-status`, `rules-accept`).
@@ -79,19 +110,23 @@ próprio artefato).
 - Novidades de 09/11/2026 (desenvolvimento): tour do app com a Charlotte (`src/lib/tour.tsx`, abre uma vez depois
   das regras; refazer em Séjour › Aide), modo sem internet (cópia dos dados em `src/lib/home.tsx`, apagada ao sair),
   cartão para a família (Séjour › Aide), celular roubado (`src/app/phone-stolen/`, fontes em `src/lib/phone-stolen.ts`;
-  o número 1058 da Vivo está a conferir), retrospectiva (`src/app/recap.tsx`, check-ins "J'y suis allé" no celular),
+  o 1058 da Vivo foi conferido pelo Daniel em 09/11/2026), retrospectiva (`src/app/recap.tsx`, check-ins "J'y suis allé" no celular),
   visitas, encomendas e perfis (`src/app/house/`). O widget espera o build de desenvolvimento (onda 9).
 - Recap mensal (09/11/2026): `src/app/recap/` (central, histórias, linha do tempo, "carte de BH"), dados só no celular
   (`src/lib/journal.ts`: pontos de localização arredondados, fotos do mês, português por mês). Localização só com
   opt-in; os nomes de cidade vêm do geocodificador da Apple/Google (decisão do Daniel em 09/11/2026: manter, avisando
   na tela de opt-in que a posição arredondada passa por esse serviço). Em segundo plano, só com o build da onda 9.
 - Pesquisas para as próximas ondas: `docs/pesquisa/agenda-bh.md` (fontes de eventos) e `docs/pesquisa/saude-bh.md`
-  (seção Saúde; só publicar o que a equipe confirmar).
+  (seção Saúde; só publicar o que a equipe confirmar). Seção Saúde pronta em 09/11/2026 (`src/app/health/`,
+  `src/lib/health.ts`, entradas no SOS e em Explorer › Pratique) com as respostas da equipe na seção 9 da pesquisa;
+  SUS para estrangeiros, seguro da SKEMA e vacinas ficam de fora a pedido da equipe. A Charlotte ainda não sabe dela
+  (rodar `scripts/assistant/build.mjs` e republicar a `app-assistant`).
 - Mais bem avaliados do Google perto de casa (09/11/2026): `scripts/nearby.py` (`TOP_RATED`: restaurantes, bares e cafés a
   até 15 min a pé, nota ponderada pelo número de avaliações) grava em `app_apartment_places.nearby.topRated`; no app,
   `src/components/top-rated-near-home.tsx` na Explorer, com toque para o Google Maps. Some enquanto o apartamento não tem a lista.
-  Rodar `python3 scripts/apartment_places.py --top-rated` (só acrescenta a lista) com `GOOGLE_MAPS_API_KEY` no ambiente,
-  em `~/Desktop/Chez Toi BH/.env` ou no `.env.local`. Nesta máquina a chave não está; no `appctbh` nenhum apartamento tem lugares.
+  **Decisão do Daniel (09/11/2026): seguir sem a chave do Google**, com o "Autour de moi" levando ao Maps. A lista fica escondida
+  (não há dados); o script continua no repositório caso a chave apareça (`python3 scripts/apartment_places.py --top-rated`).
+  Sem a chave, apartamento novo também fica sem o "Perto de casa" (o mesmo script calcula os dois).
 - Fora de casa, "Autour de moi" (`src/components/around-me.tsx`): botões que abrem o Google Maps buscando onde o aluno está
   (link do Maps, sem chave e sem custo). Busca ao vivo do Google dentro do app foi descartada pelo custo (09/11/2026:
   de US$ 70 a US$ 1.850 por mês para 100 alunos); se voltar, só no toque, com limite por aluno e alerta de gasto.
@@ -99,6 +134,12 @@ próprio artefato).
   `supabase/functions/app-assistant/knowledge.ts`; rodar de novo e republicar quando regras ou guia mudarem.
 - O site tem o banco de produção fixo no código (`src/integrations/supabase/client.ts`): rodar o site
   localmente mexe em produção.
+- Painel do app no site (09/11/2026): branch `app/painel-do-app` (sem commit) com o grupo "App do aluno" no menu e 11
+  telas em `src/pages/admin/AdminApp*.tsx`, hooks em `src/hooks/app-panel/` (cliente `appDb` tipado à parte: o
+  `types.ts` do site é refeito pelo Lovable a partir de produção e não pode ganhar tabelas que lá não existem).
+  Para valer em produção: aplicar no site 004, 008 e 011 a 017 (só as partes marcadas "site"), publicar a `app-admin`
+  lá e trocar `appDb` por `supabase`. Textos de um idioma só que o aluno lê: `team_note` dos pedidos e encomendas e a
+  resposta do feedback (a equipe escreve na língua do aluno).
 - O trabalho em modo local de 06/11 (extras e pedidos, fatura com extras, lembretes, agenda, tarefas da casa)
   está na branch `arquivo/modo-local-0611`, para portar sobre a `app-api`, uma onda por vez.
 

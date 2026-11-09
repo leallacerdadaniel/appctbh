@@ -50,7 +50,8 @@
         {
           "locationWhenInUsePermission": "Chez Toi BH uses your location only when you turn on your BH map, to build your monthly recap on your phone."
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,

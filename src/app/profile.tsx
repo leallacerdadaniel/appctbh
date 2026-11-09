@@ -60,11 +60,17 @@ export default function ProfileScreen() {
               Linking.openURL(`https://wa.me/${contacts.whatsapp}`);
             }}
           />
+          <ListRow
+            icon="trash"
+            title={t.account.rowTitle}
+            subtitle={t.account.rowSubtitle}
+            onPress={() => router.push('/account-delete' as Href)}
+          />
         </ListGroup>
       </Card>
 
       <Card style={{ paddingVertical: 0 }}>
-        <PressableScale accessibilityRole="button" onPress={signOut} style={styles.signOut}>
+        <PressableScale accessibilityRole="button" onPress={() => signOut()} style={styles.signOut}>
           <Icon name="signOut" size={20} color={theme.error} />
           <AppText color={theme.error}>{t.profile.signOut}</AppText>
         </PressableScale>

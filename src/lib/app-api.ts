@@ -3,6 +3,8 @@
  * door to the database. Login is the app's own (not the website's Supabase Auth); the token it
  * returns is sent as a Bearer header.
  */
+import { bodyHasLink } from '@/lib/no-links';
+
 const BASE_URL = process.env.EXPO_PUBLIC_APP_API_URL ?? '';
 /**
  * Requests (wave 6) live in a second function, "app-requests", in the same Supabase project; it accepts
@@ -26,7 +28,17 @@ export type ApiError =
   | 'taken'
   | 'limit'
   | 'busy'
-  | 'notConfigured';
+  | 'notConfigured'
+  // account (2026-11-09): stay ended more than 30 days ago; "forgot password" code
+  | 'accessEnded'
+  | 'invalidCode'
+  | 'expired'
+  // community (2026-11-09): charter not accepted yet, suspended by the team, trip or event full
+  | 'terms'
+  | 'suspended'
+  | 'full'
+  // 2026-11-09: a link in something the student wrote (src/lib/no-links.ts), refused before sending
+  | 'links';
 
 export class AppApiError extends Error {
   constructor(public code: ApiError) {
@@ -34,7 +46,8 @@ export class AppApiError extends Error {
   }
 }
 
-type CallOptions = { token?: string | null; body?: unknown };
+/** `allowLinks`: only for the assistant, whose questions never reach other people. */
+type CallOptions = { token?: string | null; body?: unknown; allowLinks?: boolean };
 
 export function appApi<T>(route: string, options: CallOptions = {}): Promise<T> {
   return call<T>(BASE_URL, route, options);
@@ -55,7 +68,7 @@ export function houseApi<T>(route: string, options: CallOptions = {}): Promise<T
 
 /** "app-assistant": the AI assistant (contract, rules, guide, the student's own data). */
 export function assistantApi<T>(route: string, options: CallOptions = {}): Promise<T> {
-  return call<T>(process.env.EXPO_PUBLIC_ASSISTANT_API_URL ?? sibling('app-assistant'), route, options);
+  return call<T>(process.env.EXPO_PUBLIC_ASSISTANT_API_URL ?? sibling('app-assistant'), route, { ...options, allowLinks: true });
 }
 
 /** "app-events": what's on in BH (CCBB, Palácio das Artes, city open data, links pasted by the team). */
@@ -63,7 +76,19 @@ export function eventsApi<T>(route: string, options: CallOptions = {}): Promise<
   return call<T>(process.env.EXPO_PUBLIC_EVENTS_API_URL ?? sibling('app-events'), route, options);
 }
 
+/** "app-feedback" (wave 14): feedback to the team and its replies, the stay surveys, refer a friend. */
+export function feedbackApi<T>(route: string, options: CallOptions = {}): Promise<T> {
+  return call<T>(process.env.EXPO_PUBLIC_FEEDBACK_API_URL ?? sibling('app-feedback'), route, options);
+}
+
+/** "app-community": the residents' wall, group trips, Chez Toi events, reports and blocks (wave 15). */
+export function communityApi<T>(route: string, options: CallOptions = {}): Promise<T> {
+  return call<T>(process.env.EXPO_PUBLIC_COMMUNITY_API_URL ?? sibling('app-community'), route, options);
+}
+
 async function call<T>(base: string, route: string, options: CallOptions): Promise<T> {
+  // No links in anything a student writes (owner, 2026-11-09); usage stats are not student text.
+  if (!options.allowLinks && route !== 'track' && bodyHasLink(options.body)) throw new AppApiError('links');
   let res: Response;
   try {
     res = await fetch(`${base}/${route}`, {

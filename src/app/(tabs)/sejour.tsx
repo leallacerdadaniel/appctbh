@@ -11,7 +11,7 @@ import {
   StatusPill,
 } from '@/components/request-ui';
 import { Screen, Section } from '@/components/screen';
-import { Card } from '@/components/ui';
+import { Card, InlineMessage } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { formatCents, formatDate, formatMoney, isFutureMonth } from '@/lib/format';
@@ -23,9 +23,14 @@ import { useTour } from '@/lib/tour';
 import { openWhatsApp } from '@/lib/whatsapp';
 import { fullAddress } from '@/components/home-v3';
 import { RecapEntry, RecapHubRow } from '@/components/recap-ui';
+import { FeedbackHubRow, ReferralHubRow } from '@/components/feedback-ui';
 
 /** Open requests shown on the tab; the rest is one tap away in "Mes demandes". */
 const OPEN_MAX = 3;
+
+/** The stay is over once its last day (BH date) has passed. */
+const stayEnded = (lastDay: string) =>
+  lastDay < new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
 
 /**
  * "Chez Toi": what the student asks, pays and signs with Chez Toi (structure by task, owner 2026-11-08).
@@ -35,7 +40,7 @@ export default function ChezToiScreen() {
   const theme = useTheme();
   const { t, lang } = useI18n();
   const p = t.apartment.payments;
-  const { contract, payments, deposit, student, apartment } = useHome();
+  const { contract, payments, deposit, student, apartment, accessUntil } = useHome();
   const tour = useTour();
   const { refresh } = useHomeState();
   const { state: requestsState, reload: reloadRequests } = useRequests();
@@ -54,6 +59,10 @@ export default function ChezToiScreen() {
       title={t.tabs.sejour}
       subtitle={t.chezToi.subtitle}
       onRefresh={() => Promise.all([refresh(), reloadRequests()])}>
+      {/* After the stay the app stays open 30 days, for the contract and documents (2026-11-09). */}
+      {accessUntil && stayEnded(contract.departure?.date ?? contract.moveOut) && (
+        <InlineMessage kind="error" text={t.account.accessEnds(formatDate(accessUntil, lang))} />
+      )}
       <Section title={t.chezToi.ask} subtitle={t.chezToi.askHint}>
         <Card style={styles.listCard}>
           <ListGroup inset>
@@ -206,6 +215,9 @@ export default function ChezToiScreen() {
             )}
             {/* Monthly recaps, the BH map opt-in and the timeline (owner, 2026-11-09). */}
             <RecapHubRow />
+            {/* Wave 14 (2026-11-09): feedback to the team (with its replies) and refer a friend. */}
+            <FeedbackHubRow />
+            <ReferralHubRow />
             {/* For parents (owner, 2026-11-08: "espaço dos pais"): a text card shared from the phone. */}
             <ListRow
               icon="people"

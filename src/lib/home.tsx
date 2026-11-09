@@ -34,6 +34,8 @@ type HomeResponse = {
   tenant: { move_in_date: string | null; move_out_date: string | null; rent: number | null } | null;
   arrival?: StudentDate | null;
   departure?: StudentDate | null;
+  /** Last day the app opens (stay end + 30 days), 2026-11-09. */
+  accessUntil?: string | null;
   info: {
     unit_number?: string | null;
     wifi_name: string | null;
@@ -100,6 +102,8 @@ export type Home = {
   /** Monthly rent status only (amounts never reach the app), oldest month first. */
   payments: { month: string; paid: boolean }[];
   deposit: Deposit | null;
+  /** Last day the student can sign in (end of stay + 30 days, to download documents); null without a stay. */
+  accessUntil: string | null;
 };
 
 export function person(name: string): Person {
@@ -164,6 +168,7 @@ function toHome(r: HomeResponse): Home {
           returnedDate: r.deposit.returned_date,
         }
       : null,
+    accessUntil: r.accessUntil ?? null,
   };
 }
 
@@ -215,6 +220,7 @@ export function HomeProvider({ children }: { children: ReactNode }) {
       .catch(async (e) => {
         const code = e instanceof AppApiError ? e.code : 'server';
         if (code === 'unauthorized') return signOut();
+        if (code === 'accessEnded') return signOut('accessEnded');
         if (code === 'noRental') return setState({ status: 'noRental' });
         // A refresh that fails (no network) must not swap the app for the error gate.
         const cached = await readCache(token);

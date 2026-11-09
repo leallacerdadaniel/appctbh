@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { BrandBar } from '@/components/brand-bar';
+import { BRAND_BAR_HEIGHT, BrandBar } from '@/components/brand-bar';
 import { FocusStatusBar } from '@/components/focus-status-bar';
 import { TabHeader } from '@/components/tab-header';
 import { AppText, PressableScale } from '@/components/ui';
@@ -43,6 +43,7 @@ export function Screen({
   const [pastPhoto, setPastPhoto] = useState(false);
   const tab = !back;
   const photoTop = onPhoto && !pastPhoto;
+  const barHeight = insets.top + BRAND_BAR_HEIGHT;
 
   async function refresh() {
     if (!onRefresh) return;
@@ -56,10 +57,15 @@ export function Screen({
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
-      {back ? <BrandBar back /> : <FocusStatusBar style={photoTop ? 'light' : 'dark'} />}
+      {back ? <BrandBar back overlay /> : <FocusStatusBar style={photoTop ? 'light' : 'dark'} />}
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: back ? insets.bottom + Spacing.xl : Spacing.xl + Spacing.md }}
+        contentContainerStyle={{
+          // Pushed screens: the red bar floats over the top, and the content starts under it.
+          paddingTop: back ? barHeight : 0,
+          paddingBottom: back ? insets.bottom + Spacing.xl : Spacing.xl + Spacing.md,
+        }}
+        scrollIndicatorInsets={back ? { top: barHeight } : undefined}
         keyboardShouldPersistTaps="handled"
         scrollEventThrottle={onPhoto ? 32 : undefined}
         onScroll={
@@ -77,7 +83,7 @@ export function Screen({
               onRefresh={refresh}
               tintColor={theme.textSecondary}
               colors={[theme.textSecondary]}
-              progressViewOffset={tab ? insets.top : 0}
+              progressViewOffset={tab ? insets.top : barHeight}
             />
           ) : undefined
         }>

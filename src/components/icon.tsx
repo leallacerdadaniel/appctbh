@@ -152,6 +152,9 @@ const REGISTRY = {
   visited: { ios: 'flag', iosActive: 'flag.fill', material: 'flag', glyph: 0xe153 },
   play: { ios: 'play.fill', material: 'play_arrow', glyph: 0xe037 },
   share: { ios: 'square.and.arrow.up', material: 'ios_share', glyph: 0xe6b8 },
+  // Onda 14 (2026-11-09): avis à l'équipe, parrainage.
+  feedback: { ios: 'text.bubble', material: 'rate_review', glyph: 0xe560 },
+  gift: { ios: 'gift', material: 'redeem', glyph: 0xe8b1 },
 } as const satisfies Record<string, Entry>;
 
 export type IconName = keyof typeof REGISTRY;

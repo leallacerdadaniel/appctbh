@@ -255,6 +255,7 @@ export function useHouseSocialActions() {
 export function houseSocialErrorText(error: unknown, t: Strings, fallback: 'server' | 'action') {
   const code = error instanceof AppApiError ? error.code : 'server';
   const e = t.houseSocial.errors;
+  if (code === 'links') return t.common.noLinks;
   if (code === 'invalid') return e.invalid;
   if (code === 'notFound') return e.notFound;
   if (code === 'limit') return e.limit;

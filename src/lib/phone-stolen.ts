@@ -154,7 +154,7 @@ export const HELP_STEPS: HelpStep[] = [
       // "Só é preciso informar o número do celular. Não há mais necessidade de fornecer o IMEI." (modified 31/08/2025)
       'https://www.gov.br/anatel/pt-br/consumidor/conheca-seus-direitos-2/telefonia-movel/perda-ou-roubo-do-aparelho-celular',
       // "ligue *8486 do seu celular Vivo ou 1058 de qualquer telefone". The page answers 403 to fetchers:
-      // read through the search index on 2026-11-08. TODO: à vérifier sur la page elle-même.
+      // read through the search index on 2026-11-08; confirmed by the owner on 2026-11-09.
       'https://www.vivo.com.br/para-voce/chip-vivo',
       // "Se você é cliente Claro móvel, ligue para 1052."
       'https://www.claro.com.br/seguranca/bloqueio-de-chip',

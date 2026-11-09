@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
@@ -307,37 +307,42 @@ function DestinationTile({ destination: d }: { destination: DestinationWithPhoto
   const theme = useTheme();
   const { lang } = useI18n();
   return (
-    <PressableScale
-      accessibilityRole="button"
-      accessibilityLabel={`${d.name}, ${placeLabel(d, lang)}`}
-      onPress={() => router.push({ pathname: '/travel/[id]', params: { id: d.id } })}
-      style={[styles.card, Shadow.card, { backgroundColor: theme.surface }]}>
-      <View>
-        <PlacePhoto
-          placeId={d.placeId}
-          source={d.photo}
-          photoIndex={d.photoIndex}
-          width={500}
-          radius={0}
-          credit="overlay"
-        />
-        <View style={styles.badges}>
-          <MustGoBadge />
-        </View>
-      </View>
-      <View style={styles.body}>
-        <AppText style={{ fontFamily: Fonts.bodyMedium }}>{d.name}</AppText>
-        <AppText variant="callout" color={theme.textSecondary}>
-          {placeLabel(d, lang)}
-        </AppText>
-        <View style={styles.meta}>
-          <Icon name={transportIcon(d)} size={13} color={theme.textSecondary} />
-          <AppText variant="caption" color={theme.textSecondary} style={{ flex: 1 }}>
-            {d.fromBh[lang]}
+    // Zoom into the destination page (iOS 18+ native zoom transition, trial of 2026-11-09); a plain push elsewhere.
+    // Link asChild passes the press to PressableScale; the style must be flat for Link's Slot.
+    <Link href={{ pathname: '/travel/[id]', params: { id: d.id } }} asChild>
+      <PressableScale
+        accessibilityRole="button"
+        accessibilityLabel={`${d.name}, ${placeLabel(d, lang)}`}
+        style={StyleSheet.flatten([styles.card, Shadow.card, { backgroundColor: theme.surface }])}>
+        <Link.AppleZoom>
+          <View>
+            <PlacePhoto
+              placeId={d.placeId}
+              source={d.photo}
+              photoIndex={d.photoIndex}
+              width={500}
+              radius={0}
+              credit="overlay"
+            />
+            <View style={styles.badges}>
+              <MustGoBadge />
+            </View>
+          </View>
+        </Link.AppleZoom>
+        <View style={styles.body}>
+          <AppText style={{ fontFamily: Fonts.bodyMedium }}>{d.name}</AppText>
+          <AppText variant="callout" color={theme.textSecondary}>
+            {placeLabel(d, lang)}
           </AppText>
+          <View style={styles.meta}>
+            <Icon name={transportIcon(d)} size={13} color={theme.textSecondary} />
+            <AppText variant="caption" color={theme.textSecondary} style={{ flex: 1 }}>
+              {d.fromBh[lang]}
+            </AppText>
+          </View>
         </View>
-      </View>
-    </PressableScale>
+      </PressableScale>
+    </Link>
   );
 }
 
@@ -346,45 +351,48 @@ function DestinationCard({ destination: d }: { destination: DestinationWithPhoto
   const theme = useTheme();
   const { t, lang } = useI18n();
   return (
-    <PressableScale
-      accessibilityRole="button"
-      accessibilityLabel={`${d.name}, ${placeLabel(d, lang)}`}
-      onPress={() => router.push({ pathname: '/travel/[id]', params: { id: d.id } })}
-      style={[styles.wideCard, Shadow.card, { backgroundColor: theme.surface }]}>
-      <View>
-        <PlacePhoto
-          placeId={d.placeId}
-          source={d.photo}
-          photoIndex={d.photoIndex}
-          width={900}
-          aspectRatio={16 / 9}
-          radius={0}
-          credit="overlay"
-        />
-        <View style={styles.badges}>
-          {d.mustGo && <MustGoBadge />}
-          <View style={[styles.pill, { backgroundColor: theme.scrim }]}>
-            <AppText variant="caption" color={theme.onBrand}>
-              {t.travel.trips[d.trip]}
+    <Link href={{ pathname: '/travel/[id]', params: { id: d.id } }} asChild>
+      <PressableScale
+        accessibilityRole="button"
+        accessibilityLabel={`${d.name}, ${placeLabel(d, lang)}`}
+        style={StyleSheet.flatten([styles.wideCard, Shadow.card, { backgroundColor: theme.surface }])}>
+        <Link.AppleZoom>
+          <View>
+            <PlacePhoto
+              placeId={d.placeId}
+              source={d.photo}
+              photoIndex={d.photoIndex}
+              width={900}
+              aspectRatio={16 / 9}
+              radius={0}
+              credit="overlay"
+            />
+            <View style={styles.badges}>
+              {d.mustGo && <MustGoBadge />}
+              <View style={[styles.pill, { backgroundColor: theme.scrim }]}>
+                <AppText variant="caption" color={theme.onBrand}>
+                  {t.travel.trips[d.trip]}
+                </AppText>
+              </View>
+            </View>
+          </View>
+        </Link.AppleZoom>
+        <View style={styles.wideBody}>
+          <View style={{ flex: 1, gap: 2 }}>
+            <AppText style={{ fontFamily: Fonts.bodyMedium }}>{d.name}</AppText>
+            <AppText variant="callout" color={theme.textSecondary}>
+              {placeLabel(d, lang)}
+            </AppText>
+          </View>
+          <View style={styles.metaRight}>
+            <Icon name={transportIcon(d)} size={13} color={theme.textSecondary} />
+            <AppText variant="caption" color={theme.textSecondary} style={{ textAlign: 'right', flexShrink: 1 }}>
+              {d.fromBh[lang]}
             </AppText>
           </View>
         </View>
-      </View>
-      <View style={styles.wideBody}>
-        <View style={{ flex: 1, gap: 2 }}>
-          <AppText style={{ fontFamily: Fonts.bodyMedium }}>{d.name}</AppText>
-          <AppText variant="callout" color={theme.textSecondary}>
-            {placeLabel(d, lang)}
-          </AppText>
-        </View>
-        <View style={styles.metaRight}>
-          <Icon name={transportIcon(d)} size={13} color={theme.textSecondary} />
-          <AppText variant="caption" color={theme.textSecondary} style={{ textAlign: 'right', flexShrink: 1 }}>
-            {d.fromBh[lang]}
-          </AppText>
-        </View>
-      </View>
-    </PressableScale>
+      </PressableScale>
+    </Link>
   );
 }
 

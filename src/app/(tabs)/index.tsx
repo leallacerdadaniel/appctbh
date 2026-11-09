@@ -18,6 +18,7 @@ import { rentMonthLabel, requestHref, requestTitle } from '@/components/request-
 import { Screen, Section } from '@/components/screen';
 import { useToast } from '@/components/toast';
 import { RecapEntry } from '@/components/recap-ui';
+import { SurveyInvite } from '@/components/feedback-ui';
 import { AppText } from '@/components/ui';
 import { Fonts, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -108,6 +109,8 @@ export default function HomeScreen() {
       </View>
       <TonightSection />
       <WeekSection />
+      {/* Wave 14: the stay survey, only while it is due (middle and end of the stay). */}
+      <SurveyInvite />
       <RecapEntry />
     </Screen>
   );

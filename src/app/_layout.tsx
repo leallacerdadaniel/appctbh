@@ -89,6 +89,7 @@ function RootStack() {
         }}>
         <Stack.Protected guard={!isSignedIn}>
           <Stack.Screen name="login" />
+          <Stack.Screen name="forgot-password" options={{ animation: 'slide_from_right' }} />
         </Stack.Protected>
         <Stack.Protected guard={isSignedIn && mustChangePassword}>
           <Stack.Screen name="change-password" />
@@ -99,6 +100,7 @@ function RootStack() {
           <Stack.Screen name="emergency" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="phone-stolen/index" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="phone-stolen/help" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="health/index" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="restaurants/index" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="restaurants/[id]" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="restaurants/dishes" options={{ animation: 'slide_from_right' }} />
@@ -158,6 +160,23 @@ function RootStack() {
           <Stack.Screen name="house/chore-edit" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="notices" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="assistant" options={{ animation: 'slide_from_right' }} />
+          {/* Wave 14: feedback to the team, stay survey, refer a friend. */}
+          <Stack.Screen name="feedback/index" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="feedback/new" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="survey" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="referral" options={{ animation: 'slide_from_right' }} />
+          {/* Conta e comunidade (2026-11-09) */}
+          <Stack.Screen name="account-delete" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="community/index" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="community/charter" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="community/post-new" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="community/post/[id]" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="community/blocked" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="community/report" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="community/trips/index" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="community/trips/[id]" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="community/trips/edit" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="community/events/[id]" options={{ animation: 'slide_from_right' }} />
         </Stack.Protected>
       </Stack>
       {isSignedIn && !mustChangePassword && <BirthdayGreeting key={token} />}
