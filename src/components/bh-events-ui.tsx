@@ -91,10 +91,14 @@ function place(e: BhEvent) {
   return e.venue ?? e.neighborhood ?? null;
 }
 
-/** Opens the event on its source's website (in-app browser); nothing when the source has no page. */
+/** Only web pages: the link comes from third-party sites (via app-events-sync), never another scheme. */
+const isWebUrl = (url: string | null): url is string => !!url && /^https?:\/\/[^\s]+$/i.test(url.trim());
+
+/** Opens the event on its source's website (in-app browser); nothing when the source has no web page. */
 export function openEvent(e: BhEvent) {
-  if (!e.url) return;
-  WebBrowser.openBrowserAsync(e.url).catch(() => Linking.openURL(e.url!));
+  const url = e.url?.trim() ?? null;
+  if (!isWebUrl(url)) return;
+  WebBrowser.openBrowserAsync(url).catch(() => Linking.openURL(url));
 }
 
 /* ---------- Photo (fixed size: the box never jumps) ---------- */

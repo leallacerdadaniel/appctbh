@@ -21,7 +21,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 
-import { Fonts, Radius, Shadow, Spacing, TapTarget, Type } from '@/constants/theme';
+import { Fonts, MaxFontScale, Radius, Shadow, Spacing, TapTarget, Type } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 /* ---------- Text ---------- */
@@ -32,10 +32,20 @@ export function AppText({
   variant = 'body',
   color,
   style,
+  maxFontSizeMultiplier,
   ...props
 }: TextProps & { variant?: Variant; color?: string }) {
   const theme = useTheme();
-  return <Text {...props} style={[Type[variant], { color: color ?? theme.text }, style]} />;
+  // Screen titles follow Dynamic Type up to a cap, so a large text size never breaks them in pieces.
+  // Section titles (`title`) keep growing: capped, they would end up smaller than the body text.
+  const titleCap = variant === 'display' ? MaxFontScale : undefined;
+  return (
+    <Text
+      {...props}
+      maxFontSizeMultiplier={maxFontSizeMultiplier ?? titleCap}
+      style={[Type[variant], { color: color ?? theme.text }, style]}
+    />
+  );
 }
 
 /* ---------- Haptics ---------- */
@@ -168,6 +178,7 @@ export function Chip({
       <AppText
         variant="callout"
         color={selected ? theme.onBrand : theme.text}
+        maxFontSizeMultiplier={MaxFontScale}
         style={{ fontFamily: Fonts.bodyMedium }}>
         {label}
       </AppText>
@@ -238,14 +249,15 @@ export const Input = forwardRef<
 
 /* ---------- Inline message (errors never rely on brand red) ---------- */
 
-export function InlineMessage({ kind, text }: { kind: 'error' | 'success'; text: string }) {
+/** `warning` for something to do soon that isn't a failure (the stay is over, the app closes on a date). */
+export function InlineMessage({ kind, text }: { kind: 'error' | 'warning' | 'success'; text: string }) {
   const theme = useTheme();
-  const fg = kind === 'error' ? theme.error : theme.success;
-  const bg = kind === 'error' ? theme.errorSoft : theme.successSoft;
+  const fg = kind === 'error' ? theme.error : kind === 'warning' ? theme.warning : theme.success;
+  const bg = kind === 'error' ? theme.errorSoft : kind === 'warning' ? theme.warningSoft : theme.successSoft;
   return (
     <View accessibilityRole="alert" style={[styles.message, { backgroundColor: bg }]}>
       <AppText variant="caption" color={fg}>
-        {kind === 'error' ? '⚠︎  ' : '✓  '}
+        {kind === 'success' ? '✓  ' : '⚠︎  '}
         {text}
       </AppText>
     </View>

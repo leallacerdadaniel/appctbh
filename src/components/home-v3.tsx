@@ -3,14 +3,14 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, type Href } from 'expo-router';
 import type { ReactNode } from 'react';
-import { Linking, ScrollView, StyleSheet, View } from 'react-native';
+import { Linking, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon, type IconName } from '@/components/icon';
 import { TabHeader } from '@/components/tab-header';
 import { useToast } from '@/components/toast';
 import { AppText, PressableScale } from '@/components/ui';
-import { Fonts, MaxContentWidth, Radius, Shadow, Spacing, TapTarget } from '@/constants/theme';
+import { Fonts, MaxContentWidth, MaxFontScale, Radius, Shadow, Spacing, TapTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { getAttraction } from '@/lib/attractions';
@@ -48,6 +48,9 @@ export function AddressCard({ apartment }: { apartment: Home['apartment'] }) {
   const theme = useTheme();
   const toast = useToast();
   const { t } = useI18n();
+  // Large text (Dynamic Type): the four buttons wrap two by two instead of squeezing their labels.
+  const { fontScale } = useWindowDimensions();
+  const wrap = fontScale > 1.2;
   const { street, detail } = addressLines(apartment, t.apartment.unit);
   const address = fullAddress(apartment);
 
@@ -96,11 +99,18 @@ export function AddressCard({ apartment }: { apartment: Home['apartment'] }) {
           )}
         </View>
       </View>
-      <View style={styles.addressActions}>
-        <AddressButton label={t.today.uber} a11y={t.today.uberA11y} logo={uberLogo} onPress={uber} />
-        <AddressButton label={t.today.ninetyNine} a11y={t.today.ninetyNineA11y} logo={ninetyNineLogo} onPress={ninetyNine} />
-        <AddressButton label={t.today.copy} a11y={t.today.addressCopied} icon="copy" onPress={copy} />
+      <View style={[styles.addressActions, wrap && styles.addressActionsWrap]}>
+        <AddressButton wide={wrap} label={t.today.uber} a11y={t.today.uberA11y} logo={uberLogo} onPress={uber} />
         <AddressButton
+          wide={wrap}
+          label={t.today.ninetyNine}
+          a11y={t.today.ninetyNineA11y}
+          logo={ninetyNineLogo}
+          onPress={ninetyNine}
+        />
+        <AddressButton wide={wrap} label={t.today.copy} a11y={t.today.addressCopied} icon="copy" onPress={copy} />
+        <AddressButton
+          wide={wrap}
           label={t.today.show}
           a11y={t.today.showA11y}
           icon="show"
@@ -120,12 +130,15 @@ function AddressButton({
   logo,
   icon,
   onPress,
+  wide = false,
 }: {
   label: string;
   a11y: string;
   logo?: number;
   icon?: IconName;
   onPress: () => void;
+  /** Two per row (large text). */
+  wide?: boolean;
 }) {
   const theme = useTheme();
   return (
@@ -133,13 +146,13 @@ function AddressButton({
       accessibilityRole="button"
       accessibilityLabel={a11y}
       onPress={onPress}
-      style={[styles.addressButton, { backgroundColor: theme.background }]}>
+      style={[styles.addressButton, wide && styles.addressButtonWide, { backgroundColor: theme.background }]}>
       {logo ? (
         <Image source={logo} style={styles.logo} contentFit="cover" accessible={false} />
       ) : (
         icon && <Icon name={icon} size={15} color={theme.text} />
       )}
-      <AppText variant="callout" style={{ fontFamily: Fonts.bodySemi }}>
+      <AppText variant="callout" maxFontSizeMultiplier={MaxFontScale} style={{ fontFamily: Fonts.bodySemi }}>
         {label}
       </AppText>
     </PressableScale>
@@ -147,6 +160,8 @@ function AddressButton({
 }
 
 /* ---------- Quick actions ---------- */
+
+const QUICK_FONT_SCALE = 1.2;
 
 export function QuickActions({ apartment }: { apartment: Home['apartment'] }) {
   const theme = useTheme();
@@ -160,9 +175,14 @@ export function QuickActions({ apartment }: { apartment: Home['apartment'] }) {
     toast(t.today.wifiCopied);
   }
 
-  const actions: { icon: IconName; label: string; onPress: () => void; sos?: boolean }[] = [
+  const actions: { icon: IconName; label: string; a11y?: string; onPress: () => void; sos?: boolean }[] = [
     { icon: 'wifi', label: t.today.quick.wifi, onPress: wifi },
-    { icon: 'laundry', label: t.today.quick.services, onPress: () => router.push('/requests/new' as Href) },
+    {
+      icon: 'laundry',
+      label: t.today.quick.services,
+      a11y: t.requests.homeNew,
+      onPress: () => router.push('/requests/new' as Href),
+    },
     { icon: 'people', label: t.today.quick.roommates, onPress: () => router.push('/apartment/roommates') },
     { icon: 'shield', label: t.today.quick.sos, onPress: () => router.push('/emergency'), sos: true },
   ];
@@ -173,7 +193,7 @@ export function QuickActions({ apartment }: { apartment: Home['apartment'] }) {
         <PressableScale
           key={a.label}
           accessibilityRole="button"
-          accessibilityLabel={a.label}
+          accessibilityLabel={a.a11y ?? a.label}
           onPress={a.onPress}
           style={styles.quick}>
           <View style={[styles.quickCircle, { backgroundColor: a.sos ? theme.brandSoft : theme.surface }]}>
@@ -181,8 +201,10 @@ export function QuickActions({ apartment }: { apartment: Home['apartment'] }) {
           </View>
           <AppText
             variant="caption"
-            color={a.sos ? theme.brand : theme.text}
-            style={{ fontFamily: a.sos ? Fonts.bodySemi : Fonts.bodyMedium }}>
+            color={a.sos ? theme.brandText : theme.text}
+            // Four labels share the width of the screen: a lower cap keeps "Roommates" in one piece.
+            maxFontSizeMultiplier={QUICK_FONT_SCALE}
+            style={{ fontFamily: a.sos ? Fonts.bodySemi : Fonts.bodyMedium, textAlign: 'center' }}>
             {a.label}
           </AppText>
         </PressableScale>
@@ -326,7 +348,7 @@ export function RowPill({
       hitSlop={6}
       onPress={onPress}
       style={[styles.rowPill, { backgroundColor: bg }]}>
-      <AppText variant="callout" color={fg} style={{ fontFamily: Fonts.bodySemi }}>
+      <AppText variant="callout" color={fg} maxFontSizeMultiplier={MaxFontScale} style={{ fontFamily: Fonts.bodySemi }}>
         {label}
       </AppText>
     </PressableScale>
@@ -380,6 +402,7 @@ const styles = StyleSheet.create({
   addressTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   thumb: { width: 48, height: 48, borderRadius: 14 },
   addressActions: { flexDirection: 'row', gap: 6 },
+  addressActionsWrap: { flexWrap: 'wrap' },
   addressButton: {
     flex: 1,
     minHeight: TapTarget - 4,
@@ -390,6 +413,7 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingHorizontal: 4,
   },
+  addressButtonWide: { flexBasis: '48%', flexGrow: 1, paddingVertical: 6 },
   logo: { width: 18, height: 18, borderRadius: 5 },
   quickRow: { flexDirection: 'row' },
   quick: { flex: 1, alignItems: 'center', gap: 6 },

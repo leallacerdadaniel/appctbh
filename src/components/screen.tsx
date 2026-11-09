@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useState, type ComponentRef, type ReactNode, type RefObject } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -6,7 +6,7 @@ import { BRAND_BAR_HEIGHT, BrandBar } from '@/components/brand-bar';
 import { FocusStatusBar } from '@/components/focus-status-bar';
 import { TabHeader } from '@/components/tab-header';
 import { AppText, PressableScale } from '@/components/ui';
-import { Fonts, MaxContentWidth, Spacing } from '@/constants/theme';
+import { Fonts, MaxContentWidth, MaxFontScale, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 /**
@@ -16,6 +16,7 @@ import { useTheme } from '@/hooks/use-theme';
  * `onPhoto` is for a tab that starts with a full-bleed photo in `header`: no canvas under the status bar,
  * white status bar text, and the header draws its own top row.
  * `onRefresh` adds pull-to-refresh (the spinner shows until the promise settles).
+ * `scrollRef` gives the screen's ScrollView to the caller (Accueil scrolls to the top before the tour).
  */
 export function Screen({
   title,
@@ -26,6 +27,7 @@ export function Screen({
   bar = 'default',
   onPhoto = false,
   onRefresh,
+  scrollRef,
 }: {
   title?: string;
   subtitle?: string;
@@ -35,6 +37,7 @@ export function Screen({
   bar?: 'default' | 'none';
   onPhoto?: boolean;
   onRefresh?: () => Promise<unknown>;
+  scrollRef?: RefObject<ComponentRef<typeof ScrollView> | null>;
 }) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -59,6 +62,7 @@ export function Screen({
     <View style={{ flex: 1, backgroundColor: theme.background }}>
       {back ? <BrandBar back overlay /> : <FocusStatusBar style={photoTop ? 'light' : 'dark'} />}
       <ScrollView
+        ref={scrollRef}
         style={{ flex: 1 }}
         contentContainerStyle={{
           // Pushed screens: the red bar floats over the top, and the content starts under it.
@@ -147,7 +151,11 @@ export function SectionHeader({
         </AppText>
         {action && onAction && (
           <PressableScale accessibilityRole="button" onPress={onAction} hitSlop={10} style={styles.action}>
-            <AppText variant="callout" color={theme.brand} style={{ fontFamily: Fonts.bodySemi }}>
+            <AppText
+              variant="callout"
+              color={theme.brandText}
+              maxFontSizeMultiplier={MaxFontScale}
+              style={{ fontFamily: Fonts.bodySemi }}>
               {action}
             </AppText>
           </PressableScale>

@@ -11,6 +11,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { BirthdayGreeting } from '@/components/birthday-greeting';
+import { AppOpening } from '@/components/app-loader';
 import { HomeGate } from '@/components/home-gate';
 import { ToastProvider } from '@/components/toast';
 import { useTheme } from '@/hooks/use-theme';
@@ -21,6 +22,7 @@ import { ExpensesProvider } from '@/lib/expenses';
 import { HomeProvider, useHomeState } from '@/lib/home';
 import { NoticesProvider } from '@/lib/notices';
 import { PlacesProvider } from '@/lib/places';
+import { PushSetup } from '@/lib/push';
 import { RequestsProvider } from '@/lib/requests';
 import { UsageTracker } from '@/lib/usage';
 
@@ -55,6 +57,7 @@ export default function RootLayout() {
                       <NoticesProvider>
                         <ToastProvider>
                           <RootStack />
+                          <AppOpening />
                         </ToastProvider>
                       </NoticesProvider>
                     </ChoresProvider>
@@ -74,8 +77,9 @@ function RootStack() {
   const { ready, isSignedIn, mustChangePassword, token } = useAuth();
   const { state } = useHomeState();
 
-  if (!ready) return null;
-  // Signed in: every screen needs the student's real data, so wait for it here.
+  // While the session and then the student's data load, the opening animation (AppOpening) covers the screen.
+  if (!ready || (isSignedIn && state.status === 'loading')) return null;
+  // Signed in: every screen needs the student's real data; if it can't load, say so.
   if (isSignedIn && state.status !== 'ready') return <HomeGate />;
 
   return (
@@ -182,6 +186,10 @@ function RootStack() {
       </Stack>
       {isSignedIn && !mustChangePassword && <BirthdayGreeting key={token} />}
       {isSignedIn && !mustChangePassword && <UsageTracker key={`usage-${token}`} />}
+      {/* Push notifications (wave 9): permission once after the first run, token to app-house, taps. */}
+      {isSignedIn && !mustChangePassword && state.status === 'ready' && (
+        <PushSetup key={`push-${token}`} email={state.home.student.email} />
+      )}
     </>
   );
 }

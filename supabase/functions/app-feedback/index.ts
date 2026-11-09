@@ -17,7 +17,7 @@
 // o fim mais tardio entre ela e as continuações (app_rentals_for):
 //   'end': de END_BEFORE_DAYS dias antes do fim até END_AFTER_DAYS dias depois, se ainda não respondida;
 //   'mid': a partir de MID_SHARE da estadia e antes da janela 'end', se ainda não respondida.
-import { createClient } from 'npm:@supabase/supabase-js@2';
+import { createClient } from 'npm:@supabase/supabase-js@2.119.0';
 
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const db = createClient(Deno.env.get('SUPABASE_URL')!, SERVICE_KEY, {
@@ -43,20 +43,32 @@ async function getHmacKey() {
 }
 const fromB64url = (s: string) => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), (c) => c.charCodeAt(0));
 
+/** O acesso terminou (saída + 30 dias): o Deno.serve responde 'accessEnded' (403) e o app sai da conta. */
+class AccessEnded extends Error {}
+
+/**
+ * Devolve o aluno do token, ou null se o token for inválido, vencido, de senha antiga ou de conta desativada.
+ * Acesso encerrado (app_access_until no passado, data de BH) lança AccessEnded (021: app_session_state).
+ */
 async function readToken(req: Request) {
   const [payload, sig] = (req.headers.get('Authorization') ?? '').replace(/^Bearer /, '').split('.');
   if (!payload || !sig) return null;
+  let cp: string;
+  let v: number;
   try {
     const ok = await crypto.subtle.verify('HMAC', await getHmacKey(), fromB64url(sig), enc.encode(payload));
     if (!ok) return null;
-    const { cp, v, exp } = JSON.parse(new TextDecoder().decode(fromB64url(payload)));
-    if (Date.now() > exp) return null;
-    const { data } = await db.from('app_students').select('status, session_version').eq('counterparty_id', cp).maybeSingle();
-    if (!data || data.status !== 'active' || data.session_version !== v) return null;
-    return { cp: cp as string };
+    const t = JSON.parse(new TextDecoder().decode(fromB64url(payload)));
+    if (typeof t?.cp !== 'string' || !Number.isInteger(t.v) || !(Date.now() <= t.exp)) return null;
+    cp = t.cp;
+    v = t.v;
   } catch {
     return null;
   }
+  const { data, error } = await db.rpc('app_session_state', { p_cp: cp, p_version: v });
+  if (!error && data === 'ended') throw new AccessEnded();
+  if (error || data !== 'ok') return null;
+  return { cp, version: v };
 }
 
 // ---------- utilitários ----------
@@ -356,7 +368,8 @@ Deno.serve(async (req) => {
       default:
         return json({ error: 'notFound' }, 404);
     }
-  } catch {
+  } catch (e) {
+    if (e instanceof AccessEnded) return json({ error: 'accessEnded' }, 403);
     return json({ error: 'server' }, 500);
   }
 });

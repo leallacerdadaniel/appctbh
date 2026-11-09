@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type ComponentRef } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 import { AroundMe } from '@/components/around-me';
@@ -18,7 +18,7 @@ import { PhraseOfTheDay, PortugueseEntry } from '@/components/portuguese-ui';
 import { Screen, Section } from '@/components/screen';
 import { TopRatedNearHome } from '@/components/top-rated-near-home';
 import { AppText, PressableScale } from '@/components/ui';
-import { Fonts, Radius, Shadow, Spacing, TapTarget, Type } from '@/constants/theme';
+import { Fonts, MaxFontScale, Radius, Shadow, Spacing, TapTarget, Type } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { attractions, getAttraction } from '@/lib/attractions';
@@ -29,7 +29,8 @@ import { restaurants } from '@/lib/restaurants';
 import { getService } from '@/lib/services';
 import { trackAction } from '@/lib/usage';
 
-const CATEGORIES = ['forYou', 'out', 'eat', 'sport', 'culture', 'trips', 'practical'] as const;
+/** "Pratique" second (UX review 2026-11-09): health, Portuguese and the stolen phone must be easy to find. */
+const CATEGORIES = ['forYou', 'practical', 'out', 'eat', 'sport', 'culture', 'trips'] as const;
 type Category = (typeof CATEGORIES)[number];
 
 const CATEGORY_ICON: Record<Category, IconName> = {
@@ -61,6 +62,19 @@ export default function ExplorerScreen() {
   const q = query.trim();
   const e = t.explorerTab;
 
+  // The category bar keeps the active category in view, also when Explorer opens from a link.
+  const barRef = useRef<ComponentRef<typeof ScrollView>>(null);
+  const barWidth = useRef(0);
+  const positions = useRef<Partial<Record<Category, { x: number; w: number }>>>({});
+  const showCategory = useCallback((c: Category, animated: boolean) => {
+    const p = positions.current[c];
+    if (!p) return;
+    barRef.current?.scrollTo({ x: Math.max(0, p.x + p.w / 2 - barWidth.current / 2), animated });
+  }, []);
+  useEffect(() => {
+    showCategory(category, true);
+  }, [category, showCategory]);
+
   function ask(question: string) {
     trackAction('explorer_ask');
     router.push({ pathname: '/assistant', params: { q: question } } as Href);
@@ -71,11 +85,14 @@ export default function ExplorerScreen() {
       <View style={{ gap: 14 }}>
         <View style={[styles.search, Shadow.raised, { backgroundColor: theme.surface, borderColor: theme.line }]}>
           <CharlotteFace size={30} />
-          <View style={{ flex: 1 }}>
+          <View style={{ flex: 1, justifyContent: 'center' }}>
+            {/* The placeholder sits in the flow (the input lies over it), so the pill grows with large text. */}
             {!query && (
               <View pointerEvents="none" style={styles.placeholder}>
-                <AppText style={{ fontFamily: Fonts.bodySemi }}>{e.askTitle}</AppText>
-                <AppText variant="caption" color={theme.textSecondary}>
+                <AppText maxFontSizeMultiplier={MaxFontScale} style={{ fontFamily: Fonts.bodySemi }}>
+                  {e.askTitle}
+                </AppText>
+                <AppText variant="caption" maxFontSizeMultiplier={MaxFontScale} color={theme.textSecondary}>
                   {e.askHint}
                 </AppText>
               </View>
@@ -87,7 +104,8 @@ export default function ExplorerScreen() {
               returnKeyType="search"
               accessibilityLabel={e.askTitle}
               placeholderTextColor={theme.textTertiary}
-              style={[Type.body, styles.input, { color: theme.text }]}
+              maxFontSizeMultiplier={MaxFontScale}
+              style={[Type.body, styles.input, !query && StyleSheet.absoluteFill, { color: theme.text }]}
             />
           </View>
           {!!query && (
@@ -105,7 +123,9 @@ export default function ExplorerScreen() {
                 accessibilityRole="button"
                 onPress={() => ask(s)}
                 style={[styles.chip, { borderColor: theme.line, backgroundColor: theme.surface }]}>
-                <AppText variant="callout">{s}</AppText>
+                <AppText variant="callout" maxFontSizeMultiplier={MaxFontScale}>
+                  {s}
+                </AppText>
               </PressableScale>
             ))}
           </ScrollView>
@@ -113,8 +133,12 @@ export default function ExplorerScreen() {
 
         {!q && (
           <ScrollView
+            ref={barRef}
             horizontal
             showsHorizontalScrollIndicator={false}
+            onLayout={(ev) => {
+              barWidth.current = ev.nativeEvent.layout.width;
+            }}
             style={[styles.bleed, { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: theme.line }]}
             contentContainerStyle={styles.categories}
             role="tablist">
@@ -131,11 +155,17 @@ export default function ExplorerScreen() {
                     trackAction('explorer_category', c);
                     router.setParams({ category: c });
                   }}
+                  onLayout={(ev) => {
+                    const { x, width } = ev.nativeEvent.layout;
+                    positions.current[c] = { x, w: width };
+                    if (active) showCategory(c, false);
+                  }}
                   style={[styles.category, { borderBottomColor: active ? theme.text : 'transparent' }]}>
                   <Icon name={CATEGORY_ICON[c]} size={23} color={color} active={active} />
                   <AppText
                     variant="caption"
                     color={color}
+                    maxFontSizeMultiplier={MaxFontScale}
                     style={{ fontFamily: active ? Fonts.bodySemi : Fonts.body }}>
                     {e.categories[c]}
                   </AppText>
@@ -372,7 +402,7 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingHorizontal: 18,
   },
-  placeholder: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, justifyContent: 'center' },
+  placeholder: { paddingVertical: 8 },
   input: { minHeight: TapTarget, paddingVertical: 0 },
   bleed: { marginHorizontal: -Spacing.gutter },
   chips: { paddingHorizontal: Spacing.gutter, gap: Spacing.sm },

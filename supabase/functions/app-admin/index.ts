@@ -8,9 +8,13 @@
 //   { action: 'invite', counterpartyId, sendEmail? } → { tempPassword, name, email, phone, message: { fr, en }, emailed }
 //       convite e nova senha são a mesma coisa: senha provisória, troca obrigatória no primeiro acesso,
 //       sessões antigas caem. Resolve os pedidos de "esqueci a senha" abertos.
+//       Revisão de segurança (09/11/2026): só para quem mora numa locação ativa (até 30 dias depois da saída) ou já
+//       tem conta no app ('notFound' fora disso); trocar a senha de uma conta que já tem senha é só do papel admin
+//       ('forbidden' para equipe); com e-mail configurado (RESEND_*), o aluno sempre recebe um e-mail: com a senha
+//       quando sendEmail = true, senão um aviso de que a equipe gerou uma senha provisória.
 //   { action: 'disable' | 'enable', counterpartyId } → { ok: true }
 // A senha provisória aparece uma vez no painel e nunca é guardada em texto (só o hash, como na app-api).
-import { createClient } from 'npm:@supabase/supabase-js@2';
+import { createClient } from 'npm:@supabase/supabase-js@2.119.0';
 
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const db = createClient(Deno.env.get('SUPABASE_URL')!, SERVICE_KEY, {
@@ -73,8 +77,9 @@ async function teamMember(req: Request) {
     db.rpc('has_role', { _user_id: id, _role: 'admin' }),
     db.rpc('has_role', { _user_id: id, _role: 'equipe' }),
   ]);
-  return admin || equipe ? { id } : null;
+  return admin || equipe ? { id, admin: admin === true } : null;
 }
+type Team = { id: string; admin: boolean };
 
 const todayBH = () => new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
 const addDays = (iso: string, n: number) => {
@@ -152,7 +157,7 @@ async function students() {
   return json({ students: list });
 }
 
-async function invite(team: { id: string }, body: { counterpartyId?: unknown; sendEmail?: unknown }) {
+async function invite(team: Team, body: { counterpartyId?: unknown; sendEmail?: unknown }) {
   if (!isUuid(body.counterpartyId)) return json({ error: 'notFound' }, 404);
   const cp = body.counterpartyId;
   const { data: person } = await db.from('finance_counterparties').select('id, name, email, phone').eq('id', cp).maybeSingle();
@@ -161,9 +166,22 @@ async function invite(team: { id: string }, body: { counterpartyId?: unknown; se
   // O login do app é pelo e-mail do cadastro: sem e-mail, não há como entrar.
   if (!email.includes('@')) return json({ error: 'noEmail' }, 400);
 
+  const { data: acc } = await db
+    .from('app_students')
+    .select('session_version, password_hash')
+    .eq('counterparty_id', cp)
+    .maybeSingle();
+  // Só quem mora (o mesmo recorte da lista: locação ativa até 30 dias depois do fim) ou quem já tem conta.
+  if (!acc) {
+    const { data: until } = await db.rpc('app_access_until', { p_cp: cp });
+    if (typeof until !== 'string' || until < todayBH()) return json({ error: 'notFound' }, 404);
+  }
+  // Conta que já tem senha: trocar por uma provisória derruba o aluno; só o admin pode.
+  const hadPassword = !!acc?.password_hash;
+  if (hadPassword && !team.admin) return json({ error: 'forbidden' }, 403);
+
   const password = tempPassword();
   const now = new Date().toISOString();
-  const { data: acc } = await db.from('app_students').select('session_version').eq('counterparty_id', cp).maybeSingle();
   const row = {
     counterparty_id: cp,
     status: 'active',
@@ -200,6 +218,17 @@ async function invite(team: { id: string }, body: { counterpartyId?: unknown; se
   const emailed = body.sendEmail === true
     ? await sendEmail(email, 'Chez Toi BH : votre accès à l’app / your app access', `${message.fr}\n\n---\n\n${message.en}`)
     : false;
+  // Sem a senha no e-mail: avisa mesmo assim que a equipe gerou uma senha provisória (quem não pediu fala com a equipe).
+  if (!emailed && hadPassword) {
+    await sendEmail(
+      email,
+      'Chez Toi BH : nouveau mot de passe provisoire / new temporary password',
+      `Bonjour ${first}, l'équipe Chez Toi a créé un mot de passe provisoire pour votre accès à l'app : il vous sera envoyé par l'équipe. ` +
+        `Si vous n'avez rien demandé, écrivez-nous sur WhatsApp.\n\n---\n\n` +
+        `Hi ${first}, the Chez Toi team created a temporary password for your app access: the team will send it to you. ` +
+        `If you did not ask for it, message us on WhatsApp.`,
+    );
+  }
   return json({ tempPassword: password, name: person.name, email, phone: person.phone ?? null, message, emailed });
 }
 

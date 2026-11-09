@@ -43,7 +43,9 @@ export type ApiError =
   | 'noMatch'
   | 'tooMany'
   | 'incomplete'
-  | 'disabled';
+  | 'disabled'
+  // security review (2026-11-09): the account already has a password, so first access sends to "forgot password"
+  | 'hasAccount';
 
 export class AppApiError extends Error {
   constructor(public code: ApiError) {

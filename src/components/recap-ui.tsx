@@ -624,6 +624,7 @@ export function ShareCardPreview({ data, cardRef }: { data: RecapData; cardRef: 
  * Card that opens the latest recap: "Ton mois d'octobre est prêt" from the 1st of November, "Ton mois de
  * novembre, jusqu'ici" from the 7th when no month is ready yet, the semester in the last three weeks.
  * Hidden until there is one. Also keeps the recap journal going (useJournalTracker).
+ * Brand red on purpose (owner, 2026-11-09: "o recap com o fundo vermelho dava um destaque bem top").
  */
 export function RecapEntry() {
   useJournalTracker();
@@ -680,7 +681,8 @@ export function RecapEntry() {
  */
 export function RecapHubRow() {
   const { t } = useI18n();
-  return <ListRow icon="sparkles" title={t.recap.hub.title} subtitle={t.recap.hub.rowHint} onPress={() => router.push('/recap')} />;
+  // Its own icon: the sparkles belong to the app tour, in the same list (UX review 2026-11-09).
+  return <ListRow icon="photo" title={t.recap.hub.title} subtitle={t.recap.hub.rowHint} onPress={() => router.push('/recap')} />;
 }
 
 /* ---------- "J'y suis allé" ---------- */

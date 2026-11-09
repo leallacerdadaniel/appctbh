@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Icon } from '@/components/icon';
 import { AppText, Avatar, PressableScale, tapFeedback } from '@/components/ui';
-import { Fonts, Radius, TapTarget } from '@/constants/theme';
+import { Fonts, MaxFontScale, Radius, TapTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import type { ChoreMember } from '@/lib/chores';
 
@@ -116,7 +116,7 @@ export function PillButton({
       hitSlop={PILL_SLOP}
       style={[styles.pill, { backgroundColor: theme.fill }]}>
       <Icon name={icon} size={14} color={theme.text} />
-      <AppText variant="caption" style={{ fontFamily: Fonts.bodyMedium }}>
+      <AppText variant="caption" maxFontSizeMultiplier={MaxFontScale} style={{ fontFamily: Fonts.bodyMedium }}>
         {label}
       </AppText>
     </PressableScale>

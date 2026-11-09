@@ -11,7 +11,7 @@
 //   /app-house/notices       → { notices: [{ id, title, body, href, at, read }] }
 //   /app-house/notices-read  { ids?: string[] }  (sem ids = todos)
 //   /app-house/payment-info  → { info }
-//   /app-house/device        { token, platform }   (onda 9: push)
+//   /app-house/device        { token, platform, lang? }   (onda 9: push; lang 'fr' | 'en' = língua do app, 022)
 //   /app-house/rules-status  → { accepted: string | null }  (versão das regras já aceita nesta locação)
 //   /app-house/rules-accept  { version: 'AAAA-MM', lang }    (introdução obrigatória das regras)
 //   A vida no prédio (012_visitas_encomendas_perfis.sql):
@@ -26,7 +26,7 @@
 //   /app-house/profile           → { profile: { school, hometown, languages, instagram, about, visible } | null }
 //   /app-house/profile-save      { school?, hometown?, languages: string[], instagram?, about?, visible: boolean }
 //   /app-house/roommate-profiles → { roommates: [{ id, name, profile | null }] }  (só perfis com visible = true)
-import { createClient } from 'npm:@supabase/supabase-js@2';
+import { createClient } from 'npm:@supabase/supabase-js@2.119.0';
 
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const db = createClient(Deno.env.get('SUPABASE_URL')!, SERVICE_KEY, {
@@ -52,20 +52,32 @@ async function getHmacKey() {
 }
 const fromB64url = (s: string) => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), (c) => c.charCodeAt(0));
 
+/** O acesso terminou (saída + 30 dias): o Deno.serve responde 'accessEnded' (403) e o app sai da conta. */
+class AccessEnded extends Error {}
+
+/**
+ * Devolve o aluno do token, ou null se o token for inválido, vencido, de senha antiga ou de conta desativada.
+ * Acesso encerrado (app_access_until no passado, data de BH) lança AccessEnded (021: app_session_state).
+ */
 async function readToken(req: Request) {
   const [payload, sig] = (req.headers.get('Authorization') ?? '').replace(/^Bearer /, '').split('.');
   if (!payload || !sig) return null;
+  let cp: string;
+  let v: number;
   try {
     const ok = await crypto.subtle.verify('HMAC', await getHmacKey(), fromB64url(sig), enc.encode(payload));
     if (!ok) return null;
-    const { cp, v, exp } = JSON.parse(new TextDecoder().decode(fromB64url(payload)));
-    if (Date.now() > exp) return null;
-    const { data } = await db.from('app_students').select('status, session_version').eq('counterparty_id', cp).maybeSingle();
-    if (!data || data.status !== 'active' || data.session_version !== v) return null;
-    return { cp: cp as string };
+    const t = JSON.parse(new TextDecoder().decode(fromB64url(payload)));
+    if (typeof t?.cp !== 'string' || !Number.isInteger(t.v) || !(Date.now() <= t.exp)) return null;
+    cp = t.cp;
+    v = t.v;
   } catch {
     return null;
   }
+  const { data, error } = await db.rpc('app_session_state', { p_cp: cp, p_version: v });
+  if (!error && data === 'ended') throw new AccessEnded();
+  if (error || data !== 'ok') return null;
+  return { cp, version: v };
 }
 
 // ---------- grupo (locação do aluno e colegas ativos) ----------
@@ -325,7 +337,7 @@ async function paymentInfo(req: Request) {
   });
 }
 
-async function device(req: Request, body: { token?: unknown; platform?: unknown }) {
+async function device(req: Request, body: { token?: unknown; platform?: unknown; lang?: unknown }) {
   const who = await readToken(req);
   if (!who) return json({ error: 'unauthorized' }, 401);
   const token = String(body.token ?? '');
@@ -336,6 +348,7 @@ async function device(req: Request, body: { token?: unknown; platform?: unknown 
     expo_token: token,
     counterparty_id: who.cp,
     platform: body.platform,
+    lang: body.lang === 'en' || body.lang === 'fr' ? body.lang : null,
     enabled: true,
     last_seen_at: new Date().toISOString(),
   });
@@ -781,7 +794,8 @@ Deno.serve(async (req) => {
       default:
         return json({ error: 'notFound' }, 404);
     }
-  } catch {
+  } catch (e) {
+    if (e instanceof AccessEnded) return json({ error: 'accessEnded' }, 403);
     return json({ error: 'server' }, 500);
   }
 });

@@ -1,21 +1,25 @@
-import { useEffect, useState } from 'react';
-import { StyleSheet, View, useWindowDimensions } from 'react-native';
+import { useState } from 'react';
+import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 
 import { CharlotteFace } from '@/components/charlotte';
 import { AppText, PressableScale } from '@/components/ui';
-import { Fonts, MaxContentWidth, Radius, Spacing, TapTarget } from '@/constants/theme';
+import { Fonts, MaxContentWidth, MaxFontScale, Radius, Spacing, TapTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
-import { useTour } from '@/lib/tour';
+import { useTour, type TourRect } from '@/lib/tour';
 
-type Rect = { x: number; y: number; w: number; h: number };
 const PAD = 8;
 const RADIUS = 18;
+/** Between the ring and the bubble. */
+const GAP = PAD + 12;
+/** The bubble's text grows with Dynamic Type up to the app's cap, so it never hides the whole target. */
+const MAX_SCALE = MaxFontScale;
 
 /** Full-screen rectangle with a rounded hole where the target is (even-odd fill). */
-function holePath(W: number, H: number, r: Rect) {
+function holePath(W: number, H: number, r: TourRect) {
   const x = r.x - PAD;
   const y = r.y - PAD;
   const w = r.w + PAD * 2;
@@ -31,36 +35,38 @@ function holePath(W: number, H: number, r: Rect) {
 
 /**
  * The tour on top of the tabs: everything dimmed but the target, and Charlotte explaining it in a white
- * bubble placed above or below. "Passer" is always there; touches outside the bubble do nothing.
+ * bubble below or above it, always kept inside the screen. Tapping anywhere outside the bubble goes to the
+ * next step; "Passer" ends the tour from any step but the last one ("Terminer").
  */
 export function TourOverlay() {
   const theme = useTheme();
   const { t } = useI18n();
   const tour = useTour();
+  const insets = useSafeAreaInsets();
   const { width: W, height: H } = useWindowDimensions();
-  // The measured hole belongs to one step: a new step shows no hole until its target is measured.
-  const [measured, setMeasured] = useState<{ step: string; rect: Rect } | null>(null);
+  const [bubbleH, setBubbleH] = useState(0);
 
-  const step = tour && tour.index != null ? tour.steps[tour.index] : null;
-  const target = step?.target ? tour?.target(step.target) : undefined;
-
-  useEffect(() => {
-    if (!step || !target?.current) return;
-    target.current.measureInWindow((x, y, w, h) => {
-      if (w > 0 && h > 0) setMeasured({ step: step.id, rect: { x, y, w, h } });
-    });
-  }, [target, step]);
-  const rect = step && measured?.step === step.id ? measured.rect : null;
-
-  if (!tour || tour.index == null || !step) return null;
+  if (!tour || tour.index == null) return null;
+  const step = tour.steps[tour.index];
+  if (!step) return null;
+  const rect = step.rect;
   const last = tour.index === tour.steps.length - 1;
   const first = tour.index === 0;
-  const below = rect ? rect.y + rect.h / 2 < H * 0.5 : false;
-  const bubblePosition = rect
-    ? below
-      ? { top: rect.y + rect.h + PAD + 14 }
-      : { bottom: H - rect.y + PAD + 14 }
-    : { top: H * 0.3 };
+
+  // Below the target when it fits, else above, else wherever there is more room; then clamped to the screen.
+  const minTop = insets.top + Spacing.sm;
+  const maxTop = Math.max(minTop, H - bubbleH - Math.max(insets.bottom, Spacing.sm) - Spacing.sm);
+  let top = H * 0.3;
+  if (rect) {
+    const below = rect.y + rect.h + GAP;
+    const above = rect.y - GAP - bubbleH;
+    const roomBelow = H - insets.bottom - below;
+    const roomAbove = rect.y - GAP - insets.top;
+    top = roomBelow >= bubbleH ? below : roomAbove >= bubbleH ? above : roomBelow >= roomAbove ? below : above;
+  }
+  top = Math.min(Math.max(top, minTop), maxTop);
+
+  const action = last ? t.tour.done : first ? t.tour.start : t.tour.next;
 
   return (
     <View style={StyleSheet.absoluteFill} accessibilityViewIsModal>
@@ -71,6 +77,12 @@ export function TourOverlay() {
           fillRule="evenodd"
         />
       </Svg>
+      {/* The whole backdrop is a "next" button: the tour can never leave the app without a way out. */}
+      <Pressable
+        accessible={false}
+        onPress={last ? tour.stop : tour.next}
+        style={StyleSheet.absoluteFill}
+      />
       {rect && (
         <View
           pointerEvents="none"
@@ -84,16 +96,21 @@ export function TourOverlay() {
       <Animated.View
         key={step.id}
         entering={FadeIn.duration(180)}
-        style={[styles.bubbleWrap, bubblePosition]}>
+        onLayout={(e) => setBubbleH(e.nativeEvent.layout.height)}
+        style={[styles.bubbleWrap, { top }]}>
         <View style={[styles.bubble, { backgroundColor: theme.surface }]}>
           <View style={styles.row}>
-            <CharlotteFace size={first || last ? 56 : 40} sparkle={first} />
-            <AppText style={{ flex: 1 }} accessibilityLiveRegion="polite">
-              {t.tour.steps[step.id]}
-            </AppText>
+            <CharlotteFace size={first ? 56 : 40} sparkle={first} />
+            <View style={{ flex: 1, gap: 2 }} accessible accessibilityLiveRegion="polite">
+              {/* Capped too: at the largest text sizes the bubble would otherwise cover what it explains. */}
+              <AppText maxFontSizeMultiplier={MAX_SCALE} style={{ fontFamily: Fonts.bodySemi }}>
+                {t.tour.titles[step.id]}
+              </AppText>
+              <AppText maxFontSizeMultiplier={MAX_SCALE}>{t.tour.steps[step.id]}</AppText>
+            </View>
           </View>
           <View style={styles.footer}>
-            <AppText variant="caption" color={theme.textSecondary} style={{ flex: 1 }}>
+            <AppText variant="caption" color={theme.textSecondary} maxFontSizeMultiplier={MAX_SCALE} style={{ flex: 1 }}>
               {t.tour.step(tour.index + 1, tour.steps.length)}
             </AppText>
             {!last && (
@@ -102,18 +119,26 @@ export function TourOverlay() {
                 accessibilityLabel={t.tour.skip}
                 onPress={tour.stop}
                 style={styles.skip}>
-                <AppText variant="callout" color={theme.textSecondary} style={{ fontFamily: Fonts.bodySemi }}>
+                <AppText
+                  variant="callout"
+                  color={theme.textSecondary}
+                  maxFontSizeMultiplier={MAX_SCALE}
+                  style={{ fontFamily: Fonts.bodySemi }}>
                   {t.tour.skip}
                 </AppText>
               </PressableScale>
             )}
             <PressableScale
               accessibilityRole="button"
-              accessibilityLabel={last ? t.tour.done : first ? t.tour.start : t.tour.next}
+              accessibilityLabel={action}
               onPress={last ? tour.stop : tour.next}
               style={[styles.next, { backgroundColor: theme.brand }]}>
-              <AppText variant="callout" color={theme.onBrand} style={{ fontFamily: Fonts.bodySemi }}>
-                {last ? t.tour.done : first ? t.tour.start : t.tour.next}
+              <AppText
+                variant="callout"
+                color={theme.onBrand}
+                maxFontSizeMultiplier={MAX_SCALE}
+                style={{ fontFamily: Fonts.bodySemi }}>
+                {action}
               </AppText>
             </PressableScale>
           </View>

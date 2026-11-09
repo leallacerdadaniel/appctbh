@@ -17,12 +17,13 @@ import { useI18n } from '@/i18n';
 import { formatCents, formatDate, formatMoney, isFutureMonth } from '@/lib/format';
 import { useHandovers } from '@/lib/handovers';
 import { useHome, useHomeState } from '@/lib/home';
+import { openPrivacyPolicy } from '@/lib/legal';
 import { isOpen, upcomingCharges, useRequests } from '@/lib/requests';
 import { contacts } from '@/lib/mock-data';
 import { useTour } from '@/lib/tour';
 import { openWhatsApp } from '@/lib/whatsapp';
 import { fullAddress } from '@/components/home-v3';
-import { RecapEntry, RecapHubRow } from '@/components/recap-ui';
+import { RecapHubRow } from '@/components/recap-ui';
 import { FeedbackHubRow, ReferralHubRow } from '@/components/feedback-ui';
 
 /** Open requests shown on the tab; the rest is one tap away in "Mes demandes". */
@@ -61,7 +62,7 @@ export default function ChezToiScreen() {
       onRefresh={() => Promise.all([refresh(), reloadRequests()])}>
       {/* After the stay the app stays open 30 days, for the contract and documents (2026-11-09). */}
       {accessUntil && stayEnded(contract.departure?.date ?? contract.moveOut) && (
-        <InlineMessage kind="error" text={t.account.accessEnds(formatDate(accessUntil, lang))} />
+        <InlineMessage kind="warning" text={t.account.accessEnds(formatDate(accessUntil, lang))} />
       )}
       <Section title={t.chezToi.ask} subtitle={t.chezToi.askHint}>
         <Card style={styles.listCard}>
@@ -213,6 +214,21 @@ export default function ChezToiScreen() {
                 }}
               />
             )}
+            {/* Store review (2026-11-09): the privacy policy on the Chez Toi website (src/lib/legal.ts). */}
+            <ListRow
+              icon="shieldLock"
+              title={t.common.privacyPolicy}
+              subtitle={t.common.privacyHint}
+              onPress={() => openPrivacyPolicy(lang)}
+            />
+          </ListGroup>
+        </Card>
+      </Section>
+
+      {/* UX review 2026-11-09: what the stay leaves behind, apart from the help. */}
+      <Section title={t.chezToi.stay} subtitle={t.chezToi.stayHint}>
+        <Card style={styles.listCard}>
+          <ListGroup inset>
             {/* Monthly recaps, the BH map opt-in and the timeline (owner, 2026-11-09). */}
             <RecapHubRow />
             {/* Wave 14 (2026-11-09): feedback to the team (with its replies) and refer a friend. */}
@@ -241,7 +257,6 @@ export default function ChezToiScreen() {
           </ListGroup>
         </Card>
       </Section>
-      <RecapEntry />
     </Screen>
   );
 }

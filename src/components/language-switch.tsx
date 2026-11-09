@@ -3,7 +3,7 @@ import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import Animated, { useAnimatedStyle, withSpring } from 'react-native-reanimated';
 
 import { AppText, PressableScale } from '@/components/ui';
-import { Fonts, Radius } from '@/constants/theme';
+import { Fonts, MaxFontScale, Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { languages, useI18n } from '@/i18n';
 
@@ -47,6 +47,7 @@ export function LanguageSwitch({ onBrand = false }: { onBrand?: boolean }) {
             <AppText
               variant="caption"
               color={selected ? theme.text : onBrand ? theme.onBrand : theme.textSecondary}
+              maxFontSizeMultiplier={MaxFontScale}
               style={{ fontFamily: Fonts.bodyMedium }}>
               {l.toUpperCase()}
             </AppText>
@@ -63,6 +64,8 @@ const styles = StyleSheet.create({
     borderRadius: Radius.pill,
     padding: PADDING,
     minWidth: 104,
+    // Never squeezed by a long row title.
+    flexShrink: 0,
   },
   thumb: {
     position: 'absolute',
@@ -74,7 +77,8 @@ const styles = StyleSheet.create({
   segment: {
     flex: 1,
     minHeight: 32,
-    paddingHorizontal: 14,
+    // Room for "EN" at the largest capped text size (Dynamic Type) without breaking it on two lines.
+    paddingHorizontal: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },

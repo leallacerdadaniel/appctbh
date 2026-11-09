@@ -1,7 +1,7 @@
 import * as Clipboard from 'expo-clipboard';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
-import { cloneElement, type ReactElement } from 'react';
-import { View } from 'react-native';
+import { cloneElement, useRef, useState, type ComponentRef, type ReactElement } from 'react';
+import { View, type ScrollView } from 'react-native';
 
 import {
   AddressCard,
@@ -13,6 +13,7 @@ import {
   TonightCarousel,
   WelcomeHero,
 } from '@/components/home-v3';
+import { EventCard } from '@/components/community-ui';
 import type { IconName } from '@/components/icon';
 import { rentMonthLabel, requestHref, requestTitle } from '@/components/request-ui';
 import { Screen, Section } from '@/components/screen';
@@ -25,13 +26,14 @@ import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { choreById, myChoresThisWeek, useChoreActions, useChores } from '@/lib/chores';
 import { daysUntil, upcomingCleanings } from '@/lib/cleaning';
+import { useCommunity, type ChezEvent } from '@/lib/community';
 import type { EventKind } from '@/lib/events';
 import { formatDayDate, formatTime, isFutureMonth } from '@/lib/format';
 import { useHome, useHomeState, type Home } from '@/lib/home';
 import { upcomingEvents } from '@/lib/home-feed';
 import { isOpen, useRequests } from '@/lib/requests';
 import { trackAction } from '@/lib/usage';
-import { TourTarget } from '@/lib/tour';
+import { TourTarget, useTourScrollTop } from '@/lib/tour';
 import { useWelcome, WELCOME_STEPS, type WelcomeStep } from '@/lib/welcome';
 
 /** Rent is due on the 5th: it shows on Accueil from the 2nd, or once late (v3: "aparece só 3 dias antes"). */
@@ -39,6 +41,8 @@ const RENT_DAY = 5;
 const RENT_NOTICE_DAYS = 3;
 /** "Cette semaine": the next 7 days. */
 const WEEK_DAYS = 7;
+/** The next Chez Toi event shows on Accueil from two weeks before. */
+const EVENT_DAYS = 14;
 
 const EVENT_ICON: Record<EventKind, IconName> = {
   national: 'calendar',
@@ -65,6 +69,9 @@ export default function HomeScreen() {
   const params = useLocalSearchParams<{ welcome?: string }>();
   const welcome = useWelcome(home, params.welcome === '1');
   const { student, apartment } = home;
+  // The tour scrolls Accueil back to the top before it measures what it points at.
+  const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
+  useTourScrollTop(scrollRef);
 
   const reload = () => Promise.all([refresh(), reloadRequests(), reloadChores()]);
 
@@ -76,20 +83,24 @@ export default function HomeScreen() {
     return (
       <Screen
         onPhoto
+        scrollRef={scrollRef}
         onRefresh={reload}
         header={<WelcomeHero apartment={apartment} badge={badge} title={t.today.welcome(student.firstName)} />}>
-        <WelcomeChecklist home={home} done={welcome.done} onDone={welcome.markDone} onHide={welcome.hide} />
+        <TourTarget id="checklist">
+          <WelcomeChecklist home={home} done={welcome.done} onDone={welcome.markDone} onHide={welcome.hide} />
+        </TourTarget>
         <TourTarget id="quick">
           <QuickActions apartment={apartment} />
         </TourTarget>
         <TonightSection />
         <WeekSection />
+        <NextEventSection />
       </Screen>
     );
   }
 
   return (
-    <Screen onRefresh={reload}>
+    <Screen onRefresh={reload} scrollRef={scrollRef}>
       {savedAt && <OfflineNotice savedAt={savedAt} />}
       <View style={{ gap: 2, marginTop: -Spacing.sm }}>
         <AppText variant="callout" color={theme.textSecondary}>
@@ -109,6 +120,7 @@ export default function HomeScreen() {
       </View>
       <TonightSection />
       <WeekSection />
+      <NextEventSection />
       {/* Wave 14: the stay survey, only while it is due (middle and end of the stay). */}
       <SurveyInvite />
       <RecapEntry />
@@ -144,6 +156,34 @@ function TonightSection() {
       action={t.today.tonightAction}
       onAction={() => router.navigate('/explorer')}>
       <TonightCarousel />
+    </Section>
+  );
+}
+
+/**
+ * The next Chez Toi event, when there is one in the next two weeks (UX review 2026-11-09: the community
+ * was hard to find). Nothing at all while it loads, fails or when nothing is planned.
+ */
+function NextEventSection() {
+  const { t } = useI18n();
+  const { state } = useCommunity<{ events: ChezEvent[] }>('events');
+  const [now] = useState(() => Date.now());
+  if (state.status !== 'ready') return null;
+  const event = state.data.events
+    .filter((e) => !e.cancelled)
+    .filter((e) => {
+      const at = Date.parse(e.startsAt);
+      // An event that started less than 3 hours ago still shows (it may be on right now).
+      return at >= now - 3 * 3_600_000 && at <= now + EVENT_DAYS * 86_400_000;
+    })
+    .sort((a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt))[0];
+  if (!event) return null;
+  return (
+    <Section title={t.today.nextEvent} action={t.community.hubRow} onAction={() => router.push('/community' as Href)}>
+      <EventCard
+        event={event}
+        onPress={() => router.push(`/community/events/${event.id}` as Href)}
+      />
     </Section>
   );
 }

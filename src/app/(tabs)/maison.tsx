@@ -19,6 +19,7 @@ import { formatTime, shortAddress } from '@/lib/format';
 import { useHome, useHomeState } from '@/lib/home';
 import { usePackages, usePackagesStatus, useVisitors, useVisitorsStatus } from '@/lib/house-social';
 import { trackAction } from '@/lib/usage';
+import { openWhatsApp } from '@/lib/whatsapp';
 
 /**
  * "Maison": the apartment and life with the roommates, grouped by how often it is used
@@ -96,11 +97,13 @@ export default function MaisonScreen() {
                 </View>
               }
             />
-            <ListRow icon="wifi" title={t.apartment.network} value={apartment.wifiName ?? t.common.soon} />
+            <ListRow icon="wifi" title={t.apartment.network} value={apartment.wifiName ?? t.maison.wifiAsk} />
+            {/* No password yet: the row asks the team on WhatsApp (never a "Bientôt disponible"). */}
             <ListRow
               icon="key"
               title={t.apartment.wifiPassword}
-              subtitle={!apartment.wifiPassword ? t.common.soon : showWifi ? apartment.wifiPassword : '••••••••••'}
+              subtitle={!apartment.wifiPassword ? t.maison.wifiAsk : showWifi ? apartment.wifiPassword : '••••••••••'}
+              onPress={apartment.wifiPassword ? undefined : () => openWhatsApp('maison_wifi', t.maison.wifiAskMessage)}
               accessory={
                 !apartment.wifiPassword ? undefined : (
                   <View style={styles.inline}>
@@ -155,12 +158,6 @@ export default function MaisonScreen() {
             status={packagesStatus || t.houseSocial.packages.tileEmpty}
             onPress={() => router.push('/house/packages' as Href)}
           />
-          <HubTile
-            emoji="🤝"
-            title={t.community.hubRow}
-            status={t.community.hubRowSubtitle}
-            onPress={() => router.push('/community' as Href)}
-          />
         </HubGrid>
       </Section>
 
@@ -189,6 +186,18 @@ export default function MaisonScreen() {
           </HubGrid>
         </Section>
       )}
+
+      {/* The community in a section of its own (UX review 2026-11-09: it was hidden under "À l'immeuble"). */}
+      <Section title={t.maison.residents} subtitle={t.community.subtitle}>
+        <HubGrid>
+          <HubTile
+            emoji="🤝"
+            title={t.community.hubRow}
+            status={t.community.hubRowSubtitle}
+            onPress={() => router.push('/community' as Href)}
+          />
+        </HubGrid>
+      </Section>
 
       <Section title={t.maison.cleaning} subtitle={t.maison.cleaningHint}>
         <HubGrid>

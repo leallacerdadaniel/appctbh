@@ -60,12 +60,6 @@ export default function ProfileScreen() {
               Linking.openURL(`https://wa.me/${contacts.whatsapp}`);
             }}
           />
-          <ListRow
-            icon="trash"
-            title={t.account.rowTitle}
-            subtitle={t.account.rowSubtitle}
-            onPress={() => router.push('/account-delete' as Href)}
-          />
         </ListGroup>
       </Card>
 
@@ -75,6 +69,23 @@ export default function ProfileScreen() {
           <AppText color={theme.error}>{t.profile.signOut}</AppText>
         </PressableScale>
       </Card>
+
+      {/* Last and gray (UX review 2026-11-09): reachable, never next to the everyday rows. */}
+      <PressableScale
+        accessibilityRole="button"
+        accessibilityLabel={`${t.account.rowTitle}, ${t.account.rowSubtitle}`}
+        onPress={() => router.push('/account-delete' as Href)}
+        style={styles.delete}>
+        <Icon name="trash" size={16} color={theme.textSecondary} />
+        <View style={{ flex: 1 }}>
+          <AppText variant="callout" color={theme.textSecondary}>
+            {t.account.rowTitle}
+          </AppText>
+          <AppText variant="caption" color={theme.textSecondary}>
+            {t.account.rowSubtitle}
+          </AppText>
+        </View>
+      </PressableScale>
     </Screen>
   );
 }
@@ -82,4 +93,12 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   identity: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
   signOut: { flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: TapTarget + 12 },
+  delete: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    minHeight: TapTarget,
+    paddingHorizontal: Spacing.md,
+    marginTop: -Spacing.md,
+  },
 });

@@ -28,24 +28,33 @@
 //   Conta (014_acesso_e_conta.sql, 09/11/2026):
 //   /app-api/password-reset-request  { email, lang }  → { ok, channel: 'email' | 'team' }  (mesma resposta exista ou não a conta)
 //   /app-api/password-reset-confirm  { email, code, password } → { token }  (código de 6 dígitos por e-mail, 15 min, 5 tentativas)
-//   /app-api/account-delete          { password, reason? }     → { ok }  (apaga o que é só do app; contrato e financeiro ficam)
+//   /app-api/account-delete          { password, reason? }     → { ok }  (apaga o que é só do app; contrato e financeiro ficam;
+//                                    numa transação, app_account_delete; as fotos dos chamados saem do bucket)
 //   O acesso termina 30 dias depois da saída (app_access_until): login e home respondem 'accessEnded'.
 //   Primeiro acesso ligado à ficha do site (020_primeiro_acesso.sql): o aluno prova quem é com a data de nascimento e
 //   o número do passaporte da ficha (finance_counterparties) e escolhe a senha, sem a equipe gerar nada.
-//   /app-api/first-access-verify   { email, birthDate: 'AAAA-MM-DD', passport } → { ticket, alreadyActive, profile }
+//   /app-api/first-access-verify   { email, birthDate: 'AAAA-MM-DD', passport } → { ticket, alreadyActive: false, profile }
 //       erros: 'noMatch' (não confere, resposta igual exista ou não o e-mail), 'tooMany' (5 erradas por hora),
-//       'incomplete' (ficha sem passaporte: o pedido vai para o painel), 'disabled' (desligado pela equipe)
-//   /app-api/first-access-complete { ticket, password, correction? } → { token }  (correction vai para a equipe)
+//       'incomplete' (ficha sem passaporte: o pedido vai para o painel), 'disabled' (desligado pela equipe),
+//       'hasAccount' (409: a conta já tem senha; só depois de nascimento E passaporte conferirem; o app manda
+//       para "esqueci a senha"). No perfil, telefone e contatos de emergência vêm mascarados ("+33 6 •• •• •• 78").
+//   /app-api/first-access-complete { ticket, password, correction? } → { token }  (correction vai para a equipe;
+//       'hasAccount' se a conta ganhou senha depois do bilhete)
+//   /app-api/logout               (Authorization: Bearer)  → { ok }  derruba as sessões abertas (session_version + 1)
+//   Revisão de segurança (09/11/2026, 021_seguranca.sql): sessão de SESSION_DAYS dias e recusada quando o acesso
+//   terminou ('accessEnded' em qualquer rota); login com limite de erros por e-mail e por IP ('tooMany', 429);
+//   contadores atômicos no banco (app_rate_take, app_reset_take_attempt); exclusão da conta numa transação só.
 //   E-mail: segredos RESEND_API_KEY e RESEND_FROM ("Chez Toi BH <app@cheztoibh.com.br>"). Sem eles, o pedido de
 //   nova senha vai para a fila do painel (Acesso ao app) e a equipe manda uma senha provisória.
-import { createClient } from 'npm:@supabase/supabase-js@2';
+import { createClient } from 'npm:@supabase/supabase-js@2.119.0';
 
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const db = createClient(Deno.env.get('SUPABASE_URL')!, SERVICE_KEY, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
-const SESSION_DAYS = 120;
+/** Validade dos tokens novos; os de 120 dias já emitidos continuam valendo até vencer (mesmo formato). */
+const SESSION_DAYS = 60;
 const enc = new TextEncoder();
 
 const cors = {
@@ -100,32 +109,98 @@ async function makeToken(cp: string, version: number) {
   return `${payload}.${b64url(sig)}`;
 }
 
-/** Devolve o aluno do token, ou null se o token for inválido, vencido, de senha antiga ou conta desativada. */
+/** O acesso terminou (saída + 30 dias): o Deno.serve responde 'accessEnded' (403) e o app sai da conta. */
+class AccessEnded extends Error {}
+
+/**
+ * Devolve o aluno do token, ou null se o token for inválido, vencido, de senha antiga ou de conta desativada.
+ * Acesso encerrado (app_access_until no passado, data de BH) lança AccessEnded (021: app_session_state).
+ * As outras funções (app-requests, app-house, app-assistant...) têm uma cópia igual: mudou aqui, muda lá.
+ */
 async function readToken(req: Request) {
   const [payload, sig] = (req.headers.get('Authorization') ?? '').replace(/^Bearer /, '').split('.');
   if (!payload || !sig) return null;
-  const ok = await crypto.subtle.verify('HMAC', await getHmacKey(), fromB64url(sig), enc.encode(payload));
-  if (!ok) return null;
-  const { cp, v, exp } = JSON.parse(new TextDecoder().decode(fromB64url(payload)));
-  if (Date.now() > exp) return null;
-  const { data } = await db.from('app_students').select('status, session_version').eq('counterparty_id', cp).maybeSingle();
-  if (!data || data.status !== 'active' || data.session_version !== v) return null;
-  return { cp: cp as string, version: v as number };
+  let cp: string;
+  let v: number;
+  try {
+    const ok = await crypto.subtle.verify('HMAC', await getHmacKey(), fromB64url(sig), enc.encode(payload));
+    if (!ok) return null;
+    const t = JSON.parse(new TextDecoder().decode(fromB64url(payload)));
+    if (typeof t?.cp !== 'string' || !Number.isInteger(t.v) || !(Date.now() <= t.exp)) return null;
+    cp = t.cp;
+    v = t.v;
+  } catch {
+    return null;
+  }
+  const { data, error } = await db.rpc('app_session_state', { p_cp: cp, p_version: v });
+  if (!error && data === 'ended') throw new AccessEnded();
+  if (error || data !== 'ok') return null;
+  return { cp, version: v };
+}
+
+// ---------- limites (021: app_rate_take / app_rate_refund, atômicos no banco) ----------
+/** IP de quem chama: o do Cloudflare quando vem, senão o primeiro do x-forwarded-for. */
+function clientIp(req: Request) {
+  const ip =
+    req.headers.get('cf-connecting-ip') ??
+    req.headers.get('x-real-ip') ??
+    (req.headers.get('x-forwarded-for') ?? '').split(',')[0];
+  return ip.trim().toLowerCase() || 'unknown';
+}
+/** Chave de limite sem guardar o dado: hash com segredo do e-mail ou do IP. */
+const limitKey = async (kind: string, value: string) =>
+  `${kind}:${hex(await crypto.subtle.digest('SHA-256', enc.encode(`ctbh-app-limit:${kind}:${SERVICE_KEY}:${value}`))).slice(0, 32)}`;
+
+/** Reserva uma tentativa em cada chave; null quando alguma já chegou ao limite na janela. */
+async function rateTake(bucket: string, keys: string[], limits: number[], windowSeconds: number) {
+  const { data, error } = await db.rpc('app_rate_take', {
+    p_bucket: bucket,
+    p_keys: keys,
+    p_limits: limits,
+    p_window_seconds: windowSeconds,
+  });
+  if (error) throw new Error(error.message);
+  return (data as number[] | null) ?? null;
+}
+/** Devolve tentativas reservadas que não foram erro (login certo, ficha que conferiu). */
+async function rateRefund(ids: number[] | null) {
+  if (ids?.length) await db.rpc('app_rate_refund', { p_ids: ids });
 }
 
 // ---------- rotas ----------
-async function login(body: { email?: string; password?: string }) {
+/** Erros de login aceitos em LOGIN_WINDOW segundos: por e-mail e por IP (o IP é mais alto: Wi‑Fi da escola e da casa). */
+const LOGIN_FAILS_PER_EMAIL = 10;
+const LOGIN_FAILS_PER_IP = 30;
+const LOGIN_WINDOW = 15 * 60;
+/** Hash que nunca confere: e-mail sem conta também gasta um PBKDF2, para o tempo de resposta não dizer quem existe. */
+const DUMMY_HASH = `pbkdf2$100000$${'5a'.repeat(16)}$${'0'.repeat(64)}`;
+
+async function login(req: Request, body: { email?: string; password?: string }) {
   const email = String(body.email ?? '').trim();
   const password = String(body.password ?? '');
   if (!email || !password) return json({ error: 'wrongCredentials' }, 401);
 
+  const attempt = await rateTake(
+    'login',
+    [await limitKey('email', email.toLowerCase()), await limitKey('ip', clientIp(req))],
+    [LOGIN_FAILS_PER_EMAIL, LOGIN_FAILS_PER_IP],
+    LOGIN_WINDOW,
+  );
+  if (!attempt) return json({ error: 'tooMany' }, 429);
+
   const { data: rows, error } = await db.rpc('app_login_lookup', { p_email: email });
-  if (error) return json({ error: 'server' }, 500);
+  if (error) {
+    await rateRefund(attempt);
+    return json({ error: 'server' }, 500);
+  }
   // e-mail repetido em dois cadastros: não adivinha qual é
   const account = rows?.length === 1 ? rows[0] : null;
-  if (!account || account.status !== 'active' || !(await checkPassword(password, account.password_hash))) {
+  const passwordOk = await checkPassword(password, account?.password_hash || DUMMY_HASH);
+  if (!account || account.status !== 'active' || !account.password_hash || !passwordOk) {
     return json({ error: 'wrongCredentials' }, 401);
   }
+  // Senha certa: a tentativa não conta como erro.
+  await rateRefund(attempt);
   if (accessEnded(await accessUntil(account.counterparty_id))) return json({ error: 'accessEnded' }, 403);
 
   const { data: acc } = await db
@@ -215,13 +290,8 @@ async function passwordResetRequest(body: { email?: string; lang?: string }) {
   const account = await lookupActive(email);
   if (!account) return done;
   const cp = account.counterparty_id;
-  const since = new Date(Date.now() - 3_600_000).toISOString();
-  const { count } = await db
-    .from('app_password_resets')
-    .select('id', { count: 'exact', head: true })
-    .eq('counterparty_id', cp)
-    .gte('created_at', since);
-  if ((count ?? 0) >= RESETS_PER_HOUR) return done;
+  // Atômico (021): dois pedidos ao mesmo tempo não passam juntos do limite.
+  if (!(await rateTake('reset_request', [cp], [RESETS_PER_HOUR], 3600))) return done;
 
   const id = crypto.randomUUID();
   if (channel === 'email') {
@@ -289,25 +359,36 @@ async function passwordResetConfirm(body: { email?: string; code?: string; passw
   if (!reset || Date.parse(reset.expires_at) < Date.now() || reset.attempts >= RESET_ATTEMPTS) {
     return json({ error: 'expired' }, 400);
   }
-  if (!sameText(await codeHash(reset.id, code), reset.code_hash)) {
-    await db.from('app_password_resets').update({ attempts: reset.attempts + 1 }).eq('id', reset.id);
-    return json({ error: 'invalidCode' }, 400);
-  }
+  // A tentativa é gasta ANTES de comparar e no banco (021: app_reset_take_attempt): pedidos em paralelo não
+  // ganham tentativas a mais.
+  const { data: allowed, error: takeError } = await db.rpc('app_reset_take_attempt', { p_id: reset.id, p_max: RESET_ATTEMPTS });
+  if (takeError) return json({ error: 'server' }, 500);
+  if (!allowed) return json({ error: 'expired' }, 400);
+  if (!sameText(await codeHash(reset.id, code), reset.code_hash)) return json({ error: 'invalidCode' }, 400);
   if (accessEnded(await accessUntil(cp))) return json({ error: 'accessEnded' }, 403);
 
-  const version = account.session_version + 1;
+  // O código vale uma vez só: quem marcar primeiro leva.
   const now = new Date().toISOString();
+  const { data: used } = await db
+    .from('app_password_resets')
+    .update({ used_at: now })
+    .eq('id', reset.id)
+    .is('used_at', null)
+    .select('id');
+  if (!used?.length) return json({ error: 'expired' }, 400);
+
+  const version = account.session_version + 1;
   const { error } = await db
     .from('app_students')
     .update({ password_hash: await hashPassword(password), must_change_password: false, session_version: version, updated_at: now })
     .eq('counterparty_id', cp);
   if (error) return json({ error: 'server' }, 500);
-  await db.from('app_password_resets').update({ used_at: now }).eq('id', reset.id);
   return json({ token: await makeToken(cp, version) });
 }
 
 // ---------- primeiro acesso (020_primeiro_acesso.sql) ----------
 const FIRST_ACCESS_FAILS_PER_HOUR = 5;
+const FIRST_ACCESS_FAILS_PER_IP = 30;
 const TICKET_MINUTES = 20;
 /** Igual a app_has_link (019) e a src/lib/no-links.ts. */
 const LINK =
@@ -380,6 +461,25 @@ async function fichaByEmail(email: string): Promise<Ficha | null> {
   return open.length === 1 ? open[0] : null;
 }
 
+/**
+ * Telefone e contato de emergência aparecem só em parte: quem souber nascimento e passaporte de alguém não leva
+ * os números. "+33 6 12 34 56 78" → "+33 6 •• •• •• 78"; "marie.b@mail.fr" → "m•••@mail.fr".
+ */
+function maskContact(raw: string | null) {
+  const s = (raw ?? '').trim();
+  if (!s) return null;
+  const at = s.indexOf('@');
+  if (at > 0) return `${s[0]}•••${s.slice(at)}`;
+  const total = s.replace(/\D/g, '').length;
+  if (total < 6) return '•'.repeat(Math.max(total, 3));
+  const keepStart = Math.min(3, total - 4);
+  let seen = 0;
+  return s.replace(/\d/g, (d) => {
+    seen++;
+    return seen <= keepStart || seen > total - 2 ? d : '•';
+  });
+}
+
 /** O que o aluno confere antes de entrar: só o que ele mesmo informou e a estadia (nunca passaporte nem CPF). */
 async function fichaSummary(c: Ficha) {
   const { data: tenants } = await db
@@ -399,7 +499,7 @@ async function fichaSummary(c: Ficha) {
   return {
     name: c.name,
     email: c.email,
-    phone: c.phone,
+    phone: maskContact(c.phone),
     nationality: c.nationality,
     apartment: apt?.title ?? null,
     stayStart: t?.move_in_date ?? r?.start_date ?? null,
@@ -414,34 +514,32 @@ async function fichaSummary(c: Ficha) {
       [c.emergency_contact_2_name, c.emergency_contact_2_contact],
     ]
       .filter(([n, k]) => n || k)
-      .map(([name, contact]) => ({ name: name ?? null, contact: contact ?? null })),
+      .map(([name, contact]) => ({ name: name ?? null, contact: maskContact(contact) })),
   };
 }
 
-async function firstAccessVerify(body: { email?: unknown; birthDate?: unknown; passport?: unknown }) {
+async function firstAccessVerify(req: Request, body: { email?: unknown; birthDate?: unknown; passport?: unknown }) {
   const email = String(body.email ?? '').trim().toLowerCase();
   const birth = String(body.birthDate ?? '');
   const passport = normPassport(body.passport);
   if (!email.includes('@') || !isIsoDate(birth) || passport.length < 5) return json({ error: 'invalid' }, 400);
 
-  const key = await emailHash(email);
-  const since = new Date(Date.now() - 3_600_000).toISOString();
-  const { count } = await db
-    .from('app_first_access_attempts')
-    .select('id', { count: 'exact', head: true })
-    .eq('email_hash', key)
-    .eq('ok', false)
-    .gte('created_at', since);
-  if ((count ?? 0) >= FIRST_ACCESS_FAILS_PER_HOUR) return json({ error: 'tooMany' }, 429);
-  const fail = async () => {
-    await db.from('app_first_access_attempts').insert({ email_hash: key, ok: false });
-    return json({ error: 'noMatch' }, 400);
-  };
+  // Cada tentativa é reservada antes de conferir (021: app_rate_take, atômico) e devolvida quando a ficha confere:
+  // só os erros contam. Por e-mail (5/h) e por IP (FIRST_ACCESS_FAILS_PER_IP/h, contra quem testa vários e-mails).
+  const attempt = await rateTake(
+    'first_access',
+    [`e:${await emailHash(email)}`, await limitKey('ip', clientIp(req))],
+    [FIRST_ACCESS_FAILS_PER_HOUR, FIRST_ACCESS_FAILS_PER_IP],
+    3600,
+  );
+  if (!attempt) return json({ error: 'tooMany' }, 429);
+  const fail = () => json({ error: 'noMatch' }, 400);
 
   const c = await fichaByEmail(email);
   if (!c || c.date_of_birth !== birth) return fail();
   // Data de nascimento certa, mas a ficha não tem passaporte: a equipe libera pelo painel (Acesso ao app).
   if (!normPassport(c.passport_number)) {
+    await rateRefund(attempt);
     const { data: openReq } = await db
       .from('app_password_resets')
       .select('id')
@@ -460,6 +558,8 @@ async function firstAccessVerify(body: { email?: unknown; birthDate?: unknown; p
     return json({ error: 'incomplete' }, 409);
   }
   if (normPassport(c.passport_number) !== passport) return fail();
+  // Nascimento e passaporte conferem: daqui em diante nada conta como erro.
+  await rateRefund(attempt);
 
   const { data: acc } = await db
     .from('app_students')
@@ -467,10 +567,12 @@ async function firstAccessVerify(body: { email?: unknown; birthDate?: unknown; p
     .eq('counterparty_id', c.id)
     .maybeSingle();
   if (acc?.status === 'disabled' && !acc.deleted_at) return json({ error: 'disabled' }, 403);
-  await db.from('app_first_access_attempts').insert({ email_hash: key, ok: true });
+  // O primeiro acesso é só para quem ainda não tem senha. Quem tem usa "esqueci a senha" (o código vai para o
+  // e-mail dele): senão bastaria saber nascimento e passaporte de alguém para tomar a conta.
+  if (acc?.password_hash) return json({ error: 'hasAccount' }, 409);
   return json({
     ticket: await makeTicket(c.id),
-    alreadyActive: acc?.status === 'active' && !!acc.password_hash,
+    alreadyActive: false,
     profile: await fichaSummary(c),
   });
 }
@@ -486,10 +588,11 @@ async function firstAccessComplete(body: { ticket?: unknown; password?: unknown;
 
   const { data: acc } = await db
     .from('app_students')
-    .select('session_version, status, deleted_at')
+    .select('session_version, status, deleted_at, password_hash')
     .eq('counterparty_id', cp)
     .maybeSingle();
   if (acc?.status === 'disabled' && !acc.deleted_at) return json({ error: 'disabled' }, 403);
+  if (acc?.password_hash) return json({ error: 'hasAccount' }, 409);
   const version = (acc?.session_version ?? 0) + 1;
   const now = new Date().toISOString();
   const row = {
@@ -502,10 +605,21 @@ async function firstAccessComplete(body: { ticket?: unknown; password?: unknown;
     deleted_at: null,
     updated_at: now,
   };
-  const { error } = acc
-    ? await db.from('app_students').update(row).eq('counterparty_id', cp)
-    : await db.from('app_students').insert(row);
-  if (error) return json({ error: 'server' }, 500);
+  // Só grava se a conta continua sem senha (dois bilhetes ao mesmo tempo: o segundo recebe 'hasAccount').
+  if (acc) {
+    const { data: saved, error } = await db
+      .from('app_students')
+      .update(row)
+      .eq('counterparty_id', cp)
+      .is('password_hash', null)
+      .select('counterparty_id');
+    if (error) return json({ error: 'server' }, 500);
+    if (!saved?.length) return json({ error: 'hasAccount' }, 409);
+  } else {
+    const { error } = await db.from('app_students').insert(row);
+    if (error?.code === '23505') return json({ error: 'hasAccount' }, 409);
+    if (error) return json({ error: 'server' }, 500);
+  }
   await db
     .from('app_password_resets')
     .update({ handled_at: now })
@@ -530,46 +644,43 @@ async function accountDelete(req: Request, body: { password?: string; reason?: s
     return json({ error: 'wrongCredentials' }, 403);
   }
 
-  const results = await Promise.all([
-    db.from('app_profiles').delete().eq('counterparty_id', cp),
-    db.from('app_devices').delete().eq('counterparty_id', cp),
-    db.from('app_community_posts').delete().eq('author_cp', cp),
-    db.from('app_community_comments').delete().eq('author_cp', cp),
-    db.from('app_trips').delete().eq('creator_cp', cp),
-    db.from('app_trip_members').delete().eq('counterparty_id', cp),
-    db.from('app_community_event_rsvps').delete().eq('counterparty_id', cp),
-    db.from('app_community_blocks').delete().or(`blocker_cp.eq.${cp},blocked_cp.eq.${cp}`),
-    db.from('app_community_terms').delete().eq('counterparty_id', cp),
-    db.from('app_community_reports').delete().eq('reporter_cp', cp),
-    db.from('app_feedback').delete().eq('counterparty_id', cp),
-    db.from('app_surveys').delete().eq('counterparty_id', cp),
-    db.from('app_referral_codes').delete().eq('counterparty_id', cp),
-    db.from('app_cleaning_feedback').delete().eq('counterparty_id', cp),
-    db.from('app_visitors').delete().eq('counterparty_id', cp),
-    db.from('app_packages').delete().eq('counterparty_id', cp),
-    db.from('app_notice_reads').delete().eq('counterparty_id', cp),
-    db.from('app_notices').delete().eq('counterparty_id', cp),
-    db.from('app_password_resets').delete().eq('counterparty_id', cp),
-  ]);
-  if (results.some((r) => r.error)) return json({ error: 'server' }, 500);
+  // Tudo ou nada, numa transação (021: app_account_delete). false: a sessão já não é a atual.
+  const { data: deleted, error } = await db.rpc('app_account_delete', {
+    p_cp: cp,
+    p_version: who.version,
+    p_reason: String(body.reason ?? '').trim().slice(0, 500),
+  });
+  if (error) return json({ error: 'server' }, 500);
+  if (!deleted) return json({ error: 'unauthorized' }, 401);
+  await removeRequestPhotos(cp);
+  return json({ ok: true });
+}
 
-  const { data: me } = await db.from('app_students').select('session_version').eq('counterparty_id', cp).single();
-  const now = new Date().toISOString();
+/** Fotos dos chamados do aluno (bucket app-request-photos, pasta = id do aluno): saem com a conta. */
+async function removeRequestPhotos(cp: string) {
+  const bucket = db.storage.from('app-request-photos');
+  for (let round = 0; round < 20; round++) {
+    const { data: files, error } = await bucket.list(cp, { limit: 100 });
+    if (error || !files?.length) return;
+    const { error: removeError } = await bucket.remove(files.map((f) => `${cp}/${f.name}`));
+    if (removeError) return;
+  }
+}
+
+/** Sair: derruba as sessões abertas do aluno (todas as do aparelho e dos outros). */
+async function logout(req: Request) {
+  // Acesso já encerrado: as sessões dele já não valem, não há o que derrubar.
+  const who = await readToken(req).catch((e) => {
+    if (e instanceof AccessEnded) return null;
+    throw e;
+  });
+  if (!who) return json({ ok: true });
   const { error } = await db
     .from('app_students')
-    .update({
-      status: 'disabled',
-      password_hash: null,
-      display_name: null,
-      must_change_password: true,
-      session_version: (me?.session_version ?? 0) + 1,
-      deleted_at: now,
-      updated_at: now,
-    })
-    .eq('counterparty_id', cp);
+    .update({ session_version: who.version + 1, updated_at: new Date().toISOString() })
+    .eq('counterparty_id', who.cp)
+    .eq('session_version', who.version);
   if (error) return json({ error: 'server' }, 500);
-  const reason = String(body.reason ?? '').trim().slice(0, 500) || null;
-  await db.from('app_account_deletions').insert({ counterparty_id: cp, reason });
   return json({ ok: true });
 }
 
@@ -1071,7 +1182,9 @@ Deno.serve(async (req) => {
   try {
     switch (route) {
       case 'login':
-        return await login(body);
+        return await login(req, body);
+      case 'logout':
+        return await logout(req);
       case 'home':
         return await home(req);
       case 'change-password':
@@ -1107,13 +1220,14 @@ Deno.serve(async (req) => {
       case 'account-delete':
         return await accountDelete(req, body);
       case 'first-access-verify':
-        return await firstAccessVerify(body);
+        return await firstAccessVerify(req, body);
       case 'first-access-complete':
         return await firstAccessComplete(body);
       default:
         return json({ error: 'notFound' }, 404);
     }
-  } catch {
+  } catch (e) {
+    if (e instanceof AccessEnded) return json({ error: 'accessEnded' }, 403);
     return json({ error: 'server' }, 500);
   }
 });

@@ -12,6 +12,7 @@ import { Fonts, MaxContentWidth, Shadow, Spacing, Type } from '@/constants/theme
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { useAuth, type SignInError } from '@/lib/auth';
+import { openPrivacyPolicy } from '@/lib/legal';
 
 /**
  * Sign-in (redesigned 2026-11-09, owner: "muda pra ficar bonito"; no Charlotte at the entrance). Belo Horizonte
@@ -22,7 +23,7 @@ export default function LoginScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { signIn, signOutReason } = useAuth();
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const passwordRef = useRef<ComponentRef<typeof TextInput>>(null);
 
   const [email, setEmail] = useState('');
@@ -126,6 +127,16 @@ export default function LoginScreen() {
             <GradientButton label={t.login.submit} onPress={submit} loading={loading} disabled={!email || !password} />
             <AuthDivider label={t.login.or} />
             <OutlineButton icon="idCard" label={t.login.firstAccess} onPress={() => router.push('/first-access')} />
+            {/* Store review (2026-11-09): the privacy policy is reachable before signing in. */}
+            <PressableScale
+              accessibilityRole="link"
+              onPress={() => openPrivacyPolicy(lang)}
+              hitSlop={12}
+              style={styles.policy}>
+              <AppText variant="caption" color={theme.textSecondary} style={{ fontFamily: Fonts.bodyMedium }}>
+                {t.common.privacyPolicy}
+              </AppText>
+            </PressableScale>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -155,6 +166,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   logo: { width: 150, height: 28 },
+  policy: { alignSelf: 'center', minHeight: 28, justifyContent: 'center' },
   welcome: {
     width: '100%',
     maxWidth: MaxContentWidth,

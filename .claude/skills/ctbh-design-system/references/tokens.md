@@ -16,6 +16,7 @@ Source of truth: `src/constants/theme.ts`. If you change a value there, change i
 | `line` | `#E9E7E3` | Hairline dividers, card hairline border |
 | `brand` | `#E80C20` | Home header band, logo, back chevron, list row icons, primary button, active tab |
 | `brandPressed` | `#C70A1B` | Primary button pressed |
+| `brandText` | `#D20B1E` | Red **text** on the gray canvas ("Voir tout" links, SOS label): 4.9:1 on `background`, where `brand` is 4.2:1 (UX review 2026-11-09) |
 | `onBrand` | `#FFFFFF` | Text on brand |
 | `onBrandMuted` | `rgba(255,255,255,0.82)` | Secondary text on the red band |
 | `success` | `#1F7A4D` | "Ouvert", confirmations |
@@ -58,6 +59,7 @@ Never write shadow values inline.
 ## Sizes
 
 - Tap target ≥ 44
+- Dynamic Type cap `MaxFontScale` = 1.4 (`maxFontSizeMultiplier`): `display` titles (default in `AppText`), pills and chips, tab bar labels, segmented controls, `LanguageSwitch`, the Explorer search and categories, the tour bubble. Body text and section titles keep growing. The four Accueil quick-action labels use 1.2 (four share the width).
 - Icons: 20 in rows, 24 in tab bar, 17 inside buttons
 - Max content width 560 (tablet / web)
 

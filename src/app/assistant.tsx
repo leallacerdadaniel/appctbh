@@ -21,8 +21,9 @@ import { BrandBar } from '@/components/brand-bar';
 import { CharlotteFace } from '@/components/charlotte';
 import { Icon } from '@/components/icon';
 import { Notice } from '@/components/request-ui';
-import { AppText, Button, Card, PressableScale, tapFeedback } from '@/components/ui';
-import { MaxContentWidth, Radius, Spacing, TapTarget, Type } from '@/constants/theme';
+import { useToast } from '@/components/toast';
+import { AppText, Button, Card, InlineMessage, PressableScale, tapFeedback } from '@/components/ui';
+import { Fonts, MaxContentWidth, Radius, Spacing, TapTarget, Type } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import {
@@ -31,11 +32,19 @@ import {
   plainAnswer,
   pointsToTeam,
   preparePhoto,
+  REPORT_REASONS,
+  reportAnswer,
   useAssistant,
+  useAssistantConsent,
   type AssistantError,
   type AssistantPhoto,
   type Exchange,
+  type ReportReason,
 } from '@/lib/assistant';
+import { useAuth } from '@/lib/auth';
+import { useHome } from '@/lib/home';
+import { openPrivacyPolicy } from '@/lib/legal';
+import { handOffMaintenancePhoto } from '@/lib/maintenance-photo';
 import { openWhatsApp } from '@/lib/whatsapp';
 
 /** Errors worth trying again as they are; the others point to the team. */
@@ -44,6 +53,8 @@ const TO_TEAM: AssistantError[] = ['notConfigured', 'limit', 'noRental'];
 /** Width of the photo in the student's bubble; its height follows the photo, between 3:4 and 4:3. */
 const BUBBLE_PHOTO = 200;
 const photoRatio = (p: AssistantPhoto) => Math.min(4 / 3, Math.max(3 / 4, p.width / (p.height || 1)));
+/** "Signaler cette réponse", per answer: choosing a reason, sending, then done (or why it isn't). */
+type FlagState = 'picking' | 'sending' | 'sent' | 'failed' | 'unavailable';
 
 /**
  * The assistant: answers from the student's contract, the house rules, the BH guide and their own
@@ -59,6 +70,12 @@ export default function AssistantScreen() {
   const a = t.assistant;
   const r = t.requests;
   const { exchanges, pending, send, retry, clear } = useAssistant();
+  const { token } = useAuth();
+  const toast = useToast();
+  const { student } = useHome();
+  // Store review (2026-11-09): say plainly, once, that Claude (Anthropic) processes questions and photos.
+  const { consent, accept } = useAssistantConsent(student.email);
+  const [flags, setFlags] = useState<Record<string, FlagState | undefined>>({});
   const [text, setText] = useState('');
   const [photo, setPhoto] = useState<AssistantPhoto | null>(null);
   const [photoMenu, setPhotoMenu] = useState(false);
@@ -67,15 +84,24 @@ export default function AssistantScreen() {
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   const scroll = useRef<ComponentRef<typeof ScrollView>>(null);
   const hasChat = exchanges.length > 0;
-  // A question asked from elsewhere (Explorer's search, its suggestions): `/assistant?q=…`, sent once.
+  // A question from elsewhere (Explorer's search, its suggestions): `/assistant?q=…` only fills the field,
+  // once; the student sends it (a link must never send a question on its own).
   const { q } = useLocalSearchParams<{ q?: string }>();
-  const askedFromLink = useRef<string | null>(null);
+  const prefilled = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!q || askedFromLink.current === q || pending) return;
-    askedFromLink.current = q;
-    send(q, lang);
-  }, [q, pending, send, lang]);
+    if (typeof q !== 'string' || !q.trim() || prefilled.current === q) return;
+    prefilled.current = q;
+    setText(q.slice(0, MAX_QUESTION));
+  }, [q]);
+
+  /** "Signaler cette réponse": one tap on a reason sends it, then a thank-you toast. */
+  async function flag(e: Exchange, reason: ReportReason) {
+    setFlags((f) => ({ ...f, [e.id]: 'sending' }));
+    const result = await reportAnswer(token, e, reason);
+    setFlags((f) => ({ ...f, [e.id]: result }));
+    if (result === 'sent') toast(a.reportThanks);
+  }
 
   useEffect(() => {
     const ios = Platform.OS === 'ios';
@@ -89,7 +115,7 @@ export default function AssistantScreen() {
 
   /** Sends the question; with a photo and no text, asks what is wrong in the photo. */
   function submit(question: string, withPhoto: AssistantPhoto | null = null) {
-    if (pending || preparing) return;
+    if (pending || preparing || !consent) return;
     const asked = question.trim() || (withPhoto ? a.photoQuestion : '');
     if (!asked) return;
     send(asked, lang, withPhoto ?? undefined);
@@ -144,18 +170,19 @@ export default function AssistantScreen() {
     if (!e.maintenance) return;
     const ownWords = e.question !== a.photoQuestion;
     const description = (ownWords ? `${e.maintenance.title}\n\n${e.question}` : e.maintenance.title).slice(0, 1000);
+    // The photo goes through the in-app hand-off, never the route params (a link could attach any file).
+    if (e.photo) handOffMaintenancePhoto(e.photo.uri);
     router.push({
       pathname: '/requests/maintenance',
       params: {
         description,
-        ...(e.photo ? { photo: e.photo.uri } : {}),
         ...(e.maintenance.category ? { category: e.maintenance.category } : {}),
         ...(e.maintenance.room ? { room: e.maintenance.room } : {}),
       },
     });
   }
 
-  const busy = pending || preparing;
+  const busy = pending || preparing || !consent;
   const canSend = (!!text.trim() || !!photo) && !busy;
   const canAddPhoto = !photo && !busy;
   const extras = preparing || !!photo || photoMenu || !!photoNotice;
@@ -191,7 +218,21 @@ export default function AssistantScreen() {
               </AppText>
             </Card>
 
-            {!hasChat && (
+            {consent === false && (
+              <Card style={{ gap: Spacing.md }}>
+                <View style={{ gap: Spacing.sm }}>
+                  <AppText variant="title">{a.consentTitle}</AppText>
+                  <AppText>{a.consentBody}</AppText>
+                  <AppText variant="callout" color={theme.textSecondary}>
+                    {a.consentHint}
+                  </AppText>
+                </View>
+                <TextLink icon="shieldLock" label={t.common.privacyPolicy} onPress={() => openPrivacyPolicy(lang)} />
+                <Button label={a.consentAccept} onPress={accept} />
+              </Card>
+            )}
+
+            {!hasChat && consent && (
               <View style={{ gap: Spacing.sm }}>
                 <AppText variant="callout" color={theme.textSecondary}>
                   {a.examples}
@@ -212,6 +253,10 @@ export default function AssistantScreen() {
                     exchange={e}
                     onRetry={() => retry(e.id, lang)}
                     onReport={() => report(e)}
+                    flagState={flags[e.id]}
+                    onFlagStart={() => setFlags((f) => ({ ...f, [e.id]: 'picking' }))}
+                    onFlagCancel={() => setFlags((f) => ({ ...f, [e.id]: undefined }))}
+                    onFlag={(reason) => flag(e, reason)}
                   />
                 ))}
                 {!pending && <Button variant="plain" label={a.newChat} onPress={clear} />}
@@ -305,6 +350,7 @@ export default function AssistantScreen() {
               accessibilityLabel={a.placeholder}
               multiline
               maxLength={MAX_QUESTION}
+              editable={!!consent}
               style={[styles.input, Type.body, { color: theme.text, backgroundColor: theme.fill }]}
             />
             <PressableScale
@@ -327,10 +373,18 @@ function ExchangeView({
   exchange: e,
   onRetry,
   onReport,
+  flagState,
+  onFlagStart,
+  onFlagCancel,
+  onFlag,
 }: {
   exchange: Exchange;
   onRetry: () => void;
   onReport: () => void;
+  flagState?: FlagState;
+  onFlagStart: () => void;
+  onFlagCancel: () => void;
+  onFlag: (reason: ReportReason) => void;
 }) {
   const theme = useTheme();
   const { t, lang } = useI18n();
@@ -371,6 +425,7 @@ function ExchangeView({
             </View>
           )}
           {pointsToTeam(e.answer) && team}
+          <FlagAnswer state={flagState} onStart={onFlagStart} onCancel={onFlagCancel} onPick={onFlag} />
         </>
       )}
 
@@ -402,7 +457,78 @@ function ExchangeView({
   );
 }
 
+/**
+ * "Signaler cette réponse" under each answer: a text link, then the reasons as pills (one tap sends), then
+ * "Réponse signalée". Until the server has the route (404), it points to the team on WhatsApp instead.
+ */
+function FlagAnswer({
+  state,
+  onStart,
+  onCancel,
+  onPick,
+}: {
+  state?: FlagState;
+  onStart: () => void;
+  onCancel: () => void;
+  onPick: (reason: ReportReason) => void;
+}) {
+  const theme = useTheme();
+  const { t } = useI18n();
+  const a = t.assistant;
+
+  if (state === 'sent') {
+    return (
+      <View style={styles.flagDone} accessibilityLiveRegion="polite">
+        <Icon name="checkCircle" size={16} color={theme.textSecondary} />
+        <AppText variant="callout" color={theme.textSecondary}>
+          {a.reported}
+        </AppText>
+      </View>
+    );
+  }
+  if (state === 'unavailable') {
+    return (
+      <View style={styles.flagBox}>
+        <Notice icon="info" text={a.reportUnavailable} />
+        <TextLink icon="whatsapp" label={a.talkToTeam} onPress={() => openWhatsApp('assistant')} />
+      </View>
+    );
+  }
+  if (state === 'picking' || state === 'sending' || state === 'failed') {
+    const sending = state === 'sending';
+    return (
+      <View style={styles.flagBox}>
+        <AppText variant="callout" style={{ fontFamily: Fonts.bodyMedium }}>
+          {a.reportQuestion}
+        </AppText>
+        <View style={styles.suggestions}>
+          {REPORT_REASONS.map((reason) => (
+            <SuggestionPill
+              key={reason}
+              label={a.reportReasons[reason]}
+              onPress={() => {
+                if (!sending) onPick(reason);
+              }}
+            />
+          ))}
+        </View>
+        {state === 'failed' && <InlineMessage kind="error" text={a.reportFailed} />}
+        {sending ? (
+          <View style={styles.flagDone} accessible accessibilityRole="progressbar" accessibilityLabel={a.reportAnswer}>
+            <ActivityIndicator color={theme.textSecondary} />
+          </View>
+        ) : (
+          <TextLink icon="close" label={a.reportCancel} onPress={onCancel} />
+        )}
+      </View>
+    );
+  }
+  return <TextLink icon="feedback" label={a.reportAnswer} onPress={onStart} />;
+}
+
 const styles = StyleSheet.create({
+  flagBox: { gap: Spacing.sm },
+  flagDone: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: TapTarget },
   column: {
     width: '100%',
     maxWidth: MaxContentWidth,

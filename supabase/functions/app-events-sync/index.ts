@@ -12,7 +12,7 @@
 //   link               curadoria: a equipe cola o link (Sympla, 2LIV, Raro, Belotur...) e o robô lê só aquela página
 // Regras: respeitar o robots.txt, User-Agent identificado (sem e-mail pessoal), uma leitura por página por dia,
 // título como publicado, sempre com o nome da fonte e o link para ela.
-import { createClient } from 'npm:@supabase/supabase-js@2';
+import { createClient } from 'npm:@supabase/supabase-js@2.119.0';
 
 const db = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, {
   auth: { persistSession: false, autoRefreshToken: false },
@@ -59,7 +59,9 @@ function decode(s: string) {
 }
 const clean = (s: string | null | undefined) =>
   s ? decode(s.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim() || null : null;
-const normalize = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+// Sem acento: depois do NFD, tira as marcas combinantes (\p{M}). Sem escape de código Unicode aqui: o deploy
+// pelo conector trocava o escape pelo caractere e a cópia publicada deixava de ser igual à do repositório.
+const normalize = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
 
 /** <meta property|name="key" content="..."> in any attribute order. */
 function meta(html: string, key: string) {
@@ -222,8 +224,29 @@ async function politeFetch(
   return { ok: true, text: text.length > 4_000_000 ? text.slice(0, 4_000_000) : text, url: url.toString() };
 }
 
+/**
+ * Só endereços http(s) chegam ao app (o link e a foto vêm de páginas de terceiros: nada de javascript:, data:,
+ * file:, intent:...). A foto relativa ("/img/x.jpg") vale a partir da página do evento.
+ */
+function httpUrl(raw: string | null | undefined, base?: string | null) {
+  if (!raw || !raw.trim()) return null;
+  try {
+    const u = base ? new URL(raw.trim(), base) : new URL(raw.trim());
+    if (u.protocol !== 'https:' && u.protocol !== 'http:') return null;
+    if (u.username || u.password) return null;
+    const out = u.toString();
+    return out.length <= 2000 ? out : null;
+  } catch {
+    return null;
+  }
+}
+
 async function save(rows: EventRow[]) {
   if (!rows.length) return 0;
+  rows = rows.map((r) => {
+    const url = httpUrl(r.url);
+    return { ...r, url, image_url: httpUrl(r.image_url, url) };
+  });
   // Nunca mandar "hidden": a escolha da equipe fica.
   const { error } = await db.from('app_bh_events').upsert(rows, { onConflict: 'source,external_id' });
   if (error) throw new Error(error.message);

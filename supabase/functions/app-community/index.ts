@@ -4,8 +4,11 @@
 //
 // Moderação (pedido do Daniel: "a IA modera e a gente participa"): todo post, comentário e viagem passa pela
 // IA antes de aparecer. ok → publica; review → espera a equipe (painel › Comunidade); block → não publica e o
-// aluno vê o motivo para corrigir. Sem ANTHROPIC_API_KEY (ou se a IA falhar), publica e marca 'unchecked'
-// para a equipe conferir. 3 denúncias de pessoas diferentes escondem o conteúdo até a equipe decidir.
+// aluno vê o motivo para corrigir. Sem ANTHROPIC_API_KEY, ou se a IA falhar (erro, recusa, resposta cortada,
+// JSON inválido), NÃO publica: fica 'pending' com ai_verdict 'unchecked' até a equipe decidir (revisão de
+// segurança, 09/11/2026). Modelo: APP_MODERATION_MODEL. 3 denúncias de pessoas diferentes escondem o conteúdo
+// até a equipe decidir. Limite: WRITES_PER_DAY textos moderados (posts, comentários, conversa e viagens) por
+// aluno em 24 h → 'limit' (429).
 //
 // Rotas (POST, JSON, Authorization: Bearer <token da app-api>):
 //   /status        → { me: { id, name }, termsVersion, termsAccepted, suspendedUntil }
@@ -25,9 +28,10 @@
 //   /trip-cancel, /trip-join, /trip-leave { id }
 //   /events        → { events: [...] } · /event { id } → { event, attendees } · /event-rsvp { id, going }
 // Erros próprios: 'terms' (falta aceitar a carta), 'suspended', 'full', 'invalid', 'forbidden', 'notFound',
-// 'links' (pedido do Daniel, 09/11/2026: nenhum link no que o aluno escreve; o banco também recusa, 019).
-import Anthropic from 'npm:@anthropic-ai/sdk';
-import { createClient } from 'npm:@supabase/supabase-js@2';
+// 'links' (pedido do Daniel, 09/11/2026: nenhum link no que o aluno escreve; o banco também recusa, 019),
+// 'limit' (passou de WRITES_PER_DAY em 24 h).
+import Anthropic from 'npm:@anthropic-ai/sdk@1.6.0';
+import { createClient } from 'npm:@supabase/supabase-js@2.119.0';
 
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const db = createClient(Deno.env.get('SUPABASE_URL')!, SERVICE_KEY, {
@@ -51,6 +55,8 @@ const LINK =
 const hasLink = (...texts: (string | null | undefined)[]) => texts.some((t) => !!t && LINK.test(t));
 const noLinks = () => json({ error: 'links' }, 400);
 const MODEL = Deno.env.get('APP_MODERATION_MODEL') ?? 'claude-opus-5-5';
+/** Textos moderados (posts, comentários, conversa das viagens, viagens) por aluno em 24 h: cada um custa uma chamada à IA. */
+const WRITES_PER_DAY = 30;
 
 // ---------- sessão: igual à app-api (manter as funções iguais) ----------
 let hmacKey: CryptoKey | null = null;
@@ -63,20 +69,32 @@ async function getHmacKey() {
 }
 const fromB64url = (s: string) => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), (c) => c.charCodeAt(0));
 
+/** O acesso terminou (saída + 30 dias): o Deno.serve responde 'accessEnded' (403) e o app sai da conta. */
+class AccessEnded extends Error {}
+
+/**
+ * Devolve o aluno do token, ou null se o token for inválido, vencido, de senha antiga ou de conta desativada.
+ * Acesso encerrado (app_access_until no passado, data de BH) lança AccessEnded (021: app_session_state).
+ */
 async function readToken(req: Request) {
   const [payload, sig] = (req.headers.get('Authorization') ?? '').replace(/^Bearer /, '').split('.');
   if (!payload || !sig) return null;
+  let cp: string;
+  let v: number;
   try {
     const ok = await crypto.subtle.verify('HMAC', await getHmacKey(), fromB64url(sig), enc.encode(payload));
     if (!ok) return null;
-    const { cp, v, exp } = JSON.parse(new TextDecoder().decode(fromB64url(payload)));
-    if (Date.now() > exp) return null;
-    const { data } = await db.from('app_students').select('status, session_version').eq('counterparty_id', cp).maybeSingle();
-    if (!data || data.status !== 'active' || data.session_version !== v) return null;
-    return { cp: cp as string };
+    const t = JSON.parse(new TextDecoder().decode(fromB64url(payload)));
+    if (typeof t?.cp !== 'string' || !Number.isInteger(t.v) || !(Date.now() <= t.exp)) return null;
+    cp = t.cp;
+    v = t.v;
   } catch {
     return null;
   }
+  const { data, error } = await db.rpc('app_session_state', { p_cp: cp, p_version: v });
+  if (!error && data === 'ended') throw new AccessEnded();
+  if (error || data !== 'ok') return null;
+  return { cp, version: v };
 }
 
 // ---------- quem participa ----------
@@ -178,9 +196,23 @@ type Moderation = {
   reason: { pt: string; fr: string; en: string; categories: string[] } | null;
 };
 
+const HELD_FOR_TEAM = {
+  fr: 'L’équipe va relire votre message avant de le publier.',
+  en: 'The team will read your message before publishing it.',
+};
+
+/** A IA não decidiu (sem chave, erro, recusa, resposta cortada ou JSON inválido): espera a equipe, nunca publica. */
+const heldForTeam = (pt: string): Moderation => ({
+  status: 'pending',
+  verdict: 'unchecked',
+  reason: { pt, ...HELD_FOR_TEAM, categories: [] },
+});
+
+/** O texto do aluno vai entre tags no prompt: sem "<" e ">" ele não fecha a tag nem abre outra. */
+const escapeTags = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
 async function moderate(kind: 'post' | 'comment' | 'trip', content: string): Promise<Moderation> {
-  const unchecked: Moderation = { status: 'published', verdict: 'unchecked', reason: null };
-  if (!Deno.env.get('ANTHROPIC_API_KEY')) return unchecked;
+  if (!Deno.env.get('ANTHROPIC_API_KEY')) return heldForTeam('Moderação automática desligada (sem chave): conferir.');
   try {
     const client = new Anthropic();
     const response = await client.messages.create({
@@ -188,23 +220,19 @@ async function moderate(kind: 'post' | 'comment' | 'trip', content: string): Pro
       max_tokens: 2000,
       system: MODERATION_PROMPT,
       output_config: { effort: 'low', format: { type: 'json_schema', schema: VERDICT_SCHEMA } },
-      messages: [{ role: 'user', content: `<${kind}>\n${content}\n</${kind}>` }],
+      messages: [{ role: 'user', content: `<${kind}>\n${escapeTags(content)}\n</${kind}>` }],
     } as unknown as Anthropic.MessageCreateParamsNonStreaming);
     if (response.stop_reason === 'refusal') {
       return {
         status: 'pending',
         verdict: 'review',
-        reason: {
-          pt: 'A IA não quis analisar este conteúdo: conferir.',
-          fr: 'L’équipe va relire votre message avant de le publier.',
-          en: 'The team will read your message before publishing it.',
-          categories: ['other'],
-        },
+        reason: { pt: 'A IA não quis analisar este conteúdo: conferir.', ...HELD_FOR_TEAM, categories: ['other'] },
       };
     }
+    if (response.stop_reason !== 'end_turn') return heldForTeam(`A IA não terminou a análise (${response.stop_reason}): conferir.`);
     const block = response.content.find((b) => b.type === 'text');
     const v = JSON.parse(block && 'text' in block ? block.text : '');
-    if (!['ok', 'review', 'block'].includes(v.verdict)) return unchecked;
+    if (!v || !['ok', 'review', 'block'].includes(v.verdict)) return heldForTeam('Resposta da IA fora do formato: conferir.');
     if (v.verdict === 'ok') return { status: 'published', verdict: 'ok', reason: null };
     return {
       status: v.verdict === 'review' ? 'pending' : 'hidden',
@@ -217,8 +245,20 @@ async function moderate(kind: 'post' | 'comment' | 'trip', content: string): Pro
       },
     };
   } catch {
-    return unchecked;
+    return heldForTeam('A moderação automática falhou: conferir.');
   }
+}
+
+/** Reserva um texto moderado na cota de 24 h do aluno (021: app_rate_take, atômico); Response quando acabou. */
+async function takeWrite(cp: string): Promise<Response | null> {
+  const { data, error } = await db.rpc('app_rate_take', {
+    p_bucket: 'community_write',
+    p_keys: [cp],
+    p_limits: [WRITES_PER_DAY],
+    p_window_seconds: 86_400,
+  });
+  if (error) return json({ error: 'server' }, 500);
+  return data ? null : json({ error: 'limit' }, 429);
 }
 
 const studentReason = (r: Moderation['reason'] | null | undefined) => (r ? { fr: r.fr, en: r.en } : null);
@@ -357,6 +397,8 @@ async function postSave(req: Request, body: { scope?: unknown; kind?: unknown; b
   const content = text(body.body, 1000);
   if (!scope || !kind || !content || content.length > 1000) return json({ error: 'invalid' }, 400);
   if (hasLink(content)) return noLinks();
+  const over = await takeWrite(m.cp);
+  if (over) return over;
 
   const verdict = await moderate('post', content);
   const now = new Date().toISOString();
@@ -407,6 +449,8 @@ async function commentSave(req: Request, body: { postId?: unknown; body?: unknow
   if (!p || (p as PostRow).status !== 'published' || !canSeePost(p as PostRow, m, blocked)) {
     return json({ error: 'notFound' }, 404);
   }
+  const over = await takeWrite(m.cp);
+  if (over) return over;
 
   const verdict = await moderate('comment', content);
   const { data, error } = await db
@@ -625,6 +669,8 @@ async function tripCommentSave(req: Request, body: { tripId?: unknown; body?: un
   if (!trip || trip.status !== 'published' || !(ids.includes(m.cp) || trip.creator_cp === m.cp)) {
     return json({ error: 'notFound' }, 404);
   }
+  const over = await takeWrite(m.cp);
+  if (over) return over;
 
   const verdict = await moderate('comment', content);
   const { data, error } = await db
@@ -710,6 +756,10 @@ async function tripSave(
     if (!old || ['removed', 'cancelled'].includes((old as TripRow).status)) return json({ error: 'notFound' }, 404);
     const o = old as TripRow;
     const textChanged = o.destination !== destination || (o.description ?? null) !== description;
+    if (textChanged) {
+      const over = await takeWrite(m.cp);
+      if (over) return over;
+    }
     const verdict = textChanged ? await moderate('trip', moderationText) : null;
     const { error } = await db
       .from('app_trips')
@@ -732,6 +782,8 @@ async function tripSave(
   }
 
   if ((body.startsOn as string) < todayBH()) return json({ error: 'invalid' }, 400);
+  const over = await takeWrite(m.cp);
+  if (over) return over;
   const verdict = await moderate('trip', moderationText);
   const { data, error } = await db
     .from('app_trips')
@@ -962,7 +1014,8 @@ Deno.serve(async (req) => {
       default:
         return json({ error: 'notFound' }, 404);
     }
-  } catch {
+  } catch (e) {
+    if (e instanceof AccessEnded) return json({ error: 'accessEnded' }, 403);
     return json({ error: 'server' }, 500);
   }
 });

@@ -4,7 +4,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { Icon, type IconName } from '@/components/icon';
 import { AppText, Chip, LoadingState, RetryCard, tapFeedback } from '@/components/ui';
-import { Fonts, Radius, Spacing, TapTarget } from '@/constants/theme';
+import { Fonts, MaxFontScale, Radius, Spacing, TapTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n, type Lang } from '@/i18n';
 import type { Strings } from '@/i18n/strings';
@@ -215,7 +215,7 @@ export function StatusPill({ status }: { status: RequestStatus }) {
           : theme.textSecondary;
   return (
     <View style={[styles.pill, { backgroundColor: status === 'done' ? theme.successSoft : theme.fill }]}>
-      <AppText variant="caption" color={color} style={{ fontFamily: Fonts.bodyMedium }}>
+      <AppText variant="caption" color={color} maxFontSizeMultiplier={MaxFontScale} style={{ fontFamily: Fonts.bodyMedium }}>
         {t.requests.status[status]}
       </AppText>
     </View>

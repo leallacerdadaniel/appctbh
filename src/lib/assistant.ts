@@ -1,5 +1,6 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ImageManipulator, SaveFormat, type ImageRef } from 'expo-image-manipulator';
-import { useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 
 import type { Lang } from '@/i18n';
 import { AppApiError, assistantApi } from '@/lib/app-api';
@@ -39,6 +40,8 @@ export type Exchange = {
   photo?: AssistantPhoto;
   status: 'pending' | 'answered' | 'refused' | 'error';
   answer?: string;
+  /** The server's signature of `answer` (security review, 2026-11-09): sent back with it, or the turn is dropped. */
+  signature?: string;
   maintenance?: MaintenanceHint;
   error?: AssistantError;
 };
@@ -96,7 +99,7 @@ function history(id: string) {
     .filter((e) => e.status === 'answered' && e.answer)
     .flatMap((e) => [
       { role: 'user' as const, content: e.question, ...(e.photo ? { photo: true } : {}) },
-      { role: 'assistant' as const, content: e.answer! },
+      { role: 'assistant' as const, content: e.answer!, ...(e.signature ? { signature: e.signature } : {}) },
     ]);
   const current = store.exchanges[index];
   const image = current.photo?.base64 ? { mediaType: 'image/jpeg', data: current.photo.base64 } : undefined;
@@ -105,7 +108,13 @@ function history(id: string) {
   );
 }
 
-type AskResponse = { answer: string | null; refused: boolean; maintenance?: MaintenanceHint | null };
+type AskResponse = {
+  answer: string | null;
+  refused: boolean;
+  maintenance?: MaintenanceHint | null;
+  /** Signature of `answer`, tied to the student: Charlotte only reads back answers she signed. */
+  signature?: string | null;
+};
 
 async function run(token: string | null, id: string, lang: Lang) {
   try {
@@ -116,7 +125,8 @@ async function run(token: string | null, id: string, lang: Lang) {
     if (r.refused || !r.answer?.trim()) patch(id, { status: 'refused', answer: undefined, photo: light });
     else {
       const maintenance = r.maintenance?.title ? r.maintenance : undefined;
-      patch(id, { status: 'answered', answer: r.answer.trim(), maintenance, photo: light });
+      const signature = r.signature ?? undefined;
+      patch(id, { status: 'answered', answer: r.answer.trim(), signature, maintenance, photo: light });
     }
   } catch (e) {
     patch(id, { status: 'error', error: toError(e) });
@@ -191,3 +201,48 @@ export const plainAnswer = (text: string) => text.replace(/\*\*(.+?)\*\*/g, '$1'
 
 /** The answer sends the student to the team (it doesn't know): show the WhatsApp link under it. */
 export const pointsToTeam = (text: string) => /whatsapp/i.test(text);
+
+/* ---------- Consent and reports (store review, 2026-11-09) ---------- */
+
+const consentKey = (email: string) => `ctbh.assistant.consent.v1.${email.toLowerCase()}`;
+
+/**
+ * Before the first question, Charlotte says plainly that questions and photos are processed by Claude
+ * (Anthropic). Accepted once per student on this phone; `null` while it is being read.
+ */
+export function useAssistantConsent(email: string) {
+  const [consent, setConsent] = useState<boolean | null>(null);
+  useEffect(() => {
+    let alive = true;
+    AsyncStorage.getItem(consentKey(email))
+      .then((value) => alive && setConsent(value !== null))
+      .catch(() => alive && setConsent(false));
+    return () => {
+      alive = false;
+    };
+  }, [email]);
+  const accept = useCallback(() => {
+    setConsent(true);
+    AsyncStorage.setItem(consentKey(email), new Date().toISOString()).catch(() => {});
+  }, [email]);
+  return { consent, accept };
+}
+
+export type ReportReason = 'wrong' | 'inappropriate' | 'unsafe' | 'other';
+export const REPORT_REASONS: ReportReason[] = ['wrong', 'inappropriate', 'unsafe', 'other'];
+/** `unavailable`: the server doesn't have the route yet (404). */
+export type ReportResult = 'sent' | 'unavailable' | 'failed';
+
+/** "Signaler cette réponse": the answer, its question and the reason go to the team (app_assistant_reports). */
+export async function reportAnswer(token: string | null, e: Exchange, reason: ReportReason): Promise<ReportResult> {
+  if (!e.answer) return 'failed';
+  try {
+    await assistantApi('report', {
+      token,
+      body: { answer: e.answer.slice(0, 4000), question: e.question.slice(0, 2000), reason },
+    });
+    return 'sent';
+  } catch (err) {
+    return err instanceof AppApiError && err.code === 'notFound' ? 'unavailable' : 'failed';
+  }
+}

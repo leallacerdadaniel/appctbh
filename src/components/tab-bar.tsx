@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { CharlotteFace } from '@/components/charlotte';
 import { Icon, type IconName } from '@/components/icon';
 import { AppText, PressableScale, tapFeedback } from '@/components/ui';
-import { Fonts, MaxContentWidth } from '@/constants/theme';
+import { Fonts, MaxContentWidth, MaxFontScale } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { TourTarget, type TourTargetId } from '@/lib/tour';
@@ -61,6 +61,7 @@ export function TabBar({ state, descriptors, emitter, navigateToTab, insets }: T
         <AppText
           numberOfLines={1}
           color={color}
+          maxFontSizeMultiplier={MaxFontScale}
           style={[styles.label, { fontFamily: focused ? Fonts.bodySemi : Fonts.body }]}>
           {label}
         </AppText>
@@ -77,22 +78,23 @@ export function TabBar({ state, descriptors, emitter, navigateToTab, insets }: T
 
   const center = (
     <View key="assistant" style={styles.item}>
-      <TourTarget id="charlotte">
-      <PressableScale
-        accessibilityRole="button"
-        accessibilityLabel={t.tabs.assistant}
-        onPress={() => {
-          trackAction('open_assistant', 'tab_bar');
-          router.push('/assistant' as Href);
-        }}
-        style={[
-          styles.center,
-          { backgroundColor: theme.surface, borderColor: theme.surface, boxShadow: '0 8px 18px rgba(232, 12, 32, 0.32)' },
-        ]}>
-        <CharlotteFace size={50} />
-      </PressableScale>
+      {/* The raise sits on the tour target, so the tour's ring circles the whole button. */}
+      <TourTarget id="charlotte" style={styles.centerRaise}>
+        <PressableScale
+          accessibilityRole="button"
+          accessibilityLabel={t.chezToi.assistant}
+          onPress={() => {
+            trackAction('open_assistant', 'tab_bar');
+            router.push('/assistant' as Href);
+          }}
+          style={[
+            styles.center,
+            { backgroundColor: theme.surface, borderColor: theme.surface, boxShadow: '0 8px 18px rgba(232, 12, 32, 0.32)' },
+          ]}>
+          <CharlotteFace size={50} />
+        </PressableScale>
       </TourTarget>
-      <AppText numberOfLines={1} style={[styles.label, styles.centerLabel]}>
+      <AppText numberOfLines={1} maxFontSizeMultiplier={MaxFontScale} style={[styles.label, styles.centerLabel]}>
         {t.tabs.assistant}
       </AppText>
     </View>
@@ -121,9 +123,9 @@ const styles = StyleSheet.create({
     height: CENTER_SIZE,
     borderRadius: CENTER_SIZE / 2,
     borderWidth: 4,
-    marginTop: -30,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  centerRaise: { marginTop: -30, borderRadius: CENTER_SIZE / 2 },
   centerLabel: { fontFamily: Fonts.bodySemi },
 });

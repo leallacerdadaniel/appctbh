@@ -17,6 +17,8 @@ export const Colors = {
   light: {
     brand: Brand.red,
     brandPressed: Brand.redPressed,
+    /** Red text on the gray canvas ("Voir tout" links, SOS label): darker than `brand` for contrast. */
+    brandText: '#D20B1E',
     onBrand: Brand.onRed,
     onBrandMuted: 'rgba(255,255,255,0.82)',
     /** Control tracks on the red band (language switch). */
@@ -110,3 +112,9 @@ export const Shadow = {
 /** Minimum tap target (Apple HIG: 44pt). */
 export const TapTarget = 44;
 export const MaxContentWidth = 560;
+
+/**
+ * Dynamic Type cap (`maxFontSizeMultiplier`) for display titles, pills, chips, tab labels and segmented
+ * controls: they grow with the student's text size, but not past the point where they break the layout.
+ */
+export const MaxFontScale = 1.4;

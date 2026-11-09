@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
 import { AppText, PressableScale } from '@/components/ui';
-import { Fonts, Radius, Shadow } from '@/constants/theme';
+import { Fonts, MaxFontScale, Radius, Shadow } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 /** Switches views of one screen: `fill` track, the selected option a white pill. Filters use `Chip`s. */
@@ -31,6 +31,7 @@ export function SegmentedControl<T extends string>({
             <AppText
               variant="callout"
               color={selected ? theme.text : theme.textSecondary}
+              maxFontSizeMultiplier={MaxFontScale}
               style={[{ textAlign: 'center' }, selected && { fontFamily: Fonts.bodyMedium }]}>
               {o.label}
             </AppText>

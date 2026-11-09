@@ -255,6 +255,11 @@ function Trips({ region }: { region: Region }) {
   const available = TRIPS.filter((x) => inRegion.some((d) => d.trip === x));
   const shown = trip ? inRegion.filter((d) => d.trip === trip) : inRegion;
   const mustGo = MUST_GO[region].map(getDestination).filter((d): d is DestinationWithPhoto => !!d);
+  // Under the must-go carousel, the list shows the other places: never the same card twice in a row
+  // (UX review 2026-11-09). With a trip filter the carousel is hidden and the list has everything.
+  const carousel = mustGo.length > 0 && !trip;
+  const others = carousel ? shown.filter((d) => !mustGo.some((m) => m.id === d.id)) : shown;
+  const listed = others.length > 0 ? others : shown;
 
   return (
     <>
@@ -279,7 +284,7 @@ function Trips({ region }: { region: Region }) {
         </ScrollView>
       </View>
 
-      {mustGo.length > 0 && !trip && (
+      {carousel && (
         <Section title={t.explore.mustGoTitle} subtitle={t.explore.mustGoHint}>
           <Carousel>
             {mustGo.map((d) => (
@@ -290,7 +295,7 @@ function Trips({ region }: { region: Region }) {
       )}
 
       <View style={{ gap: Spacing.lg }}>
-        {shown.map((d) => (
+        {listed.map((d) => (
           <DestinationCard key={d.id} destination={d} />
         ))}
       </View>

@@ -4,11 +4,12 @@ import { Alert, StyleSheet, View } from 'react-native';
 
 import { CommentRow, ContentStatusNote } from '@/components/community-ui';
 import { ListGroup, ListRow } from '@/components/list';
+import { PlacePhoto } from '@/components/place-photo';
 import { Notice } from '@/components/request-ui';
 import { Screen, Section } from '@/components/screen';
 import { useToast } from '@/components/toast';
 import { AppText, Avatar, Button, Card, InlineMessage, Input, LoadingState, RetryCard } from '@/components/ui';
-import { Fonts, Spacing } from '@/constants/theme';
+import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import {
@@ -150,6 +151,18 @@ export default function TripScreen() {
 
   return (
     <Screen back title={trip.destination} subtitle={dates} onRefresh={reload}>
+      {/* The destination's photo when the trip points at one of the Voyages pages (UX review 2026-11-09). */}
+      {guide && (
+        <PlacePhoto
+          placeId={guide.placeId}
+          source={guide.photo}
+          photoIndex={guide.photoIndex}
+          width={1000}
+          aspectRatio={16 / 9}
+          radius={Radius.lg}
+          credit="below"
+        />
+      )}
       {trip.status === 'cancelled' && <InlineMessage kind="error" text={tr.cancelled} />}
       {mine && (
         <ContentStatusNote

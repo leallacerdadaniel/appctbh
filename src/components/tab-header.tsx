@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { CharlotteFace } from '@/components/charlotte';
 import { Icon } from '@/components/icon';
 import { AppText, PressableScale } from '@/components/ui';
-import { Fonts, Radius, Spacing, TapTarget } from '@/constants/theme';
+import { Fonts, MaxFontScale, Radius, Spacing, TapTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { useHome } from '@/lib/home';
@@ -29,15 +29,16 @@ export function TabHeader({ onPhoto = false }: { onPhoto?: boolean }) {
   const glass = { backgroundColor: 'rgba(20,20,26,0.34)' };
   const ink = onPhoto ? theme.onBrand : theme.text;
 
+  // The whole row is one tour step ("En haut": initials and bell); it counts only on the focused tab.
   return (
-    <View style={styles.row}>
+    <TourTarget id="top" style={styles.row}>
       <PressableScale
         accessibilityRole="button"
         accessibilityLabel={t.today.profile}
         hitSlop={(TapTarget - SIZE) / 2}
         onPress={() => router.push('/profile')}
         style={[styles.round, onPhoto ? glass : { backgroundColor: theme.brand }]}>
-        <AppText variant="callout" color={theme.onBrand} style={{ fontFamily: Fonts.bodySemi }}>
+        <AppText variant="callout" color={theme.onBrand} maxFontSizeMultiplier={1.2} style={{ fontFamily: Fonts.bodySemi }}>
           {student.initials}
         </AppText>
       </PressableScale>
@@ -52,12 +53,15 @@ export function TabHeader({ onPhoto = false }: { onPhoto?: boolean }) {
         }}
         style={[styles.ask, onPhoto ? glass : { backgroundColor: theme.surface }]}>
         <CharlotteFace size={22} />
-        <AppText numberOfLines={1} color={onPhoto ? theme.onBrand : theme.textSecondary} style={{ flexShrink: 1 }}>
+        <AppText
+          numberOfLines={1}
+          maxFontSizeMultiplier={MaxFontScale}
+          color={onPhoto ? theme.onBrand : theme.textSecondary}
+          style={{ flexShrink: 1 }}>
           {t.today.ask}
         </AppText>
       </PressableScale>
 
-      <TourTarget id="bell">
       <PressableScale
         accessibilityRole="button"
         accessibilityLabel={t.notices.bell(unread)}
@@ -77,8 +81,7 @@ export function TabHeader({ onPhoto = false }: { onPhoto?: boolean }) {
           </View>
         )}
       </PressableScale>
-      </TourTarget>
-    </View>
+    </TourTarget>
   );
 }
 

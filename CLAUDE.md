@@ -41,7 +41,9 @@ próprio artefato).
 | 14 | Feedback, pesquisa de satisfação, indicação | **Pronto no desenvolvimento (09/11/2026)**: função `app-feedback` |
 | 15 | Comunidade: mural, viagens em grupo, eventos, denúncia e bloqueio, IA moderando | **Pronto no desenvolvimento (09/11/2026)**: função `app-community`; falta `ANTHROPIC_API_KEY` |
 | 4 (parte) | Painel: preços dos extras e 11 telas do "App do aluno" | Branches locais `app/catalogo-extras` e `app/painel-do-app` (esta parte da outra) no repositório do site, sem commit da segunda, sem push e sem teste no navegador |
-| 4 (resto), 9, 10, 12, 13, 16 a 18 | Ficha do morador e do apartamento, push, chegada, emergência, línguas, lojas | Não iniciadas ou em parte |
+| Revisões V2 | Segurança, design e tour, lojas | **Feito no desenvolvimento (09/11/2026, noite)**: 021 (limites atômicos, grants, exclusão numa transação), as 9 funções republicadas, tour refeito, ajustes de UX, `app.json`/`eas.json`, abertura animada; resumo em `docs/v2-app-chez-toi.html` |
+| 9 (parte) | Push | **Servidor pronto no desenvolvimento (09/11/2026)**: 022 + função `app-push` + `src/lib/push.ts`; chega ao celular só com build nativo, chave APNs e Firebase (`docs/eas-setup.md`) |
+| 4 (resto), 9 (resto), 10, 12, 13, 16 a 18 | Ficha do morador e do apartamento, lembretes, chegada, emergência, línguas, lojas | Não iniciadas ou em parte (lojas: falta conta Apple/Google, `eas init` e o primeiro build) |
 
 ## Onde mora cada coisa (08/11/2026)
 
@@ -68,6 +70,11 @@ próprio artefato).
   `app_students.activated_at`; passaporte e dados fictícios para Hugo e Chloé testarem).
   019 nenhum link no que o aluno escreve (`app_has_link` + regras `*_no_links` em todas as tabelas de texto livre) e a
   conversa da viagem (`app_community_comments.trip_id`); a coluna do link do WhatsApp das viagens saiu (019b).
+  021 segurança (09/11/2026): limites atômicos (`app_rate_take`, `app_reset_take_attempt`, `app_assistant_reserve`),
+  `app_session_state` (fim do acesso em toda função), `app_account_delete` (tudo numa transação), `app_assistant_reports`,
+  e **nenhum grant para anon** nas `app_*`; `authenticated` só tem o que os hooks do painel usam (tabela nova do app:
+  revogar de anon na própria migration; tela nova do painel: dar o grant). Os hashes de senha e código não saem nem para a equipe.
+  022 push: `app_devices.lang`, `app_notices.pushed_at`, gatilho em `app_notices` → função `app-push` (segredo no Vault).
   A conta de teste fica no `.env.local` (fora do Git).
 - **Produção:** banco do site (`miucfiiporxhvvbefonh`), função `bright-service` (a `app-api` do Arthur) e
   tabelas `app_*`. **Nunca escrever no banco do site** sem aprovação do Daniel: lá só leitura do catálogo.
@@ -86,14 +93,17 @@ próprio artefato).
   `app-assistant`, `app-community` (comunidade, com a IA moderando) e `app-feedback` (feedback, pesquisa,
   indicação). Todas usam o mesmo token; o app chega a elas por `houseApi`, `requestsApi`, `assistantApi`,
   `communityApi`, `feedbackApi` em `src/lib/app-api.ts`. A `app-admin` é do painel (JWT da equipe, papéis
-  admin e equipe): lista alunos, convida (senha provisória mostrada uma vez), desliga e religa.
-- Segredos que faltam no `appctbh`: `ANTHROPIC_API_KEY` (Charlotte e moderação) e, para e-mail, `RESEND_API_KEY` +
-  `RESEND_FROM`. Sem e-mail, o "esqueci a senha" vira pedido na tela Acesso ao app do painel; sem a chave da IA,
-  o que o aluno publica entra no ar marcado `unchecked` para a equipe conferir.
+  admin e equipe): lista alunos, convida (senha provisória mostrada uma vez), desliga e religa; nova senha para quem já
+  tem senha só pelo papel admin. A `app-push` (sem JWT, segredo no cabeçalho) manda os avisos novos pela Expo Push API.
+  Login com limite (10 erros por e-mail e 30 por IP em 15 min), sessão de 60 dias, `/app-api/logout` ao sair.
+- Segredos que faltam no `appctbh`: para e-mail, `RESEND_API_KEY` + `RESEND_FROM` (a `ANTHROPIC_API_KEY` já está lá).
+  Sem e-mail, o "esqueci a senha" vira pedido na tela Acesso ao app do painel. Se a IA falhar ou faltar a chave, o que o
+  aluno publica fica `pending` (fora do ar) até a equipe decidir. A Charlotte só relê respostas que ela assinou (`signature`).
 - Primeiro acesso (09/11/2026, decisão do Daniel: nascimento + passaporte): `src/app/first-access.tsx` (3 passos:
   quem é você, seus dados da ficha, senha) e as rotas `first-access-verify` e `first-access-complete` da `app-api`.
   A ficha do site (`finance_counterparties`) só é lida; "Corriger" grava em `app_profile_corrections`, que aparece na
-  tela Acesso ao app do painel. Serve também de nova senha para quem já tinha acesso. Senha de teste do Hugo no
+  tela Acesso ao app do painel. Só para conta sem senha: quem já tem senha recebe `hasAccount` e vai para o "esqueci a
+  senha" (revisão de segurança, 09/11/2026). Telefone e contatos de emergência aparecem mascarados. Senha de teste do Hugo no
   `.env.local` (`TEST_HUGO_PASSWORD`). Login e primeiro acesso usam `src/components/auth-ui.tsx` (foto de BH,
   campos com ícone, botão com o gradiente).
 - Login (09/11/2026): sessão no Keychain/Keystore (`expo-secure-store`, migra a de antes); `src/app/forgot-password.tsx`
@@ -150,6 +160,15 @@ próprio artefato).
   resposta do feedback (a equipe escreve na língua do aluno).
 - O trabalho em modo local de 06/11 (extras e pedidos, fatura com extras, lembretes, agenda, tarefas da casa)
   está na branch `arquivo/modo-local-0611`, para portar sobre a `app-api`, uma onda por vez.
+- Abertura do app (09/11/2026, ideia do Daniel: "o formato de MG, as letras saem de dentro dele, zoom no mapinha e abre
+  a tela como um mapa"): `AppOpening` em `src/components/app-loader.tsx`, por cima de tudo no `_layout.tsx`. O splash
+  nativo é o mapa branco de Minas (`assets/brand/minas-white.png`, 112 pt, `#B80A1C`) e a animação começa nesse quadro.
+  O mapa é vetor (`src/components/minas-shape.ts`, gerado por `python3 scripts/brand/minas_shape.py` a partir do logo).
+- Lojas (09/11/2026): `app.json` sem permissões que o app não usa, manifesto de privacidade, `eas.json` (development,
+  preview, production) e o passo a passo em `docs/eas-setup.md` (`eas login`, `eas init`, variáveis no EAS, APNs,
+  Firebase, TestFlight). Rascunhos de política e termos em PT/FR/EN em `docs/legal/` ("RASCUNHO para revisão jurídica");
+  no site, páginas públicas `/app/privacidade` e `/app/excluir-conta` na branch `app/painel-do-app` (`noindex`).
+  A Charlotte pede ciência do uso da IA (Anthropic) antes da primeira pergunta e tem "Signaler cette réponse".
 
 ## Armadilhas conhecidas (08/11/2026)
 

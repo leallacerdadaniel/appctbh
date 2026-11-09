@@ -129,6 +129,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   function signOut(reason?: SignOutReason) {
+    // The student chose to leave: end the session on the server too (security review, 2026-11-09), so a copy of
+    // the token stops working. Fire and forget: no network must not keep anyone signed in.
+    if (!reason && session.token) appApi('logout', { token: session.token }).catch(() => {});
     setLastPassword(null);
     setSignOutReason(reason ?? null);
     // The offline copy of the student's data (lib/home.tsx) leaves with the session.

@@ -11,14 +11,20 @@
 //   /app-assistant/ask   { messages: [{ role: 'user'|'assistant', content: string, photo?: true,
 //                                      image?: { mediaType: 'image/jpeg'|'image/png'|'image/webp', data: <base64> } }],
 //                          lang: 'fr'|'en'|'pt' }
-//                        → { answer, refused, maintenance: { title, category?, room? } | null }
+//                        → { answer, refused, maintenance: { title, category?, room? } | null, signature }
+//   - `signature` (revisão de segurança, 09/11/2026): assinatura da resposta, feita aqui e presa ao aluno. O app
+//     guarda e manda de volta nas mensagens da Charlotte: { role: 'assistant', content: <answer igual>, signature }.
+//     Mensagem 'assistant' sem assinatura válida é descartada (o aluno não consegue pôr frases na boca da Charlotte).
+//   /app-assistant/report { answer: string (≤ 4000), question?: string (≤ 2000), reason?: string (≤ 300) } → { ok: true }
+//     "Esta resposta está errada": vai para app_assistant_reports (021), que a equipe lê. REPORTS_PER_DAY por aluno.
 //   - `image` só vale na ÚLTIMA mensagem do aluno (foto de um problema no apartamento); as anteriores vão
 //     só em texto, com `photo: true` quando tinham foto. Base64 acima de MAX_IMAGE_B64 → erro `imageTooBig`.
 //   - `maintenance`: o modelo termina a resposta com a linha [[CHAMADO: título | categoria | cômodo]] quando
 //     é um problema de manutenção; a função tira a linha e devolve o título (o app mostra "Signaler à l’équipe").
-// As perguntas, fotos e respostas não são gravadas; só o uso de tokens (app_assistant_usage).
-import Anthropic from 'npm:@anthropic-ai/sdk';
-import { createClient } from 'npm:@supabase/supabase-js@2';
+// As perguntas, fotos e respostas não são gravadas; só o uso de tokens (app_assistant_usage). A cota do dia é
+// reservada no banco antes de chamar o modelo (021: app_assistant_reserve) e devolvida se a chamada falhar.
+import Anthropic from 'npm:@anthropic-ai/sdk@1.6.0';
+import { createClient } from 'npm:@supabase/supabase-js@2.119.0';
 
 import { KNOWLEDGE } from './knowledge.ts';
 
@@ -30,6 +36,8 @@ const MODEL = Deno.env.get('APP_ASSISTANT_MODEL') ?? 'claude-opus-5-5';
 const EFFORT = (Deno.env.get('APP_ASSISTANT_EFFORT') ?? 'low') as 'low' | 'medium' | 'high';
 const DAILY_LIMIT = Number(Deno.env.get('APP_ASSISTANT_DAILY_LIMIT') ?? '30');
 const MAX_TURNS = 12;
+/** "Esta resposta está errada" por aluno em 24 h. */
+const REPORTS_PER_DAY = 20;
 const MAX_CHARS = 1500;
 const MAX_PDF_BYTES = 20 * 1024 * 1024;
 /** Foto em base64 (o app manda JPEG de 1280 px, ~150–400 KB); acima disto, `imageTooBig`. */
@@ -66,20 +74,56 @@ async function getHmacKey() {
   return hmacKey;
 }
 const fromB64url = (s: string) => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), (c) => c.charCodeAt(0));
+const b64url = (b: ArrayBuffer | Uint8Array) =>
+  btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 
+/** O acesso terminou (saída + 30 dias): o Deno.serve responde 'accessEnded' (403) e o app sai da conta. */
+class AccessEnded extends Error {}
+
+/**
+ * Devolve o aluno do token, ou null se o token for inválido, vencido, de senha antiga ou de conta desativada.
+ * Acesso encerrado (app_access_until no passado, data de BH) lança AccessEnded (021: app_session_state).
+ */
 async function readToken(req: Request) {
   const [payload, sig] = (req.headers.get('Authorization') ?? '').replace(/^Bearer /, '').split('.');
   if (!payload || !sig) return null;
+  let cp: string;
+  let v: number;
   try {
     const ok = await crypto.subtle.verify('HMAC', await getHmacKey(), fromB64url(sig), enc.encode(payload));
     if (!ok) return null;
-    const { cp, v, exp } = JSON.parse(new TextDecoder().decode(fromB64url(payload)));
-    if (Date.now() > exp) return null;
-    const { data } = await db.from('app_students').select('status, session_version').eq('counterparty_id', cp).maybeSingle();
-    if (!data || data.status !== 'active' || data.session_version !== v) return null;
-    return { cp: cp as string };
+    const t = JSON.parse(new TextDecoder().decode(fromB64url(payload)));
+    if (typeof t?.cp !== 'string' || !Number.isInteger(t.v) || !(Date.now() <= t.exp)) return null;
+    cp = t.cp;
+    v = t.v;
   } catch {
     return null;
+  }
+  const { data, error } = await db.rpc('app_session_state', { p_cp: cp, p_version: v });
+  if (!error && data === 'ended') throw new AccessEnded();
+  if (error || data !== 'ok') return null;
+  return { cp, version: v };
+}
+
+// ---------- respostas assinadas: o histórico que volta do app não pode trazer falas inventadas da Charlotte ----------
+let answerKey: CryptoKey | null = null;
+async function getAnswerKey() {
+  if (!answerKey) {
+    const raw = await crypto.subtle.digest('SHA-256', enc.encode(`ctbh-app-assistant-answer:${SERVICE_KEY}`));
+    answerKey = await crypto.subtle.importKey('raw', raw, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify']);
+  }
+  return answerKey;
+}
+/** Assinatura da resposta, presa ao aluno (a de um não vale para outro). */
+async function signAnswer(cp: string, answer: string) {
+  return b64url(await crypto.subtle.sign('HMAC', await getAnswerKey(), enc.encode(`${cp}\n${answer}`)));
+}
+async function validAnswer(cp: string, answer: string, signature: unknown) {
+  if (typeof signature !== 'string' || signature.length < 20 || signature.length > 100) return false;
+  try {
+    return await crypto.subtle.verify('HMAC', await getAnswerKey(), fromB64url(signature), enc.encode(`${cp}\n${answer}`));
+  } catch {
+    return false;
   }
 }
 
@@ -175,7 +219,7 @@ Base da Chez Toi (regras, cartilha e guia de BH):
 ${KNOWLEDGE}`;
 
 type Turn = { role: 'user' | 'assistant'; content: string };
-type RawTurn = { role?: unknown; content?: unknown; photo?: unknown; image?: unknown };
+type RawTurn = { role?: unknown; content?: unknown; photo?: unknown; image?: unknown; signature?: unknown };
 type Photo = { media_type: ImageType; data: string };
 
 /** A foto da última mensagem: tipo aceito, assinatura igual ao tipo, base64 válido e não grande demais. */
@@ -190,27 +234,39 @@ function cleanImage(raw: unknown): Photo | 'invalid' | 'imageTooBig' | null {
   return { media_type: type, data: b64 };
 }
 
-function cleanHistory(
+async function cleanHistory(
   raw: unknown,
   lang: string,
-): { turns: Turn[]; image: Photo | null } | { error: 'invalid' | 'imageTooBig' } {
+  cp: string,
+): Promise<{ turns: Turn[]; image: Photo | null } | { error: 'invalid' | 'imageTooBig' }> {
   if (!Array.isArray(raw) || raw.length === 0) return { error: 'invalid' };
   const recent = raw.slice(-MAX_TURNS) as RawTurn[];
   const lastRaw = recent[recent.length - 1];
   const image = lastRaw?.role === 'user' ? cleanImage(lastRaw.image) : null;
   if (image === 'invalid' || image === 'imageTooBig') return { error: image };
 
-  const turns = recent
-    .map((m, i) => {
-      const role = m?.role === 'assistant' ? ('assistant' as const) : ('user' as const);
-      let content = String(m?.content ?? '').trim().slice(0, MAX_CHARS);
-      const last = i === recent.length - 1;
-      if (last && image && !content) content = PHOTO_QUESTION[lang] ?? PHOTO_QUESTION.fr;
-      // Fotos de mensagens anteriores não voltam (pedido pequeno); a resposta já falou delas.
-      if (role === 'user' && !last && m?.photo === true && content) content = `[Foto enviada nesta mensagem; não reenviada.]\n${content}`;
-      return { role, content };
-    })
-    .filter((m) => m.content);
+  const turns: Turn[] = [];
+  for (let i = 0; i < recent.length; i++) {
+    const m = recent[i];
+    const last = i === recent.length - 1;
+    if (m?.role === 'assistant') {
+      // Só respostas que esta função deu a este aluno (assinadas, texto igual); as outras somem.
+      const answer = typeof m.content === 'string' ? m.content : '';
+      if (!answer || !(await validAnswer(cp, answer, m.signature))) continue;
+      const content = answer.trim().slice(0, MAX_CHARS);
+      if (content) turns.push({ role: 'assistant', content });
+      continue;
+    }
+    let content = String(m?.content ?? '').trim().slice(0, MAX_CHARS);
+    if (last && image && !content) content = PHOTO_QUESTION[lang] ?? PHOTO_QUESTION.fr;
+    // Fotos de mensagens anteriores não voltam (pedido pequeno); a resposta já falou delas.
+    if (!last && m?.photo === true && content) content = `[Foto enviada nesta mensagem; não reenviada.]\n${content}`;
+    if (!content) continue;
+    // Duas falas do aluno seguidas (a resposta do meio caiu): viram uma só.
+    const prev = turns[turns.length - 1];
+    if (prev?.role === 'user') prev.content = `${prev.content}\n\n${content}`;
+    else turns.push({ role: 'user', content });
+  }
   // Começa com o aluno e termina com o aluno.
   while (turns.length && turns[0].role !== 'user') turns.shift();
   if (!turns.length || turns[turns.length - 1].role !== 'user') return { error: 'invalid' };
@@ -239,27 +295,32 @@ function splitMaintenance(text: string) {
   };
 }
 
-async function usedToday(cp: string) {
-  const since = new Date(Date.now() - 24 * 3_600_000).toISOString();
-  const { count } = await db
-    .from('app_assistant_usage')
-    .select('id', { count: 'exact', head: true })
-    .eq('counterparty_id', cp)
-    .gte('created_at', since);
-  return count ?? 0;
+/** Reserva a pergunta na cota de 24 h (021: app_assistant_reserve, atômico): id da linha de uso, ou null se acabou. */
+async function reserveUsage(cp: string) {
+  const { data, error } = await db.rpc('app_assistant_reserve', { p_cp: cp, p_limit: DAILY_LIMIT });
+  if (error) throw new Error(error.message);
+  return (data as number | null) ?? null;
+}
+/** A chamada não aconteceu (sem contrato, erro da API): a pergunta volta para a cota. */
+async function releaseUsage(id: number) {
+  await db.from('app_assistant_usage').delete().eq('id', id);
 }
 
 async function ask(req: Request, body: { messages?: unknown; lang?: unknown }) {
   const who = await readToken(req);
   if (!who) return json({ error: 'unauthorized' }, 401);
   if (!Deno.env.get('ANTHROPIC_API_KEY')) return json({ error: 'notConfigured' }, 503);
-  const cleaned = cleanHistory(body.messages, String(body.lang ?? 'fr'));
+  const cleaned = await cleanHistory(body.messages, String(body.lang ?? 'fr'), who.cp);
   if ('error' in cleaned) return json({ error: cleaned.error }, cleaned.error === 'imageTooBig' ? 413 : 400);
   const { turns: history, image } = cleaned;
-  if ((await usedToday(who.cp)) >= DAILY_LIMIT) return json({ error: 'limit' }, 429);
+  const usageId = await reserveUsage(who.cp);
+  if (usageId === null) return json({ error: 'limit' }, 429);
 
   const [pdf, data] = await Promise.all([contractPdf(who.cp), studentData(who.cp)]);
-  if (!data) return json({ error: 'noRental' }, 404);
+  if (!data) {
+    await releaseUsage(usageId);
+    return json({ error: 'noRental' }, 404);
+  }
 
   // Ordem pensada para o cache: base fixa (system) → contrato (muda por aluno, quase nunca) →
   // dados do aluno (mudam às vezes) → conversa. Cada bloco estável leva um ponto de cache.
@@ -310,24 +371,58 @@ async function ask(req: Request, body: { messages?: unknown; lang?: unknown }) {
     );
 
     const u = response.usage;
-    await db.from('app_assistant_usage').insert({
-      counterparty_id: who.cp,
-      model: response.model,
-      input_tokens: u.input_tokens ?? 0,
-      cache_read_tokens: u.cache_read_input_tokens ?? 0,
-      cache_write_tokens: u.cache_creation_input_tokens ?? 0,
-      output_tokens: u.output_tokens ?? 0,
-      with_contract: !!pdf,
-      refused,
-    });
+    await db
+      .from('app_assistant_usage')
+      .update({
+        model: response.model,
+        input_tokens: u.input_tokens ?? 0,
+        cache_read_tokens: u.cache_read_input_tokens ?? 0,
+        cache_write_tokens: u.cache_creation_input_tokens ?? 0,
+        output_tokens: u.output_tokens ?? 0,
+        with_contract: !!pdf,
+        refused,
+      })
+      .eq('id', usageId);
 
-    if (refused || !answer) return json({ answer: null, refused: true, maintenance: null });
-    return json({ answer, refused: false, maintenance });
+    if (refused || !answer) return json({ answer: null, refused: true, maintenance: null, signature: null });
+    return json({ answer, refused: false, maintenance, signature: await signAnswer(who.cp, answer) });
   } catch (error) {
+    await releaseUsage(usageId);
     if (error instanceof Anthropic.RateLimitError) return json({ error: 'busy' }, 429);
     if (error instanceof Anthropic.APIError) return json({ error: 'server' }, 502);
     return json({ error: 'server' }, 500);
   }
+}
+
+/** Texto opcional: null quando não veio, undefined quando veio errado (tipo ou tamanho). */
+function optionalText(v: unknown, max: number): string | null | undefined {
+  if (v === undefined || v === null) return null;
+  if (typeof v !== 'string') return undefined;
+  const s = v.trim();
+  return s.length > max ? undefined : s || null;
+}
+
+/** "Esta resposta está errada": a equipe lê no painel (app_assistant_reports). */
+async function report(req: Request, body: { answer?: unknown; question?: unknown; reason?: unknown }) {
+  const who = await readToken(req);
+  if (!who) return json({ error: 'unauthorized' }, 401);
+  const answer = typeof body.answer === 'string' ? body.answer.trim() : '';
+  const question = optionalText(body.question, 2000);
+  const reason = optionalText(body.reason, 300);
+  if (!answer || answer.length > 4000 || question === undefined || reason === undefined) {
+    return json({ error: 'invalid' }, 400);
+  }
+  const { data: slot, error: limitError } = await db.rpc('app_rate_take', {
+    p_bucket: 'assistant_report',
+    p_keys: [who.cp],
+    p_limits: [REPORTS_PER_DAY],
+    p_window_seconds: 86_400,
+  });
+  if (limitError) return json({ error: 'server' }, 500);
+  if (!slot) return json({ error: 'limit' }, 429);
+  const { error } = await db.from('app_assistant_reports').insert({ counterparty_id: who.cp, answer, question, reason });
+  if (error) return json({ error: 'server' }, 500);
+  return json({ ok: true });
 }
 
 Deno.serve(async (req) => {
@@ -335,6 +430,12 @@ Deno.serve(async (req) => {
   if (req.method !== 'POST') return json({ error: 'method' }, 405);
   const route = new URL(req.url).pathname.split('/').pop();
   const body = await req.json().catch(() => ({}));
-  if (route === 'ask') return await ask(req, body);
-  return json({ error: 'notFound' }, 404);
+  try {
+    if (route === 'ask') return await ask(req, body);
+    if (route === 'report') return await report(req, body);
+    return json({ error: 'notFound' }, 404);
+  } catch (e) {
+    if (e instanceof AccessEnded) return json({ error: 'accessEnded' }, 403);
+    return json({ error: 'server' }, 500);
+  }
 });

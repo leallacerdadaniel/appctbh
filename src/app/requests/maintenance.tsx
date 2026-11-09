@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Linking, Pressable, StyleSheet, View } from 'react-native';
 
 import { Icon } from '@/components/icon';
@@ -18,6 +18,7 @@ import { AppText, Button, Card, Chip, InlineMessage, Input, tapFeedback } from '
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
+import { clearMaintenancePhoto, peekMaintenancePhoto } from '@/lib/maintenance-photo';
 import { contacts } from '@/lib/mock-data';
 import { useRequestActions, type MaintenanceCategory, type Urgency } from '@/lib/requests';
 import { trackAction } from '@/lib/usage';
@@ -35,10 +36,11 @@ type Photo = { uri: string; mimeType: string };
 const LOCAL_PHOTO = /^(file|blob|data|content|ph):/i;
 
 /**
- * Pre-filled from the assistant's "Signaler à l’équipe": `/requests/maintenance?description=…&photo=…`
- * plus, when the assistant could tell, `category` and `room` (values of CATEGORIES and ROOMS).
+ * Pre-filled from the assistant's "Signaler à l’équipe": `/requests/maintenance?description=…` plus, when the
+ * assistant could tell, `category` and `room` (values of CATEGORIES and ROOMS). The photo never comes from the
+ * params (a link from outside the app could name any local file): only from handOffMaintenancePhoto.
  */
-type Prefill = { description?: string; photo?: string; category?: string; room?: string };
+type Prefill = { description?: string; category?: string; room?: string };
 
 /** "Signaler un problème": where, what, how urgent, a description and up to 3 photos. */
 export default function MaintenanceScreen() {
@@ -57,9 +59,11 @@ export default function MaintenanceScreen() {
   const [urgency, setUrgency] = useState<Urgency>('normal');
   const [description, setDescription] = useState(() => (prefill.description ?? '').slice(0, 1000));
   // The assistant's photo goes in the list as if it had been picked here (already a resized JPEG).
-  const [photos, setPhotos] = useState<Photo[]>(() =>
-    prefill.photo && LOCAL_PHOTO.test(prefill.photo) ? [{ uri: prefill.photo, mimeType: 'image/jpeg' }] : [],
-  );
+  const [photos, setPhotos] = useState<Photo[]>(() => {
+    const handed = peekMaintenancePhoto();
+    return handed && LOCAL_PHOTO.test(handed) ? [{ uri: handed, mimeType: 'image/jpeg' }] : [];
+  });
+  useEffect(() => clearMaintenancePhoto(), []);
   const [photoNotice, setPhotoNotice] = useState<{ text: string; settings: boolean } | null>(null);
   const [descriptionMissing, setDescriptionMissing] = useState(false);
   const [progress, setProgress] = useState<{ current: number; total: number } | null>(null);

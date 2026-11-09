@@ -35,6 +35,7 @@ type FirstAccessError =
   | 'invalid'
   | 'noMatch'
   | 'tooMany'
+  | 'hasAccount'
   | 'disabled'
   | 'expired'
   | 'tooShort'
@@ -43,7 +44,18 @@ type FirstAccessError =
   | 'network'
   | 'server';
 
-const KNOWN: FirstAccessError[] = ['invalid', 'noMatch', 'tooMany', 'disabled', 'expired', 'tooShort', 'links', 'accessEnded', 'network'];
+const KNOWN: FirstAccessError[] = [
+  'invalid',
+  'noMatch',
+  'tooMany',
+  'hasAccount',
+  'disabled',
+  'expired',
+  'tooShort',
+  'links',
+  'accessEnded',
+  'network',
+];
 const toError = (e: unknown): FirstAccessError | 'incomplete' =>
   e instanceof AppApiError && e.code === 'incomplete'
     ? 'incomplete'
@@ -72,8 +84,8 @@ function maskDate(input: string) {
 /**
  * First access linked to the student's Chez Toi form (owner, 2026-11-09). The student proves who they are with the
  * date of birth and passport number on the form, checks what the form says (a correction goes to the team, never
- * into the site's database), then chooses a password and is signed in. The same path sets a new password for
- * someone who already had access.
+ * into the site's database), then chooses a password and is signed in. Only for accounts without a password yet
+ * (security review, 2026-11-09): someone who already has one gets 'hasAccount' and the way to "forgot password".
  */
 export default function FirstAccessScreen() {
   const theme = useTheme();
@@ -138,7 +150,8 @@ export default function FirstAccessScreen() {
     } catch (e) {
       const code = toError(e);
       setError(code === 'incomplete' ? 'server' : code);
-      if (code === 'expired') setStep('identity');
+      // hasAccount: the account got a password meanwhile; the first step shows the way to "forgot password".
+      if (code === 'expired' || code === 'hasAccount') setStep('identity');
       setLoading(false);
     }
   }
@@ -239,6 +252,9 @@ export default function FirstAccessScreen() {
                   loading={loading}
                   disabled={!email.trim() || birth.length < 10 || !passport.trim()}
                 />
+                {error === 'hasAccount' && (
+                  <OutlineButton icon="key" label={t.login.forgot} onPress={() => router.replace('/forgot-password')} />
+                )}
                 {(error === 'noMatch' || error === 'tooMany' || error === 'disabled' || incomplete) && (
                   <OutlineButton icon="whatsapp" label={t.forgotPassword.whatsapp} onPress={whatsapp} />
                 )}

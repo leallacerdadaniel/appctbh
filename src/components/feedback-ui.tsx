@@ -68,7 +68,8 @@ export function SurveyInvite() {
         ink={theme.star}
         title={due === 'end' ? t.survey.titleEnd : t.survey.titleMid}
         subtitle={t.survey.homeHint}
-        accessory={<RowPill primary label={t.survey.answer} onPress={open} />}
+        // Secondary pill: on Accueil only the rent "Payer" is brand red (UX review 2026-11-09).
+        accessory={<RowPill label={t.survey.answer} onPress={open} />}
       />
     </TintCard>
   );
