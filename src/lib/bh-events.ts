@@ -93,9 +93,19 @@ export function addDays(day: string, n: number) {
   return d.toISOString().slice(0, 10);
 }
 
-/** Last day of the event in BH (the start day when there is no end). */
+/**
+ * Last day of the event in BH: the start day when there is no end, and also for a night out that ends the
+ * next morning (a party from 22h to 5h is "Fri 13 · 10 PM", not "Fri 13 – Sat 14").
+ */
 export function lastDay(e: BhEvent) {
-  return bhDay(e.endsAt ?? e.startsAt);
+  const start = bhDay(e.startsAt);
+  if (!e.endsAt) return start;
+  const end = bhDay(e.endsAt);
+  const overnight =
+    end === addDays(start, 1) &&
+    Date.parse(e.endsAt) - Date.parse(e.startsAt) <= 18 * 3_600_000 &&
+    bhTime(e.endsAt) <= '12:00';
+  return overnight ? start : end;
 }
 
 /** Started before today and still on (a season, an exhibition). */

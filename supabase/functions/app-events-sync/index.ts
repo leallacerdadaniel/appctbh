@@ -525,6 +525,8 @@ const SOURCE_NAMES: [RegExp, string][] = [
   [/(^|\.)bilheteriadigital\.com$/, 'Bilheteria Digital'],
   [/(^|\.)ticketmaster\.com\.br$/, 'Ticketmaster'],
 ];
+// Título que o site põe em qualquer página (não é o nome do evento).
+const GENERIC_TITLE = /^Sympla - Ingressos para Eventos/i;
 // Sites cujos termos proíbem leitura automatizada: o robô não abre, a equipe digita título e data.
 const NO_FETCH = /(^|\.)(instagram\.com|facebook\.com|fb\.me|tiktok\.com|x\.com|twitter\.com|threads\.net|whatsapp\.com)$/;
 
@@ -693,7 +695,10 @@ async function syncLinks(now: string, onlyId?: string): Promise<Report> {
         const html = page.text;
         const ld = fromJsonLd(html);
         const sympla = /(^|\.)sympla\.com\.br$/.test(host) ? fromSympla(html) : null;
-        const ogTitle = meta(html, 'og:title') ?? clean(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]);
+        // A Sympla Bileto (shows de teatro e casas grandes) é um app JavaScript: o HTML só traz o título
+        // genérico do site, sem data. Melhor "needs_info" (a equipe digita) do que gravar "Sympla - Ingressos...".
+        const pageTitle = meta(html, 'og:title') ?? clean(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]);
+        const ogTitle = pageTitle && !GENERIC_TITLE.test(pageTitle) ? pageTitle : null;
         const ogImage = meta(html, 'og:image');
         found = {
           title: sympla?.title ?? ld?.title ?? ogTitle,

@@ -53,6 +53,8 @@ próprio artefato).
   Para marcar uma encomenda como chegada enquanto o painel não tem a tela: `update app_packages set status='arrived'`.
   013 agenda de BH: `app_bh_events` (robô `app-events-sync` todo dia 06:15, fontes em `docs/pesquisa/agenda-bh.md`),
   `app_bh_event_links` (links colados pela equipe: Sympla, 2LIV, Raro, Belotur); esconder evento com `hidden = true`.
+  Link da Sympla Bileto (`bileto.sympla.com.br`) não traz dados no HTML: digitar `title`, `starts_at` e `venue` no link.
+  Primeira curadoria (26 eventos da Sympla; a 2LIV não tinha nada à venda) em `docs/pesquisa/agenda-bh.md` 7.10.
   A conta de teste fica no `.env.local` (fora do Git).
 - **Produção:** banco do site (`miucfiiporxhvvbefonh`), função `bright-service` (a `app-api` do Arthur) e
   tabelas `app_*`. **Nunca escrever no banco do site** sem aprovação do Daniel: lá só leitura do catálogo.
