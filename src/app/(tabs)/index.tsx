@@ -97,6 +97,23 @@ export default function HomeScreen() {
           <Icon name="profile" size={16} color={theme.onBrand} />
         </PressableScale>
       </View>
+      {/* The assistant, one tap from launch (owner, 2026-11-08: "dar um acesso melhor para a IA"). */}
+      <PressableScale
+        accessibilityRole="button"
+        accessibilityLabel={`${t.home.ask}. ${t.home.askHint}`}
+        onPress={() => router.push('/assistant' as Href)}
+        style={[styles.ask, Shadow.card, { backgroundColor: theme.surface }]}>
+        <View style={[styles.askIcon, { backgroundColor: theme.fill }]}>
+          <Icon name="assistant" size={20} color={theme.brand} />
+        </View>
+        <View style={{ flex: 1, gap: 2 }}>
+          <AppText style={{ fontFamily: Fonts.bodyMedium }}>{t.home.ask}</AppText>
+          <AppText variant="caption" color={theme.textSecondary}>
+            {t.home.askHint}
+          </AppText>
+        </View>
+        <Icon name="chevronRight" size={15} color={theme.textTertiary} />
+      </PressableScale>
       <HeroCard
         photo={{ uri: apartment.photoUrl ?? '' }}
         label={t.home.yourHome}
@@ -252,6 +269,8 @@ export default function HomeScreen() {
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 const styles = StyleSheet.create({
+  ask: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, padding: Spacing.md, borderRadius: Radius.lg },
+  askIcon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   greeting: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, marginBottom: -Spacing.sm },
   profile: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   listCard: { paddingVertical: 0 },
