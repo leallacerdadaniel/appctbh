@@ -28,6 +28,9 @@ próprio artefato).
 | 1 | Acessos e ambiente | Quase: Lovable, Supabase (admin) e GitHub do site liberados; falta a homologação e levar a branch para a `main` |
 | 2, 3, 5, 7, 8, 11 | Banco, login, apartamento, faxinas, contas da casa, lugares | **Em parte pelo Arthur (27/10 a 07/11)**: `app-api` + tabelas `app_*`; caixas marcadas no plano em 08/11 |
 | 6 | Pedidos e extras | **Pronta no desenvolvimento (08/11/2026)**: branch `onda-6-pedidos`, função `app-requests` e tabelas `app_requests*` só no `appctbh` |
+| 5, 7, 9 (parte) | Pix, tarefas da casa, sino de avisos | **Prontos no desenvolvimento (08/11/2026)**: função `app-house`, tabelas `app_chores*`, `app_notices*`, `app_payment_info`, `app_devices` |
+| 16 | Assistente de IA | **Pronto no desenvolvimento (08/11/2026)**: função `app-assistant` (Claude Opus 5.5, esforço baixo); falta o segredo `ANTHROPIC_API_KEY` no `appctbh` |
+| 4 (parte) | Painel: preços dos extras | Branch local `app/catalogo-extras` no repositório do site, sem push e sem teste no navegador |
 | 4, 9, 10, 12 a 18 | Painel, avisos, chegada, emergência, línguas, comunidade, lojas | Não iniciadas |
 
 ## Onde mora cada coisa (08/11/2026)
@@ -44,6 +47,15 @@ próprio artefato).
 - O conector Supabase desta conta escreve nos dois projetos: conferir o `project_id` antes de cada
   `apply_migration`, `execute_sql` ou `deploy_edge_function`.
 - O app fala só com a `app-api` (`src/lib/app-api.ts`), endereço em `EXPO_PUBLIC_APP_API_URL` no `.env.local`.
+- Navegação por tarefa (aprovada em 08/11/2026): abas Accueil, Maison, Chez Toi, Agenda e BH; SOS à
+  esquerda e sino à direita da barra vermelha nas abas.
+- Funções do app no `appctbh`: `app-api` (login e dados, com a correção da data de saída),
+  `app-requests`, `app-house`, `app-assistant`. Todas usam o mesmo token; o app chega a elas por
+  `houseApi`, `requestsApi`, `assistantApi` em `src/lib/app-api.ts`.
+- Base de conhecimento da IA: `node scripts/assistant/build.mjs` gera
+  `supabase/functions/app-assistant/knowledge.ts`; rodar de novo e republicar quando regras ou guia mudarem.
+- O site tem o banco de produção fixo no código (`src/integrations/supabase/client.ts`): rodar o site
+  localmente mexe em produção.
 - O trabalho em modo local de 06/11 (extras e pedidos, fatura com extras, lembretes, agenda, tarefas da casa)
   está na branch `arquivo/modo-local-0611`, para portar sobre a `app-api`, uma onda por vez.
 
