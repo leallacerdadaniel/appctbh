@@ -17,6 +17,7 @@ import { canRate, formatLongDate, pastCleanings, upcomingCleanings } from '@/lib
 import { useBalanceLabel, useExpenses } from '@/lib/expenses';
 import { formatTime, shortAddress } from '@/lib/format';
 import { useHome, useHomeState } from '@/lib/home';
+import { usePackages, usePackagesStatus, useVisitors, useVisitorsStatus } from '@/lib/house-social';
 import { trackAction } from '@/lib/usage';
 
 /**
@@ -35,6 +36,10 @@ export default function MaisonScreen() {
   const { reload: reloadChores } = useChores();
   const balance = useBalanceLabel();
   const choreStatus = useChoreStatus();
+  const { reload: reloadVisitors } = useVisitors();
+  const { reload: reloadPackages } = usePackages();
+  const visitorsStatus = useVisitorsStatus();
+  const packagesStatus = usePackagesStatus();
 
   async function copy(value: string, message: string) {
     await Clipboard.setStringAsync(value);
@@ -54,7 +59,7 @@ export default function MaisonScreen() {
     <Screen
       title={t.tabs.maison}
       subtitle={t.maison.subtitle}
-      onRefresh={() => Promise.all([refresh(), reloadExpenses(), reloadChores()])}>
+      onRefresh={() => Promise.all([refresh(), reloadExpenses(), reloadChores(), reloadVisitors(), reloadPackages()])}>
       <Section title={t.maison.daily} subtitle={t.maison.dailyHint}>
         <Card style={styles.listCard}>
           <ListGroup inset>
@@ -132,6 +137,23 @@ export default function MaisonScreen() {
             title={t.apartment.rules.title}
             status={t.apartment.rules.tileStatus}
             onPress={() => router.push('/apartment/rules')}
+          />
+        </HubGrid>
+      </Section>
+
+      <Section title={t.houseSocial.section} subtitle={t.houseSocial.sectionHint}>
+        <HubGrid>
+          <HubTile
+            emoji="🚪"
+            title={t.houseSocial.visitors.tile}
+            status={visitorsStatus || t.houseSocial.visitors.tileEmpty}
+            onPress={() => router.push('/house/visitors' as Href)}
+          />
+          <HubTile
+            emoji="📦"
+            title={t.houseSocial.packages.tile}
+            status={packagesStatus || t.houseSocial.packages.tileEmpty}
+            onPress={() => router.push('/house/packages' as Href)}
           />
         </HubGrid>
       </Section>

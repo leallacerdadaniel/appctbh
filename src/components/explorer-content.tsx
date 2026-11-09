@@ -28,28 +28,32 @@ import {
   type TripType,
 } from '@/lib/travel';
 
-type Segment = 'bh' | Region | 'events';
+export type ExplorerSegment = 'bh' | Region | 'events';
+type Segment = ExplorerSegment;
 const SEGMENTS: Segment[] = ['bh', 'mg', 'br', 'sa', 'events'];
 const TRIPS: TripType[] = ['daytrip', 'weekend', 'long', 'holiday'];
 
 /**
- * "Explorer" segment of the BH tab: BH attractions, Minas escapes, trips across Brazil and South America,
- * events and festivals. Stage 1 of the BH tab (2026-11-08): the old Explorer tab's body, unchanged.
+ * BH attractions, Minas escapes, trips across Brazil and South America, events and festivals.
+ * v3 (2026-11-08): the Explorer tab's categories show a subset (`segments`): Culture = BH, Voyages = the
+ * three regions, Sortir = events. The segmented control only shows with more than one segment.
  */
-export function ExplorerContent() {
+export function ExplorerContent({ segments = SEGMENTS }: { segments?: Segment[] }) {
   const { t } = useI18n();
-  const [segment, setSegment] = useState<Segment>('bh');
+  const [segment, setSegment] = useState<Segment>(segments[0]);
 
   return (
     <>
-      <SegmentedControl
-        options={SEGMENTS.map((x) => ({ value: x, label: t.explore.segments[x] }))}
-        value={segment}
-        onChange={(next) => {
-          trackAction('explorer_tab', next);
-          setSegment(next);
-        }}
-      />
+      {segments.length > 1 && (
+        <SegmentedControl
+          options={segments.map((x) => ({ value: x, label: t.explore.segments[x] }))}
+          value={segment}
+          onChange={(next) => {
+            trackAction('explorer_tab', next);
+            setSegment(next);
+          }}
+        />
+      )}
       {segment === 'bh' ? <BhAttractions /> : segment === 'events' ? <Events /> : <Trips region={segment} />}
     </>
   );

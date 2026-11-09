@@ -155,7 +155,7 @@ h2{font-family:var(--display);font-weight:400;font-size:clamp(24px,3.4vw,32px);l
     <p class="logo"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 15.5 16 6l11 9.5V27a1 1 0 0 1-1 1h-6.5v-7.5h-7V28H6a1 1 0 0 1-1-1z" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/></svg>Chez Toi BH</p>
     <h1>Do app demo ao app que nenhum estudante quer largar</h1>
     <p class="lead">Dezenove ondas, na ordem em que as dependências mandam. O painel mora no site da Chez Toi e alimenta o perfil de cada morador; o app lê o mesmo banco. Marque as caixas conforme andar: o que você marcar fica salvo para todo mundo que abrir este link.</p>
-    <div class="meta"><span>Expo SDK 58 e Expo Router</span><span>Supabase da Chez Toi</span><span>Painel no site (Lovable)</span><span>iOS e Android</span><span id="atualizado">Atualizado em 08/11/2026 às 22:30</span></div>
+    <div class="meta"><span>Expo SDK 58 e Expo Router</span><span>Supabase da Chez Toi</span><span>Painel no site (Lovable)</span><span>iOS e Android</span><span id="atualizado">Atualizado em 09/11/2026 às 00:53</span></div>
     <!-- span#atualizado: dia e hora da última atualização deste arquivo, horário de Brasília.
          Toda vez que este HTML mudar, o carimbo muda junto, antes de republicar. -->
   </div>
@@ -204,7 +204,7 @@ h2{font-family:var(--display);font-weight:400;font-size:clamp(24px,3.4vw,32px);l
       <div class="dl"><code>R13</code><b>Agenda da limpeza</b><span class="tag ok">Real</span><p>Uma lista datada com a próxima visita marcada e o horário de cada faxina vindo do site. Faxina antes da chegada aparece no Início.</p></div>
       <div class="dl"><code>R14</code><b>Regras da casa e do prédio</b><span class="tag ok">Real</span><p>Regras da Cartilha 2 com títulos curtos, e uma tela de lixo com texto por língua e fotos do admin.</p></div>
       <div class="dl"><code>R15</code><b>Inventário e vistoria</b><span class="tag meio">Parcial</span><p>Check-in e check-out com data da entrega e devolução das chaves, quem recebeu e o laudo assinado (abrir e baixar). Inventário ainda não: onda 5.</p></div>
-      <div class="dl"><code>R16</code><b>Onboarding no Brasil</b><span class="tag meio">Parcial</span><p>CPF e RNM passo a passo, conferidos em fontes oficiais em 24/10/2026; bancos, Uber e 99 no guia. Faltam chip e câmbio. Onda 10.</p></div>
+      <div class="dl"><code>R16</code><b>Onboarding no Brasil</b><span class="tag meio">Parcial</span><p>CPF e RNM passo a passo, conferidos em fontes oficiais em 24/10/2026. Desde 08/11/2026 (desenvolvimento): "Premiers pas au Brésil" com os apps e o porquê de cada um, e a lista de chegada no Início. Faltam chip e câmbio. Onda 10.</p></div>
       <div class="dl"><code>R17</code><b>Várias línguas</b><span class="tag ok">Pronto</span><p>Francês e inglês, com a escolha guardada. Mais línguas: onda 13.</p></div>
       <div class="dl"><code>R18</code><b>Botão de emergência</b><span class="tag meio">Parcial</span><p>Tela com 192, 190, 193, hospitais e WhatsApp. Sem alerta para a equipe nem localização. Onda 12.</p></div>
       <div class="dl"><code>R19</code><b>Barbeiros e manicures perto da SKEMA</b><span class="tag meio">Parcial</span><p>Os lugares existem no guia de beleza, sem filtro pela distância da SKEMA. Onda 11.</p></div>
@@ -232,12 +232,14 @@ h2{font-family:var(--display);font-weight:400;font-size:clamp(24px,3.4vw,32px);l
       <div class="risco"><span class="cod">DECISÃO-2 · Dados sensíveis</span><b>Passaporte, visto e RNM de estrangeiros</b><p>Documentos do morador são dado pessoal sob a LGPD. Ficam em bucket privado, com link que expira, e somem quando a estadia acaba mais o prazo combinado. Isso entra no esquema da onda 2, não depois.</p></div>
       <div class="risco"><span class="cod">DECISÃO-3 · Pagamento</span><b>Mostrar como pagar, não cobrar pelo app</b><p>Aluguel é serviço físico, então a loja não exige compra dentro do app. O app mostra o valor, o vencimento e o Pix da Chez Toi, e o painel marca o que foi pago. <b>Decidido em 06/11/2026:</b> os serviços extras pedidos no app acumulam na conta do mês e são faturados junto com o aluguel; a Chez Toi adianta o custo.</p></div>
       <div class="risco"><span class="cod">DESCOBERTA-1 · corrigida em 08/11/2026</span><b>As tabelas <code>app_*</code> são o backend do app do Arthur</b><p>Os commits de 27/10 a 05/11 mostram: o Arthur criou as tabelas <code>app_*</code> e a função <code>app-api</code> (publicada como <code>bright-service</code>) <b>direto no banco do site</b>, com as migrações guardadas no repositório do app (<code>supabase/migrations</code>), não no do site. Tudo com prefixo <code>app_</code>, só acrescentando. O login do app é próprio (<code>app_students</code>), separado das contas do site. Ainda há um gatilho no site que refaz mensalidades e faxinas quando o grupo muda: o app nunca escreve em <code>rental_tenants</code> nem <code>apartment_rentals</code>. Mapa em <code>docs/onda-2/mapa-banco-do-site.md</code>.</p></div>
-      <div class="risco"><span class="cod">DECISÃO-5 · 08/11/2026</span><b>Navegação por tarefa</b><p>Aprovada pelo dono: Início (só o que pede ação), Maison (casa e colegas), Chez Toi (pedir, pagar, contrato, ajuda), Agenda e BH (Guide e Explorer juntos). SOS à esquerda e sino à direita da barra vermelha nas abas. Etapa 1 pronta no desenvolvimento; a etapa 2 funde de vez Guide e Explorer numa busca só.</p></div>
+      <div class="risco"><span class="cod">DECISÃO-5 · 08/11/2026, revista às 23h</span><b>Navegação pelo que o aluno mais usa</b><p>Primeiro aprovada por tarefa (Início, Maison, Chez Toi, Agenda e BH). Na mesma noite o dono aprovou a <b>versão 3</b>, "mix do Airbnb com o Revolut": abas <b>Accueil · Explorer · Assistente no centro · Maison · Séjour</b>. O Início muda com o momento (chegada com foto e lista de 5 passos; no dia a dia, endereço com Uber e 99, atalhos, "Ce soir à BH" e a semana da casa); o aluguel só aparece 3 dias antes do dia 5 ou atrasado. A Explorer junta Guide e Explorer com a busca que também pergunta à IA e categorias como no Airbnb (a etapa 2). A Agenda virou página aberta pelo Início. Pronto no desenvolvimento; desenho em <code>claude.ai/artifact/F8BRwXetJgskUp4xuh6nLj</code>.</p></div>
       <div class="risco"><span class="cod">DESCOBERTA-2 · 08/11/2026</span><b>O site sempre aponta para o banco de produção</b><p>O cliente do Supabase no código do site tem o endereço e a chave de produção fixos (não lê variáveis de ambiente). Rodar o site localmente para testar o painel mexe no banco do site. A aba de preços foi feita numa branch local sem testar no navegador; para testar contra o <code>appctbh</code> é preciso, antes, o site ler o endereço de uma variável.</p></div>
       <div class="risco"><span class="cod">DEFEITO-1 · corrigido no desenvolvimento</span><b>A data de saída nunca aparecia no app</b><p>A <code>app-api</code> buscava a saída pelo id do inquilino, mas o site guarda pelo id da pessoa (157 de 157 saídas). Corrigido e publicado no <code>appctbh</code> em 08/11/2026; a função de produção (<code>bright-service</code>) espera aprovação.</p></div>
       <div class="risco"><span class="cod">DECISÃO-4 · Banco do site</span><b>Proteger o banco que roda o site</b><p>Pedido de 06/11/2026: nada do app pode afetar o site. <b>Situação em 08/11/2026:</b> o backend do app já está em produção, só com tabelas <code>app_*</code> novas. O projeto <code>appctbh</code> (<code>gxhvhacqemdwwebsftcd</code>) é o banco de desenvolvimento: estrutura copiada do site pelo catálogo, sem dado de aluno, com a <code>app-api</code> e dados fictícios. Tudo novo nasce lá e só vai para o banco do site depois de aprovado. Recomendação: <b>um banco só</b> (não um segundo banco de produção, que duplicaria login e contrato), com um projeto de <b>homologação</b> clonado do banco do site (<code>miucfiiporxhvvbefonh</code>) só na estrutura, sem os dados reais dos alunos, montado a partir das migrações do repositório do site, <b>só leitura</b> no banco do site no começo, as tabelas do app num schema separado (<code>app</code>) que só acrescenta, e <b>backup</b> antes da primeira migração aprovada.</p></div>
       <div class="risco"><span class="cod">TÉCNICO-1 · Wifi</span><b>Conectar com um toque existe, mas o sistema sempre confirma</b><p>No iPhone o app usa a configuração de hotspot da Apple, que pede uma permissão no build e mostra "Entrar na rede?" na primeira vez; no Android 10 ou mais novo o sistema também pede um toque de confirmação. Nenhum dos dois funciona no Expo Go, por isso o copiar a senha continua como plano B.</p></div>
       <div class="risco"><span class="cod">TÉCNICO-2 · Agenda</span><b>Dois jeitos de sincronizar, e o plano usa os dois</b><p>Gravar os eventos direto na agenda do celular funciona na hora, mas só naquele aparelho e só quando o app abre. O link de assinatura (.ics) se atualiza sozinho em qualquer agenda, até no computador, mas o Google demora horas para reler. O app grava o que é urgente e oferece o link para o resto.</p></div>
+      <div class="risco"><span class="cod">PESQUISA-1 · Agenda de BH</span><b>Sem API pronta: curadoria no painel, dados abertos e parceiros</b><p>Pesquisa de 08/11/2026 em <code>docs/pesquisa/agenda-bh.md</code>. Os dados abertos da PBH (CKAN, licença CC-BY) só trazem eventos licenciados, sem descrição nem foto. A agenda da Belotur é a melhor fonte, mas só existe em HTML e com todos os direitos reservados: é preciso pedir um feed ou autorização. Eventbrite fechou a busca pública; a API da Sympla é só para o produtor. Caminho: tabela <code>app_events</code> com curadoria da equipe no painel, importação das fontes permitidas e entrada manual. <b>Feito em 09/11/2026 (desenvolvimento):</b> Palácio das Artes (termos permitem reuso com crédito), CCBB BH (sitemap público) e dados abertos lidos todo dia; Sympla, 2LIV e Raro por link colado; primeira leitura trouxe 25 eventos.</p></div>
+      <div class="risco"><span class="cod">PESQUISA-2 · Saúde</span><b>A seção Saúde depende de a equipe confirmar 8 pontos</b><p>Pesquisa de 08/11/2026 em <code>docs/pesquisa/saude-bh.md</code>. O SUS atende estrangeiros (Lei 8.080); os hospitais privados perto de Savassi e Funcionários não publicam se aceitam seguro internacional, então o aluno costuma pagar e pedir reembolso. Endereços, horários de UPA e farmácias 24h, e o que o seguro da SKEMA cobre, precisam ser conferidos pela equipe antes de ir para o app.</p></div>
       <div class="risco"><span class="cod">AMBIENTE-1 · Xcode</span><b>Simulador funcionando (08/11/2026)</b><p>O iPhone 18 Pro com iOS 27.0 sobe; o Simulator.app continua fora do Xcode, então o app abre por <code>xcrun simctl openurl</code>. O app precisa de <code>EXPO_PUBLIC_APP_API_URL</code> num <code>.env.local</code> (fora do Git) apontando para a <code>bright-service</code>. O app roda no Expo Go 58 no iPhone 18 Pro. Push exige um build de desenvolvimento (onda 9).</p></div>
     </div>
     <div class="nota">
@@ -353,7 +355,8 @@ const ONDAS = [
      "Inventário do apartamento e laudo de vistoria de entrada, com fotos",
      "Meus documentos: passaporte, visto, RNM, CPF e seguro, com validade",
      "Situação da caução e o que é descontado na saída<span class=\"prop\">proposta</span>",
-     "Colegas de apartamento com contato"
+     "Colegas de apartamento com contato",
+     "Regras da casa obrigatórias no primeiro acesso, no estilo da introdução do Quittr: uma regra por tela e o aluno segura o botão para se comprometer; o aceite fica no banco com a data e a versão (pedido de 08/11/2026, pronto no desenvolvimento)"
    ],
    pronto:"nenhum dado da aba Apartamento é inventado, mudar no painel muda no app, e um toque no wifi conecta o celular à rede."},
 
@@ -369,7 +372,8 @@ const ONDAS = [
      "Late checkout e early check-in, com regra de antecedência e resposta da equipe",
      "Reserva do espaço gourmet onde o prédio tiver, com calendário e regras",
      "Painel: fila com prazo, responsável e resposta",
-     "Vistoria de saída com fotos, comparada com a de entrada<span class=\"prop\">proposta</span>"
+     "Vistoria de saída com fotos, comparada com a de entrada<span class=\"prop\">proposta</span>",
+     "Visitas na portaria: o aluno cadastra o convidado (nome e dia) e avisa a portaria por WhatsApp com a mensagem pronta em português (pronto no desenvolvimento em 09/11/2026)"
    ],
    pronto:"o pedido feito no app aparece no painel, e a resposta da equipe volta ao app."},
 
@@ -380,7 +384,8 @@ const ONDAS = [
      "Escala de tarefas entre moradores (lixo, louça, compras), com rodízio automático",
      "Trocar a vez com um colega",
      "Lista do que a faxina precisa (já existe) ligada ao apartamento certo",
-     "Escala e contas da casa juntas: quem fez as compras lança a despesa ali mesmo"
+     "Escala e contas da casa juntas: quem fez as compras lança a despesa ali mesmo",
+     "Quem faz a faxina: nome e telefone da profissional de cada apartamento, com WhatsApp já em português; o telefone só aparece se ela autorizar (pedido de 08/11/2026, pronto no desenvolvimento)"
    ],
    pronto:"cada morador vê no calendário a próxima faxina e a vez dele nas tarefas."},
 
@@ -409,12 +414,14 @@ const ONDAS = [
      "Lembretes automáticos: aluguel (3 dias antes e no dia), limpeza, check-out, documento vencendo e prazo do RNM",
      "Lembretes pessoais criados pelo próprio aluno",
      "Comunicado do painel vira push e fica guardado na central de avisos",
-     "Preferências: o que receber e em que língua"
+     "Preferências: o que receber e em que língua",
+     "Encomendas: o aluno avisa o que espera, a equipe marca \"chegou na portaria\" e o aviso cai no sino (pronto no desenvolvimento em 09/11/2026; falta a tela da equipe no painel)",
+     "Widget na tela de bloqueio e na tela inicial: senha do wifi, endereço, próxima faxina, minha tarefa e o atalho \"voltar pra casa\" (Uber) (aprovado em 08/11/2026; precisa do build de desenvolvimento desta onda, não roda no Expo Go)"
    ],
    pronto:"um comunicado enviado pelo painel chega no celular do aluno em segundos, e a faxina remarcada no painel muda sozinha na agenda do celular dele."},
 
   {n:10, fase:"Fase 3 · Viver BH", t:"Chegada ao Brasil", tags:[["app","app"],["painel","conteúdo"]],
-   por:"A primeira semana decide como o aluno vê a Chez Toi. Tudo o que hoje é entregue em papel e por QR code vai para o app, e funciona sem internet.",
+   por:"A primeira semana decide como o aluno vê a Chez Toi. Tudo o que hoje é entregue em papel e por QR code vai para o app, e funciona sem internet. <em>Em parte no desenvolvimento em 08/11/2026:</em> o Início da chegada (foto do bairro e 5 passos com progresso: wifi, endereço, apps, colegas e regras) e a tela \u201cPremiers pas au Brésil\u201d (apps e papéis). As caixas ficam abertas até ir para produção.",
    itens:[
      "A cartilha que a Chez Toi entrega pessoalmente, igual, dentro do app e sem precisar de sinal",
      "O PDF de hoje (QR code) disponível no app, e o QR apontando sempre para a versão atual",
@@ -423,7 +430,10 @@ const ONDAS = [
      "Pré-chegada: voo, horário, quem recebe e envio dos documentos antes de viajar<span class=\"prop\">proposta</span>",
      "Como entrar no apartamento: chave, portaria, código e vídeo do caminho<span class=\"prop\">proposta</span>",
      "Declaração de residência em PDF, pedida para RNM, banco e chip<span class=\"prop\">proposta</span>",
-     "Frases úteis em português, com áudio<span class=\"prop\">proposta</span>"
+     "Frases úteis em português, com áudio (aprovado em 08/11/2026: vira o aprendizado de português da onda 13)",
+     "Apps essenciais com o porquê de cada um e o link da loja: WhatsApp, Mercado Livre, gov.br, Uber, 99, Moovit, iFood, Rappi, Zé Delivery, Duo Gourmet, Wise, Revolut, bancos, Araujo, Mater Dei, Wellhub, Sympla e Eventim (pedido de 08/11/2026, pronto no desenvolvimento)",
+     "Funciona sem internet: os últimos dados ficam no celular e o app abre sem conexão, com a data das informações (pronto no desenvolvimento em 09/11/2026)",
+     "Tour do app com a Charlotte no primeiro acesso, depois das regras: uma parte por vez, com \"Passer\" sempre visível e refazer em Séjour › Aide (pedido de 09/11/2026, pronto no desenvolvimento)"
    ],
    pronto:"um aluno que acabou de pousar resolve chip, CPF e Pix só com o app."},
 
@@ -436,7 +446,8 @@ const ONDAS = [
      "Link direto para o Google Maps com a rota a partir de casa",
      "Como chegar na SKEMA: ônibus, a pé e Uber<span class=\"prop\">proposta</span>",
      "Calendário acadêmico da SKEMA junto dos feriados<span class=\"prop\">proposta</span>",
-     "Indicações da equipe (\"must go\") publicadas pelo painel"
+     "Indicações da equipe (\"must go\") publicadas pelo painel",
+     "Agenda de BH automática: robô diário que lê o Palácio das Artes, o CCBB BH e os dados abertos da PBH (só o que os termos permitem, com link para a fonte) e os links que a equipe colar (Sympla, 2LIV, Raro); carrossel \"Cette semaine à BH\" na Explorer e página com filtros (pronto no desenvolvimento em 09/11/2026; falta a Belotur autorizar e a tela de links no painel)"
    ],
    pronto:"a equipe acrescenta um restaurante no painel e ele aparece no app sem nova versão."},
 
@@ -448,7 +459,9 @@ const ONDAS = [
      "Mandar a localização para a Chez Toi pelo WhatsApp",
      "Seguro saúde do aluno e hospitais que aceitam",
      "Aviso no painel quando o botão é usado",
-     "Testado com o celular sem internet"
+     "Testado com o celular sem internet",
+     "Seção Saúde: urgências, onde ir (UPA, hospitais, farmácias 24h), receita no Brasil, seguro e reembolso, saúde mental e vacinas (pedido de 08/11/2026; PESQUISA-2, publicar só o que a equipe confirmar)",
+     "Roubaram meu celular: feito para o colega ajudar no celular dele (9 passos com fontes oficiais: bloquear o aparelho e o chip, bancos e Pix, boletim online de MG, Cbloc, WhatsApp, avisar a Chez Toi) e o preparo \"antes que aconteça\" (pronto no desenvolvimento em 09/11/2026; conferir o número da Vivo)"
    ],
    pronto:"em três toques o aluno liga para o serviço certo, e a equipe fica sabendo."},
 
@@ -458,7 +471,8 @@ const ONDAS = [
      "Decidir as línguas: candidatas português e espanhol",
      "Textos do app num lugar só, com teste que acusa tradução faltando",
      "Cartilha, regras e guia com versão por língua no painel",
-     "Datas, moeda e números no formato da língua escolhida"
+     "Datas, moeda e números no formato da língua escolhida",
+     "Aprender português no app, no estilo Duolingo: frases por situação (Uber, bar, farmácia, festa) com áudio, lição curta, frase do dia e sequência de dias; a IA responde \"como se diz\" (pedido de 08/11/2026, em construção)"
    ],
    pronto:"trocar a língua troca o app inteiro, inclusive o que vem do painel."},
 
@@ -470,7 +484,9 @@ const ONDAS = [
      "Pesquisa de satisfação no meio e no fim da estadia",
      "Indique um amigo: código pessoal, acompanhamento no painel e recompensa definida pela Chez Toi",
      "Avaliação de saída que vira depoimento, com autorização do aluno<span class=\"prop\">proposta</span>",
-     "Reservar o próximo semestre direto do app<span class=\"prop\">proposta</span>"
+     "Reservar o próximo semestre direto do app<span class=\"prop\">proposta</span>",
+     "Espaço dos pais: cartão para a família com endereço, contato da Chez Toi, emergência e datas, enviado pelo compartilhar do celular (pronto no desenvolvimento em 09/11/2026); o link com página própria depende de uma página no site",
+     "Retrospectiva mensal no estilo do Spotify (e a do semestre no fim): lugares descobertos, dias em BH e fora, cidades, bairro preferido, português aprendido e as fotos do mês, com cartão para o story do Instagram. Lugares pela localização do celular (só com permissão, guardada só no aparelho) e pelas fotos que o aluno escolhe (pedido de 09/11/2026, pronto no desenvolvimento em 09/11/2026; o registro em segundo plano precisa do build da onda 9)"
    ],
    pronto:"o painel mostra a nota de cada serviço e quantas indicações viraram contrato."},
 
@@ -482,7 +498,9 @@ const ONDAS = [
      "Eventos da Chez Toi com confirmação de presença",
      "Desapego entre turmas: o que fica para o próximo semestre<span class=\"prop\">proposta</span>",
      "Conversa com ex-moradores da mesma escola<span class=\"prop\">proposta</span>",
-     "Denunciar e bloquear (exigência das lojas para conteúdo de usuário)"
+     "Denunciar e bloquear (exigência das lojas para conteúdo de usuário)",
+     "Viagens em grupo: um aluno propõe destino e datas, os outros entram, e o app intermedia transporte e hospedagem com parceiros da Chez Toi (pedido de 08/11/2026)",
+     "Perfil de cada morador: escola, cidade, línguas, Instagram e uma frase, visível para os colegas só se o aluno ligar a opção (pronto no desenvolvimento em 09/11/2026)"
    ],
    pronto:"a equipe publica um evento e vê quem confirmou, e qualquer post pode ser denunciado."},
 
@@ -492,7 +510,9 @@ const ONDAS = [
      "Assistente de IA que responde nas línguas do app, só com o conteúdo da Chez Toi",
      "Diz quando não sabe e abre conversa com a equipe",
      "Conversa com a equipe dentro do app, respondida pelo painel",
-     "Custo medido por pergunta, com limite por aluno"
+     "Custo medido por pergunta, com limite por aluno",
+     "Foto do problema: o aluno fotografa (por exemplo, o chuveiro queimado), a IA aponta o defeito provável, o que dá para conferir com segurança e abre o chamado já com a foto (pedido de 08/11/2026, em construção)",
+     "Charlotte: nome e rosto da assistente (a mascote vermelha de boina), na barra, no cabeçalho e no chat (aprovado em 08/11/2026, pronto no desenvolvimento)"
    ],
    pronto:"\"qual a senha do wifi?\" e \"como tiro o CPF?\" respondidos certo, em francês, às 3 da manhã."},
 

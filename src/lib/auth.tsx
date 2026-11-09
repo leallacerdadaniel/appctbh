@@ -76,6 +76,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   function signOut() {
     setLastPassword(null);
+    // The offline copy of the student's data (lib/home.tsx) leaves with the session.
+    AsyncStorage.removeItem('ctbh.home.cache.v1').catch(() => {});
     update(signedOut);
   }
 

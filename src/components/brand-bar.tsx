@@ -3,6 +3,7 @@ import { router, type Href } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { FocusStatusBar } from '@/components/focus-status-bar';
 import { Icon } from '@/components/icon';
 import { AppText, PressableScale } from '@/components/ui';
 import { Fonts, MaxContentWidth, Radius, Spacing, TapTarget } from '@/constants/theme';
@@ -30,6 +31,7 @@ export function BrandBar({
 
   return (
     <View style={{ backgroundColor: theme.brand, paddingTop: insets.top }}>
+      <FocusStatusBar style="light" />
       <View style={styles.bar}>
         {/* Logo centered on the bar itself, whatever the side contents are. */}
         <View pointerEvents="none" style={styles.logoSlot}>

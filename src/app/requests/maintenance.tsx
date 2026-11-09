@@ -1,5 +1,6 @@
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
+import { useLocalSearchParams } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Linking, Pressable, StyleSheet, View } from 'react-native';
 
@@ -30,6 +31,14 @@ const MAX_PHOTOS = 3;
 const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/heic', 'image/heif', 'image/webp'];
 
 type Photo = { uri: string; mimeType: string };
+/** Photos handed over by the assistant are local files (JPEG in the cache folder, or a blob on web). */
+const LOCAL_PHOTO = /^(file|blob|data|content|ph):/i;
+
+/**
+ * Pre-filled from the assistant's "Signaler à l’équipe": `/requests/maintenance?description=…&photo=…`
+ * plus, when the assistant could tell, `category` and `room` (values of CATEGORIES and ROOMS).
+ */
+type Prefill = { description?: string; photo?: string; category?: string; room?: string };
 
 /** "Signaler un problème": where, what, how urgent, a description and up to 3 photos. */
 export default function MaintenanceScreen() {
@@ -39,12 +48,18 @@ export default function MaintenanceScreen() {
   const { t } = useI18n();
   const r = t.requests;
   const { create, uploadPhoto } = useRequestActions();
+  const prefill = useLocalSearchParams<Prefill>();
 
-  const [room, setRoom] = useState<Room>();
-  const [category, setCategory] = useState<MaintenanceCategory>();
+  const [room, setRoom] = useState<Room | undefined>(() => ROOMS.find((k) => k === prefill.room));
+  const [category, setCategory] = useState<MaintenanceCategory | undefined>(() =>
+    CATEGORIES.find((k) => k === prefill.category),
+  );
   const [urgency, setUrgency] = useState<Urgency>('normal');
-  const [description, setDescription] = useState('');
-  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [description, setDescription] = useState(() => (prefill.description ?? '').slice(0, 1000));
+  // The assistant's photo goes in the list as if it had been picked here (already a resized JPEG).
+  const [photos, setPhotos] = useState<Photo[]>(() =>
+    prefill.photo && LOCAL_PHOTO.test(prefill.photo) ? [{ uri: prefill.photo, mimeType: 'image/jpeg' }] : [],
+  );
   const [photoNotice, setPhotoNotice] = useState<{ text: string; settings: boolean } | null>(null);
   const [descriptionMissing, setDescriptionMissing] = useState(false);
   const [progress, setProgress] = useState<{ current: number; total: number } | null>(null);

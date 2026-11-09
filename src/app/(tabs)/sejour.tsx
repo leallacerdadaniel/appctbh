@@ -1,5 +1,5 @@
 import { router, type Href } from 'expo-router';
-import { StyleSheet } from 'react-native';
+import { Share, StyleSheet } from 'react-native';
 
 import { ListGroup, ListRow } from '@/components/list';
 import {
@@ -18,7 +18,11 @@ import { formatCents, formatDate, formatMoney, isFutureMonth } from '@/lib/forma
 import { useHandovers } from '@/lib/handovers';
 import { useHome, useHomeState } from '@/lib/home';
 import { isOpen, upcomingCharges, useRequests } from '@/lib/requests';
+import { contacts } from '@/lib/mock-data';
+import { useTour } from '@/lib/tour';
 import { openWhatsApp } from '@/lib/whatsapp';
+import { fullAddress } from '@/components/home-v3';
+import { RecapEntry, RecapHubRow } from '@/components/recap-ui';
 
 /** Open requests shown on the tab; the rest is one tap away in "Mes demandes". */
 const OPEN_MAX = 3;
@@ -31,7 +35,8 @@ export default function ChezToiScreen() {
   const theme = useTheme();
   const { t, lang } = useI18n();
   const p = t.apartment.payments;
-  const { contract, payments, deposit } = useHome();
+  const { contract, payments, deposit, student, apartment } = useHome();
+  const tour = useTour();
   const { refresh } = useHomeState();
   const { state: requestsState, reload: reloadRequests } = useRequests();
   const handovers = useHandovers();
@@ -46,7 +51,7 @@ export default function ChezToiScreen() {
 
   return (
     <Screen
-      title={t.tabs.chezToi}
+      title={t.tabs.sejour}
       subtitle={t.chezToi.subtitle}
       onRefresh={() => Promise.all([refresh(), reloadRequests()])}>
       <Section title={t.chezToi.ask} subtitle={t.chezToi.askHint}>
@@ -187,9 +192,44 @@ export default function ChezToiScreen() {
               subtitle="WhatsApp"
               onPress={() => openWhatsApp('chez-toi')}
             />
+            {/* The app tour again (owner, 2026-11-08), from Accueil where every target is on screen. */}
+            {tour && (
+              <ListRow
+                icon="sparkles"
+                title={t.tour.replay}
+                subtitle={t.tour.replayHint}
+                onPress={() => {
+                  router.navigate('/');
+                  setTimeout(tour.start, 500);
+                }}
+              />
+            )}
+            {/* Monthly recaps, the BH map opt-in and the timeline (owner, 2026-11-09). */}
+            <RecapHubRow />
+            {/* For parents (owner, 2026-11-08: "espaço dos pais"): a text card shared from the phone. */}
+            <ListRow
+              icon="people"
+              title={t.family.title}
+              subtitle={t.family.hint}
+              onPress={() =>
+                Share.share({
+                  title: t.family.shareTitle,
+                  message: t.family.card({
+                    name: student.firstName,
+                    address: fullAddress(apartment),
+                    dates: [contract.arrival?.date ?? contract.moveIn, contract.departure?.date ?? contract.moveOut]
+                      .filter(Boolean)
+                      .map((d) => formatDate(d!, lang))
+                      .join(' → '),
+                    whatsapp: `+${contacts.whatsapp.slice(0, 2)} ${contacts.whatsapp.slice(2, 4)} ${contacts.whatsapp.slice(4, 9)}-${contacts.whatsapp.slice(9)}`,
+                  }),
+                }).catch(() => {})
+              }
+            />
           </ListGroup>
         </Card>
       </Section>
+      <RecapEntry />
     </Screen>
   );
 }

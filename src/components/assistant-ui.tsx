@@ -10,14 +10,15 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { CharlotteFace } from '@/components/charlotte';
 import { Icon, type IconName } from '@/components/icon';
 import { AppText, PressableScale } from '@/components/ui';
 import { Fonts, Radius, Shadow, Spacing, TapTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 /**
- * Building blocks of the assistant chat: the student's bubble (`fill`, right), the assistant's
- * bubble (white card, left), the typing dots, suggestion pills and small text links.
+ * Building blocks of the assistant chat (Charlotte): the student's bubble (`fill`, right), Charlotte's
+ * bubble (white card, left, with her face), the typing dots, suggestion pills and small text links.
  */
 
 export function Bubble({
@@ -31,7 +32,7 @@ export function Bubble({
 }) {
   const theme = useTheme();
   const student = from === 'student';
-  return (
+  const bubble = (
     <View
       accessible={!!accessibilityLabel}
       accessibilityLabel={accessibilityLabel}
@@ -42,6 +43,14 @@ export function Bubble({
           : [styles.assistant, Shadow.card, { backgroundColor: theme.surface }],
       ]}>
       {children}
+    </View>
+  );
+  if (student) return bubble;
+  // Charlotte's face next to each of her answers (owner, 2026-11-08).
+  return (
+    <View style={styles.assistantRow}>
+      <CharlotteFace size={28} />
+      <View style={{ flex: 1 }}>{bubble}</View>
     </View>
   );
 }
@@ -80,8 +89,11 @@ function Dot({ delay }: { delay: number }) {
   return <Animated.View style={[styles.dot, { backgroundColor: theme.textSecondary }, style]} />;
 }
 
-/** A suggested question: white pill with a hairline (like `Chip`), wraps instead of overflowing. */
-export function SuggestionPill({ label, onPress }: { label: string; onPress: () => void }) {
+/**
+ * A suggested question, or a choice in the composer ("Prendre une photo"): white pill with a hairline
+ * (like `Chip`), optional icon, wraps instead of overflowing.
+ */
+export function SuggestionPill({ label, onPress, icon }: { label: string; onPress: () => void; icon?: IconName }) {
   const theme = useTheme();
   return (
     <PressableScale
@@ -89,9 +101,12 @@ export function SuggestionPill({ label, onPress }: { label: string; onPress: () 
       onPress={onPress}
       hitSlop={PILL_SLOP}
       style={[styles.pill, { backgroundColor: theme.surface, borderColor: theme.line }]}>
-      <AppText variant="callout" style={{ fontFamily: Fonts.bodyMedium }}>
-        {label}
-      </AppText>
+      <View style={styles.pillInner}>
+        {icon && <Icon name={icon} size={16} color={theme.text} />}
+        <AppText variant="callout" style={{ fontFamily: Fonts.bodyMedium, flexShrink: 1 }}>
+          {label}
+        </AppText>
+      </View>
     </PressableScale>
   );
 }
@@ -114,8 +129,9 @@ const PILL_SLOP = { top: (TapTarget - PILL_HEIGHT) / 2, bottom: (TapTarget - PIL
 
 const styles = StyleSheet.create({
   bubble: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: Radius.lg },
-  student: { alignSelf: 'flex-end', maxWidth: '85%', borderBottomRightRadius: 6 },
-  assistant: { alignSelf: 'flex-start', maxWidth: '92%', borderBottomLeftRadius: 6, gap: Spacing.sm },
+  student: { alignSelf: 'flex-end', maxWidth: '85%', borderBottomRightRadius: 6, gap: Spacing.sm },
+  assistant: { alignSelf: 'flex-start', maxWidth: '100%', borderBottomLeftRadius: 6, gap: Spacing.sm },
+  assistantRow: { flexDirection: 'row', alignItems: 'flex-end', gap: Spacing.sm, maxWidth: '96%' },
   dots: { flexDirection: 'row', gap: 5, paddingVertical: 6 },
   dot: { width: 7, height: 7, borderRadius: 4 },
   pill: {
@@ -127,6 +143,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 18,
   },
+  pillInner: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   link: {
     flexDirection: 'row',
     alignItems: 'center',

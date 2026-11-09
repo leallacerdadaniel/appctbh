@@ -3,14 +3,18 @@ import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BrandBar } from '@/components/brand-bar';
-import { Icon } from '@/components/icon';
+import { FocusStatusBar } from '@/components/focus-status-bar';
+import { TabHeader } from '@/components/tab-header';
 import { AppText, PressableScale } from '@/components/ui';
 import { Fonts, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 /**
- * Every screen: red BrandBar (fixed) + scrollable gray canvas with a centered 560px column.
- * `back` for screens pushed over the tabs (otherwise the bar shows SOS and the bell); `header` for extra content right under the bar;
+ * Every screen. Pushed screens (`back`): red BrandBar with the back arrow. Tab screens (v3, 2026-11-08):
+ * light canvas under the status bar, then the TabHeader row (profile, ask the assistant, bell), which
+ * scrolls with the content like in Revolut; `bar="none"` leaves the top to the screen (Explorer's search).
+ * `onPhoto` is for a tab that starts with a full-bleed photo in `header`: no canvas under the status bar,
+ * white status bar text, and the header draws its own top row.
  * `onRefresh` adds pull-to-refresh (the spinner shows until the promise settles).
  */
 export function Screen({
@@ -19,6 +23,8 @@ export function Screen({
   children,
   header,
   back = false,
+  bar = 'default',
+  onPhoto = false,
   onRefresh,
 }: {
   title?: string;
@@ -26,11 +32,17 @@ export function Screen({
   children: ReactNode;
   header?: ReactNode;
   back?: boolean;
+  bar?: 'default' | 'none';
+  onPhoto?: boolean;
   onRefresh?: () => Promise<unknown>;
 }) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const [refreshing, setRefreshing] = useState(false);
+  // `onPhoto`: once the photo has scrolled away, the canvas comes back under a dark status bar.
+  const [pastPhoto, setPastPhoto] = useState(false);
+  const tab = !back;
+  const photoTop = onPhoto && !pastPhoto;
 
   async function refresh() {
     if (!onRefresh) return;
@@ -44,12 +56,20 @@ export function Screen({
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
-      {/* Tab screens (no back arrow) carry the SOS button and the notifications bell in the bar. */}
-      <BrandBar back={back} sos={!back} bell={!back} />
+      {back ? <BrandBar back /> : <FocusStatusBar style={photoTop ? 'light' : 'dark'} />}
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}
+        contentContainerStyle={{ paddingBottom: back ? insets.bottom + Spacing.xl : Spacing.xl + Spacing.md }}
         keyboardShouldPersistTaps="handled"
+        scrollEventThrottle={onPhoto ? 32 : undefined}
+        onScroll={
+          onPhoto
+            ? (e) => {
+                const past = e.nativeEvent.contentOffset.y > PHOTO_SCROLL;
+                if (past !== pastPhoto) setPastPhoto(past);
+              }
+            : undefined
+        }
         refreshControl={
           onRefresh ? (
             <RefreshControl
@@ -57,13 +77,23 @@ export function Screen({
               onRefresh={refresh}
               tintColor={theme.textSecondary}
               colors={[theme.textSecondary]}
+              progressViewOffset={tab ? insets.top : 0}
             />
           ) : undefined
         }>
+        {tab && !onPhoto && bar === 'default' && (
+          <View style={[styles.column, { paddingTop: insets.top + Spacing.sm }]}>
+            <TabHeader />
+          </View>
+        )}
         {header}
-        <View style={[styles.column, { paddingTop: Spacing.lg }]}>
+        <View
+          style={[
+            styles.column,
+            { paddingTop: tab && !onPhoto && bar === 'none' && !header ? insets.top + Spacing.sm : Spacing.lg },
+          ]}>
           {title && (
-            <View style={{ gap: Spacing.xs, marginBottom: Spacing.sm }}>
+            <View style={{ gap: Spacing.xs, marginBottom: tab ? 0 : Spacing.sm }}>
               <AppText variant="display">{title}</AppText>
               {subtitle && <AppText color={theme.textSecondary}>{subtitle}</AppText>}
             </View>
@@ -71,6 +101,13 @@ export function Screen({
           {children}
         </View>
       </ScrollView>
+      {/* Tab screens: the canvas color stays under the status bar while the content scrolls. */}
+      {tab && !photoTop && (
+        <View
+          pointerEvents="none"
+          style={[styles.statusMask, { height: insets.top, backgroundColor: theme.background }]}
+        />
+      )}
     </View>
   );
 }
@@ -83,7 +120,7 @@ export function Reveal({ children }: { index?: number; children: ReactNode }) {
   return <>{children}</>;
 }
 
-/** Section title (Outfit 20) + optional one-line subtitle + optional "Voir plus ›". */
+/** Section title (Plus Jakarta Sans bold) + optional one-line subtitle + optional red link on the right (v3). */
 export function SectionHeader({
   title,
   subtitle,
@@ -104,10 +141,9 @@ export function SectionHeader({
         </AppText>
         {action && onAction && (
           <PressableScale accessibilityRole="button" onPress={onAction} hitSlop={10} style={styles.action}>
-            <AppText variant="callout" style={{ fontFamily: Fonts.bodyMedium }}>
+            <AppText variant="callout" color={theme.brand} style={{ fontFamily: Fonts.bodySemi }}>
               {action}
             </AppText>
-            <Icon name="chevronRight" size={16} color={theme.text} />
           </PressableScale>
         )}
       </View>
@@ -147,7 +183,11 @@ export function SectionLabel({ children }: { children: string }) {
   return <SectionHeader title={children} />;
 }
 
+/** How far the arrival photo scrolls before the status bar turns dark over the canvas. */
+const PHOTO_SCROLL = 220;
+
 const styles = StyleSheet.create({
+  statusMask: { position: 'absolute', top: 0, left: 0, right: 0 },
   sectionHeader: { gap: 2 },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
   action: { flexDirection: 'row', alignItems: 'center', gap: 2 },

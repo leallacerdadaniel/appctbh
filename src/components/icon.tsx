@@ -104,6 +104,54 @@ const REGISTRY = {
   chores: { ios: 'checklist', material: 'checklist', glyph: 0xe6b1 },
   pix: { ios: 'brazilianrealsign.circle', material: 'pix', glyph: 0xeaa3 },
   retry: { ios: 'arrow.clockwise', material: 'refresh', glyph: 0xe5d5 },
+  // v3 navigation (2026-11-08): Accueil · Explorer · Assistant · Maison · Séjour.
+  explore: { ios: 'safari', iosActive: 'safari.fill', material: 'explore', glyph: 0xe87a },
+  sofa: { ios: 'sofa', iosActive: 'sofa.fill', material: 'weekend', glyph: 0xe16b },
+  stay: { ios: 'suitcase', iosActive: 'suitcase.fill', material: 'luggage', glyph: 0xf235 },
+  sparkles: { ios: 'sparkles', material: 'auto_awesome', glyph: 0xe65f },
+  heart: { ios: 'heart', iosActive: 'heart.fill', material: 'favorite', glyph: 0xe87d },
+  bar: { ios: 'wineglass', material: 'local_bar', glyph: 0xe540 },
+  culture: { ios: 'theatermasks', material: 'theater_comedy', glyph: 0xea66 },
+  sport: { ios: 'soccerball', material: 'sports_soccer', glyph: 0xea2f },
+  apps: { ios: 'square.grid.2x2', material: 'apps', glyph: 0xe5c3 },
+  shield: { ios: 'exclamationmark.shield', material: 'emergency', glyph: 0xe1eb },
+  // On m'a volé mon téléphone (2026-11-08).
+  phoneLock: { ios: 'lock.iphone', material: 'phonelink_lock', glyph: 0xe0dc },
+  phoneOff: { ios: 'iphone.slash', material: 'mobile_off', glyph: 0xe201 },
+  simCard: { ios: 'simcard', material: 'sim_card', glyph: 0xe32b },
+  shieldLock: { ios: 'lock.shield', material: 'shield_lock', glyph: 0xf686 },
+  cardOff: { ios: 'creditcard.trianglebadge.exclamationmark', material: 'credit_card_off', glyph: 0xe4f4 },
+  police: { ios: 'checkmark.shield', material: 'local_police', glyph: 0xef56 },
+  imei: { ios: 'number', material: 'tag', glyph: 0xe9ef },
+  laptop: { ios: 'laptopcomputer', material: 'laptop', glyph: 0xe31e },
+  // House rules intro (2026-11-08).
+  moon: { ios: 'moon.zzz', material: 'bedtime', glyph: 0xef44 },
+  party: { ios: 'party.popper', material: 'celebration', glyph: 0xea65 },
+  trash: { ios: 'trash', material: 'delete', glyph: 0xe872 },
+  noSmoking: { ios: 'nosign', material: 'smoke_free', glyph: 0xeb4a },
+  hanger: { ios: 'hanger', material: 'checkroom', glyph: 0xf19e },
+  lock: { ios: 'lock', material: 'lock', glyph: 0xe897 },
+  handshake: { ios: 'hand.raised', material: 'handshake', glyph: 0xebcb },
+  // Visites, colis et profils des colocs (2026-11-08).
+  visitor: { ios: 'person.badge.plus', material: 'person_add', glyph: 0xe7fe },
+  door: { ios: 'door.left.hand.open', material: 'door_front', glyph: 0xeffd },
+  parcel: { ios: 'shippingbox', iosActive: 'shippingbox.fill', material: 'package_2', glyph: 0xf569 },
+  idCard: { ios: 'person.text.rectangle', material: 'id_card', glyph: 0xf4ca },
+  // Agenda de BH (2026-11-09).
+  music: { ios: 'music.note', material: 'music_note', glyph: 0xe405 },
+  exhibition: { ios: 'photo.artframe', material: 'palette', glyph: 0xe40a },
+  festival: { ios: 'tent', material: 'festival', glyph: 0xea68 },
+  ticket: { ios: 'ticket', material: 'confirmation_number', glyph: 0xe638 },
+  external: { ios: 'arrow.up.right.square', material: 'open_in_new', glyph: 0xe89e },
+  // Parler portugais (2026-11-08).
+  speaker: { ios: 'speaker.wave.2', iosActive: 'speaker.wave.2.fill', material: 'volume_up', glyph: 0xe050 },
+  slow: { ios: 'tortoise', material: 'slow_motion_video', glyph: 0xe068 },
+  streak: { ios: 'flame.fill', material: 'local_fire_department', glyph: 0xef55 },
+  translate: { ios: 'character.bubble', material: 'translate', glyph: 0xe8e2 },
+  // Mon semestre à BH (2026-11-08): "J'y suis allé" check-ins, the recap entry and its share button.
+  visited: { ios: 'flag', iosActive: 'flag.fill', material: 'flag', glyph: 0xe153 },
+  play: { ios: 'play.fill', material: 'play_arrow', glyph: 0xe037 },
+  share: { ios: 'square.and.arrow.up', material: 'ios_share', glyph: 0xe6b8 },
 } as const satisfies Record<string, Entry>;
 
 export type IconName = keyof typeof REGISTRY;

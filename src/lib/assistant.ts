@@ -1,3 +1,4 @@
+import { ImageManipulator, SaveFormat, type ImageRef } from 'expo-image-manipulator';
 import { useSyncExternalStore } from 'react';
 
 import type { Lang } from '@/i18n';
@@ -8,16 +9,37 @@ import { useAuth } from '@/lib/auth';
  * The AI assistant ("app-assistant" function). The conversation lives in memory only, for as long
  * as the app runs: it survives leaving and reopening the screen, never reaches the disk, and is
  * dropped when another student signs in. The server doesn't keep it either.
+ *
+ * A question can carry one photo (something broken in the apartment): it is resized to JPEG here,
+ * sent as base64 with that question only, and its base64 is dropped once the answer arrives (later
+ * turns go back as text, flagged `photo: true`). When the answer is a maintenance problem the server
+ * returns `maintenance`, and the chat offers to open the maintenance request pre-filled.
  */
 
-export type AssistantError = 'notConfigured' | 'limit' | 'busy' | 'noRental' | 'invalid' | 'network' | 'server';
+export type AssistantError =
+  | 'notConfigured'
+  | 'limit'
+  | 'busy'
+  | 'noRental'
+  | 'invalid'
+  | 'imageTooBig'
+  | 'network'
+  | 'server';
+
+/** A photo attached to a question: a resized JPEG in the cache folder, with its base64 until answered. */
+export type AssistantPhoto = { uri: string; width: number; height: number; base64?: string };
+
+/** What the server read from the answer when it is a maintenance problem (values of the request form). */
+export type MaintenanceHint = { title: string; category?: string; room?: string };
 
 /** One question and what came back. */
 export type Exchange = {
   id: string;
   question: string;
+  photo?: AssistantPhoto;
   status: 'pending' | 'answered' | 'refused' | 'error';
   answer?: string;
+  maintenance?: MaintenanceHint;
   error?: AssistantError;
 };
 
@@ -25,6 +47,11 @@ export type Exchange = {
 export const MAX_QUESTION = 1500;
 /** The server reads the last 12 turns; 11 keeps the history starting with a question. */
 const MAX_TURNS = 11;
+/** Long side of the photo sent to the assistant, and its JPEG quality: enough to see the problem, ~200 KB. */
+const PHOTO_LONG_SIDE = 1280;
+const PHOTO_QUALITY = 0.6;
+/** The server refuses bigger photos with `imageTooBig` (same value in app-assistant/index.ts). */
+export const MAX_PHOTO_BASE64 = 2 * 1024 * 1024;
 
 type Store = { owner: string | null; exchanges: Exchange[] };
 
@@ -51,34 +78,46 @@ function patch(id: string, fields: Partial<Exchange>) {
   set({ ...store, exchanges: store.exchanges.map((e) => (e.id === id ? { ...e, ...fields } : e)) });
 }
 
-const KNOWN: AssistantError[] = ['notConfigured', 'limit', 'busy', 'noRental', 'invalid', 'network'];
+const KNOWN: AssistantError[] = ['notConfigured', 'limit', 'busy', 'noRental', 'invalid', 'imageTooBig', 'network'];
 
 function toError(e: unknown): AssistantError {
   const code = e instanceof AppApiError ? e.code : 'server';
   return (KNOWN as string[]).includes(code) ? (code as AssistantError) : 'server';
 }
 
-/** Answered exchanges before this one, as turns, then its question. Refused and failed ones are left out. */
+/**
+ * Answered exchanges before this one, as text turns, then its question with its photo.
+ * Refused and failed ones are left out.
+ */
 function history(id: string) {
   const index = store.exchanges.findIndex((e) => e.id === id);
   const turns = store.exchanges
     .slice(0, index)
     .filter((e) => e.status === 'answered' && e.answer)
     .flatMap((e) => [
-      { role: 'user' as const, content: e.question },
+      { role: 'user' as const, content: e.question, ...(e.photo ? { photo: true } : {}) },
       { role: 'assistant' as const, content: e.answer! },
     ]);
-  return [...turns, { role: 'user' as const, content: store.exchanges[index].question }].slice(-MAX_TURNS);
+  const current = store.exchanges[index];
+  const image = current.photo?.base64 ? { mediaType: 'image/jpeg', data: current.photo.base64 } : undefined;
+  return [...turns, { role: 'user' as const, content: current.question, ...(image ? { image } : {}) }].slice(
+    -MAX_TURNS,
+  );
 }
+
+type AskResponse = { answer: string | null; refused: boolean; maintenance?: MaintenanceHint | null };
 
 async function run(token: string | null, id: string, lang: Lang) {
   try {
-    const r = await assistantApi<{ answer: string | null; refused: boolean }>('ask', {
-      token,
-      body: { messages: history(id), lang },
-    });
-    if (r.refused || !r.answer?.trim()) patch(id, { status: 'refused', answer: undefined });
-    else patch(id, { status: 'answered', answer: r.answer.trim() });
+    const r = await assistantApi<AskResponse>('ask', { token, body: { messages: history(id), lang } });
+    // Once answered, the photo only needs its file (thumbnail, maintenance request): drop the base64.
+    const photo = store.exchanges.find((e) => e.id === id)?.photo;
+    const light = photo && { uri: photo.uri, width: photo.width, height: photo.height };
+    if (r.refused || !r.answer?.trim()) patch(id, { status: 'refused', answer: undefined, photo: light });
+    else {
+      const maintenance = r.maintenance?.title ? r.maintenance : undefined;
+      patch(id, { status: 'answered', answer: r.answer.trim(), maintenance, photo: light });
+    }
   } catch (e) {
     patch(id, { status: 'error', error: toError(e) });
   }
@@ -95,12 +134,12 @@ export function useAssistant() {
   return {
     exchanges,
     pending,
-    send(question: string, lang: Lang) {
+    send(question: string, lang: Lang, photo?: AssistantPhoto) {
       const text = question.trim().slice(0, MAX_QUESTION);
       if (!text || pending) return;
       const id = `q${Date.now()}-${counter++}`;
       const before = store.owner === token ? store.exchanges : [];
-      set({ owner: token, exchanges: [...before, { id, question: text, status: 'pending' }] });
+      set({ owner: token, exchanges: [...before, { id, question: text, photo, status: 'pending' }] });
       run(token, id, lang);
     },
     retry(id: string, lang: Lang) {
@@ -112,6 +151,39 @@ export function useAssistant() {
       set({ owner: token, exchanges: [] });
     },
   };
+}
+
+/**
+ * Prepares a picked photo for the assistant: at most 1280 px on the long side, JPEG at 0.6, with
+ * its base64. Throws when the image can't be read.
+ */
+export async function preparePhoto(uri: string): Promise<AssistantPhoto> {
+  const refs: { release(): void }[] = [];
+  const keep = <T extends { release(): void }>(ref: T) => {
+    refs.push(ref);
+    return ref;
+  };
+  try {
+    let image: ImageRef = await keep(ImageManipulator.manipulate(uri)).renderAsync();
+    keep(image);
+    const long = Math.max(image.width, image.height);
+    if (long > PHOTO_LONG_SIDE) {
+      const scale = PHOTO_LONG_SIDE / long;
+      const size = { width: Math.round(image.width * scale), height: Math.round(image.height * scale) };
+      image = keep(await keep(ImageManipulator.manipulate(image)).resize(size).renderAsync());
+    }
+    const saved = await image.saveAsync({ format: SaveFormat.JPEG, compress: PHOTO_QUALITY, base64: true });
+    if (!saved.base64) throw new Error('No base64');
+    return { uri: saved.uri, width: saved.width, height: saved.height, base64: saved.base64 };
+  } finally {
+    refs.forEach((ref) => {
+      try {
+        ref.release();
+      } catch {
+        // Already released, or not releasable on this platform.
+      }
+    });
+  }
 }
 
 /** Plain text for the bubble: the model sometimes still writes **bold**. */

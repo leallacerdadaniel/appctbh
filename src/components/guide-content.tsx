@@ -52,11 +52,29 @@ const CATEGORIES: { id: NearbyCategoryId; emoji: string }[] = [
   { id: 'hospital', emoji: '🏥' },
 ];
 
-export function GuideContent({ q: initialQuery, focus }: { q?: string; focus?: string }) {
+export type GuideBlock = 'around' | 'start' | 'daily' | 'eat' | 'sport';
+
+/**
+ * v3 (2026-11-08): the Explorer tab owns the search field and passes `query`; with no query it shows the
+ * blocks of the chosen category (`only`). Without `query`, the component keeps its own search field.
+ */
+export function GuideContent({
+  q: initialQuery,
+  focus,
+  query: controlled,
+  only,
+}: {
+  q?: string;
+  focus?: string;
+  query?: string;
+  only?: GuideBlock[];
+}) {
   const theme = useTheme();
   const { t, lang } = useI18n();
   const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
-  const [query, setQuery] = useState('');
+  const [ownQuery, setQuery] = useState('');
+  const query = controlled ?? ownQuery;
+  const show = (block: GuideBlock) => !only || only.includes(block);
   const nearby = usePlaces()?.nearby;
 
   // Arriving with a search (`/bh?section=guide&q=…`) or asked to focus the search field.
@@ -125,102 +143,114 @@ export function GuideContent({ q: initialQuery, focus }: { q?: string; focus?: s
 
   return (
     <>
-      <SearchField
-        ref={inputRef}
-        value={query}
-        onChangeText={setQuery}
-        placeholder={t.guide.searchPlaceholder}
-        clearLabel={t.guide.clear}
-      />
+      {controlled === undefined && (
+        <SearchField
+          ref={inputRef}
+          value={query}
+          onChangeText={setQuery}
+          placeholder={t.guide.searchPlaceholder}
+          clearLabel={t.guide.clear}
+        />
+      )}
 
       {!results && (
         <>
           {/* Moved from Home (2026-11-08). The full list stays in "Au quotidien › À proximité" below. */}
-          <Section title={t.home.around} subtitle={t.home.aroundHint}>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={styles.bleed}
-              contentContainerStyle={styles.categories}>
-              {CATEGORIES.map((c) => (
-                <CategoryCircle
-                  key={c.id}
-                  emoji={c.emoji}
-                  label={t.nearby.short[c.id]}
-                  onPress={() => router.push({ pathname: '/nearby', params: { category: c.id } })}
+          {show('around') && (
+            <Section title={t.home.around} subtitle={t.home.aroundHint}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.bleed}
+                contentContainerStyle={styles.categories}>
+                {CATEGORIES.map((c) => (
+                  <CategoryCircle
+                    key={c.id}
+                    emoji={c.emoji}
+                    label={t.nearby.short[c.id]}
+                    onPress={() => router.push({ pathname: '/nearby', params: { category: c.id } })}
+                  />
+                ))}
+              </ScrollView>
+            </Section>
+          )}
+
+          {show('start') && (
+            <Section title={t.guide.start} subtitle={t.guide.startHint}>
+              <HubGrid>
+                <HubTile emoji="🛂" title={t.admin.title} status={t.admin.status} onPress={() => router.push('/admin')} />
+                <HubTile
+                  emoji="📱"
+                  title={t.services.title}
+                  status={t.services.status}
+                  onPress={() => router.push('/services')}
                 />
-              ))}
-            </ScrollView>
-          </Section>
+              </HubGrid>
+            </Section>
+          )}
 
-          <Section title={t.guide.start} subtitle={t.guide.startHint}>
-            <HubGrid>
-              <HubTile emoji="🛂" title={t.admin.title} status={t.admin.status} onPress={() => router.push('/admin')} />
-              <HubTile
-                emoji="📱"
-                title={t.services.title}
-                status={t.services.status}
-                onPress={() => router.push('/services')}
-              />
-            </HubGrid>
-          </Section>
+          {show('daily') && (
+            <Section title={t.guide.daily} subtitle={t.guide.dailyHint}>
+              <HubGrid>
+                <HubTile
+                  emoji="🛒"
+                  title={t.nearby.title}
+                  status={t.guide.nearbyStatus}
+                  onPress={() => router.push('/nearby')}
+                />
+                <HubTile
+                  emoji="🚑"
+                  title={t.home.emergency}
+                  status={t.guide.emergencyStatus}
+                  onPress={() => router.push('/emergency')}
+                />
+              </HubGrid>
+            </Section>
+          )}
 
-          <Section title={t.guide.daily} subtitle={t.guide.dailyHint}>
-            <HubGrid>
-              <HubTile
-                emoji="🛒"
-                title={t.nearby.title}
-                status={t.guide.nearbyStatus}
-                onPress={() => router.push('/nearby')}
-              />
-              <HubTile
-                emoji="🚑"
-                title={t.home.emergency}
-                status={t.guide.emergencyStatus}
-                onPress={() => router.push('/emergency')}
-              />
-            </HubGrid>
-          </Section>
+          {show('eat') && (
+            <Section title={t.guide.eat} subtitle={t.guide.eatHint}>
+              <HubGrid>
+                <HubTile
+                  emoji="🍽️"
+                  title={t.restaurants.title}
+                  status={t.guide.restaurantsStatus(restaurants.length)}
+                  onPress={() => router.push('/restaurants')}
+                />
+                <HubTile
+                  emoji="🧀"
+                  title={t.dishes.entry}
+                  status={t.guide.dishesStatus}
+                  onPress={() => router.push('/restaurants/dishes')}
+                />
+                <HubTile
+                  emoji="🌙"
+                  title={t.nightlife.title}
+                  status={t.nightlife.status}
+                  onPress={() => router.push('/nightlife')}
+                />
+              </HubGrid>
+            </Section>
+          )}
 
-          <Section title={t.guide.eat} subtitle={t.guide.eatHint}>
-            <HubGrid>
-              <HubTile
-                emoji="🍽️"
-                title={t.restaurants.title}
-                status={t.guide.restaurantsStatus(restaurants.length)}
-                onPress={() => router.push('/restaurants')}
-              />
-              <HubTile
-                emoji="🧀"
-                title={t.dishes.entry}
-                status={t.guide.dishesStatus}
-                onPress={() => router.push('/restaurants/dishes')}
-              />
-              <HubTile
-                emoji="🌙"
-                title={t.nightlife.title}
-                status={t.nightlife.status}
-                onPress={() => router.push('/nightlife')}
-              />
-            </HubGrid>
-          </Section>
-
-          <Section title={t.guide.sport} subtitle={t.guide.sportHint}>
-            <HubGrid>
-              <HubTile
-                emoji="🏃"
-                title={t.sports.title}
-                status={t.sports.status}
-                onPress={() => router.push('/sports')}
-              />
-              <HubTile
-                emoji="💇"
-                title={t.beauty.title}
-                status={t.beauty.status}
-                onPress={() => router.push('/beauty')}
-              />
-            </HubGrid>
-          </Section>
+          {show('sport') && (
+            <Section title={t.guide.sport} subtitle={t.guide.sportHint}>
+              <HubGrid>
+                <HubTile
+                  emoji="🏃"
+                  title={t.sports.title}
+                  status={t.sports.status}
+                  onPress={() => router.push('/sports')}
+                />
+                <HubTile
+                  emoji="💇"
+                  title={t.beauty.title}
+                  status={t.beauty.status}
+                  onPress={() => router.push('/beauty')}
+                />
+              </HubGrid>
+            </Section>
+          )}
         </>
       )}
 

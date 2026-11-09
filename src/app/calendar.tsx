@@ -83,7 +83,7 @@ export default function CalendarScreen() {
   }
 
   return (
-    <Screen title={t.calendar.title} subtitle={t.calendar.subtitle}>
+    <Screen back title={t.calendar.title} subtitle={t.calendar.subtitle}>
       <SearchField
         value={query}
         onChangeText={setQuery}

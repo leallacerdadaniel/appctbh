@@ -5,6 +5,7 @@ import { HoursCard } from '@/components/hours-card';
 import { Icon } from '@/components/icon';
 import { ListGroup, ListRow } from '@/components/list';
 import { PlacePhoto } from '@/components/place-photo';
+import { VisitedToggle } from '@/components/recap-ui';
 import { Screen } from '@/components/screen';
 import { AppText, Button, Card } from '@/components/ui';
 import { Fonts, Radius, Spacing } from '@/constants/theme';
@@ -42,6 +43,7 @@ export default function NightPlaceScreen() {
       />
 
       <AppText style={{ lineHeight: 23 }}>{p.description[lang]}</AppText>
+      <VisitedToggle id={p.id} name={p.name} kind={p.kind} />
 
       <Card style={{ paddingVertical: 0 }}>
         <ListGroup inset>

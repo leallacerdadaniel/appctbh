@@ -6,7 +6,7 @@ Source of truth: `src/constants/theme.ts`. If you change a value there, change i
 
 | Token | Value | Use |
 |---|---|---|
-| `background` | `#F4F4F2` | Canvas behind every screen (light gray) |
+| `background` | `#F2F2F5` | Canvas behind every screen (cool light gray, v3) |
 | `surface` | `#FFFFFF` | Cards, search pill, tab bar, category circles |
 | `fill` | `#EFEEEA` | Inputs, unselected chips, avatars, photo placeholders |
 | `scrim` | `rgba(0,0,0,0.45)` | Dark layer under text placed on photos, rating pills |
@@ -29,13 +29,13 @@ Light and small (owner asked twice on 2026-10-16: "fontes grandes e grossas… q
 
 | Variant | Font | Size / line height | Use |
 |---|---|---|---|
-| `display` | Outfit 400 | 24 / 30, letter-spacing −0.2 | Screen title, greeting, hero title |
-| `title` | Outfit 400 | 17 / 22 | Section headers |
+| `display` | Plus Jakarta Sans 700 | 28 / 34, letter-spacing −0.5 | Screen title, greeting, hero title (v3) |
+| `title` | Plus Jakarta Sans 700 | 19 / 24 | Section headers (v3) |
 | `body` | Inter 400 | 15 / 21 | Main text, list row titles |
 | `callout` | Inter 400 | 13 / 18 | Secondary lines, descriptions |
 | `caption` | Inter 400 | 12 / 16 | Metadata, footnotes (tab labels 11) |
 
-Fonts loaded: Inter 400/500, Outfit 400. `Fonts.bodyMedium` (Inter 500) only for buttons, names on cards and the active tab. List rows are regular. Never add semibold or bold.
+Fonts loaded (v3, 2026-11-08): Plus Jakarta Sans 700 (titles only), Inter 400/500/600, Outfit 400 (legacy). `Fonts.bodyMedium` (Inter 500) for list titles, `Fonts.bodySemi` (Inter 600) for names, row titles in v3 cards, pills and numbers. Paragraphs stay regular.
 
 ## Spacing
 
@@ -47,7 +47,7 @@ Fonts loaded: Inter 400/500, Outfit 400. `Fonts.bodyMedium` (Inter 500) only for
 
 ## Radius
 
-`sm 10` (inputs, small controls) · `md 14` (buttons, photos inside cards) · `lg 16` (cards) · `pill 999` (chips, search, tab bar)
+`sm 10` (inputs, small controls) · `md 14` (buttons, photos inside cards) · `lg 20` (cards, v3) · `xl 24` (big cards) · `pill 999` (chips, search, tab bar)
 
 ## Shadow
 
@@ -67,3 +67,5 @@ Never write shadow values inline.
 - `logo-wordmark.png` — red on white, pushed screens' header, 101 × 24
 - `logo-tile.png` — red square, login and splash
 - A high-resolution SVG is still pending from the owner; replace the PNGs when it arrives.
+
+v3 colors (2026-11-08): `text #16161A`, `textSecondary #6B6B74`, `textTertiary #A3A3AD`, `fill #ECECF0`, `line #ECECF0`, `track #DCDCE3` (empty progress), tinted circles `brandSoft #FDEBEC`, `infoSoft #EEF1FB` + `info #3456C5`, `successSoft #E6F5EC`, `warningSoft #FFF4DB`. Shadows: `card` and `raised` (address card, Explorer search).

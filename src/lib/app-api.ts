@@ -58,6 +58,11 @@ export function assistantApi<T>(route: string, options: CallOptions = {}): Promi
   return call<T>(process.env.EXPO_PUBLIC_ASSISTANT_API_URL ?? sibling('app-assistant'), route, options);
 }
 
+/** "app-events": what's on in BH (CCBB, Palácio das Artes, city open data, links pasted by the team). */
+export function eventsApi<T>(route: string, options: CallOptions = {}): Promise<T> {
+  return call<T>(process.env.EXPO_PUBLIC_EVENTS_API_URL ?? sibling('app-events'), route, options);
+}
+
 async function call<T>(base: string, route: string, options: CallOptions): Promise<T> {
   let res: Response;
   try {

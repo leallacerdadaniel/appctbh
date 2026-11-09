@@ -6,6 +6,7 @@ import { Icon } from '@/components/icon';
 import { ListGroup, ListRow } from '@/components/list';
 import { MustGoBadge } from '@/components/must-go-badge';
 import { PlacePhoto } from '@/components/place-photo';
+import { VisitedToggle } from '@/components/recap-ui';
 import { Screen } from '@/components/screen';
 import { AppText, Button, Card } from '@/components/ui';
 import { Radius, Spacing } from '@/constants/theme';
@@ -21,7 +22,7 @@ export default function AttractionScreen() {
   const a = useTimes(getAttraction(id));
   const fromHome = useFromHome(a);
 
-  if (!a) return <Redirect href={{ pathname: '/bh', params: { section: 'explorer' } }} />;
+  if (!a) return <Redirect href={{ pathname: '/explorer', params: { category: 'culture' } }} />;
 
 
   return (
@@ -39,6 +40,7 @@ export default function AttractionScreen() {
       />
 
       <AppText style={{ lineHeight: 23 }}>{a.description[lang]}</AppText>
+      <VisitedToggle id={a.id} name={a.name} kind="attraction" />
 
       <Card style={{ paddingVertical: 0 }}>
         <ListGroup inset>

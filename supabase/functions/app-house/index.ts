@@ -12,6 +12,20 @@
 //   /app-house/notices-read  { ids?: string[] }  (sem ids = todos)
 //   /app-house/payment-info  → { info }
 //   /app-house/device        { token, platform }   (onda 9: push)
+//   /app-house/rules-status  → { accepted: string | null }  (versão das regras já aceita nesta locação)
+//   /app-house/rules-accept  { version: 'AAAA-MM', lang }    (introdução obrigatória das regras)
+//   A vida no prédio (012_visitas_encomendas_perfis.sql):
+//   /app-house/visitors          → { visitors: [{ id, name, date, time, note, notifiedAt }], portaria: { whatsapp } }
+//   /app-house/visitor-save      { id?, name, date, time?, note? }   → { id }   (muda nome/dia/hora = avisar de novo)
+//   /app-house/visitor-cancel    { id }
+//   /app-house/visitor-notified  { id }                              (o aluno abriu o WhatsApp da portaria)
+//   /app-house/packages          → { packages: [{ id, description, carrier, expectedDate, status, teamNote, arrivedAt, pickedUpAt, createdAt }] }
+//   /app-house/package-save      { id?, description, carrier?, expectedDate? }  → { id }   (só enquanto 'expected')
+//   /app-house/package-picked    { id }                              (expected ou arrived → picked_up)
+//   /app-house/package-cancel    { id }                              (só 'expected')
+//   /app-house/profile           → { profile: { school, hometown, languages, instagram, about, visible } | null }
+//   /app-house/profile-save      { school?, hometown?, languages: string[], instagram?, about?, visible: boolean }
+//   /app-house/roommate-profiles → { roommates: [{ id, name, profile | null }] }  (só perfis com visible = true)
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -329,6 +343,390 @@ async function device(req: Request, body: { token?: unknown; platform?: unknown 
   return json({ ok: true });
 }
 
+// ---------- regras da casa (aceite obrigatório) ----------
+async function rulesStatus(req: Request) {
+  const who = await readToken(req);
+  if (!who) return json({ error: 'unauthorized' }, 401);
+  const { data: rentalId } = await db.rpc('app_rental_for', { p_cp: who.cp });
+  if (!rentalId) return json({ accepted: null });
+  const { data, error } = await db
+    .from('app_rules_acceptances')
+    .select('version')
+    .eq('counterparty_id', who.cp)
+    .eq('rental_id', rentalId)
+    .order('version', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) return json({ error: 'server' }, 500);
+  return json({ accepted: (data?.version as string | undefined) ?? null });
+}
+
+async function rulesAccept(req: Request, body: { version?: unknown; lang?: unknown }) {
+  const who = await readToken(req);
+  if (!who) return json({ error: 'unauthorized' }, 401);
+  if (typeof body.version !== 'string' || !/^\d{4}-\d{2}$/.test(body.version)) return json({ error: 'invalid' }, 400);
+  const { data: rentalId } = await db.rpc('app_rental_for', { p_cp: who.cp });
+  if (!rentalId) return json({ error: 'noRental' }, 404);
+  const { error } = await db.from('app_rules_acceptances').upsert(
+    {
+      counterparty_id: who.cp,
+      rental_id: rentalId,
+      version: body.version,
+      lang: body.lang === 'en' ? 'en' : 'fr',
+    },
+    { onConflict: 'counterparty_id,rental_id,version', ignoreDuplicates: true },
+  );
+  if (error) return json({ error: 'server' }, 500);
+  return json({ ok: true });
+}
+
+// ---------- a vida no prédio: visitas, encomendas, perfis ----------
+
+/**
+ * Texto livre de uma linha: sem caracteres de controle, espaços juntados. null = vazio;
+ * undefined = inválido (tipo errado ou longo demais).
+ */
+function line(v: unknown, max: number): string | null | undefined {
+  if (v === undefined || v === null) return null;
+  if (typeof v !== 'string') return undefined;
+  // deno-lint-ignore no-control-regex
+  const s = v.replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim();
+  if (s.length > max) return undefined;
+  return s || null;
+}
+const isTime = (s: unknown): s is string => typeof s === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(s);
+const hhmm = (t: string | null) => (t ? t.slice(0, 5) : null);
+
+/** Número de WhatsApp da portaria (app_apartment_info.building_info.portaria_whatsapp), só dígitos, com o 55. */
+async function portariaWhatsApp(rentalId: string | null) {
+  if (!rentalId) return null;
+  const { data: rental } = await db.from('apartment_rentals').select('apartment_id').eq('id', rentalId).maybeSingle();
+  if (!rental?.apartment_id) return null;
+  const { data: info } = await db
+    .from('app_apartment_info')
+    .select('building_info')
+    .eq('apartment_id', rental.apartment_id)
+    .maybeSingle();
+  const raw = (info?.building_info as Record<string, unknown> | null)?.portaria_whatsapp;
+  if (typeof raw !== 'string') return null;
+  const digits = raw.replace(/\D/g, '');
+  const full = digits.startsWith('55') ? digits : `55${digits}`;
+  return /^55\d{10,11}$/.test(full) ? full : null;
+}
+
+const VISIT_PAST_DAYS = 60;
+const VISIT_AHEAD_DAYS = 180;
+const MAX_UPCOMING_VISITS = 30;
+
+async function visitors(req: Request) {
+  const who = await readToken(req);
+  if (!who) return json({ error: 'unauthorized' }, 401);
+  const { data: rentalId } = await db.rpc('app_rental_for', { p_cp: who.cp });
+  const [{ data, error }, whatsapp] = await Promise.all([
+    db
+      .from('app_visitors')
+      .select('id, name, visit_date, visit_time, note, notified_at')
+      .eq('counterparty_id', who.cp)
+      .eq('status', 'planned')
+      .gte('visit_date', addDays(todayBH(), -VISIT_PAST_DAYS))
+      .order('visit_date')
+      .order('visit_time', { nullsFirst: true })
+      .limit(200),
+    portariaWhatsApp((rentalId as string | null) ?? null),
+  ]);
+  if (error) return json({ error: 'server' }, 500);
+  return json({
+    visitors: (data ?? []).map((v) => ({
+      id: v.id,
+      name: v.name,
+      date: v.visit_date,
+      time: hhmm(v.visit_time),
+      note: v.note,
+      notifiedAt: v.notified_at,
+    })),
+    portaria: { whatsapp },
+  });
+}
+
+async function visitorSave(req: Request, body: { id?: unknown; name?: unknown; date?: unknown; time?: unknown; note?: unknown }) {
+  const who = await readToken(req);
+  if (!who) return json({ error: 'unauthorized' }, 401);
+  const today = todayBH();
+  const name = line(body.name, 80);
+  const note = line(body.note, 200);
+  const time = body.time === null || body.time === undefined || body.time === '' ? null : body.time;
+  if (
+    !name ||
+    note === undefined ||
+    !isDate(body.date) ||
+    body.date < today ||
+    body.date > addDays(today, VISIT_AHEAD_DAYS) ||
+    (time !== null && !isTime(time))
+  ) {
+    return json({ error: 'invalid' }, 400);
+  }
+  const fields = { name, visit_date: body.date, visit_time: time, note, updated_at: new Date().toISOString() };
+
+  if (body.id !== undefined && body.id !== null) {
+    if (!isUuid(body.id)) return json({ error: 'invalid' }, 400);
+    const { data: current } = await db
+      .from('app_visitors')
+      .select('id, name, visit_date, visit_time, notified_at')
+      .eq('id', body.id)
+      .eq('counterparty_id', who.cp)
+      .eq('status', 'planned')
+      .gte('visit_date', today)
+      .maybeSingle();
+    if (!current) return json({ error: 'notFound' }, 404);
+    // Outro nome, dia ou hora: a portaria precisa ser avisada de novo.
+    const changed = current.name !== name || current.visit_date !== body.date || hhmm(current.visit_time) !== time;
+    const { error } = await db
+      .from('app_visitors')
+      .update({ ...fields, ...(changed ? { notified_at: null } : {}) })
+      .eq('id', current.id);
+    if (error) return json({ error: 'server' }, 500);
+    return json({ id: current.id });
+  }
+
+  const { data: rentalId } = await db.rpc('app_rental_for', { p_cp: who.cp });
+  if (!rentalId) return json({ error: 'noRental' }, 404);
+  const { count } = await db
+    .from('app_visitors')
+    .select('id', { count: 'exact', head: true })
+    .eq('counterparty_id', who.cp)
+    .eq('status', 'planned')
+    .gte('visit_date', today);
+  if ((count ?? 0) >= MAX_UPCOMING_VISITS) return json({ error: 'limit' }, 429);
+  const { data, error } = await db
+    .from('app_visitors')
+    .insert({ ...fields, counterparty_id: who.cp, rental_id: rentalId })
+    .select('id')
+    .single();
+  if (error || !data) return json({ error: 'server' }, 500);
+  return json({ id: data.id });
+}
+
+async function visitorUpdate(req: Request, body: { id?: unknown }, action: 'cancel' | 'notified') {
+  const who = await readToken(req);
+  if (!who) return json({ error: 'unauthorized' }, 401);
+  if (!isUuid(body.id)) return json({ error: 'invalid' }, 400);
+  const now = new Date().toISOString();
+  const { data, error } = await db
+    .from('app_visitors')
+    .update(action === 'cancel' ? { status: 'cancelled', updated_at: now } : { notified_at: now, updated_at: now })
+    .eq('id', body.id)
+    .eq('counterparty_id', who.cp)
+    .eq('status', 'planned')
+    .gte('visit_date', todayBH())
+    .select('id')
+    .maybeSingle();
+  if (error) return json({ error: 'server' }, 500);
+  if (!data) return json({ error: 'notFound' }, 404);
+  return json({ ok: true });
+}
+
+const PACKAGES_KEEP_DAYS = 30;
+const MAX_EXPECTED_PACKAGES = 30;
+
+async function packages(req: Request) {
+  const who = await readToken(req);
+  if (!who) return json({ error: 'unauthorized' }, 401);
+  const since = new Date(Date.now() - PACKAGES_KEEP_DAYS * 86_400_000).toISOString();
+  const { data, error } = await db
+    .from('app_packages')
+    .select('id, description, carrier, expected_date, status, team_note, arrived_at, picked_up_at, created_at')
+    .eq('counterparty_id', who.cp)
+    .in('status', ['expected', 'arrived', 'picked_up'])
+    // Récupérés: só os do último mês.
+    .or(`status.neq.picked_up,picked_up_at.gte."${since}"`)
+    .order('created_at', { ascending: false })
+    .limit(200);
+  if (error) return json({ error: 'server' }, 500);
+  return json({
+    packages: (data ?? []).map((p) => ({
+      id: p.id,
+      description: p.description,
+      carrier: p.carrier,
+      expectedDate: p.expected_date,
+      status: p.status,
+      teamNote: p.team_note,
+      arrivedAt: p.arrived_at,
+      pickedUpAt: p.picked_up_at,
+      createdAt: p.created_at,
+    })),
+  });
+}
+
+async function packageSave(
+  req: Request,
+  body: { id?: unknown; description?: unknown; carrier?: unknown; expectedDate?: unknown },
+) {
+  const who = await readToken(req);
+  if (!who) return json({ error: 'unauthorized' }, 401);
+  const today = todayBH();
+  const description = line(body.description, 80);
+  const carrier = line(body.carrier, 60);
+  const expected = body.expectedDate === null || body.expectedDate === undefined || body.expectedDate === '' ? null : body.expectedDate;
+  if (
+    !description ||
+    carrier === undefined ||
+    (expected !== null && (!isDate(expected) || expected < addDays(today, -30) || expected > addDays(today, 180)))
+  ) {
+    return json({ error: 'invalid' }, 400);
+  }
+  const fields = { description, carrier, expected_date: expected };
+
+  if (body.id !== undefined && body.id !== null) {
+    if (!isUuid(body.id)) return json({ error: 'invalid' }, 400);
+    const { data, error } = await db
+      .from('app_packages')
+      .update(fields)
+      .eq('id', body.id)
+      .eq('counterparty_id', who.cp)
+      .eq('status', 'expected')
+      .select('id')
+      .maybeSingle();
+    if (error) return json({ error: 'server' }, 500);
+    if (!data) return json({ error: 'notFound' }, 404);
+    return json({ id: data.id });
+  }
+
+  const { data: rentalId } = await db.rpc('app_rental_for', { p_cp: who.cp });
+  if (!rentalId) return json({ error: 'noRental' }, 404);
+  const { count } = await db
+    .from('app_packages')
+    .select('id', { count: 'exact', head: true })
+    .eq('counterparty_id', who.cp)
+    .eq('status', 'expected');
+  if ((count ?? 0) >= MAX_EXPECTED_PACKAGES) return json({ error: 'limit' }, 429);
+  const { data, error } = await db
+    .from('app_packages')
+    .insert({ ...fields, counterparty_id: who.cp, rental_id: rentalId })
+    .select('id')
+    .single();
+  if (error || !data) return json({ error: 'server' }, 500);
+  return json({ id: data.id });
+}
+
+async function packageUpdate(req: Request, body: { id?: unknown }, action: 'picked' | 'cancel') {
+  const who = await readToken(req);
+  if (!who) return json({ error: 'unauthorized' }, 401);
+  if (!isUuid(body.id)) return json({ error: 'invalid' }, 400);
+  // picked_up_at e updated_at vêm do gatilho app_packages_stamp.
+  const { data, error } = await db
+    .from('app_packages')
+    .update({ status: action === 'picked' ? 'picked_up' : 'cancelled' })
+    .eq('id', body.id)
+    .eq('counterparty_id', who.cp)
+    .in('status', action === 'picked' ? ['expected', 'arrived'] : ['expected'])
+    .select('id')
+    .maybeSingle();
+  if (error) return json({ error: 'server' }, 500);
+  if (!data) return json({ error: 'notFound' }, 404);
+  return json({ ok: true });
+}
+
+type ProfileRow = {
+  counterparty_id: string;
+  school: string | null;
+  hometown: string | null;
+  languages: string[] | null;
+  instagram: string | null;
+  about: string | null;
+  visible: boolean;
+};
+const PROFILE_COLUMNS = 'counterparty_id, school, hometown, languages, instagram, about, visible';
+const toProfile = (p: ProfileRow) => ({
+  school: p.school,
+  hometown: p.hometown,
+  languages: p.languages ?? [],
+  instagram: p.instagram,
+  about: p.about,
+  visible: p.visible,
+});
+
+async function profile(req: Request) {
+  const who = await readToken(req);
+  if (!who) return json({ error: 'unauthorized' }, 401);
+  const { data, error } = await db.from('app_profiles').select(PROFILE_COLUMNS).eq('counterparty_id', who.cp).maybeSingle();
+  if (error) return json({ error: 'server' }, 500);
+  return json({ profile: data ? toProfile(data as ProfileRow) : null });
+}
+
+async function profileSave(
+  req: Request,
+  body: { school?: unknown; hometown?: unknown; languages?: unknown; instagram?: unknown; about?: unknown; visible?: unknown },
+) {
+  const who = await readToken(req);
+  if (!who) return json({ error: 'unauthorized' }, 401);
+  const school = line(body.school, 80);
+  const hometown = line(body.hometown, 80);
+  const about = line(body.about, 140);
+  // "@lea.m", "instagram.com/lea.m" ou "lea.m" → "lea.m"
+  const handle = line(body.instagram, 80);
+  const instagram =
+    typeof handle === 'string'
+      ? handle.replace(/^(https?:\/\/)?(www\.)?instagram\.com\//i, '').replace(/^@/, '').replace(/\/.*$/, '').replace(/\?.*$/, '') ||
+        null
+      : handle;
+  const languages = Array.isArray(body.languages) ? [...new Set(body.languages)] : null;
+  if (
+    school === undefined ||
+    hometown === undefined ||
+    about === undefined ||
+    instagram === undefined ||
+    (instagram !== null && !/^[A-Za-z0-9._]{1,30}$/.test(instagram)) ||
+    !languages ||
+    languages.length > 8 ||
+    !languages.every((l) => typeof l === 'string' && /^[a-z]{2}$/.test(l)) ||
+    typeof body.visible !== 'boolean'
+  ) {
+    return json({ error: 'invalid' }, 400);
+  }
+  const { data: rentalId } = await db.rpc('app_rental_for', { p_cp: who.cp });
+  const { data, error } = await db
+    .from('app_profiles')
+    .upsert({
+      counterparty_id: who.cp,
+      rental_id: (rentalId as string | null) ?? null,
+      school,
+      hometown,
+      languages,
+      instagram,
+      about,
+      visible: body.visible,
+      updated_at: new Date().toISOString(),
+    })
+    .select(PROFILE_COLUMNS)
+    .single();
+  if (error || !data) return json({ error: 'server' }, 500);
+  return json({ profile: toProfile(data as ProfileRow) });
+}
+
+/** Os colegas da locação atual; o perfil só vem quando o colega ligou "visível". */
+async function roommateProfiles(req: Request) {
+  const who = await readToken(req);
+  if (!who) return json({ error: 'unauthorized' }, 401);
+  const g = await group(who.cp);
+  if (!g) return json({ error: 'noRental' }, 404);
+  const others = g.members.filter((m) => m.id !== who.cp);
+  const { data, error } = others.length
+    ? await db
+        .from('app_profiles')
+        .select(PROFILE_COLUMNS)
+        .in('counterparty_id', others.map((m) => m.id))
+        .eq('visible', true)
+    : { data: [], error: null };
+  if (error) return json({ error: 'server' }, 500);
+  const byId = new Map(((data ?? []) as ProfileRow[]).map((p) => [p.counterparty_id, p]));
+  return json({
+    roommates: others.map((m) => {
+      const p = byId.get(m.id);
+      return { id: m.id, name: m.name, profile: p ? toProfile(p) : null };
+    }),
+  });
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
   if (req.method !== 'POST') return json({ error: 'method' }, 405);
@@ -354,6 +752,32 @@ Deno.serve(async (req) => {
         return await paymentInfo(req);
       case 'device':
         return await device(req, body);
+      case 'rules-status':
+        return await rulesStatus(req);
+      case 'rules-accept':
+        return await rulesAccept(req, body);
+      case 'visitors':
+        return await visitors(req);
+      case 'visitor-save':
+        return await visitorSave(req, body);
+      case 'visitor-cancel':
+        return await visitorUpdate(req, body, 'cancel');
+      case 'visitor-notified':
+        return await visitorUpdate(req, body, 'notified');
+      case 'packages':
+        return await packages(req);
+      case 'package-save':
+        return await packageSave(req, body);
+      case 'package-picked':
+        return await packageUpdate(req, body, 'picked');
+      case 'package-cancel':
+        return await packageUpdate(req, body, 'cancel');
+      case 'profile':
+        return await profile(req);
+      case 'profile-save':
+        return await profileSave(req, body);
+      case 'roommate-profiles':
+        return await roommateProfiles(req);
       default:
         return json({ error: 'notFound' }, 404);
     }

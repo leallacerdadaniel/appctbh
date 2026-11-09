@@ -19,7 +19,18 @@ export type UsageAction =
   | 'settlement_added'
   | 'cleaning_rated'
   | 'explorer_tab'
-  | 'bh_section';
+  | 'bh_section'
+  // v3 (2026-11-08)
+  | 'open_assistant'
+  | 'copy_address'
+  | 'open_uber'
+  | 'open_99'
+  | 'show_address'
+  | 'welcome_step'
+  | 'chore_done'
+  | 'explorer_category'
+  | 'explorer_ask'
+  | 'get_app';
 
 type UsageEvent = { kind: 'screen' | 'action'; name: string; item?: string; at: string };
 type UsageSearch = { query: string; results: number; at: string };

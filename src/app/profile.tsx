@@ -1,3 +1,4 @@
+import { router, type Href } from 'expo-router';
 import { Linking, StyleSheet, View } from 'react-native';
 
 import { Icon } from '@/components/icon';
@@ -10,6 +11,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { useAuth } from '@/lib/auth';
 import { useHome } from '@/lib/home';
+import { hasContent, useMyProfile } from '@/lib/house-social';
 import { contacts } from '@/lib/mock-data';
 import { trackAction } from '@/lib/usage';
 
@@ -19,6 +21,9 @@ export default function ProfileScreen() {
   const { signOut } = useAuth();
   const { t } = useI18n();
   const { student } = useHome();
+  const { state: social } = useMyProfile();
+  const mine = social.status === 'ready' ? social.data.profile : null;
+  const p = t.houseSocial.profile;
 
   return (
     <Screen back title={t.profile.title}>
@@ -34,6 +39,12 @@ export default function ProfileScreen() {
 
       <Card style={{ paddingVertical: 0 }}>
         <ListGroup inset>
+          <ListRow
+            icon="idCard"
+            title={p.row}
+            subtitle={hasContent(mine) ? (mine.visible ? p.rowVisible : p.rowHidden) : p.rowEmpty}
+            onPress={() => router.push('/house/my-profile' as Href)}
+          />
           <ListRow icon="website" title={t.profile.language} accessory={<LanguageSwitch />} />
           {/*
             No "Changer le mot de passe" row for now: change-password is only reachable while the

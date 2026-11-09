@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { Linking, StyleSheet } from 'react-native';
 
 import { ListGroup, ListRow } from '@/components/list';
+import { PhoneStolenEntry } from '@/components/phone-stolen-ui';
 import { Screen, Section } from '@/components/screen';
 import { AppText, Card } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
@@ -16,13 +17,18 @@ const NUMBERS = [
   { id: 'fire', number: '193' },
 ] as const;
 
-/** "Urgences": numbers to call, the private hospitals and Chez Toi for a problem in the apartment. */
+/**
+ * "Urgences": the stolen-phone guide first (2026-11-08), then numbers to call, the private hospitals and
+ * Chez Toi for a problem in the apartment.
+ */
 export default function EmergencyScreen() {
   const theme = useTheme();
   const { t } = useI18n();
 
   return (
     <Screen back title={t.emergency.title} subtitle={t.emergency.subtitle}>
+      <PhoneStolenEntry />
+
       <Section title={t.emergency.call}>
         <Card style={styles.listCard}>
           <ListGroup inset>

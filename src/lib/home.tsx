@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 
 import { appApi, AppApiError } from '@/lib/app-api';
@@ -40,6 +41,8 @@ type HomeResponse = {
     trash_info?: { fr?: string; en?: string; photos?: { url: string }[] } | null;
   } | null;
   roommates: string[];
+  /** Who cleans the apartment (app_cleaners, 2026-11-08); phone only when she agreed to share it. */
+  cleaner?: { name: string; phone: string | null; photo: string | null } | null;
   cleanings: {
     id: string;
     date: string | null;
@@ -90,6 +93,8 @@ export type Home = {
     cleaningFrequency: string | null;
   };
   roommates: Person[];
+  /** The professional who cleans the apartment, when the team filled it in. */
+  cleaner: { name: string; phone: string | null; photoUrl: string | null } | null;
   /** Cleanings with a date, oldest first. */
   cleanings: CleaningVisit[];
   /** Monthly rent status only (amounts never reach the app), oldest month first. */
@@ -139,6 +144,7 @@ function toHome(r: HomeResponse): Home {
       cleaningFrequency: r.rental.cleaning_frequency,
     },
     roommates: r.roommates.map(person),
+    cleaner: r.cleaner?.name ? { name: r.cleaner.name.trim(), phone: r.cleaner.phone, photoUrl: r.cleaner.photo } : null,
     cleanings: r.cleanings
       .filter((c): c is HomeResponse['cleanings'][number] & { date: string } => !!c.date)
       .map((c) => ({
@@ -163,7 +169,8 @@ function toHome(r: HomeResponse): Home {
 
 type HomeState =
   | { status: 'loading' }
-  | { status: 'ready'; home: Home }
+  /** `savedAt`: shown from the copy kept on the phone (no connection), with the time it was saved. */
+  | { status: 'ready'; home: Home; savedAt?: string }
   | { status: 'noRental' }
   | { status: 'error' };
 
@@ -175,6 +182,24 @@ const HomeContext = createContext<{ state: HomeState; reload: () => void; refres
   null,
 );
 
+/**
+ * Works offline (owner, 2026-11-08: arriving without a Brazilian SIM): the last data that loaded is kept on
+ * the phone, tied to the session, and used when the server can't be reached.
+ */
+const CACHE_KEY = 'ctbh.home.cache.v1';
+type Cached = { session: string; savedAt: string; data: HomeResponse };
+const sessionOf = (token: string) => token.slice(-24);
+
+async function readCache(token: string): Promise<Cached | null> {
+  try {
+    const raw = await AsyncStorage.getItem(CACHE_KEY);
+    const cached = raw ? (JSON.parse(raw) as Cached) : null;
+    return cached && cached.session === sessionOf(token) ? cached : null;
+  } catch {
+    return null;
+  }
+}
+
 export function HomeProvider({ children }: { children: ReactNode }) {
   const { token, signOut } = useAuth();
   const [state, setState] = useState<HomeState>({ status: 'loading' });
@@ -182,13 +207,20 @@ export function HomeProvider({ children }: { children: ReactNode }) {
   const load = useCallback(() => {
     if (!token) return Promise.resolve();
     return appApi<HomeResponse>('home', { token })
-      .then((r) => setState({ status: 'ready', home: toHome(r) }))
-      .catch((e) => {
+      .then((r) => {
+        setState({ status: 'ready', home: toHome(r) });
+        const cached: Cached = { session: sessionOf(token), savedAt: new Date().toISOString(), data: r };
+        AsyncStorage.setItem(CACHE_KEY, JSON.stringify(cached)).catch(() => {});
+      })
+      .catch(async (e) => {
         const code = e instanceof AppApiError ? e.code : 'server';
-        if (code === 'unauthorized') signOut();
-        else if (code === 'noRental') setState({ status: 'noRental' });
+        if (code === 'unauthorized') return signOut();
+        if (code === 'noRental') return setState({ status: 'noRental' });
         // A refresh that fails (no network) must not swap the app for the error gate.
-        else setState((s) => (s.status === 'ready' ? s : { status: 'error' }));
+        const cached = await readCache(token);
+        setState((s) =>
+          s.status === 'ready' ? s : cached ? { status: 'ready', home: toHome(cached.data), savedAt: cached.savedAt } : { status: 'error' },
+        );
       });
     // signOut changes identity on every render of AuthProvider; the token is what matters.
     // eslint-disable-next-line react-hooks/exhaustive-deps

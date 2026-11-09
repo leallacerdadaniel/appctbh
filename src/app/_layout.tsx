@@ -1,4 +1,5 @@
-import { Inter_400Regular, Inter_500Medium } from '@expo-google-fonts/inter';
+import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold } from '@expo-google-fonts/inter';
+import { PlusJakartaSans_700Bold } from '@expo-google-fonts/plus-jakarta-sans/700Bold';
 import { Outfit_400Regular } from '@expo-google-fonts/outfit';
 import { MaterialSymbols_300Light } from '@expo-google-fonts/material-symbols/300Light';
 import { useFonts } from 'expo-font';
@@ -29,7 +30,9 @@ export default function RootLayout() {
   const [fontsLoaded] = useFonts({
     Inter_400Regular,
     Inter_500Medium,
+    Inter_600SemiBold,
     Outfit_400Regular,
+    PlusJakartaSans_700Bold,
     MaterialSymbols_300Light,
   });
 
@@ -94,6 +97,8 @@ function RootStack() {
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="nearby" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="emergency" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="phone-stolen/index" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="phone-stolen/help" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="restaurants/index" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="restaurants/[id]" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="restaurants/dishes" options={{ animation: 'slide_from_right' }} />
@@ -116,6 +121,11 @@ function RootStack() {
           <Stack.Screen name="apartment/rules" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="apartment/trash" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="apartment/roommates" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="house/visitors" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="house/visitor-edit" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="house/packages" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="house/package-edit" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="house/my-profile" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="expenses/index" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="expenses/[id]" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="expenses/edit" options={{ animation: 'slide_from_right' }} />
@@ -124,6 +134,19 @@ function RootStack() {
           <Stack.Screen name="attraction/[id]" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="festival/[id]" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="profile" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="recap/index" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="recap/[id]" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
+          <Stack.Screen name="recap/timeline" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="recap/location" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="calendar" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="events/index" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="first-steps" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="portuguese/index" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="portuguese/[situation]" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="portuguese/lesson" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="address" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
+          {/* Mandatory until signed: no swipe to close. */}
+          <Stack.Screen name="rules-intro" options={{ presentation: 'fullScreenModal', gestureEnabled: false, animation: 'fade' }} />
           <Stack.Screen name="requests/index" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="requests/new" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="requests/service/[id]" options={{ animation: 'slide_from_right' }} />

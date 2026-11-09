@@ -2,13 +2,14 @@
 
 All in `src/components/`. Use these before writing custom styles. Visual reference: `duo.md`.
 
-## Tabs (structure by task, owner 2026-11-08)
-Order and routes in `src/app/(tabs)/_layout.tsx`; icons in `FloatingTabBar`'s `ICONS`.
-- **Accueil** `index.tsx` (`home`): greeting + profile button, apartment hero → `/maison`, action rows only when relevant (rent due → `/apartment/payments`, cleaning today/tomorrow → `/apartment/cleaning`, my undone chore this week → `/house/chores`, open requests → `/requests`), "À venir" (3 max → `/calendar`), Raccourcis (Wi‑Fi copy, WhatsApp), Explorer card → `/bh?section=explorer`.
-- **Maison** `maison.tsx` (`apartment`): "Au quotidien" (unit, address maps/copy, Wi‑Fi, tiles → `/apartment/trash`, `/apartment/rules` — the rules page ends with "Une question ?" → `/assistant`), "Entre colocataires" (only with roommates: Tâches → `/house/chores` with "Cette semaine : Poubelles", → `/expenses`, `/apartment/roommates`), "Ménage" (→ `/apartment/cleaning`, rating tile → `/apartment/feedback?id=` while a visit can be rated).
-- **Chez Toi** `chez-toi.tsx` (`receipt`): "Demander" (→ `/requests/new`, `/requests/maintenance`; up to 3 open requests with `StatusPill` + → `/requests`), "Payer" (rent, extras on the next rents from `upcomingCharges`, deposit → `/apartment/payments`, which also shows "Comment payer"), "Mon contrat" (→ `/apartment/contract`, `/apartment/checkin`, `/apartment/checkout`; other documents later), "Aide" (Assistant → `/assistant`, WhatsApp).
-- **Agenda** `calendar.tsx` (`calendar`): route name stays `calendar`.
-- **BH** `bh.tsx` (`map`): `SegmentedControl` Guide · Explorer, kept in the route param `section` (`/bh?section=guide|explorer`, default guide). Bodies in `guide-content.tsx` (category circles on top, then search and hubs; `q` / `focus` params passed on) and `explorer-content.tsx`. Detail routes (`/attraction/[id]`, `/travel/[id]`, `/festival/[id]`…) are unchanged.
+## Tabs (v3, owner 2026-11-08: "mix do Airbnb com o Revolut")
+Order and routes in `src/app/(tabs)/_layout.tsx`; icons in `TabBar`'s `ICONS` (`src/components/tab-bar.tsx`). The Assistant is the raised red button between Explorer and Maison (opens `/assistant`), not a route of the tabs.
+- **Accueil** `index.tsx` (`home`): arrival mode (`useWelcome` in `src/lib/welcome.ts`, 7 days before to 14 after the arrival, `/?welcome=1` forces it): `WelcomeHero` (photo + TabHeader on it) and the 5-step list (Wi‑Fi copy, address copy, → `/first-steps`, → `/apartment/roommates`, → `/apartment/rules`). Every day: date + greeting, `AddressCard` (Uber link with the address as destination, 99 = copy + store page, Copier, Montrer → `/address`), `QuickActions` (Wi‑Fi copy, → `/requests/new`, → `/apartment/roommates`, → `/emergency`), "Ce soir à BH" (`TonightCarousel` → `/nightlife/[id]`), "Cette semaine" (rent from 3 days before the 5th or late → `/apartment/payments`, my chores with "C’est fait", cleaning, open requests, holidays → `/calendar`).
+- **Explorer** `explorer.tsx` (`explore`): search pill (typing searches the Guide; submit or the red row asks `/assistant?q=`), suggestion chips (ask the assistant), category bar kept in the route param `category` (`forYou` default · `out` · `eat` · `sport` · `culture` · `trips` · `practical`). Pour vous = "Premiers pas" banner → `/first-steps`, the team's pick of the week (a must-go attraction), "À pied de chez vous" (≤ 15 min, falls back to the bars when walking times are unknown). Other categories reuse `GuideContent` (`query`, `only`) and `ExplorerContent` (`segments`).
+- **Maison** `maison.tsx` (`sofa`): unchanged body (see below), new TabHeader.
+- **Séjour** `sejour.tsx` (`stay`): the former Chez Toi tab (Demander, Payer, Mon contrat, Aide).
+- Pages opened from the tabs: `/calendar` (Agenda, `Screen back`), `/first-steps` (apps by group with "Obtenir" + CPF and papers), `/address` (modal: the address large with "Por favor, me leve para:").
+- Old Maison detail kept for reference: "Au quotidien" (unit, address maps/copy, Wi‑Fi, tiles → `/apartment/trash`, `/apartment/rules`), "Entre colocataires" (→ `/house/chores`, `/expenses`, `/apartment/roommates`), "Ménage" (→ `/apartment/cleaning`, rating tile → `/apartment/feedback?id=`).
 
 ## Screen (`screen.tsx`)
 Every screen. Draws the red `BrandBar` on top, then a scrollable gray canvas with a centered 560 px column, 20 px gutter, 32 px between sections.
@@ -142,3 +143,13 @@ Not a `Screen`: `BrandBar back`, a scroll with the title, an intro card (what it
 ## Common Issues
 ### "button cannot be a descendant of button" (web console)
 Cause: a `ListRow` with `onPress` whose `accessory` contains another pressable. Solution: a row is either pressable OR has action buttons in its accessory, never both.
+
+## v3 additions (2026-11-08/09)
+- **Charlotte** `src/components/charlotte.tsx`: `CharlotteFace({ size, sparkle })`, the assistant's mascot (simplified drawing below 40 pt).
+- **Tour** `src/lib/tour.tsx` + `src/components/tour-overlay.tsx`: wrap what a step points at in `TourTarget id="…"`; steps in `TOUR_STEPS`; the overlay dims the screen with a rounded hole and Charlotte's bubble, "Passer" always visible.
+- **Cleaner** `src/components/cleaner-card.tsx`: `CleanerCard` on the cleaning page (name, WhatsApp prefilled in Portuguese, call).
+- **Stolen phone** `src/components/phone-stolen-ui.tsx` (screens `src/app/phone-stolen/`, data `src/lib/phone-stolen.ts`): `PhoneStolenEntry`, `DangerCard`, `ModeCard`, `NoteCard`, `ProgressBar`, `LinkButtons`, `StepCard`, `PrepRow`.
+- **Recap** `src/components/recap-ui.tsx` (screens `src/app/recap/`: hub, `[id]` story, timeline, location opt-in): monthly + semester story slides with `RecapColors`, `RecapEntry` card (latest ready month), `RecapHubRow`, share card captured at 1080×1920. Only what the student did (places, days in/out of BH, photos, Portuguese), never house stats.
+- **Portuguese** `src/components/portuguese-ui.tsx`: `PortugueseEntry`, `PhraseOfTheDay`, `AskHowToSay`, lesson pieces.
+- **House social** `src/app/house/visitors.tsx`, `packages.tsx`, `my-profile.tsx` (+ edit screens), data in `src/lib/house-social.ts`.
+- **BH agenda** `src/components/bh-events-ui.tsx` (page `src/app/events/index.tsx`, data `src/lib/bh-events.ts`): `BhEventsSection` carousel (Explorer › Pour vous and Sortir), `BhEventsList` with category chips and "ce week-end". Titles as published; labels FR/EN.

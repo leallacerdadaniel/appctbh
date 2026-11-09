@@ -12,7 +12,7 @@ metadata:
 
 The owner rejected two earlier versions (v1 "pesado, ícones genéricos"; v2 all-white without the brand red) and chose the **DUO Gourmet app** as the main inspiration (screenshots and analysis in [references/duo.md](references/duo.md)). This skill turns that into rules so every screen reads as one product.
 
-Direction in one sentence: **the Chez Toi red bar with the logo on every screen, a light gray canvas, white rounded cards with soft shadows, photos as the content, friendly colorful categories.**
+Direction in one sentence (v3, owner 2026-11-08: "mix do Airbnb com o Revolut, focado 100% na experiência do aluno"): **a cool gray canvas, white cards with large radius, bold Plus Jakarta Sans titles, icons in tinted circles, photos as the content, brand red for the main action; the red bar with the logo stays on pushed screens.** Approved mockups: https://claude.ai/artifact/F8BRwXetJgskUp4xuh6nLj (page "Experiência do aluno (v2)").
 
 ## Etapa 1: Use the tokens, never raw values
 
@@ -20,14 +20,15 @@ All values live in `src/constants/theme.ts`; full table in [references/tokens.md
 
 - Light mode only. `useTheme()` always returns the light palette.
 - `canvas` (light gray) behind everything, `surface` (white) for cards, `brand` red for the top bar and accents.
-- Type scale (5 sizes): `display` 24, `title` 17, `body` 15, `callout` 13, `caption` 12. Outfit 400 for display/title, Inter 400 for text and list rows, Inter 500 only for buttons, names and the active tab.
-- Spacing multiples of 4, gutter 20, 32 between sections. Card radius 16, `Shadow.card` for cards.
+- Type scale (5 sizes): `display` 28, `title` 19, `body` 15, `callout` 13, `caption` 12. Plus Jakarta Sans 700 for display/title only; Inter 400 for text, Inter 500 for list titles, Inter 600 (`Fonts.bodySemi`) for names, row titles in v3 cards, pills and numbers. Never bold paragraphs.
+- Spacing multiples of 4, gutter 20, 32 between sections. Card radius 20 (`Radius.lg`), 24 for big cards (`Radius.xl`), `Shadow.card`; `Shadow.raised` for the address card and the Explorer search.
 
 ## Etapa 2: Build with the shared components
 
 Read [references/components.md](references/components.md). In order of preference:
 
-1. `Screen` — always draws the red `BrandBar` (logo centered). Tab screens get the SOS button on its left and the notifications bell on its right; pushed screens pass `back` to get the back arrow on the left instead (and no bell).
+1. `Screen` — pushed screens pass `back`: red `BrandBar` with the logo and the back arrow. Tab screens: light canvas with the `TabHeader` row (initials → profile, "Une question ? Demandez" → assistant, bell); `bar="none"` when the tab draws its own top (Explorer's search), `onPhoto` when it starts with a full-bleed photo (arrival Home). `FocusStatusBar` keeps the status bar dark on tabs and white on the red bar.
+   v3 pieces live in `src/components/home-v3.tsx` (`AddressCard`, `QuickActions`, `TonightCarousel`, `TintCard`/`TintRow`, `RowPill`, `WelcomeHero`) and `tab-bar.tsx`.
 2. `Section` — title, optional one-line subtitle, optional "Voir plus ›".
 3. `PhotoCard` (carousel item), `PlaceRow` (list row with square photo), `HeroCard` (suggestion of the week), `CategoryCircle` (emoji in a white circle).
 4. `Card` + `ListGroup`/`ListRow` for lists of facts and settings (white card on the canvas).
@@ -41,16 +42,16 @@ Go through the Regras, then run the `ctbh-design-review` skill (static check + s
 
 ## Exemplos
 
-**Tabs (structure by task, owner 2026-11-08):** Accueil (what needs action now) · Maison (the apartment and the roommates) · Chez Toi (ask, pay, sign) · Agenda · BH (Guide · Explorer). Each tab groups its content in `Section`s by task or frequency; the map with routes is in [references/components.md](references/components.md) ("Tabs").
+**Tabs (v3, owner 2026-11-08):** Accueil · Explorer · [Assistant, red button in the middle, not a tab] · Maison · Séjour. The Agenda is a page (`/calendar`) opened from Accueil. Explorer = search that also asks the AI + Airbnb-like categories (Pour vous, Sortir, Manger, Sport, Culture, Voyages, Pratique) reusing the Guide and Explorer content.
 
-**Home (only what needs action now):** red bar (SOS left, logo, bell right) → greeting + address + round red profile button → apartment hero ("Votre logement") → action rows that appear only when relevant (rent due, cleaning today or tomorrow, my chore this week, open requests) → "À venir" (3 next dates, "Voir l’agenda ›"; no cleaning row twice) → "Raccourcis" card (Wi‑Fi, WhatsApp) → "Explorer" invitation card last. No shared expenses (Maison), no emergency row (SOS in the bar), no category circles (BH › Guide), no search pill.
+**Home v3:** around the arrival (7 days before to 14 after): neighborhood/apartment photo with the TabHeader on it, "Bienvenue chez toi" and the 5-step "Pour bien démarrer" list (Wi‑Fi, address, apps, roommates, rules; kept on the phone; "Masquer"). Every day: date + greeting → "Chez vous" address card (Uber, 99, Copier, Montrer) → quick actions (Wi‑Fi, Services, Colocs, SOS) → "Ce soir à BH" photo carousel → "Cette semaine" (rent only from 3 days before the 5th or when late, my chores with "C’est fait", cleaning, open requests, holidays). The rent is never the first thing on the screen.
 
 **Restaurant list row:** white card, 88 px square photo with a dark rating pill, bold name, "Italienne • $$$" with unused $ dimmed, "Lourdes • 9 min à pied".
 
 ## Regras
 
-- **Brand bar on every screen**: red, white logo centered, no neighborhood or city. Left side: the **SOS button** on tab screens (white icon + "SOS" on a `onBrandTrack` pill, 44 pt touch area, opens `/emergency`), the white back arrow on pushed screens (never both). Right side: the **notifications bell** on tab screens only (white `bell` icon, 44 pt, unread count in a white badge with red digits, "9+" above 9, opens `/notices`); pushed screens leave it empty. Status bar text is white.
-- **Canvas + cards**: content sits in white `Card`s (radius 16, `Shadow.card`) on the gray canvas. No borders on cards; hairlines only inside a card.
+- **Brand bar on pushed screens**: red, white logo centered, white back arrow, white status bar text. Tab screens use the `TabHeader` on the light canvas instead (v3); SOS is a quick action on Accueil and stays in Explorer › Pratique.
+- **Canvas + cards**: content sits in white cards (radius 20, `Shadow.card`) on the gray canvas. No borders on cards; hairlines only inside a card. List icons sit in a tinted circle (`ListRow`, `TintRow`): `brandSoft`/`infoSoft`/`successSoft`/`warningSoft`/`fill`.
 - **Photos first**: places, restaurants and the apartment are shown with a photo whenever one exists; the rating sits on the photo in a dark pill.
 - **Sections explain themselves**: title + one-line subtitle; "Voir plus ›" when there is a full list.
 - **Red accents**: brand bar, primary button, active tab, list-row icons, back arrow, small accents (selected filter), the round profile button on Home (red circle, white person icon). Errors never use brand red: `error` + icon + text.
@@ -60,7 +61,7 @@ Go through the Regras, then run the `ctbh-design-review` skill (static check + s
 - **Pull to refresh** on every screen that shows live data (`Screen onRefresh`).
 - **No uppercase titles**, sentence case everywhere.
 - **Screens appear whole**: no staggered entrance animations; icons never pop in (Material font preloaded in `src/app/_layout.tsx`). Images reserve their space while loading.
-- **Floating tab bar**: `FloatingTabBar` (own component — the default bar clipped the labels inside the pill): white pill, soft shadow, active tab red on a `fill` pill.
+- **Tab bar** (`TabBar`, own component): white, full width, hairline on top, active tab red with the filled icon, the raised red Assistant button in the middle (opens `/assistant`).
 - **The app is about the student's home**, not restaurants: DUO is a restaurant app, so take its *patterns*, not its content balance. Restaurants are one section among others, never the top of Home.
 - **Never truncate text** (owner, 2026-10-16): no `numberOfLines` / "…" on information — let it wrap; cards in a row stretch to the same height. Only exception: the tab bar labels. Strings never end with "…" either.
 - **Every string in FR and EN** via `src/i18n/strings.ts`. Tap targets ≥ 44 pt (small pills such as `Chip`, `SegmentedControl` and SOS reach it with `hitSlop`).
@@ -95,3 +96,5 @@ When the owner approves or rejects a visual decision, add one line here with the
 - 2026-11-04: birthday card (`birthday-greeting.tsx`) may use brand red: red band with small dots, round white badge with the cake, the name large. Owner asked for it to look nicer; it shows once a year, so it is the one festive exception.
 - 2026-11-08: the notifications bell joined the brand bar on the right of tab screens (SOS left, bell right; pushed screens: back arrow only). Chores show their emoji in a `ChoreBadge`; the assistant is a chat (student bubble `fill` on the right, assistant bubble white card on the left, dark round send button, no brand red).
 - 2026-11-08: owner approved the "structure by task" navigation (stage 1): tabs Accueil · Maison · Chez Toi · Agenda · BH. Home keeps only what needs action now; "Mon appart" became Maison (apartment + roommates + cleaning); the new Chez Toi tab gathers requests, payments, contract and help; Guide and Explorer share the BH tab under a segmented control (full fusion is stage 2). The brand bar now carries **SOS on the left of tab screens**, superseding the 2026-10-16 "only the logo" rule for tab screens (pushed screens keep the back arrow, no SOS).
+- 2026-11-08 (night): owner rejected three French-style mockups ("ficou tudo feio"), liked the super-app style but not the layout ("vamos dar ênfase logo no preço?"), and approved v3: "mix do Airbnb com o Revolut", built around what the student uses most (Wi‑Fi on arrival, the address for Uber, apps to install, what to do, the AI). New tabs Accueil · Explorer · Assistant (center) · Maison · Séjour; Plus Jakarta Sans bold titles; tinted icon circles; rent hidden until 3 days before it is due. The arrival checklist rejected on 2026-10-28 comes back only around the arrival, as part of the approved v3 mockups.
+- 2026-11-08 (late): the assistant is **Charlotte**, with the mascot face (red brand character with a black beret, option B on the canvas): `CharlotteFace` in `src/components/charlotte.tsx`, used as the raised button in the middle of the tab bar (on white), in the TabHeader pill ("Demandez à Charlotte"), in Explorer's search and next to each of her answers in the chat. The cleaner of each apartment shows in a `CleanerCard` (name, WhatsApp prefilled in Portuguese, call, link to the apartment phrases). "Parler portugais" (`src/app/portuguese/`, `portuguese-ui.tsx`) sits in Explorer: phrase of the day in Pour vous, entry in Pratique.

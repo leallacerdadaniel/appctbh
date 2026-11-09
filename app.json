@@ -41,14 +41,23 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Chez Toi BH attaches photos to your maintenance requests.",
-          "cameraPermission": "Chez Toi BH takes photos for your maintenance requests."
+          "photosPermission": "Chez Toi BH attaches photos to your maintenance requests and to your monthly recap.",
+          "cameraPermission": "Chez Toi BH takes photos for your maintenance requests and for Charlotte."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Chez Toi BH uses your location only when you turn on your BH map, to build your monthly recap on your phone."
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "locales": {
+      "fr": "./locales/fr.json"
     }
   }
 }

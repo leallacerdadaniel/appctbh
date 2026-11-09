@@ -8,10 +8,10 @@ import type { Localized } from '@/lib/mock-data';
  * logos are the official App Store icons.
  */
 
-export type ServiceGroup = 'ride' | 'food' | 'bank' | 'air' | 'bus' | 'car';
+export type ServiceGroup = 'daily' | 'ride' | 'food' | 'money' | 'bank' | 'health' | 'events' | 'air' | 'bus' | 'car';
 
 /** Order of the sections and filter chips: what is used most often first. */
-export const SERVICE_GROUPS: ServiceGroup[] = ['ride', 'food', 'bank', 'air', 'bus', 'car'];
+export const SERVICE_GROUPS: ServiceGroup[] = ['daily', 'ride', 'food', 'money', 'bank', 'health', 'events', 'air', 'bus', 'car'];
 
 const L = (fr: string, en: string): Localized => ({ fr, en });
 
@@ -238,6 +238,245 @@ export const services: Service[] = [
     website: 'https://www.movida.com.br/',
     appStoreId: '418900431',
     logo: require('@/assets/services/movida.jpg'),
+  },
+  /* ---------- Added 2026-11-08 (owner's list). Texts from each app's App Store page (Brazil, 08/11/2026). ---------- */
+  {
+    id: 'whatsapp',
+    name: 'WhatsApp',
+    group: 'daily',
+    kind: L('Messagerie', 'Messaging'),
+    description: L(
+      'Au Brésil, presque tout passe par WhatsApp : la Chez Toi, les colocataires, les restaurants, les cabinets médicaux et beaucoup d’entreprises répondent par là.',
+      'In Brazil almost everything happens on WhatsApp: Chez Toi, your roommates, restaurants, doctors’ offices and many companies answer there.',
+    ),
+    tip: L(
+      'Votre compte habituel fonctionne au Brésil, même avec votre numéro français : pas besoin d’un numéro brésilien pour l’utiliser.',
+      'Your usual account works in Brazil, even with your home number: you don’t need a Brazilian number to use it.',
+    ),
+    website: 'https://www.whatsapp.com/',
+    appStoreId: '310633997',
+    logo: require('@/assets/services/whatsapp.jpg'),
+  },
+  {
+    id: 'mercado-livre',
+    name: 'Mercado Livre',
+    group: 'daily',
+    kind: L('Achats en ligne', 'Online shopping'),
+    description: L(
+      'Le grand site d’achats en ligne du Brésil : électronique, maison, vêtements et presque tout le reste, livrés à l’appartement.',
+      'Brazil’s big online store: electronics, home, clothes and almost everything else, delivered to the apartment.',
+    ),
+    tip: L(
+      'Il faut un CPF pour créer le compte et recevoir les livraisons. Mettez l’adresse complète avec le numéro de l’appartement.',
+      'You need a CPF to open the account and receive deliveries. Use the full address with the apartment number.',
+    ),
+    website: 'https://www.mercadolivre.com.br/',
+    appStoreId: '463624852',
+    logo: require('@/assets/services/mercado-livre.jpg'),
+  },
+  {
+    id: 'govbr',
+    name: 'gov.br',
+    group: 'daily',
+    kind: L('Services publics', 'Public services'),
+    description: L(
+      'Le compte unique du gouvernement brésilien : il ouvre les services en ligne qui affichent le bouton « Entrar com gov.br ».',
+      'The Brazilian government’s single account: it opens the online services that show the “Entrar com gov.br” button.',
+    ),
+    tip: L(
+      'Il faut un CPF pour créer le compte : faites-le une fois le CPF obtenu (voir Démarches).',
+      'You need a CPF to create the account: do it once you have your CPF (see Paperwork).',
+    ),
+    website: 'https://www.gov.br/',
+    appStoreId: '1506827551',
+    logo: require('@/assets/services/govbr.jpg'),
+  },
+  {
+    id: 'moovit',
+    name: 'Moovit',
+    group: 'ride',
+    kind: L('Transports en commun', 'Public transport'),
+    description: L(
+      'Les itinéraires en bus et en métro à BH, avec les horaires, les arrêts et le trajet à pied jusqu’à l’arrêt.',
+      'Bus and metro routes in BH, with schedules, stops and the walk to the stop.',
+    ),
+    tip: L(
+      'Pratique en journée pour les trajets du quotidien ; le soir, Uber ou 99 restent plus simples et plus sûrs.',
+      'Handy in the daytime for everyday trips; at night, Uber or 99 are simpler and safer.',
+    ),
+    website: 'https://moovit.com/',
+    appStoreId: '498477945',
+    logo: require('@/assets/services/moovit.jpg'),
+  },
+  {
+    id: 'rappi',
+    name: 'Rappi',
+    group: 'food',
+    kind: L('Livraison de repas et de courses', 'Food and grocery delivery'),
+    description: L(
+      'Repas, courses, boissons et produits de pharmacie livrés en quelques minutes, dans plus de 300 villes d’Amérique latine.',
+      'Meals, groceries, drinks and pharmacy items delivered in minutes, in more than 300 Latin American cities.',
+    ),
+    tip: L(
+      'Comparez avec iFood avant de commander : les promotions changent d’une appli à l’autre.',
+      'Compare with iFood before ordering: the deals change from one app to the other.',
+    ),
+    website: 'https://www.rappi.com.br/',
+    appStoreId: '984044296',
+    logo: require('@/assets/services/rappi.jpg'),
+  },
+  {
+    id: 'ze-delivery',
+    name: 'Zé Delivery',
+    group: 'food',
+    kind: L('Livraison de boissons', 'Drinks delivery'),
+    description: L(
+      'Bière, vin et boissons fraîches livrées chez vous, avec glace, charbon et snacks ; en mode turbo, en 15 minutes au plus.',
+      'Beer, wine and cold drinks delivered home, with ice, charcoal and snacks; in turbo mode, within 15 minutes.',
+    ),
+    tip: L(
+      'La vente d’alcool est interdite aux moins de 18 ans au Brésil.',
+      'Selling alcohol to under-18s is forbidden in Brazil.',
+    ),
+    website: 'https://www.ze.delivery/',
+    appStoreId: '1070070438',
+    logo: require('@/assets/services/ze-delivery.jpg'),
+  },
+  {
+    id: 'duo-gourmet',
+    name: 'Duo Gourmet',
+    group: 'food',
+    kind: L('Club de restaurants', 'Restaurant club'),
+    description: L(
+      'Un abonnement qui donne deux plats pour le prix d’un dans des milliers de restaurants, et des réductions sur d’autres sorties.',
+      'A subscription that gives two dishes for the price of one in thousands of restaurants, plus discounts on other outings.',
+    ),
+    tip: L(
+      'C’est un abonnement payant : faites le calcul si vous sortez souvent au restaurant.',
+      'It’s a paid subscription: do the maths if you eat out often.',
+    ),
+    website: 'https://www.duogourmet.com.br/',
+    appStoreId: '1222687142',
+    logo: require('@/assets/services/duo-gourmet.jpg'),
+  },
+  {
+    id: 'wise',
+    name: 'Wise',
+    group: 'money',
+    kind: L('Compte international', 'International account'),
+    description: L(
+      'Pour changer des euros en reais au taux de change commercial, sans frais cachés, et envoyer de l’argent dans plus de 70 pays.',
+      'To change euros into reais at the mid-market rate, with no hidden fees, and send money to more than 70 countries.',
+    ),
+    tip: L(
+      'Avant un gros transfert, comme le loyer, comparez le montant reçu avec celui de votre banque.',
+      'Before a big transfer, such as the rent, compare the amount received with your bank’s offer.',
+    ),
+    website: 'https://wise.com/br/',
+    appStoreId: '612261027',
+    logo: require('@/assets/services/wise.jpg'),
+  },
+  {
+    id: 'revolut',
+    name: 'Revolut',
+    group: 'money',
+    kind: L('Compte international', 'International account'),
+    description: L(
+      'Un compte en euros, en dollars et dans plus de 30 devises, avec une carte pour payer au Brésil comme chez vous.',
+      'An account in euros, dollars and more than 30 currencies, with a card to pay in Brazil as you do at home.',
+    ),
+    tip: L(
+      'Au terminal de paiement ou au distributeur, choisissez toujours de payer en reais (BRL) : la conversion proposée par la machine coûte plus cher.',
+      'At the card machine or the ATM, always choose to pay in reais (BRL): the conversion offered by the machine costs more.',
+    ),
+    website: 'https://www.revolut.com/',
+    appStoreId: '932493382',
+    logo: require('@/assets/services/revolut.jpg'),
+  },
+  {
+    id: 'araujo',
+    name: 'Drogaria Araujo',
+    group: 'health',
+    kind: L('Pharmacie', 'Pharmacy'),
+    description: L(
+      'La grande chaîne de pharmacies de BH, avec des magasins ouverts 24 h et la livraison par l’appli.',
+      'BH’s big pharmacy chain, with shops open 24 hours and delivery through the app.',
+    ),
+    tip: L(
+      'Les antibiotiques ne sont vendus qu’avec une ordonnance, que la pharmacie garde.',
+      'Antibiotics are only sold with a prescription, which the pharmacy keeps.',
+    ),
+    website: 'https://www.araujo.com.br/',
+    appStoreId: '1258317711',
+    logo: require('@/assets/services/araujo.jpg'),
+  },
+  {
+    id: 'mater-dei',
+    name: 'Meu Mater Dei',
+    group: 'health',
+    kind: L('Hôpital', 'Hospital'),
+    description: L(
+      'L’appli du réseau d’hôpitaux Mater Dei : prendre rendez-vous pour une consultation ou un examen, voir les résultats et les ordonnances numériques.',
+      'The app of the Mater Dei hospital network: book a consultation or a test, see results and digital prescriptions.',
+    ),
+    tip: L(
+      'Avant d’y aller, vérifiez avec votre assurance si elle couvre les hôpitaux privés et comment être remboursé ; gardez toutes les factures.',
+      'Before going, check with your insurance whether it covers private hospitals and how to get reimbursed; keep every invoice.',
+    ),
+    website: 'https://www.materdei.com.br/',
+    appStoreId: '6505126185',
+    logo: require('@/assets/services/mater-dei.jpg'),
+  },
+  {
+    id: 'wellhub',
+    name: 'Wellhub',
+    group: 'health',
+    kind: L('Sport et bien-être', 'Fitness and wellbeing'),
+    description: L(
+      'Un seul abonnement pour des salles de sport, des studios et des activités (yoga, natation, crossfit), quand une entreprise l’offre à ses employés.',
+      'One plan for gyms, studios and activities (yoga, swimming, CrossFit), when a company offers it to its employees.',
+    ),
+    tip: L(
+      'C’est un avantage d’employeur : en stage au Brésil, demandez à l’entreprise si elle le propose. Sinon, voyez Explorer › Sport.',
+      'It’s an employer benefit: on an internship in Brazil, ask the company if it offers it. Otherwise, see Explore › Sport.',
+    ),
+    website: 'https://wellhub.com/',
+    appStoreId: '703761434',
+    logo: require('@/assets/services/wellhub.jpg'),
+  },
+  {
+    id: 'sympla',
+    name: 'Sympla',
+    group: 'events',
+    kind: L('Billets et événements', 'Tickets and events'),
+    description: L(
+      'La plus grande plateforme d’événements du Brésil : soirées, concerts, festivals, cours et idées pour le week-end, avec le billet dans l’appli.',
+      'Brazil’s biggest events platform: parties, concerts, festivals, classes and weekend ideas, with the ticket in the app.',
+    ),
+    tip: L(
+      'Achetez tôt : beaucoup de soirées passent au tarif suivant (le « lote ») quand le premier est vendu.',
+      'Buy early: many parties move to the next price tier (the “lote”) once the first one sells out.',
+    ),
+    website: 'https://www.sympla.com.br/',
+    appStoreId: '1136318924',
+    logo: require('@/assets/services/sympla.jpg'),
+  },
+  {
+    id: 'eventim',
+    name: 'Eventim',
+    group: 'events',
+    kind: L('Billets de concerts', 'Concert tickets'),
+    description: L(
+      'Billets pour les grands concerts et spectacles, avec le choix de la place sur le plan de la salle.',
+      'Tickets for big concerts and shows, choosing your seat on the venue map.',
+    ),
+    tip: L(
+      'Achetez seulement dans l’appli ou sur le site officiel : les billets revendus ailleurs peuvent être faux.',
+      'Only buy in the app or on the official site: tickets resold elsewhere can be fake.',
+    ),
+    website: 'https://www.eventim.com.br/',
+    appStoreId: '1187371599',
+    logo: require('@/assets/services/eventim.jpg'),
   },
 ];
 

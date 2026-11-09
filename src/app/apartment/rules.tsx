@@ -20,6 +20,16 @@ export default function RulesScreen() {
 
   return (
     <Screen back title={r.screenTitle}>
+      {/* The same intro every student signs on first launch; signing again changes nothing. */}
+      <Card style={styles.listCard}>
+        <ListRow
+          icon="handshake"
+          title={t.rulesIntro.replay}
+          subtitle={t.rulesIntro.replayHint}
+          onPress={() => router.push('/rules-intro' as Href)}
+        />
+      </Card>
+
       <Section title={r.quietTitle}>
         <Card style={{ gap: 2 }}>
           <AppText variant="display">{r.quietHours}</AppText>
