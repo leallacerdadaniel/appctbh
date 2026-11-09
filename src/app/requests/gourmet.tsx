@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -10,7 +9,7 @@ import {
   FieldLabel,
   fromMinutes,
   requestErrorText,
-  requestHref,
+  useOpenSentRequest,
   RequestsGate,
   Stepper,
   TimeChips,
@@ -62,6 +61,7 @@ export default function GourmetScreen() {
 
 function Form({ space }: { space: Gourmet }) {
   const toast = useToast();
+  const openSent = useOpenSentRequest();
   const { t, lang } = useI18n();
   const r = t.requests;
   const { create } = useRequestActions();
@@ -90,7 +90,7 @@ function Form({ space }: { space: Gourmet }) {
     try {
       const req = await create({ kind: 'gourmet', date, startTime: start, endTime: end, guests, note: note.trim() || undefined });
       toast(r.sent);
-      router.replace(requestHref(`/requests/${req.id}`));
+      openSent(req.id);
     } catch (e) {
       setError(requestErrorText(e, t));
       setSending(false);

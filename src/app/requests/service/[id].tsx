@@ -1,4 +1,4 @@
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -12,7 +12,7 @@ import {
   Notice,
   rentMonthLabel,
   requestErrorText,
-  requestHref,
+  useOpenSentRequest,
   RequestsGate,
   Stepper,
   TimeChips,
@@ -67,6 +67,7 @@ export default function ServiceOrderScreen() {
 function Form({ svc }: { svc: CatalogItem }) {
   const theme = useTheme();
   const toast = useToast();
+  const openSent = useOpenSentRequest();
   const { t, lang } = useI18n();
   const r = t.requests;
   const { create } = useRequestActions();
@@ -101,7 +102,7 @@ function Form({ svc }: { svc: CatalogItem }) {
         note: note.trim() || undefined,
       });
       toast(r.sent);
-      router.replace(requestHref(`/requests/${req.id}`));
+      openSent(req.id);
     } catch (e) {
       if (e instanceof AppApiError && e.code === 'tooSoon') {
         // The slot went past the notice while the form was open: refresh the choices.

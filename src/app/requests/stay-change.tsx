@@ -1,4 +1,4 @@
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -13,7 +13,7 @@ import {
   longDayLabel,
   Notice,
   requestErrorText,
-  requestHref,
+  useOpenSentRequest,
   RequestsGate,
   TimeChips,
 } from '@/components/request-ui';
@@ -52,6 +52,7 @@ export default function StayChangeScreen() {
 
 function Form({ kind, stay }: { kind: Kind; stay: Stay }) {
   const toast = useToast();
+  const openSent = useOpenSentRequest();
   const { t, lang } = useI18n();
   const r = t.requests;
   const { create } = useRequestActions();
@@ -81,7 +82,7 @@ function Form({ kind, stay }: { kind: Kind; stay: Stay }) {
     try {
       const req = await create({ kind, date, time: chosenTime, note: note.trim() || undefined });
       toast(r.sent);
-      router.replace(requestHref(`/requests/${req.id}`));
+      openSent(req.id);
     } catch (e) {
       setError(requestErrorText(e, t));
       setSending(false);

@@ -11,7 +11,7 @@ import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n, type Lang } from '@/i18n';
 import { formatCents, formatDate, formatMoney, isFutureMonth } from '@/lib/format';
-import { useHome } from '@/lib/home';
+import { useHome, useHomeState } from '@/lib/home';
 import { billedCents, upcomingCharges, useRequests } from '@/lib/requests';
 
 /**
@@ -23,9 +23,10 @@ export default function PaymentsScreen() {
   const p = t.apartment.payments;
   const theme = useTheme();
   const { payments, deposit } = useHome();
+  const { refresh } = useHomeState();
   const [stepsOpen, setStepsOpen] = useState(false);
   const paidCount = payments.filter((m) => m.paid).length;
-  const { state: requestsState } = useRequests();
+  const { state: requestsState, reload: reloadRequests } = useRequests();
   const requestsData = requestsState.status === 'ready' ? requestsState.data : null;
   const charges = requestsData ? upcomingCharges(requestsData.requests) : [];
 
@@ -37,7 +38,7 @@ export default function PaymentsScreen() {
         : theme.textSecondary;
 
   return (
-    <Screen back title={p.title} subtitle={p.subtitle}>
+    <Screen back title={p.title} subtitle={p.subtitle} onRefresh={() => Promise.all([refresh(), reloadRequests()])}>
       <Section title={p.rent}>
         <Card style={payments.length ? { paddingVertical: 0 } : undefined}>
           {payments.length ? (

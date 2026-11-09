@@ -25,6 +25,8 @@ export function SegmentedControl<T extends string>({
             accessibilityRole="tab"
             accessibilityState={{ selected }}
             onPress={() => onChange(o.value)}
+            // 36 pt pill inside a 4 pt track padding: the slop brings the touch area to 44 pt.
+            hitSlop={{ top: 4, bottom: 4 }}
             style={[styles.segment, selected && [Shadow.card, { backgroundColor: theme.surface }]]}>
             <AppText
               variant="callout"

@@ -1,21 +1,21 @@
-import { StyleSheet, View } from 'react-native';
+import { Linking, StyleSheet, View } from 'react-native';
 
 import { Icon } from '@/components/icon';
 import { LanguageSwitch } from '@/components/language-switch';
 import { ListGroup, ListRow } from '@/components/list';
 import { Screen } from '@/components/screen';
-import { useToast } from '@/components/toast';
 import { AppText, Avatar, Card, PressableScale } from '@/components/ui';
 import { Spacing, TapTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { useAuth } from '@/lib/auth';
 import { useHome } from '@/lib/home';
+import { contacts } from '@/lib/mock-data';
+import { trackAction } from '@/lib/usage';
 
-/** Opened from the initials next to the Home greeting (the tab went to "Voyages"). */
+/** Opened from the round profile button next to the Home greeting. */
 export default function ProfileScreen() {
   const theme = useTheme();
-  const toast = useToast();
   const { signOut } = useAuth();
   const { t } = useI18n();
   const { student } = useHome();
@@ -35,8 +35,20 @@ export default function ProfileScreen() {
       <Card style={{ paddingVertical: 0 }}>
         <ListGroup inset>
           <ListRow icon="website" title={t.profile.language} accessory={<LanguageSwitch />} />
-          <ListRow icon="key" title={t.profile.changePassword} onPress={() => toast(t.common.soon)} />
-          <ListRow icon="mail" title={t.profile.contact} onPress={() => toast(t.common.soon)} />
+          {/*
+            No "Changer le mot de passe" row for now: change-password is only reachable while the
+            first-access change is mandatory (Stack.Protected in _layout.tsx) and its server route
+            doesn't ask for the current password. Bring it back with a proper flow, never as "Bientôt".
+          */}
+          <ListRow
+            icon="whatsapp"
+            title={t.profile.contact}
+            subtitle="WhatsApp"
+            onPress={() => {
+              trackAction('open_whatsapp', 'profile');
+              Linking.openURL(`https://wa.me/${contacts.whatsapp}`);
+            }}
+          />
         </ListGroup>
       </Card>
 

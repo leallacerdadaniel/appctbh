@@ -148,7 +148,8 @@ export function ExpensesProvider({ children }: { children: ReactNode }) {
           data: { ...r, members: r.members.map((m) => ({ id: m.id, ...person(m.name) })) },
         }),
       )
-      .catch(() => setState({ status: 'error' }));
+      // A failed refresh (pull-to-refresh offline) keeps what is already on screen.
+      .catch(() => setState((s) => (s.status === 'ready' ? s : { status: 'error' })));
   }, [token]);
 
   useEffect(() => {
@@ -174,7 +175,7 @@ export function useExpenseAction() {
   };
 }
 
-/** One-line status for the entry points (Mon appart tile, Home shortcut): "Vous devez R$ 45,00". */
+/** One-line status for the entry points (Maison tile): "Vous devez R$ 45,00". */
 export function useBalanceLabel() {
   const { t, lang } = useI18n();
   const { state } = useExpenses();

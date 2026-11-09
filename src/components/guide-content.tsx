@@ -1,11 +1,12 @@
-import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
-import { Linking, StyleSheet, TextInput } from 'react-native';
+import { Linking, ScrollView, StyleSheet, TextInput } from 'react-native';
 
+import { CategoryCircle } from '@/components/category-circle';
 import { HubGrid, HubTile } from '@/components/hub-tile';
 import { Icon } from '@/components/icon';
 import { ListGroup, ListRow } from '@/components/list';
-import { Screen, Section } from '@/components/screen';
+import { Section } from '@/components/screen';
 import { SearchField } from '@/components/search-field';
 import { AppText, Button, Card } from '@/components/ui';
 import { Spacing } from '@/constants/theme';
@@ -23,6 +24,7 @@ import {
   SPORT_GROUP_KEYWORDS,
 } from '@/lib/guide-search';
 import { contacts } from '@/lib/mock-data';
+import type { NearbyCategoryId } from '@/lib/nearby';
 import { nightPlaces } from '@/lib/nightlife';
 import { usePlaces } from '@/lib/places';
 import { services } from '@/lib/services';
@@ -32,25 +34,37 @@ import { displayName, restaurants } from '@/lib/restaurants';
 import { trackAction, trackSearch } from '@/lib/usage';
 
 /**
- * "Guide": everything for living in BH — eating (restaurants, dishes), going out at night, sport, everyday needs
- * (nearby places, emergencies) and the practical info. Exploring and travel live in Explorer.
+ * "Guide" segment of the BH tab: everything for living in BH — the everyday categories around the
+ * apartment, eating (restaurants, dishes), going out at night, sport, everyday needs (nearby places,
+ * emergencies) and the practical info. Exploring and travel live in the Explorer segment.
+ * Stage 1 of the BH tab (2026-11-08): the old Guide tab's body, unchanged except the circles on top.
  */
 const SEARCH_SETTLE_MS = 1500;
 
-export default function GuideScreen() {
+/** Everyday categories shown as circles (moved from Home); they open "À proximité" on that category. */
+const CATEGORIES: { id: NearbyCategoryId; emoji: string }[] = [
+  { id: 'supermarket', emoji: '🛒' },
+  { id: 'pharmacy', emoji: '💊' },
+  { id: 'bakery', emoji: '🥐' },
+  { id: 'gym', emoji: '🏋️' },
+  { id: 'laundry', emoji: '🧺' },
+  { id: 'mall', emoji: '🛍️' },
+  { id: 'hospital', emoji: '🏥' },
+];
+
+export function GuideContent({ q: initialQuery, focus }: { q?: string; focus?: string }) {
   const theme = useTheme();
   const { t, lang } = useI18n();
-  const params = useLocalSearchParams<{ focus?: string; q?: string }>();
   const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
   const [query, setQuery] = useState('');
   const nearby = usePlaces()?.nearby;
 
-  // Arriving from the Home search bar or a shortcut (e.g. "Urgences").
+  // Arriving with a search (`/bh?section=guide&q=…`) or asked to focus the search field.
   useFocusEffect(
     useCallback(() => {
-      if (params.q) setQuery(params.q);
-      if (params.focus) setTimeout(() => inputRef.current?.focus(), 250);
-    }, [params.q, params.focus]),
+      if (initialQuery) setQuery(initialQuery);
+      if (focus) setTimeout(() => inputRef.current?.focus(), 250);
+    }, [initialQuery, focus]),
   );
 
   const q = query.trim();
@@ -110,7 +124,7 @@ export default function GuideScreen() {
   const empty = results && Object.values(results).every((list) => list.length === 0);
 
   return (
-    <Screen title={t.guide.title} subtitle={t.guide.subtitle}>
+    <>
       <SearchField
         ref={inputRef}
         value={query}
@@ -121,6 +135,24 @@ export default function GuideScreen() {
 
       {!results && (
         <>
+          {/* Moved from Home (2026-11-08). The full list stays in "Au quotidien › À proximité" below. */}
+          <Section title={t.home.around} subtitle={t.home.aroundHint}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.bleed}
+              contentContainerStyle={styles.categories}>
+              {CATEGORIES.map((c) => (
+                <CategoryCircle
+                  key={c.id}
+                  emoji={c.emoji}
+                  label={t.nearby.short[c.id]}
+                  onPress={() => router.push({ pathname: '/nearby', params: { category: c.id } })}
+                />
+              ))}
+            </ScrollView>
+          </Section>
+
           <Section title={t.guide.start} subtitle={t.guide.startHint}>
             <HubGrid>
               <HubTile emoji="🛂" title={t.admin.title} status={t.admin.status} onPress={() => router.push('/admin')} />
@@ -405,11 +437,14 @@ export default function GuideScreen() {
           />
         </Card>
       )}
-    </Screen>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
+  bleed: { marginHorizontal: -Spacing.gutter },
+  // Vertical padding leaves room for the circles' shadow.
+  categories: { gap: 4, paddingHorizontal: Spacing.gutter - 6, paddingVertical: 6 },
   listCard: { paddingVertical: 0 },
   empty: { gap: Spacing.md, alignItems: 'center', paddingVertical: Spacing.xl },
 });

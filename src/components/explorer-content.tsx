@@ -7,7 +7,7 @@ import { MustGoBadge } from '@/components/must-go-badge';
 import { Carousel } from '@/components/photo-card';
 import { PlacePhoto } from '@/components/place-photo';
 import { SegmentedControl } from '@/components/segmented-control';
-import { Screen, Section } from '@/components/screen';
+import { Section } from '@/components/screen';
 import { AppText, Chip, PressableScale } from '@/components/ui';
 import { Fonts, Radius, Shadow, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -32,13 +32,16 @@ type Segment = 'bh' | Region | 'events';
 const SEGMENTS: Segment[] = ['bh', 'mg', 'br', 'sa', 'events'];
 const TRIPS: TripType[] = ['daytrip', 'weekend', 'long', 'holiday'];
 
-/** "Explorer" tab: BH attractions, Minas escapes, trips across Brazil and South America, events and festivals. */
-export default function ExploreScreen() {
+/**
+ * "Explorer" segment of the BH tab: BH attractions, Minas escapes, trips across Brazil and South America,
+ * events and festivals. Stage 1 of the BH tab (2026-11-08): the old Explorer tab's body, unchanged.
+ */
+export function ExplorerContent() {
   const { t } = useI18n();
   const [segment, setSegment] = useState<Segment>('bh');
 
   return (
-    <Screen title={t.explore.title} subtitle={t.explore.subtitle}>
+    <>
       <SegmentedControl
         options={SEGMENTS.map((x) => ({ value: x, label: t.explore.segments[x] }))}
         value={segment}
@@ -48,7 +51,7 @@ export default function ExploreScreen() {
         }}
       />
       {segment === 'bh' ? <BhAttractions /> : segment === 'events' ? <Events /> : <Trips region={segment} />}
-    </Screen>
+    </>
   );
 }
 

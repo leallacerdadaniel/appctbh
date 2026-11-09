@@ -4,16 +4,17 @@ import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '@/components/icon';
-import { PressableScale } from '@/components/ui';
-import { MaxContentWidth, Spacing, TapTarget } from '@/constants/theme';
+import { AppText, PressableScale } from '@/components/ui';
+import { Fonts, MaxContentWidth, Radius, Spacing, TapTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 
 /**
  * Red bar with the white logo, on top of every screen (DUO reference: references/duo.md).
- * Logo only (owner, 2026-10-16); pushed screens add a back arrow on the left.
+ * Pushed screens have a back arrow on the left; tab screens have the SOS button there instead
+ * (owner, 2026-11-08). The right side stays free for the notifications bell (wave 9).
  */
-export function BrandBar({ back = false }: { back?: boolean }) {
+export function BrandBar({ back = false, sos = false }: { back?: boolean; sos?: boolean }) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { t } = useI18n();
@@ -42,6 +43,19 @@ export function BrandBar({ back = false }: { back?: boolean }) {
               <Icon name="chevronLeft" size={22} color={theme.onBrand} />
             </PressableScale>
           )}
+          {sos && !back && (
+            <PressableScale
+              accessibilityRole="button"
+              accessibilityLabel={t.emergency.title}
+              hitSlop={SOS_SLOP}
+              onPress={() => router.push('/emergency')}
+              style={[styles.sos, { backgroundColor: theme.onBrandTrack }]}>
+              <Icon name="emergency" size={16} color={theme.onBrand} />
+              <AppText variant="callout" color={theme.onBrand} style={{ fontFamily: Fonts.bodyMedium }}>
+                {t.common.sos}
+              </AppText>
+            </PressableScale>
+          )}
         </View>
 
         <View style={styles.side} />
@@ -49,6 +63,10 @@ export function BrandBar({ back = false }: { back?: boolean }) {
     </View>
   );
 }
+
+const SOS_HEIGHT = 32;
+/** The pill stays light on the bar; the touch area is 44 pt tall. */
+const SOS_SLOP = { top: (TapTarget - SOS_HEIGHT) / 2, bottom: (TapTarget - SOS_HEIGHT) / 2, left: 4, right: 4 };
 
 const styles = StyleSheet.create({
   bar: {
@@ -71,6 +89,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   logo: { width: 118, height: 28 },
+  sos: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    height: SOS_HEIGHT,
+    minWidth: TapTarget,
+    paddingHorizontal: 12,
+    marginLeft: -4,
+    borderRadius: Radius.pill,
+  },
   back: {
     width: TapTarget,
     height: TapTarget,

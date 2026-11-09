@@ -5,7 +5,7 @@ import { StyleSheet, View } from 'react-native';
 import { DateBlock } from '@/components/expense-ui';
 import { Icon } from '@/components/icon';
 import { Screen, Section } from '@/components/screen';
-import { AppText, Avatar, Button, Card, PressableScale } from '@/components/ui';
+import { AppText, Avatar, Button, Card, LoadingState, PressableScale, RetryCard } from '@/components/ui';
 import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
@@ -18,15 +18,14 @@ export default function ExpensesScreen() {
   const { state, reload } = useExpenses();
 
   return (
-    <Screen back title={t.expenses.title} subtitle={t.expenses.subtitle}>
+    <Screen back title={t.expenses.title} subtitle={t.expenses.subtitle} onRefresh={reload}>
       {state.status === 'ready' ? (
         <Content data={state.data} />
       ) : state.status === 'error' ? (
-        <Card style={{ gap: Spacing.md }}>
-          <AppText>{t.expenses.unavailable}</AppText>
-          <Button variant="secondary" label={t.expenses.retry} onPress={reload} />
-        </Card>
-      ) : null}
+        <RetryCard message={t.expenses.unavailable} retryLabel={t.expenses.retry} onRetry={reload} />
+      ) : (
+        <LoadingState label={t.common.loading} />
+      )}
     </Screen>
   );
 }

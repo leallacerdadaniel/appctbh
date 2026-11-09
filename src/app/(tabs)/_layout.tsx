@@ -16,11 +16,12 @@ export default function TabLayout() {
         animation: 'shift',
         sceneStyle: { backgroundColor: theme.background },
       }}>
+      {/* "Structure by task" (owner, 2026-11-08): now · home life · Chez Toi · dates · the city. */}
       <Tabs.Screen name="index" options={{ title: t.tabs.home }} />
+      <Tabs.Screen name="maison" options={{ title: t.tabs.maison }} />
+      <Tabs.Screen name="chez-toi" options={{ title: t.tabs.chezToi }} />
       <Tabs.Screen name="calendar" options={{ title: t.tabs.calendar }} />
-      <Tabs.Screen name="apartment" options={{ title: t.tabs.apartment }} />
-      <Tabs.Screen name="travel" options={{ title: t.tabs.travel }} />
-      <Tabs.Screen name="guide" options={{ title: t.tabs.guide }} />
+      <Tabs.Screen name="bh" options={{ title: t.tabs.bh }} />
     </Tabs>
   );
 }

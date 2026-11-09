@@ -167,27 +167,36 @@ type HomeState =
   | { status: 'noRental' }
   | { status: 'error' };
 
-/** reload shows the loading screen again; refresh swaps the data in place (after a save). */
-const HomeContext = createContext<{ state: HomeState; reload: () => void; refresh: () => void } | null>(null);
+/**
+ * reload shows the loading screen again; refresh swaps the data in place (after a save, or pull-to-refresh)
+ * and resolves when done. A failed refresh keeps the data already on screen.
+ */
+const HomeContext = createContext<{ state: HomeState; reload: () => void; refresh: () => Promise<void> } | null>(
+  null,
+);
 
 export function HomeProvider({ children }: { children: ReactNode }) {
   const { token, signOut } = useAuth();
   const [state, setState] = useState<HomeState>({ status: 'loading' });
 
   const load = useCallback(() => {
-    if (!token) return;
-    appApi<HomeResponse>('home', { token })
+    if (!token) return Promise.resolve();
+    return appApi<HomeResponse>('home', { token })
       .then((r) => setState({ status: 'ready', home: toHome(r) }))
       .catch((e) => {
         const code = e instanceof AppApiError ? e.code : 'server';
         if (code === 'unauthorized') signOut();
-        else setState({ status: code === 'noRental' ? 'noRental' : 'error' });
+        else if (code === 'noRental') setState({ status: 'noRental' });
+        // A refresh that fails (no network) must not swap the app for the error gate.
+        else setState((s) => (s.status === 'ready' ? s : { status: 'error' }));
       });
     // signOut changes identity on every render of AuthProvider; the token is what matters.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
-  useEffect(load, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   function reload() {
     setState({ status: 'loading' });

@@ -10,7 +10,7 @@ import { useTheme } from '@/hooks/use-theme';
 
 /**
  * Every screen: red BrandBar (fixed) + scrollable gray canvas with a centered 560px column.
- * `back` for screens pushed over the tabs; `header` for extra content right under the bar;
+ * `back` for screens pushed over the tabs (otherwise the bar shows SOS); `header` for extra content right under the bar;
  * `onRefresh` adds pull-to-refresh (the spinner shows until the promise settles).
  */
 export function Screen({
@@ -44,7 +44,8 @@ export function Screen({
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
-      <BrandBar back={back} />
+      {/* Tab screens (no back arrow) carry the SOS button in the bar. */}
+      <BrandBar back={back} sos={!back} />
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}

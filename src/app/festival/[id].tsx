@@ -18,7 +18,7 @@ export default function FestivalScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const e = getFestival(id);
 
-  if (!e) return <Redirect href="/travel" />;
+  if (!e) return <Redirect href={{ pathname: '/bh', params: { section: 'explorer' } }} />;
 
   return (
     <Screen back title={e.name} subtitle={e.city}>

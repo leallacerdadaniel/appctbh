@@ -1,12 +1,11 @@
 import * as Clipboard from 'expo-clipboard';
-import { router, type Href } from 'expo-router';
-import { Linking, ScrollView, StyleSheet, View } from 'react-native';
+import { router } from 'expo-router';
+import { Linking, StyleSheet, View } from 'react-native';
 
-import { CategoryCircle } from '@/components/category-circle';
 import { HeroCard } from '@/components/hero-card';
 import { Icon, type IconName } from '@/components/icon';
 import { ListGroup, ListRow } from '@/components/list';
-import { requestTitle } from '@/components/request-ui';
+import { rentMonthLabel, requestHref, requestTitle } from '@/components/request-ui';
 import { Screen, Section } from '@/components/screen';
 import { useToast } from '@/components/toast';
 import { AppText, Card, PressableScale } from '@/components/ui';
@@ -14,26 +13,14 @@ import { Fonts, Radius, Shadow, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { getAttraction } from '@/lib/attractions';
+import { daysUntil, upcomingCleanings } from '@/lib/cleaning';
 import type { EventKind } from '@/lib/events';
-import { formatDayDate, formatTime, shortAddress } from '@/lib/format';
-import { useBalanceLabel } from '@/lib/expenses';
-import { useHome } from '@/lib/home';
+import { formatDayDate, formatTime, isFutureMonth, shortAddress } from '@/lib/format';
+import { useHome, useHomeState } from '@/lib/home';
 import { upcomingEvents } from '@/lib/home-feed';
 import { contacts } from '@/lib/mock-data';
-import type { NearbyCategoryId } from '@/lib/nearby';
 import { isOpen, useRequests } from '@/lib/requests';
 import { trackAction } from '@/lib/usage';
-
-/** Everyday categories shown as circles; they open "À proximité" on that category. */
-const CATEGORIES: { id: NearbyCategoryId; emoji: string }[] = [
-  { id: 'supermarket', emoji: '🛒' },
-  { id: 'pharmacy', emoji: '💊' },
-  { id: 'bakery', emoji: '🥐' },
-  { id: 'gym', emoji: '🏋️' },
-  { id: 'laundry', emoji: '🧺' },
-  { id: 'mall', emoji: '🛍️' },
-  { id: 'hospital', emoji: '🏥' },
-];
 
 const EVENT_ICON: Record<EventKind, IconName> = {
   national: 'calendar',
@@ -43,19 +30,36 @@ const EVENT_ICON: Record<EventKind, IconName> = {
   contract: 'key',
 };
 
+/** Home only previews the agenda; the full list is the Agenda tab. */
+const UPCOMING_MAX = 3;
+
 /** Photo of the "Explorer" invitation card. */
 const EXPLORE_PHOTO = getAttraction('praca-liberdade')?.photo;
 
+/**
+ * Accueil (structure by task, owner 2026-11-08): what needs the student now, as rows that only appear
+ * when relevant (rent due, cleaning today or tomorrow, open requests), the next dates, and the two
+ * shortcuts used every day (Wi‑Fi, WhatsApp). Everything else lives in its tab: shared expenses in
+ * Maison, SOS in the brand bar, the "around you" categories in BH.
+ */
 export default function HomeScreen() {
   const theme = useTheme();
   const toast = useToast();
   const { t, lang } = useI18n();
-  const { student, apartment, contract, cleanings, roommates } = useHome();
-  const balance = useBalanceLabel();
+  const { student, apartment, contract, cleanings, payments } = useHome();
+  const { refresh } = useHomeState();
+  const { state: requestsState, reload: reloadRequests } = useRequests();
   const colon = lang === 'fr' ? ' : ' : ': ';
-  const upcoming = upcomingEvents({ cleanings, ...contract });
-  const { state: requestsState } = useRequests();
+
+  // Rent months already due and not paid (the current one, or an older one still pending).
+  const dueRent = payments.filter((m) => !m.paid && !isFutureMonth(m.month));
+  const nextCleaning = upcomingCleanings(cleanings)[0];
+  const cleaningSoon = nextCleaning && daysUntil(nextCleaning.date) <= 1 ? nextCleaning : null;
   const openRequests = requestsState.status === 'ready' ? requestsState.data.requests.filter(isOpen) : [];
+  // The cleaning row above already says it: don't repeat it in "À venir".
+  const upcoming = upcomingEvents({ cleanings, ...contract })
+    .filter((e) => !(cleaningSoon && e.kind === 'cleaning'))
+    .slice(0, UPCOMING_MAX);
 
   async function copyWifi() {
     if (!apartment.wifiPassword) return toast(t.common.soon);
@@ -65,7 +69,7 @@ export default function HomeScreen() {
   }
 
   return (
-    <Screen>
+    <Screen onRefresh={() => Promise.all([refresh(), reloadRequests()])}>
       <View style={styles.greeting}>
         <View style={{ flex: 1, gap: Spacing.xs }}>
           <AppText variant="display">
@@ -75,7 +79,6 @@ export default function HomeScreen() {
             {[shortAddress(apartment.address), apartment.complement].filter(Boolean).join(', ')}
           </AppText>
         </View>
-        {/* Profile lives here since the tab became "Voyages". */}
         <PressableScale
           accessibilityRole="button"
           accessibilityLabel={t.profile.title}
@@ -95,19 +98,44 @@ export default function HomeScreen() {
             : apartment.complement || shortAddress(apartment.address)
         }
         cta={t.home.seeApartment}
-        onPress={() => router.navigate('/apartment')}
+        onPress={() => router.navigate('/maison')}
       />
 
-      {/* Only while the team is working on something for the student. */}
-      {openRequests.length > 0 && (
+      {/* Only what needs attention now; each row appears only when it is relevant. */}
+      {(dueRent.length > 0 || cleaningSoon || openRequests.length > 0) && (
         <Card style={styles.listCard}>
           <ListGroup inset>
-            <ListRow
-              icon="receipt"
-              title={t.requests.openCount(openRequests.length)}
-              subtitle={openRequests.map((r) => requestTitle(r, t, lang)).join(', ')}
-              onPress={() => router.push('/requests' as Href)}
-            />
+            {dueRent.length > 0 && (
+              <ListRow
+                icon="rent"
+                title={
+                  dueRent.length === 1
+                    ? t.home.rentDue(rentMonthLabel(dueRent[0].month, lang))
+                    : t.home.rentsDue(dueRent.length)
+                }
+                subtitle={t.home.rentDueHint}
+                subtitleColor={theme.warning}
+                onPress={() => router.push('/apartment/payments')}
+              />
+            )}
+            {cleaningSoon && (
+              <ListRow
+                icon="cleaning"
+                title={daysUntil(cleaningSoon.date) === 0 ? t.home.cleaningToday : t.home.cleaningTomorrow}
+                subtitle={[cleaningSoon.time && formatTime(cleaningSoon.time, lang), t.home.cleaningHint]
+                  .filter(Boolean)
+                  .join(' · ')}
+                onPress={() => router.push('/apartment/cleaning')}
+              />
+            )}
+            {openRequests.length > 0 && (
+              <ListRow
+                icon="receipt"
+                title={t.requests.openCount(openRequests.length)}
+                subtitle={openRequests.map((r) => requestTitle(r, t, lang)).join(', ')}
+                onPress={() => router.push(requestHref('/requests'))}
+              />
+            )}
           </ListGroup>
         </Card>
       )}
@@ -115,7 +143,7 @@ export default function HomeScreen() {
       <Section
         title={t.home.upcoming}
         subtitle={t.home.upcomingHint}
-        action={t.home.seeCalendar}
+        action={t.home.seeAgenda}
         onAction={() => router.navigate('/calendar')}>
         <Card style={styles.listCard}>
           <ListGroup inset>
@@ -186,46 +214,8 @@ export default function HomeScreen() {
                 Linking.openURL(`https://wa.me/${contacts.whatsapp}`);
               }}
             />
-            <ListRow
-              icon="plus"
-              title={t.requests.homeNew}
-              subtitle={t.requests.homeNewHint}
-              onPress={() => router.push('/requests/new' as Href)}
-            />
-            {/* Nobody to split with when the student lives alone. */}
-            {roommates.length > 0 && (
-              <ListRow
-                icon="rent"
-                title={t.expenses.homeRow}
-                subtitle={balance || t.expenses.subtitle}
-                onPress={() => router.push('/expenses')}
-              />
-            )}
-            <ListRow
-              icon="emergency"
-              title={t.home.emergency}
-              subtitle={t.home.usefulNumbers}
-              onPress={() => router.push('/emergency')}
-            />
           </ListGroup>
         </Card>
-      </Section>
-
-      <Section title={t.home.around} subtitle={t.home.aroundHint}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.bleed}
-          contentContainerStyle={styles.categories}>
-          {CATEGORIES.map((c) => (
-            <CategoryCircle
-              key={c.id}
-              emoji={c.emoji}
-              label={t.nearby.short[c.id]}
-              onPress={() => router.push({ pathname: '/nearby', params: { category: c.id } })}
-            />
-          ))}
-        </ScrollView>
       </Section>
 
       {EXPLORE_PHOTO && (
@@ -235,7 +225,7 @@ export default function HomeScreen() {
           labelIcon="map"
           title={t.home.exploreTitle}
           cta={t.home.exploreCta}
-          onPress={() => router.navigate('/travel')}
+          onPress={() => router.navigate({ pathname: '/bh', params: { section: 'explorer' } })}
         />
       )}
     </Screen>
@@ -247,9 +237,6 @@ const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 const styles = StyleSheet.create({
   greeting: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, marginBottom: -Spacing.sm },
   profile: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
-  bleed: { marginHorizontal: -Spacing.gutter },
-  // Vertical padding leaves room for the circles' shadow.
-  categories: { gap: 4, paddingHorizontal: Spacing.gutter - 6, paddingVertical: 6 },
   listCard: { paddingVertical: 0 },
   copyPill: {
     flexDirection: 'row',

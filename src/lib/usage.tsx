@@ -18,7 +18,8 @@ export type UsageAction =
   | 'expense_added'
   | 'settlement_added'
   | 'cleaning_rated'
-  | 'explorer_tab';
+  | 'explorer_tab'
+  | 'bh_section';
 
 type UsageEvent = { kind: 'screen' | 'action'; name: string; item?: string; at: string };
 type UsageSearch = { query: string; results: number; at: string };

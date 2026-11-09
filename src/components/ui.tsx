@@ -157,6 +157,8 @@ export function Chip({
       accessibilityRole="button"
       accessibilityState={{ selected }}
       onPress={onPress}
+      // 36 pt pill, 44 pt touch area (rows of chips keep 8 pt between them, so slops never overlap).
+      hitSlop={CHIP_SLOP}
       style={[
         styles.chip,
         selected
@@ -170,6 +172,29 @@ export function Chip({
         {label}
       </AppText>
     </PressableScale>
+  );
+}
+
+/* ---------- Loading and retry ---------- */
+
+/** Spinner that keeps some room while a screen's data loads (instead of a blank screen). */
+export function LoadingState({ label }: { label: string }) {
+  const theme = useTheme();
+  return (
+    <View accessibilityRole="progressbar" accessibilityLabel={label} style={styles.loading}>
+      <ActivityIndicator color={theme.textSecondary} />
+    </View>
+  );
+}
+
+/** What couldn't load, and a way to try again. */
+export function RetryCard({ message, retryLabel, onRetry }: { message: string; retryLabel: string; onRetry: () => void }) {
+  const theme = useTheme();
+  return (
+    <Card style={{ gap: Spacing.md }}>
+      <AppText color={theme.textSecondary}>{message}</AppText>
+      <Button variant="secondary" label={retryLabel} onPress={onRetry} />
+    </Card>
   );
 }
 
@@ -261,7 +286,10 @@ export function Avatar({ initials, size = 40 }: { initials: string; size?: numbe
   );
 }
 
+const CHIP_SLOP = { top: (TapTarget - 36) / 2, bottom: (TapTarget - 36) / 2 };
+
 const styles = StyleSheet.create({
+  loading: { alignItems: 'center', justifyContent: 'center', paddingVertical: Spacing.xxl },
   button: {
     minHeight: 52,
     borderRadius: Radius.md,

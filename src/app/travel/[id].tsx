@@ -19,7 +19,7 @@ export default function DestinationScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const d = getDestination(id);
 
-  if (!d) return <Redirect href="/travel" />;
+  if (!d) return <Redirect href={{ pathname: '/bh', params: { section: 'explorer' } }} />;
 
   return (
     <Screen back title={d.name} subtitle={`${placeLabel(d, lang)} · ${t.travel.trips[d.trip]}`}>

@@ -17,7 +17,7 @@ import {
 } from '@/components/request-ui';
 import { Screen, Section } from '@/components/screen';
 import { useToast } from '@/components/toast';
-import { AppText, Button, Card, InlineMessage, Input } from '@/components/ui';
+import { AppText, Button, Card, InlineMessage, Input, LoadingState, RetryCard } from '@/components/ui';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
@@ -78,7 +78,19 @@ export default function RequestDetailScreen() {
         <Card>
           <AppText color={theme.textSecondary}>{r.notFound}</AppText>
         </Card>
-      ) : null}
+      ) : failed ? (
+        <RetryCard
+          message={r.detailError}
+          retryLabel={r.retry}
+          onRetry={() => {
+            setFailed(null);
+            reload();
+            fetchDetail();
+          }}
+        />
+      ) : (
+        <LoadingState label={t.common.loading} />
+      )}
     </Screen>
   );
 }

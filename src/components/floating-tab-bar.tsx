@@ -11,10 +11,10 @@ type TabBarProps = Parameters<NonNullable<ComponentProps<typeof Tabs>['tabBar']>
 
 const ICONS: Record<string, IconName> = {
   index: 'home',
+  maison: 'apartment',
+  'chez-toi': 'receipt',
   calendar: 'calendar',
-  apartment: 'apartment',
-  travel: 'travel',
-  guide: 'guide',
+  bh: 'map',
 };
 
 /**

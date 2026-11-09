@@ -5,7 +5,7 @@ import { StyleSheet, View } from 'react-native';
 import { Icon } from '@/components/icon';
 import { Screen, Section } from '@/components/screen';
 import { useToast } from '@/components/toast';
-import { AppText, Avatar, Button, Card, InlineMessage } from '@/components/ui';
+import { AppText, Avatar, Button, Card, InlineMessage, LoadingState, RetryCard } from '@/components/ui';
 import { Fonts, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
@@ -19,7 +19,7 @@ export default function ExpenseDetailScreen() {
   const toast = useToast();
   const { t, lang } = useI18n();
   const { id, kind } = useLocalSearchParams<{ id: string; kind: 'expense' | 'settlement' }>();
-  const { state } = useExpenses();
+  const { state, reload } = useExpenses();
   const act = useExpenseAction();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -29,8 +29,22 @@ export default function ExpenseDetailScreen() {
   const expense = data && kind === 'expense' ? data.expenses.find((e) => e.id === id) : undefined;
   const payment = data && kind === 'settlement' ? data.settlements.find((s) => s.id === id) : undefined;
   const item = expense ?? payment;
-  // Not loaded yet, or deleted meanwhile.
-  if (!data || !item) return <Screen back title={t.expenses.detailTitle}>{null}</Screen>;
+  // Not loaded yet, failed to load, or deleted meanwhile (the list no longer has it).
+  if (!data || !item) {
+    return (
+      <Screen back title={t.expenses.detailTitle}>
+        {state.status === 'loading' ? (
+          <LoadingState label={t.common.loading} />
+        ) : state.status === 'error' ? (
+          <RetryCard message={t.expenses.unavailable} retryLabel={t.expenses.retry} onRetry={reload} />
+        ) : (
+          <Card>
+            <AppText color={theme.textSecondary}>{t.expenses.notFound}</AppText>
+          </Card>
+        )}
+      </Screen>
+    );
+  }
 
   const member = (cp: string) => data.members.find((m) => m.id === cp);
   const name = (cp: string) => (cp === data.me ? t.expenses.youCap : (member(cp)?.fullName ?? '?'));

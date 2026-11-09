@@ -1,6 +1,5 @@
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
-import { router } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Linking, Pressable, StyleSheet, View } from 'react-native';
 
@@ -10,7 +9,7 @@ import {
   FieldLabel,
   Notice,
   requestErrorText,
-  requestHref,
+  useOpenSentRequest,
 } from '@/components/request-ui';
 import { Screen, Section } from '@/components/screen';
 import { useToast } from '@/components/toast';
@@ -36,6 +35,7 @@ type Photo = { uri: string; mimeType: string };
 export default function MaintenanceScreen() {
   const theme = useTheme();
   const toast = useToast();
+  const openSent = useOpenSentRequest();
   const { t } = useI18n();
   const r = t.requests;
   const { create, uploadPhoto } = useRequestActions();
@@ -132,7 +132,7 @@ export default function MaintenanceScreen() {
         photoPaths: paths.length ? paths : undefined,
       });
       toast(r.sent);
-      router.replace(requestHref(`/requests/${req.id}`));
+      openSent(req.id);
     } catch (e) {
       setError(requestErrorText(e, t));
       setSending(false);

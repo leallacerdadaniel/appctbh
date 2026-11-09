@@ -50,7 +50,7 @@ export default function NearbyScreen() {
   const categories = (data?.categories ?? []).filter((c) => c.places.length > 0);
   const visible = selected ? categories.filter((c) => c.id === selected) : categories;
 
-  // Same address the "Mon appart" tab copies.
+  // Same address the "Maison" tab copies.
   const { apartment } = useHome();
   const apartmentAddress = [apartment.address, apartment.complement].filter(Boolean).join(', ');
 
