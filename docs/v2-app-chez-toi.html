@@ -88,7 +88,7 @@ h3{font-family:var(--display);font-weight:500;font-size:17px;letter-spacing:-.01
 
 /* tabelas */
 .tabela{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:var(--card)}
-table{border-collapse:collapse;width:100%;min-width:640px;font-size:14px}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:14px}
 th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
 th{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);background:var(--fill)}
 tr:last-child td{border-bottom:0}
@@ -125,6 +125,9 @@ td.esf{white-space:nowrap}
 .decisoes .rec{display:block;margin-top:4px;color:var(--ink2);font-size:13.5px}
 
 .nota{font-size:13px;color:var(--ink3)}
+.estado{font-size:12.5px;color:var(--ink2);white-space:normal}
+.feito-lista li::marker{color:var(--ok)}
+.atualizado{font-size:13px;color:rgba(255,255,255,.85)}
 .rodape{border-top:1px solid var(--line);padding-top:20px;display:grid;gap:8px}
 .rodape p{font-size:13px;color:var(--ink2);max-width:76ch}
 </style>
@@ -133,15 +136,16 @@ td.esf{white-space:nowrap}
   <div class="miolo">
     <p class="eyebrow">Chez Toi BH · para a conversa com o Arthur</p>
     <h1>V2 do app do morador</h1>
-    <p class="lead">O que a V2 já tem, o que ainda não funciona, o que muda no design e no tour, o resultado da revisão de segurança e o caminho até a App Store e o Google Play. Fechado em 09/11/2026 a partir do código, do banco de desenvolvimento e de três revisões independentes (design, segurança e lojas).</p>
+    <p class="lead">O que a V2 já tem, o que ainda não funciona, o que muda no design e no tour, o resultado da revisão de segurança e o caminho até a App Store e o Google Play. Fechado em 09/11/2026 a partir do código, do banco de desenvolvimento e de três revisões independentes (design, segurança e lojas). Na mesma noite, quase tudo o que dependia só do desenvolvimento foi resolvido: está marcado em cada seção e resumido em "Feito hoje".</p>
+    <p class="atualizado">Atualizado em <span id="atualizado">09/11/2026, 20:45 (Brasília)</span></p>
     <div class="chips">
-      <span>86 telas · francês e inglês</span><span>10 funções no servidor</span><span>12 telas no painel do site</span><span>App: 14 commits à frente da main</span><span>Nada em produção ainda</span>
+      <span>86 telas · francês e inglês</span><span>11 funções no servidor</span><span>12 telas no painel do site</span><span>App: 16 commits à frente da main</span><span>Falhas de segurança corrigidas no dev</span><span>Nada em produção ainda</span>
     </div>
   </div>
 </header>
 
 <div class="gutter"><nav class="miolo indice" aria-label="Seções">
-  <a href="#resumo">Resumo</a><a href="#tem">O que a V2 tem</a><a href="#falta">O que falta</a><a href="#design">Design e tour</a><a href="#seguranca">Segurança</a><a href="#lojas">Lojas</a><a href="#plano">Plano</a><a href="#decisoes">Decisões</a>
+  <a href="#resumo">Resumo</a><a href="#feito">Feito hoje</a><a href="#tem">O que a V2 tem</a><a href="#falta">O que falta</a><a href="#design">Design e tour</a><a href="#seguranca">Segurança</a><a href="#lojas">Lojas</a><a href="#plano">Plano</a><a href="#decisoes">Decisões</a>
 </nav></div>
 
 <main class="miolo gutter">
@@ -151,12 +155,49 @@ td.esf{white-space:nowrap}
     <div class="card">
       <ol class="resumo">
         <li><span><b>A V2 está pronta no desenvolvimento</b> (projeto Supabase <code>appctbh</code>), testada no simulador. Em produção continua a versão do Arthur (<code>bright-service</code> no banco do site).</span></li>
-        <li><span><b>Para lançar faltam quatro frentes:</b> levar tabelas e funções para produção (homologação), corrigir três falhas altas de segurança, configurar o build das lojas e escrever os textos legais.</span></li>
-        <li><span><b>No design, um problema bloqueia:</b> o tour do app trava a tela em alguns casos. O resto são melhorias de organização: Comunidade e Saúde estão escondidas, a aba Séjour virou gaveta e o texto grande quebra várias telas.</span></li>
+        <li><span><b>Para lançar faltam três frentes:</b> levar tabelas e funções para produção (homologação), abrir as contas Apple e Google e fazer o primeiro build, e revisar os textos legais com um advogado. As falhas de segurança já foram corrigidas no desenvolvimento e a configuração das lojas está pronta.</span></li>
+        <li><span><b>No design, o que bloqueava foi resolvido:</b> o tour não trava mais e foi reescrito. Comunidade e Pratique ficaram visíveis, o Séjour foi dividido e o texto grande tem limite. Fica em aberto o onboarding da chegada (item 4 da tabela).</span></li>
         <li><span><b>Prazo realista até enviar às lojas: 4 a 6 semanas</b> (até 8, se o Google demorar no D-U-N-S). Custo das lojas: US$ 99 por ano (Apple) e US$ 25 uma vez (Google).</span></li>
-        <li><span><b>Dez decisões para amanhã</b>, no fim da página. A principal: onde e como a V2 vai para produção sem afetar o site.</span></li>
+        <li><span><b>Doze decisões para amanhã</b>, no fim da página. A principal: onde e como a V2 vai para produção sem afetar o site. A mais urgente: por qual conta da Apple o app entra no TestFlight.</span></li>
       </ol>
     </div>
+  </section>
+
+  <section class="sec" id="feito">
+    <div class="sec-cab"><p class="rot">Noite de 09/11</p><h2>Feito hoje, no desenvolvimento</h2>
+      <p>Tudo abaixo roda no projeto <code>appctbh</code> e nos commits locais (app <code>c3b5ef8</code>, site <code>6ba84da4</code>, sem push). Nada foi para a produção nem para o banco do site.</p></div>
+    <div class="grid2">
+      <div class="card"><h3>Segurança <span class="tag t-ok">3 altas e 6 médias corrigidas</span></h3><ul class="feito-lista">
+        <li>Primeiro acesso só para conta sem senha; contatos mascarados.</li>
+        <li>Login com limite: 10 erros por e-mail e 30 por IP em 15 minutos.</li>
+        <li>Contadores atômicos no banco (códigos, primeiro acesso, Charlotte).</li>
+        <li>Fim do acesso conferido em toda função; sair encerra a sessão no servidor; sessão de 60 dias.</li>
+        <li>Permissões mínimas no banco (nada para anônimo; hashes invisíveis para a equipe).</li>
+        <li>Moderação segura (na dúvida, segura), Charlotte com respostas assinadas, convite com nova senha só para admin, exclusão de conta numa transação.</li>
+        <li>9 funções republicadas e conferidas contra o arquivo do repositório.</li></ul></div>
+      <div class="card"><h3>Design e tour <span class="tag t-ok">9 de 10 itens</span></h3><ul class="feito-lista">
+        <li>Tour refeito: 8 passos, nunca trava, sempre dá para pular.</li>
+        <li>Pratique em 2º no Explorer; "Entre résidents" na Maison; próximo evento no Início.</li>
+        <li>Séjour com "Aide" e "Votre séjour"; pedidos com nome único em todo lugar.</li>
+        <li>Texto grande com limite de ampliação; contraste do vermelho nos links.</li>
+        <li><b>Abertura nova:</b> o app abre com o mapa de Minas, as letras saem dele e o zoom em BH abre a tela.</li></ul></div>
+      <div class="card"><h3>Lojas <span class="tag t-ok">configuração pronta</span></h3><ul class="feito-lista">
+        <li>Permissões que o app não usa desligadas (iOS e Android); manifesto de privacidade; criptografia declarada.</li>
+        <li><code>eas.json</code> com desenvolvimento, teste e produção; pacotes do SDK 58 em dia (<code>expo-doctor</code> 20/20).</li>
+        <li>Ícone do Android com o logo; splash com o mapa de Minas.</li>
+        <li>Ciência do uso da IA (Anthropic) antes da Charlotte; "Signaler cette réponse".</li>
+        <li>Rascunhos de política de privacidade e termos em PT, FR e EN; páginas <code>/app/privacidade</code> e <code>/app/excluir-conta</code> no site (branch).</li>
+        <li>Passo a passo do EAS e do TestFlight em <code>docs/eas-setup.md</code>.</li></ul></div>
+      <div class="card"><h3>Push <span class="tag t-dev">servidor pronto</span></h3><ul class="feito-lista">
+        <li>Todo aviso novo (painel ou automático) vira push, na língua do aluno.</li>
+        <li>Permissão pedida uma vez, depois das regras e do tour; tocar abre a tela certa.</li>
+        <li>Testado de ponta a ponta até a Expo. Para chegar ao celular falta o build nativo, a chave APNs (Apple) e o Firebase (Google).</li></ul></div>
+    </div>
+    <div class="card"><h3>Agora depende de vocês</h3><ul>
+      <li>Conta Apple Developer e Google Play como organização (D-U-N-S) e conta na Expo; depois, <code>eas login</code> e <code>eas init</code>.</li>
+      <li>Revisão jurídica dos textos; razão social, CNPJ, encarregado de dados e e-mail de privacidade para preencher.</li>
+      <li>Domínio das páginas legais: o app aponta para <code>cheztoibh.com.br/app/privacidade</code>; o site usa <code>housing.cheztoibh.com.br</code> no SEO.</li>
+      <li>Painel: mostrar o erro "só admin" ao gerar senha nova; tela para as respostas da Charlotte marcadas como erradas (opcional).</li></ul></div>
   </section>
 
   <section class="sec" id="tem">
@@ -174,7 +215,7 @@ td.esf{white-space:nowrap}
       <div class="card"><h3>Comunidade</h3><ul>
         <li>Mural (todos ou só o apartamento)</li><li>Viagens em grupo com conversa dentro do app</li><li>Eventos da Chez Toi com presença</li><li>Carta, denúncia, bloqueio, IA moderando, nenhum link</li></ul></div>
       <div class="card"><h3>Ajuda e cuidado</h3><ul>
-        <li>Charlotte (IA) com contrato e dados do aluno, foto do problema</li><li>SOS, seção Saúde, celular roubado</li><li>Feedback com resposta, pesquisa de satisfação, indicação</li><li>Cartão para a família</li></ul></div>
+        <li>Charlotte (IA) com contrato e dados do aluno, foto do problema</li><li>SOS, seção Saúde, celular roubado</li><li>Feedback com resposta, pesquisa de satisfação, indicação</li><li>Cartão para a família</li><li>Push dos avisos (servidor pronto; chega com o build nativo)</li></ul></div>
     </div>
     <div class="card"><h3>Painel da equipe no site <span class="tag t-dev">branch app/painel-do-app</span></h3>
       <p class="muted">12 telas no grupo "App do aluno": pedidos, encomendas, agenda de BH, faxineiras, avisos, acesso ao app (convite, nova senha, correções da ficha), moderação da comunidade, eventos, feedback, pesquisas, indicações e catálogo de extras. Commitadas, sem push e nunca abertas no navegador.</p></div>
@@ -185,26 +226,26 @@ td.esf{white-space:nowrap}
     <div class="grid2">
       <div class="card"><h3>Bloqueia o lançamento</h3><ul>
         <li><b>Nada da V2 está em produção.</b> As tabelas novas e 7 funções existem só no <code>appctbh</code>; a <code>bright-service</code> de produção tem mudanças do Arthur que não estão no repositório.</li>
-        <li><b>O app nunca teve build nativo</b> (só Expo Go): sem <code>eas.json</code>, sem ícone Android próprio, com permissões genéricas.</li>
+        <li><b>O app nunca teve build nativo</b> (só Expo Go). <span class="tag t-ok">Configuração pronta</span> Falta a conta da Apple/Google, o <code>eas init</code> e o primeiro build.</li>
         <li><b>Painel não testado</b> com login de verdade: precisa de um ambiente de homologação.</li>
-        <li><b>Segurança:</b> três falhas altas (seção abaixo).</li>
-        <li><b>Textos legais e link de privacidade</b> dentro do app; aviso de uso de IA de terceiros.</li></ul></div>
+        <li><b>Segurança:</b> <span class="tag t-ok">Corrigida no dev</span> as três altas e as seis médias. Falta levar para produção e auditar a <code>bright-service</code>.</li>
+        <li><b>Textos legais</b>: <span class="tag t-ok">Rascunhos prontos</span> link no app, aviso da IA e páginas no site feitos; falta a revisão jurídica e os dados da empresa.</li></ul></div>
       <div class="card"><h3>Funciona pela metade</h3><ul>
         <li>"Esqueci a senha" por e-mail espera o serviço de e-mail (Resend); hoje vai para a fila da equipe.</li>
-        <li>Charlotte ainda não conhece Saúde e Comunidade (base a regenerar).</li>
+        <li>Charlotte ainda não conhece Saúde, Comunidade e o tour novo (base a regenerar).</li>
         <li>Guia, Explorer e cartilha moram dentro do app: mudar exige nova versão.</li>
         <li>Recado da equipe e resposta ao feedback saem numa língua só.</li>
         <li>Primeiro acesso depende de passaporte e nascimento na ficha: não sabemos quantas fichas têm os dois.</li>
         <li>Agenda: Belotur ainda sem resposta; "mais bem avaliados" sem a chave do Google.</li></ul></div>
       <div class="card"><h3>Ainda não existe</h3><ul>
-        <li>Push, lembretes e agenda do celular (onda 9), widget, Wi‑Fi com um toque.</li>
+        <li>Lembretes e agenda do celular (onda 9), widget, Wi‑Fi com um toque. O push já existe no servidor.</li>
         <li>Painel: ficha do morador e do apartamento, subir contrato e laudo, agenda de faxina editável, regras e guia editáveis, histórico de quem mudou o quê.</li>
         <li>Inventário e vistoria com fotos; documentos do aluno com validade.</li>
         <li>Conversa com a equipe dentro do app (hoje é WhatsApp); SOS que avisa a equipe e manda a localização.</li></ul></div>
       <div class="card"><h3>Engenharia</h3><ul>
         <li>Nenhum teste automático no app.</li>
-        <li>Sem monitoramento de erros e sem atualização pelo ar (EAS Update).</li>
-        <li>21 pacotes atrás da versão do SDK 58 (<code>npx expo install --fix</code>).</li>
+        <li>Sem monitoramento de erros; atualização pelo ar (EAS Update) configurada, falta ligar com o <code>eas update:configure</code>.</li>
+        <li><s>21 pacotes atrás da versão do SDK 58</s> <span class="tag t-ok">Feito</span></li>
         <li>Rotina de virada de semestre (arquivar quem saiu, ativar a nova turma).</li></ul></div>
     </div>
   </section>
@@ -213,21 +254,21 @@ td.esf{white-space:nowrap}
     <div class="sec-cab"><p class="rot">Revisão de design</p><h2>Design, usabilidade e o tour</h2>
       <p>Revisão feita tela a tela no simulador, com a conta de teste. O foco foi o que um aluno francês na primeira semana não encontra ou não entende.</p></div>
     <div class="tabela"><table>
-      <thead><tr><th>#</th><th>Onde</th><th>Problema</th><th>Proposta</th><th>Esforço</th></tr></thead>
+      <thead><tr><th>#</th><th>Onde</th><th>Problema</th><th>Proposta</th><th>Esforço</th><th>Estado</th></tr></thead>
       <tbody>
-        <tr><td class="n">1</td><td>Tour</td><td><b>Trava o app</b> quando o alvo está fora da tela (Accueil rolado, ou o sino de outra aba). Tela escura, sem balão nem "Passer"; e reabre sozinho a cada abertura.</td><td>Pular passos sem alvo visível, manter o balão na tela, tocar no fundo avança, rolar ao topo antes de começar.</td><td class="esf"><span class="tag t-alto">P (bloqueia)</span></td></tr>
-        <tr><td class="n">2</td><td>Explorer</td><td>"Pratique" (Saúde, celular roubado, português, papéis) fica fora da tela: 7 categorias, cabem 6.</td><td>Pratique na 2ª posição e rolar até a categoria ativa.</td><td class="esf">P</td></tr>
-        <tr><td class="n">3</td><td>Maison / Accueil</td><td>Comunidade escondida no bloco "À l'immeuble"; eventos e viagens não aparecem no Accueil nem na Agenda.</td><td>Seção "Entre résidents" na Maison; card "Prochain événement" no Accueil; eventos e viagens na Agenda.</td><td class="esf">M</td></tr>
-        <tr><td class="n">4</td><td>Chegada</td><td>Onboarding empilhado: primeiro acesso, regras (8 telas), tour (9 passos), checklist e banner; três páginas dizem quase o mesmo (Premiers pas, Papiers, Applis).</td><td>Uma página "Premiers pas" com abas; tour como item da checklist, não automático.</td><td class="esf">M</td></tr>
-        <tr><td class="n">5</td><td>Séjour › Aide</td><td>Virou gaveta (8 linhas); o recap aparece três vezes; tour e recap com o mesmo ícone.</td><td>"Aide" com Charlotte, WhatsApp e tour; nova seção "Votre séjour" com recap, avis, parrainage e carte famille.</td><td class="esf">P</td></tr>
-        <tr><td class="n">6</td><td>Todo o app</td><td>Texto grande (Dynamic Type) quebra títulos, o FR/EN, os botões do endereço e as abas.</td><td>Limite de ampliação nos títulos e pills; botões do endereço em 2×2.</td><td class="esf">M</td></tr>
-        <tr><td class="n">7</td><td>Accueil</td><td>Quatro botões fortes disputando o fim da tela (Payer, C'est fait, Répondre, recap vermelho).</td><td>Vermelho só para o aluguel; os outros em secundário.</td><td class="esf">P</td></tr>
-        <tr><td class="n">8</td><td>Pedidos</td><td>"Faire une demande" e "Signaler un problème" falam os dois de reparo; no Accueil o mesmo fluxo se chama "Services".</td><td>"Services en plus (payants)" e "Un problème ? (gratuit)", iguais em todo lugar.</td><td class="esf">P</td></tr>
-        <tr><td class="n">9</td><td>Explorer</td><td>Repetições: "Autour de moi" em duas categorias, Pharmacie em dois atalhos que fazem coisas diferentes, Inhotim duas vezes.</td><td>Um atalho só com "Chez moi / Où je suis"; não repetir o destino em destaque.</td><td class="esf">M</td></tr>
-        <tr><td class="n">10</td><td>Viagem em grupo</td><td>Página só de texto, embora o destino tenha foto no Explorer.</td><td>Foto do destino no topo e botão "Je participe" fixo.</td><td class="esf">M</td></tr>
+        <tr><td class="n">1</td><td>Tour</td><td><b>Trava o app</b> quando o alvo está fora da tela (Accueil rolado, ou o sino de outra aba). Tela escura, sem balão nem "Passer"; e reabre sozinho a cada abertura.</td><td>Pular passos sem alvo visível, manter o balão na tela, tocar no fundo avança, rolar ao topo antes de começar.</td><td class="esf"><span class="tag t-alto">P (bloqueia)</span></td><td class="estado"><span class="tag t-ok">Feito</span></td></tr>
+        <tr><td class="n">2</td><td>Explorer</td><td>"Pratique" (Saúde, celular roubado, português, papéis) fica fora da tela: 7 categorias, cabem 6.</td><td>Pratique na 2ª posição e rolar até a categoria ativa.</td><td class="esf">P</td><td class="estado"><span class="tag t-ok">Feito</span></td></tr>
+        <tr><td class="n">3</td><td>Maison / Accueil</td><td>Comunidade escondida no bloco "À l'immeuble"; eventos e viagens não aparecem no Accueil nem na Agenda.</td><td>Seção "Entre résidents" na Maison; card "Prochain événement" no Accueil; eventos e viagens na Agenda.</td><td class="esf">M</td><td class="estado"><span class="tag t-medio">Em parte</span> falta pôr na Agenda</td></tr>
+        <tr><td class="n">4</td><td>Chegada</td><td>Onboarding empilhado: primeiro acesso, regras (8 telas), tour (9 passos), checklist e banner; três páginas dizem quase o mesmo (Premiers pas, Papiers, Applis).</td><td>Uma página "Premiers pas" com abas; tour como item da checklist, não automático.</td><td class="esf">M</td><td class="estado"><span class="tag t-baixo">Aberto</span> decidir com o Arthur</td></tr>
+        <tr><td class="n">5</td><td>Séjour › Aide</td><td>Virou gaveta (8 linhas); o recap aparece três vezes; tour e recap com o mesmo ícone.</td><td>"Aide" com Charlotte, WhatsApp e tour; nova seção "Votre séjour" com recap, avis, parrainage e carte famille.</td><td class="esf">P</td><td class="estado"><span class="tag t-ok">Feito</span></td></tr>
+        <tr><td class="n">6</td><td>Todo o app</td><td>Texto grande (Dynamic Type) quebra títulos, o FR/EN, os botões do endereço e as abas.</td><td>Limite de ampliação nos títulos e pills; botões do endereço em 2×2.</td><td class="esf">M</td><td class="estado"><span class="tag t-ok">Feito</span></td></tr>
+        <tr><td class="n">7</td><td>Accueil</td><td>Quatro botões fortes disputando o fim da tela (Payer, C'est fait, Répondre, recap vermelho).</td><td>Vermelho só para o aluguel; os outros em secundário.</td><td class="esf">P</td><td class="estado"><span class="tag t-ok">Feito</span> o recap segue vermelho (pedido do Daniel)</td></tr>
+        <tr><td class="n">8</td><td>Pedidos</td><td>"Faire une demande" e "Signaler un problème" falam os dois de reparo; no Accueil o mesmo fluxo se chama "Services".</td><td>"Services en plus (payants)" e "Un problème ? (gratuit)", iguais em todo lugar.</td><td class="esf">P</td><td class="estado"><span class="tag t-ok">Feito</span></td></tr>
+        <tr><td class="n">9</td><td>Explorer</td><td>Repetições: "Autour de moi" em duas categorias, Pharmacie em dois atalhos que fazem coisas diferentes, Inhotim duas vezes.</td><td>Um atalho só com "Chez moi / Où je suis"; não repetir o destino em destaque.</td><td class="esf">M</td><td class="estado"><span class="tag t-medio">Em parte</span> Voyages não repete; atalhos ainda não</td></tr>
+        <tr><td class="n">10</td><td>Viagem em grupo</td><td>Página só de texto, embora o destino tenha foto no Explorer.</td><td>Foto do destino no topo e botão "Je participe" fixo.</td><td class="esf">M</td><td class="estado"><span class="tag t-medio">Em parte</span> foto feita; botão fixo não</td></tr>
       </tbody></table></div>
     <div class="grid2">
-      <div class="card"><h3>Tour proposto (8 passos, sem passo final)</h3>
+      <div class="card"><h3>Tour novo (8 passos, sem passo final) <span class="tag t-ok">Feito</span></h3>
         <ol class="tour">
           <li><b>Bienvenue</b><i>Bonjour, moi c'est Charlotte ! L'essentiel de l'app en 30 secondes.</i></li>
           <li><b>Votre adresse</b><i>Uber, 99, copier ou montrer au chauffeur, d'une touche. Na chegada: a checklist.</i></li>
@@ -238,40 +279,40 @@ td.esf{white-space:nowrap}
           <li><b>Maison</b><i>Wi‑Fi, règles, tâches et comptes entre colocs, et la communauté des résidents.</i></li>
           <li><b>Séjour</b><i>Demandes, loyer, contrat et aide. Ce tour se refait ici, dans Aide.</i></li>
         </ol>
-        <p class="nota">Hoje são 9 passos; todos os alvos existem, mas nenhum apresenta Comunidade, Saúde, Pratique ou onde trocar a língua.</p></div>
-      <div class="card"><h3>Ajustes rápidos (até 30 min cada)</h3><ul>
+        <p class="nota">No app, em FR e EN, com título em cada passo. Passos cujo alvo não está na tela são pulados; na chegada, o passo 2 aponta para a checklist.</p></div>
+      <div class="card"><h3>Ajustes rápidos <span class="tag t-ok">6 de 7 feitos</span></h3><ul class="feito-lista">
         <li>"un toque" é português: trocar por "d'une touche" no tour e no aviso do aluguel.</li>
         <li>Botão central com rótulo de acessibilidade "Charlotte, votre assistante".</li>
         <li>Tirar o "Bientôt disponible" do Wi‑Fi: "Demandez à l'équipe".</li>
         <li>"Supprimer mon compte" abaixo de "Se déconnecter", em cinza.</li>
         <li>Vermelho #E80C20 sobre o cinza dá contraste 4,17:1 (abaixo do mínimo): usar #D20B1E nos links e no SOS.</li>
         <li>Ícone próprio para "Mes récaps"; explicar "portaria" (l'accueil de l'immeuble).</li>
-        <li>Datas dos avisos em inglês saem no formato brasileiro (19/11 19:00).</li></ul></div>
+        <li>Datas dos avisos em inglês saem no formato brasileiro (19/11 19:00). <span class="tag t-baixo">Aberto</span> a data vem pronta do banco (gatilho da 015).</li></ul></div>
     </div>
   </section>
 
   <section class="sec" id="seguranca">
     <div class="sec-cab"><p class="rot">Revisão de segurança</p><h2>Segurança</h2>
-      <p>Revisão só de leitura do app, das funções, do banco de desenvolvimento e das telas do painel. Nenhum problema crítico. <b>A produção (<code>bright-service</code> e o banco do site) não foi revisada</b> e precisa da mesma auditoria antes do lançamento.</p></div>
+      <p>Revisão só de leitura do app, das funções, do banco de desenvolvimento e das telas do painel. Nenhum problema crítico. <b>Todas as altas e médias foram corrigidas no desenvolvimento na mesma noite</b> (SQL 021 e as 9 funções republicadas), com testes contra o <code>appctbh</code>. <b>A produção (<code>bright-service</code> e o banco do site) não foi revisada</b> e precisa da mesma auditoria antes do lançamento.</p></div>
     <div class="achados">
-      <div class="achado alto"><span><span class="tag t-alto">Alto</span> <b>O primeiro acesso troca a senha de uma conta que já existe</b></span><p>Quem tem data de nascimento e passaporte de um aluno (colega, ex-parceiro, cópia do passaporte) toma a conta sem código nem aviso, e ainda vê telefone e contatos de emergência. Correção: primeiro acesso só para conta sem senha; conta ativa passa pelo código por e-mail, com aviso ao aluno; mascarar os contatos.</p><span class="onde">app-api: first-access-verify / first-access-complete</span></div>
-      <div class="achado alto"><span><span class="tag t-alto">Alto</span> <b>O login não tem limite de tentativas</b></span><p>Permite força bruta e reuso de senhas vazadas, e cada tentativa custa CPU no servidor. Correção: contador por e-mail e por IP, com espera progressiva.</p><span class="onde">app-api: login</span></div>
-      <div class="achado alto"><span><span class="tag t-alto">Alto</span> <b>As travas de tentativas furam com pedidos em paralelo</b></span><p>Código de redefinição, primeiro acesso, pedidos de nova senha e o limite diário da Charlotte contam e gravam em passos separados. Correção: contadores atômicos no banco.</p><span class="onde">app-api, app-assistant</span></div>
-      <div class="achado medio"><span><span class="tag t-medio">Médio</span> <b>Sessão continua valendo depois do fim do acesso</b></span><p>Só o login e o Início conferem os 30 dias; as outras funções aceitam o token por até 120 dias, e sair do app não revoga no servidor.</p></div>
-      <div class="achado medio"><span><span class="tag t-medio">Médio</span> <b>Permissões do banco largas demais</b></span><p>A equipe consegue ler os hashes de senha pelo painel; os limites por coluna não valem porque a tabela inteira tem UPDATE; o papel anônimo tem acesso amplo. O site tem cadastro público, então qualquer pessoa vira "authenticated". Correção: retirar tudo e conceder só as colunas necessárias.</p></div>
-      <div class="achado medio"><span><span class="tag t-medio">Médio</span> <b>Moderação por IA publica quando falha</b></span><p>Um texto feito para quebrar a resposta da IA sai publicado como "não conferido"; e não há limite de posts por aluno (cada um chama o modelo maior). Correção: na dúvida, segurar; limite diário; modelo menor para moderar.</p></div>
-      <div class="achado medio"><span><span class="tag t-medio">Médio</span> <b>Charlotte</b></span><p>O app manda o histórico que quiser (dá para forjar respostas anteriores); um link externo pode disparar uma pergunta sozinho; o PDF do contrato vai para a API em toda pergunta (precisa estar na política de privacidade).</p></div>
-      <div class="achado medio"><span><span class="tag t-medio">Médio</span> <b>Painel: convite gera senha nova para qualquer conta ativa</b></span><p>Qualquer pessoa da equipe pode entrar como um aluno sem que ele saiba. Correção: só administrador, com aviso por e-mail ao aluno.</p></div>
-      <div class="achado medio"><span><span class="tag t-medio">Médio</span> <b>Excluir a conta deixa dados para trás</b></span><p>Uso do app, uso da Charlotte, correções, histórico de moderação e fotos no Storage ficam; e a exclusão não é atômica (LGPD).</p></div>
+      <div class="achado alto"><span><span class="tag t-alto">Alto</span> <b>O primeiro acesso troca a senha de uma conta que já existe</b></span><p>Quem tem data de nascimento e passaporte de um aluno (colega, ex-parceiro, cópia do passaporte) toma a conta sem código nem aviso, e ainda vê telefone e contatos de emergência. Correção: primeiro acesso só para conta sem senha; conta ativa passa pelo código por e-mail, com aviso ao aluno; mascarar os contatos.</p><span class="onde">app-api: first-access-verify / first-access-complete</span><p class="estado"><span class="tag t-ok">Corrigido no dev</span> quem já tem senha recebe "já tem conta" e vai para o código por e-mail; contatos mascarados.</p></div>
+      <div class="achado alto"><span><span class="tag t-alto">Alto</span> <b>O login não tem limite de tentativas</b></span><p>Permite força bruta e reuso de senhas vazadas, e cada tentativa custa CPU no servidor. Correção: contador por e-mail e por IP, com espera progressiva.</p><span class="onde">app-api: login</span><p class="estado"><span class="tag t-ok">Corrigido no dev</span> 10 erros por e-mail e 30 por IP em 15 minutos; e-mail inexistente leva o mesmo tempo.</p></div>
+      <div class="achado alto"><span><span class="tag t-alto">Alto</span> <b>As travas de tentativas furam com pedidos em paralelo</b></span><p>Código de redefinição, primeiro acesso, pedidos de nova senha e o limite diário da Charlotte contam e gravam em passos separados. Correção: contadores atômicos no banco.</p><span class="onde">app-api, app-assistant</span><p class="estado"><span class="tag t-ok">Corrigido no dev</span> funções atômicas no banco; o uso da Charlotte é reservado antes de chamar o modelo.</p></div>
+      <div class="achado medio"><span><span class="tag t-medio">Médio</span> <b>Sessão continua valendo depois do fim do acesso</b></span><p>Só o login e o Início conferem os 30 dias; as outras funções aceitam o token por até 120 dias, e sair do app não revoga no servidor.</p><p class="estado"><span class="tag t-ok">Corrigido no dev</span> toda função confere o fim do acesso; sair encerra a sessão no servidor; sessão de 60 dias.</p></div>
+      <div class="achado medio"><span><span class="tag t-medio">Médio</span> <b>Permissões do banco largas demais</b></span><p>A equipe consegue ler os hashes de senha pelo painel; os limites por coluna não valem porque a tabela inteira tem UPDATE; o papel anônimo tem acesso amplo. O site tem cadastro público, então qualquer pessoa vira "authenticated". Correção: retirar tudo e conceder só as colunas necessárias.</p><p class="estado"><span class="tag t-ok">Corrigido no dev</span> nada para anônimo; a equipe só tem o que o painel usa; hashes fora do alcance.</p></div>
+      <div class="achado medio"><span><span class="tag t-medio">Médio</span> <b>Moderação por IA publica quando falha</b></span><p>Um texto feito para quebrar a resposta da IA sai publicado como "não conferido"; e não há limite de posts por aluno (cada um chama o modelo maior). Correção: na dúvida, segurar; limite diário; modelo menor para moderar.</p><p class="estado"><span class="tag t-ok">Corrigido no dev</span> qualquer falha da IA segura o texto para a equipe; limite de 30 textos por dia. O modelo menor ainda é decisão (item 9).</p></div>
+      <div class="achado medio"><span><span class="tag t-medio">Médio</span> <b>Charlotte</b></span><p>O app manda o histórico que quiser (dá para forjar respostas anteriores); um link externo pode disparar uma pergunta sozinho; o PDF do contrato vai para a API em toda pergunta (precisa estar na política de privacidade).</p><p class="estado"><span class="tag t-ok">Corrigido no dev</span> respostas assinadas pelo servidor; o link só preenche a pergunta; o contrato está nos rascunhos da política.</p></div>
+      <div class="achado medio"><span><span class="tag t-medio">Médio</span> <b>Painel: convite gera senha nova para qualquer conta ativa</b></span><p>Qualquer pessoa da equipe pode entrar como um aluno sem que ele saiba. Correção: só administrador, com aviso por e-mail ao aluno.</p><p class="estado"><span class="tag t-ok">Corrigido no dev</span> só admin gera nova senha para quem já tem senha; só inquilinos com locação; aviso por e-mail quando houver e-mail.</p></div>
+      <div class="achado medio"><span><span class="tag t-medio">Médio</span> <b>Excluir a conta deixa dados para trás</b></span><p>Uso do app, uso da Charlotte, correções, histórico de moderação e fotos no Storage ficam; e a exclusão não é atômica (LGPD).</p><p class="estado"><span class="tag t-ok">Corrigido no dev</span> tudo apagado numa transação, inclusive as fotos dos chamados.</p></div>
     </div>
     <div class="grid2">
       <div class="card"><h3>Baixo</h3><ul>
-        <li>Login um pouco mais lento quando o e-mail existe (dá para descobrir quem tem conta).</li>
-        <li>Links da agenda sem validação de esquema (no app e no painel); o robô de eventos aceita domínios que apontam para IP interno.</li>
-        <li>Link externo pode anexar arquivo do aparelho num chamado de manutenção.</li>
+        <li><s>Login um pouco mais lento quando o e-mail existe</s> <span class="tag t-ok">Feito</span></li>
+        <li>Links da agenda: <span class="tag t-ok">Feito</span> no app e no robô (só http/https). Falta no painel; o robô ainda aceita domínio que aponta para IP interno.</li>
+        <li><s>Link externo pode anexar arquivo do aparelho num chamado de manutenção</s> <span class="tag t-ok">Feito</span></li>
         <li>A função de fotos do Google é pública e sem limite de volume (custo).</li>
         <li>A regra "sem links" é fácil de contornar ("exemplo ponto com"): é política, não barreira.</li>
-        <li>Versões de pacotes das funções sem fixar; a chave das sessões sai da chave de serviço do Supabase.</li></ul></div>
+        <li>Versões dos pacotes das funções <span class="tag t-ok">fixadas</span>; a chave das sessões ainda sai da chave de serviço do Supabase.</li></ul></div>
       <div class="card"><h3>O que está sólido</h3><ul>
         <li>Token assinado conferido em toda chamada, com versão da sessão e status da conta.</li>
         <li>Senha com PBKDF2 e comparação em tempo constante.</li>
@@ -285,15 +326,15 @@ td.esf{white-space:nowrap}
     <div class="sec-cab"><p class="rot">Publicação</p><h2>Caminho até a App Store e o Google Play</h2>
       <p>O app não usa compra dentro do app (serviço físico, pago por fora), tem exclusão de conta, denúncia, bloqueio e carta: isso já atende as regras mais duras. Os bloqueios são de configuração, de conta e de texto.</p></div>
     <div class="grid2">
-      <div class="card"><h3>Bloqueios no projeto <span class="tag t-dev">dev</span></h3><ul>
+      <div class="card"><h3>Bloqueios no projeto <span class="tag t-dev">dev</span> <span class="tag t-ok">quase todos feitos</span></h3><ul>
         <li>Backend de produção definido e variáveis de ambiente no EAS (hoje o endereço vem do <code>.env.local</code>, que não vai para o build).</li>
-        <li>Criar <code>eas.json</code>, projeto EAS e atualizações pelo ar.</li>
-        <li>Ícone do Android ainda é o do Expo.</li>
-        <li>Desligar permissões que o app não usa (microfone, localização sempre, movimento, Face ID) e as herdadas no Android.</li>
-        <li>Link da política de privacidade no Perfil e no login.</li>
-        <li>Aceite explícito do uso de IA de terceiros (Anthropic) antes da Charlotte e na carta; botão "Signaler cette réponse" nas respostas da IA (Google).</li>
-        <li>Manifesto de privacidade iOS e <code>usesNonExemptEncryption: false</code>; atualizar 21 pacotes; primeiro build de teste.</li>
-        <li>Tirar "Bientôt disponible" de onde faltar dado: a conta de demonstração precisa estar completa.</li></ul></div>
+        <li><code>eas.json</code> <span class="tag t-ok">Feito</span>; projeto EAS (<code>eas init</code>) depende da conta na Expo.</li>
+        <li><s>Ícone do Android ainda é o do Expo</s> <span class="tag t-ok">Feito</span></li>
+        <li><s>Desligar permissões que o app não usa</s> <span class="tag t-ok">Feito</span> (a localização precisa continua no Android: o recap usa).</li>
+        <li><s>Link da política de privacidade no login e no Séjour</s> <span class="tag t-ok">Feito</span></li>
+        <li><s>Ciência do uso de IA antes da Charlotte; "Signaler cette réponse"</s> <span class="tag t-ok">Feito</span> (falta na carta da comunidade).</li>
+        <li><s>Manifesto de privacidade, criptografia, 21 pacotes</s> <span class="tag t-ok">Feito</span>; primeiro build de teste depende da conta.</li>
+        <li><s>"Bientôt disponible" no Wi‑Fi</s> <span class="tag t-ok">Feito</span>; a conta de demonstração ainda precisa ser montada.</li></ul></div>
       <div class="card"><h3>Com a Chez Toi <span class="tag t-ct">Chez Toi</span></h3><ul>
         <li>D-U-N-S com razão social e endereço exatos do CNPJ (Apple: até 5 dias úteis; Google: até 30 dias).</li>
         <li>E-mail @cheztoibh.com.br para as contas e domínio verificado no Google.</li>
@@ -311,6 +352,8 @@ td.esf{white-space:nowrap}
         <tr><td>Semanas 3–5</td><td>Questionários de privacidade, idade e dados; conta de demonstração</td><td>TestFlight e teste interno com a equipe e alguns alunos</td></tr>
         <tr><td>Semanas 4–6</td><td>Revisão final dos textos</td><td>Envio: Apple costuma revisar em até 48 h; Google em alguns dias</td></tr>
       </tbody></table></div>
+    <div class="card"><h3>TestFlight para mostrar ao Arthur e à estagiária</h3>
+      <p class="muted">O TestFlight exige um time pago na Apple. Duas saídas: <b>(a)</b> se o time da Apple do Café com Crédito for da CLRD, subir já um build lá com um identificador separado, só para teste interno (usuários do App Store Connect recebem em minutos, sem revisão da Apple), e publicar depois pela conta da Chez Toi; <b>(b)</b> esperar a conta da Chez Toi, que depende do D-U-N-S. Enquanto isso, dá para abrir pelo Expo Go com <code>npx expo start --tunnel</code> com o Mac ligado (sem push). Nos dois casos o app usa o banco de desenvolvimento com dados fictícios.</p></div>
     <p class="nota">Custos: Apple US$ 99/ano; Google US$ 25 uma vez; D-U-N-S grátis; EAS grátis para começar (15 builds por plataforma/mês) ou US$ 19/mês. Não precisa de Mac. Variáveis: uso da API da Anthropic e a revisão jurídica. A Apple permite distribuição "unlisted" (só por link), o que combina com um app só para moradores.</p>
   </section>
 
@@ -318,10 +361,10 @@ td.esf{white-space:nowrap}
     <div class="sec-cab"><p class="rot">Proposta</p><h2>Como fechar a V2</h2>
       <p>A V2 de lançamento é o que já existe, com segurança e operação no nível de produção. O que ainda não existe fica para a V3, exceto o push, que entra porque o build nativo é feito de qualquer jeito.</p></div>
     <div class="fases">
-      <div class="card fase"><span class="quando">Semanas 1–2</span><h3>Endurecer</h3><ul>
-        <li>As três falhas altas e as médias de banco e sessão</li><li>Tour corrigido e reescrito; ajustes rápidos de design</li><li>Pratique visível, Comunidade com seção própria, Aide reorganizada</li><li>Configuração do EAS, ícones, permissões, privacidade, aceite da IA</li><li>Testes das rotas de login e de autorização</li></ul></div>
+      <div class="card fase"><span class="quando">Semanas 1–2 · <b>quase todo feito em 09/11</b></span><h3>Endurecer</h3><ul class="feito-lista">
+        <li>As três falhas altas e as médias de banco e sessão</li><li>Tour corrigido e reescrito; ajustes rápidos de design</li><li>Pratique visível, Comunidade com seção própria, Aide reorganizada</li><li>Configuração do EAS, ícones, permissões, privacidade, aceite da IA</li><li>Testes automáticos das rotas de login e de autorização <span class="tag t-baixo">Aberto</span> (hoje: testes manuais contra o dev)</li></ul></div>
       <div class="card fase"><span class="quando">Semanas 2–4</span><h3>Levar para produção</h3><ul>
-        <li>Homologação: cópia da estrutura do banco do site, sem dados de alunos</li><li>Juntar os commits do Arthur e a <code>bright-service</code></li><li>Migrações do app em produção, com backup antes</li><li>Painel testado na homologação e depois no site</li><li>Push (onda 9), e-mail transacional, monitoramento de erros</li></ul></div>
+        <li>Homologação: cópia da estrutura do banco do site, sem dados de alunos</li><li>Juntar os commits do Arthur e a <code>bright-service</code></li><li>Migrações do app em produção, com backup antes</li><li>Painel testado na homologação e depois no site</li><li>Push (onda 9: servidor pronto), e-mail transacional, monitoramento de erros</li></ul></div>
       <div class="card fase"><span class="quando">Semanas 4–6</span><h3>Testar e publicar</h3><ul>
         <li>TestFlight e teste interno com a equipe e 5 a 10 alunos</li><li>Conta de demonstração e material de loja</li><li>Envio às duas lojas</li><li>Rotina de virada de semestre</li></ul></div>
     </div>
@@ -336,17 +379,19 @@ td.esf{white-space:nowrap}
       <li><b>Os commits do Arthur depois de 07/11</b> (a <code>bright-service</code> de produção tem mudanças que não estão no GitHub).<span class="rec">Ele sobe no repositório para juntar com a V2 antes da homologação.</span></li>
       <li><b>Homologação do painel.</b><span class="rec">O site precisa ler o endereço do banco por variável de ambiente (hoje é fixo no código) para testar o painel sem tocar em produção.</span></li>
       <li><b>Quem opera o quê na equipe.</b><span class="rec">Moderação da comunidade, fila de pedidos, correções da ficha, convites: papéis admin e equipe, e quem pode gerar senha para aluno (recomendação: só admin).</span></li>
-      <li><b>Primeiro acesso só para conta sem senha.</b><span class="rec">Conta já ativa troca senha pelo código por e-mail. Isso depende do e-mail transacional (Resend com domínio cheztoibh.com.br).</span></li>
+      <li><b>E-mail transacional.</b><span class="rec">O primeiro acesso já é só para conta sem senha (feito); quem já tem conta troca a senha pelo código por e-mail, e sem o Resend com o domínio cheztoibh.com.br o pedido cai na fila da equipe.</span></li>
       <li><b>Contas das lojas em nome da Chez Toi.</b><span class="rec">Quem pede o D-U-N-S e quem assina como representante.</span></li>
       <li><b>Identificador do app</b>, que não muda depois do primeiro envio.<span class="rec"><code>br.com.cheztoibh.app</code> (o inverso do domínio) ou o atual <code>br.cheztoibh.app</code>.</span></li>
       <li><b>Distribuição.</b><span class="rec">Aberta nas lojas ou "unlisted" na Apple (só por link). Países: Brasil e União Europeia no mínimo.</span></li>
       <li><b>Orçamento da IA.</b><span class="rec">Modelo menor para a moderação, limite diário por aluno na Charlotte e na comunidade, alerta de gasto.</span></li>
       <li><b>Escopo da V2.</b><span class="rec">Confirmar o corte proposto acima (V2 = endurecer + produção + push + lojas; o resto na V3) e quem toca cada frente.</span></li>
+      <li><b>TestFlight já ou só com a conta da Chez Toi.</b><span class="rec">Time da Apple da CLRD como ponte (identificador separado, só teste interno) ou esperar o D-U-N-S. Quem entra como testador.</span></li>
+      <li><b>Domínio e dados das páginas legais.</b><span class="rec"><code>cheztoibh.com.br</code> ou <code>housing.cheztoibh.com.br</code>; razão social, CNPJ, encarregado de dados e e-mail de privacidade.</span></li>
     </ol>
   </section>
 
   <footer class="rodape">
     <p><b>Fontes.</b> Código das branches <code>onda-6-pedidos</code> (app) e <code>app/painel-do-app</code> (site), banco de desenvolvimento <code>appctbh</code>, plano de ondas (versão 22) e três revisões feitas em 09/11/2026: design e usabilidade no simulador do iPhone, segurança só de leitura, e regras atuais da Apple, do Google e da Expo (SDK 58).</p>
-    <p>O detalhe de cada item, com arquivo e linha, está nos relatórios das revisões e no plano de ondas.</p>
+    <p>O detalhe de cada item, com arquivo e linha, está nos relatórios das revisões e no plano de ondas. As correções da noite de 09/11 estão nos commits <code>c3b5ef8</code> (app) e <code>6ba84da4</code> (site), sem push.</p>
   </footer>
 </main>
