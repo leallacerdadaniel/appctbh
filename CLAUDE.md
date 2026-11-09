@@ -64,6 +64,8 @@ próprio artefato).
   016 feedback, pesquisa de satisfação e indicação (`app_feedback`, `app_surveys`, `app_referral_*`),
   017 políticas da equipe para o painel (pedidos, fotos dos chamados, faxineira, leituras dos avisos),
   018 dados fictícios da comunidade (posts de Hugo e Chloé, viagem a Ouro Preto, apéro de boas-vindas).
+  020 primeiro acesso ligado à ficha do site (`app_first_access_attempts`, `app_profile_corrections`,
+  `app_students.activated_at`; passaporte e dados fictícios para Hugo e Chloé testarem).
   019 nenhum link no que o aluno escreve (`app_has_link` + regras `*_no_links` em todas as tabelas de texto livre) e a
   conversa da viagem (`app_community_comments.trip_id`); a coluna do link do WhatsApp das viagens saiu (019b).
   A conta de teste fica no `.env.local` (fora do Git).
@@ -88,6 +90,12 @@ próprio artefato).
 - Segredos que faltam no `appctbh`: `ANTHROPIC_API_KEY` (Charlotte e moderação) e, para e-mail, `RESEND_API_KEY` +
   `RESEND_FROM`. Sem e-mail, o "esqueci a senha" vira pedido na tela Acesso ao app do painel; sem a chave da IA,
   o que o aluno publica entra no ar marcado `unchecked` para a equipe conferir.
+- Primeiro acesso (09/11/2026, decisão do Daniel: nascimento + passaporte): `src/app/first-access.tsx` (3 passos:
+  quem é você, seus dados da ficha, senha) e as rotas `first-access-verify` e `first-access-complete` da `app-api`.
+  A ficha do site (`finance_counterparties`) só é lida; "Corriger" grava em `app_profile_corrections`, que aparece na
+  tela Acesso ao app do painel. Serve também de nova senha para quem já tinha acesso. Senha de teste do Hugo no
+  `.env.local` (`TEST_HUGO_PASSWORD`). Login e primeiro acesso usam `src/components/auth-ui.tsx` (foto de BH,
+  campos com ícone, botão com o gradiente).
 - Login (09/11/2026): sessão no Keychain/Keystore (`expo-secure-store`, migra a de antes); `src/app/forgot-password.tsx`
   (fora do login) e `src/app/account-delete.tsx` (Perfil › Supprimer mon compte). Não sair da conta de teste no
   simulador: entrar de novo pede a senha do `.env.local`.

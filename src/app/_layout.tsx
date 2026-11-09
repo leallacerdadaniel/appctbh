@@ -90,6 +90,7 @@ function RootStack() {
         <Stack.Protected guard={!isSignedIn}>
           <Stack.Screen name="login" />
           <Stack.Screen name="forgot-password" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="first-access" options={{ animation: 'slide_from_right' }} />
         </Stack.Protected>
         <Stack.Protected guard={isSignedIn && mustChangePassword}>
           <Stack.Screen name="change-password" />

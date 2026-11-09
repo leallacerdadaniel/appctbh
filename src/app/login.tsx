@@ -1,5 +1,4 @@
 import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useRef, useState, type ComponentRef } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
@@ -7,14 +6,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FocusStatusBar } from '@/components/focus-status-bar';
 import { LanguageSwitch } from '@/components/language-switch';
-import { AppText, Button, InlineMessage, Input, PressableScale } from '@/components/ui';
-import { Brand, Fonts, MaxContentWidth, Shadow, Spacing, TapTarget, Type } from '@/constants/theme';
+import { AUTH_WINE, AuthBackdrop, AuthDivider, AuthField, GradientButton, OutlineButton } from '@/components/auth-ui';
+import { AppText, InlineMessage, PressableScale } from '@/components/ui';
+import { Fonts, MaxContentWidth, Shadow, Spacing, Type } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { useAuth, type SignInError } from '@/lib/auth';
-
-/** Deepest stop of the brand gradient: behind everything, so the sheet's corners never show white. */
-const WINE = Brand.barGradient[2];
 
 /**
  * Sign-in (redesigned 2026-11-09, owner: "muda pra ficar bonito"; no Charlotte at the entrance). Belo Horizonte
@@ -51,20 +48,7 @@ export default function LoginScreen() {
           bounces={false}
           showsVerticalScrollIndicator={false}>
           <View style={styles.hero}>
-            <Image
-              source={require('@/assets/attractions/serra-curral.jpg')}
-              style={StyleSheet.absoluteFill}
-              contentFit="cover"
-              contentPosition="top"
-              accessible={false}
-            />
-            {/* The city in its own colors (a light shade at the top for the logo), then the brand red turning to
-                wine behind the welcome. */}
-            <LinearGradient
-              colors={['rgba(0,0,0,0.35)', 'rgba(0,0,0,0)', 'rgba(210,11,30,0.55)', 'rgba(120,5,16,0.97)']}
-              locations={[0, 0.3, 0.62, 1]}
-              style={StyleSheet.absoluteFill}
-            />
+            <AuthBackdrop />
             <View style={[styles.top, { paddingTop: insets.top + Spacing.sm }]}>
               <Image
                 source={require('@/assets/brand/logo-wordmark-white.png')}
@@ -80,7 +64,7 @@ export default function LoginScreen() {
                 {t.login.title}
               </AppText>
               <AppText color={theme.onBrandMuted} style={styles.subtitle}>
-                {t.login.subtitle}
+                {t.login.heroSubtitle}
               </AppText>
             </View>
           </View>
@@ -91,8 +75,15 @@ export default function LoginScreen() {
               Shadow.floating,
               { backgroundColor: theme.surface, paddingBottom: insets.bottom + Spacing.lg },
             ]}>
-            <Input
+            <View style={{ gap: 2 }}>
+              <AppText variant="title">{t.login.sheetTitle}</AppText>
+              <AppText variant="callout" color={theme.textSecondary}>
+                {t.login.subtitle}
+              </AppText>
+            </View>
+            <AuthField
               label={t.login.email}
+              icon="mail"
               value={email}
               onChangeText={setEmail}
               placeholder={t.login.emailPlaceholder}
@@ -102,16 +93,28 @@ export default function LoginScreen() {
               returnKeyType="next"
               onSubmitEditing={() => passwordRef.current?.focus()}
             />
-            <Input
+            <AuthField
               ref={passwordRef}
               label={t.login.password}
+              icon="lock"
+              secure
               value={password}
               onChangeText={setPassword}
               placeholder="••••••••"
-              secureTextEntry
               autoComplete="password"
               returnKeyType="go"
               onSubmitEditing={submit}
+              accessory={
+                <PressableScale
+                  accessibilityRole="link"
+                  accessibilityLabel={t.login.forgot}
+                  onPress={() => router.push('/forgot-password')}
+                  hitSlop={12}>
+                  <AppText variant="caption" color={theme.brand} style={{ fontFamily: Fonts.bodyMedium }}>
+                    {t.login.forgotShort}
+                  </AppText>
+                </PressableScale>
+              }
             />
             {!error && signOutReason && (
               <InlineMessage
@@ -120,15 +123,9 @@ export default function LoginScreen() {
               />
             )}
             {error && <InlineMessage kind="error" text={t.login.errors[error]} />}
-            <Button label={t.login.submit} onPress={submit} loading={loading} disabled={!email || !password} />
-            <PressableScale
-              accessibilityRole="link"
-              onPress={() => router.push('/forgot-password')}
-              style={styles.forgot}>
-              <AppText variant="callout" color={theme.textSecondary} style={{ fontFamily: Fonts.bodyMedium }}>
-                {t.login.forgot}
-              </AppText>
-            </PressableScale>
+            <GradientButton label={t.login.submit} onPress={submit} loading={loading} disabled={!email || !password} />
+            <AuthDivider label={t.login.or} />
+            <OutlineButton icon="idCard" label={t.login.firstAccess} onPress={() => router.push('/first-access')} />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -139,7 +136,7 @@ export default function LoginScreen() {
 const SHEET_RADIUS = 32;
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: WINE },
+  root: { flex: 1, backgroundColor: AUTH_WINE },
   hero: {
     flex: 1,
     minHeight: 400,
@@ -176,7 +173,6 @@ const styles = StyleSheet.create({
     borderTopRightRadius: SHEET_RADIUS,
     paddingHorizontal: Spacing.gutter,
     paddingTop: Spacing.xl,
-    gap: Spacing.md,
+    gap: Spacing.lg,
   },
-  forgot: { minHeight: TapTarget, alignItems: 'center', justifyContent: 'center' },
 });

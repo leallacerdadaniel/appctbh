@@ -30,6 +30,12 @@
 //   /app-api/password-reset-confirm  { email, code, password } → { token }  (código de 6 dígitos por e-mail, 15 min, 5 tentativas)
 //   /app-api/account-delete          { password, reason? }     → { ok }  (apaga o que é só do app; contrato e financeiro ficam)
 //   O acesso termina 30 dias depois da saída (app_access_until): login e home respondem 'accessEnded'.
+//   Primeiro acesso ligado à ficha do site (020_primeiro_acesso.sql): o aluno prova quem é com a data de nascimento e
+//   o número do passaporte da ficha (finance_counterparties) e escolhe a senha, sem a equipe gerar nada.
+//   /app-api/first-access-verify   { email, birthDate: 'AAAA-MM-DD', passport } → { ticket, alreadyActive, profile }
+//       erros: 'noMatch' (não confere, resposta igual exista ou não o e-mail), 'tooMany' (5 erradas por hora),
+//       'incomplete' (ficha sem passaporte: o pedido vai para o painel), 'disabled' (desligado pela equipe)
+//   /app-api/first-access-complete { ticket, password, correction? } → { token }  (correction vai para a equipe)
 //   E-mail: segredos RESEND_API_KEY e RESEND_FROM ("Chez Toi BH <app@cheztoibh.com.br>"). Sem eles, o pedido de
 //   nova senha vai para a fila do painel (Acesso ao app) e a equipe manda uma senha provisória.
 import { createClient } from 'npm:@supabase/supabase-js@2';
@@ -297,6 +303,216 @@ async function passwordResetConfirm(body: { email?: string; code?: string; passw
     .eq('counterparty_id', cp);
   if (error) return json({ error: 'server' }, 500);
   await db.from('app_password_resets').update({ used_at: now }).eq('id', reset.id);
+  return json({ token: await makeToken(cp, version) });
+}
+
+// ---------- primeiro acesso (020_primeiro_acesso.sql) ----------
+const FIRST_ACCESS_FAILS_PER_HOUR = 5;
+const TICKET_MINUTES = 20;
+/** Igual a app_has_link (019) e a src/lib/no-links.ts. */
+const LINK =
+  /(https?:\/\/|www\.|[a-z0-9-]+\.(com|net|org|br|fr|io|me|ly|gl|co|app|link|info|xyz|site|online|shop|store|tv|gg|to|be|us|eu|es|it|de|uk|ai|dev|page|club|live|click|top|vip|lat|pro|biz|cc|ws|tk|gov|edu)\b)/i;
+
+let ticketKey: CryptoKey | null = null;
+async function getTicketKey() {
+  if (!ticketKey) {
+    const raw = await crypto.subtle.digest('SHA-256', enc.encode(`ctbh-app-activate:${SERVICE_KEY}`));
+    ticketKey = await crypto.subtle.importKey('raw', raw, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify']);
+  }
+  return ticketKey;
+}
+
+/** Bilhete curto entre "provei quem sou" e "escolhi a senha": não abre sessão nenhuma. */
+async function makeTicket(cp: string) {
+  const payload = b64url(enc.encode(JSON.stringify({ cp, p: 'activate', exp: Date.now() + TICKET_MINUTES * 60_000 })));
+  const sig = await crypto.subtle.sign('HMAC', await getTicketKey(), enc.encode(payload));
+  return `${payload}.${b64url(sig)}`;
+}
+
+async function readTicket(ticket: string): Promise<string | null> {
+  const [payload, sig] = ticket.split('.');
+  if (!payload || !sig) return null;
+  try {
+    const ok = await crypto.subtle.verify('HMAC', await getTicketKey(), fromB64url(sig), enc.encode(payload));
+    if (!ok) return null;
+    const { cp, p, exp } = JSON.parse(new TextDecoder().decode(fromB64url(payload)));
+    return p === 'activate' && Date.now() <= exp ? (cp as string) : null;
+  } catch {
+    return null;
+  }
+}
+
+const emailHash = async (email: string) =>
+  hex(await crypto.subtle.digest('SHA-256', enc.encode(`ctbh-app-first:${SERVICE_KEY}:${email}`)));
+/** "21 fr-00102 " → "21FR00102": o aluno digita como está no passaporte, com ou sem espaços e traços. */
+const normPassport = (s: unknown) => String(s ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+const isIsoDate = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(Date.parse(s));
+
+type Ficha = {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  nationality: string | null;
+  passport_number: string | null;
+  date_of_birth: string | null;
+  arrival_date: string | null;
+  emergency_contact_1_name: string | null;
+  emergency_contact_1_contact: string | null;
+  emergency_contact_2_name: string | null;
+  emergency_contact_2_contact: string | null;
+};
+
+/** A ficha do aluno com este e-mail e uma estadia ainda aberta (até 30 dias depois da saída). Só uma, senão nenhuma. */
+async function fichaByEmail(email: string): Promise<Ficha | null> {
+  const pattern = email.replace(/[\\%_]/g, (c) => `\\${c}`);
+  const { data } = await db
+    .from('finance_counterparties')
+    .select(
+      'id, name, email, phone, nationality, passport_number, date_of_birth, arrival_date, emergency_contact_1_name, emergency_contact_1_contact, emergency_contact_2_name, emergency_contact_2_contact',
+    )
+    .ilike('email', pattern);
+  const open: Ficha[] = [];
+  for (const c of (data ?? []) as Ficha[]) {
+    const until = await accessUntil(c.id);
+    if (until && !accessEnded(until)) open.push(c);
+  }
+  return open.length === 1 ? open[0] : null;
+}
+
+/** O que o aluno confere antes de entrar: só o que ele mesmo informou e a estadia (nunca passaporte nem CPF). */
+async function fichaSummary(c: Ficha) {
+  const { data: tenants } = await db
+    .from('rental_tenants')
+    .select('rental_id, move_in_date, move_out_date, arrival_confirmed_date, arrival_time, flight_number')
+    .eq('counterparty_id', c.id)
+    .eq('is_active', true);
+  const ids = (tenants ?? []).map((t) => t.rental_id);
+  const { data: rentals } = ids.length
+    ? await db.from('apartment_rentals').select('id, apartment_id, start_date, end_date').in('id', ids).eq('status', 'active')
+    : { data: [] as { id: string; apartment_id: string; start_date: string; end_date: string }[] };
+  const r = [...(rentals ?? [])].sort((a, b) => b.end_date.localeCompare(a.end_date))[0];
+  const t = r ? (tenants ?? []).find((x) => x.rental_id === r.id) : undefined;
+  const { data: apt } = r
+    ? await db.from('apartments').select('title').eq('id', r.apartment_id).maybeSingle()
+    : { data: null as { title: string } | null };
+  return {
+    name: c.name,
+    email: c.email,
+    phone: c.phone,
+    nationality: c.nationality,
+    apartment: apt?.title ?? null,
+    stayStart: t?.move_in_date ?? r?.start_date ?? null,
+    stayEnd: t?.move_out_date ?? r?.end_date ?? null,
+    arrival: {
+      date: t?.arrival_confirmed_date ?? c.arrival_date ?? null,
+      time: t?.arrival_time ? String(t.arrival_time).slice(0, 5) : null,
+      flight: t?.flight_number ?? null,
+    },
+    emergency: [
+      [c.emergency_contact_1_name, c.emergency_contact_1_contact],
+      [c.emergency_contact_2_name, c.emergency_contact_2_contact],
+    ]
+      .filter(([n, k]) => n || k)
+      .map(([name, contact]) => ({ name: name ?? null, contact: contact ?? null })),
+  };
+}
+
+async function firstAccessVerify(body: { email?: unknown; birthDate?: unknown; passport?: unknown }) {
+  const email = String(body.email ?? '').trim().toLowerCase();
+  const birth = String(body.birthDate ?? '');
+  const passport = normPassport(body.passport);
+  if (!email.includes('@') || !isIsoDate(birth) || passport.length < 5) return json({ error: 'invalid' }, 400);
+
+  const key = await emailHash(email);
+  const since = new Date(Date.now() - 3_600_000).toISOString();
+  const { count } = await db
+    .from('app_first_access_attempts')
+    .select('id', { count: 'exact', head: true })
+    .eq('email_hash', key)
+    .eq('ok', false)
+    .gte('created_at', since);
+  if ((count ?? 0) >= FIRST_ACCESS_FAILS_PER_HOUR) return json({ error: 'tooMany' }, 429);
+  const fail = async () => {
+    await db.from('app_first_access_attempts').insert({ email_hash: key, ok: false });
+    return json({ error: 'noMatch' }, 400);
+  };
+
+  const c = await fichaByEmail(email);
+  if (!c || c.date_of_birth !== birth) return fail();
+  // Data de nascimento certa, mas a ficha não tem passaporte: a equipe libera pelo painel (Acesso ao app).
+  if (!normPassport(c.passport_number)) {
+    const { data: openReq } = await db
+      .from('app_password_resets')
+      .select('id')
+      .eq('counterparty_id', c.id)
+      .eq('channel', 'team')
+      .is('handled_at', null)
+      .gt('expires_at', new Date().toISOString())
+      .limit(1);
+    if (!openReq?.length) {
+      await db.from('app_password_resets').insert({
+        counterparty_id: c.id,
+        channel: 'team',
+        expires_at: new Date(Date.now() + 7 * 86_400_000).toISOString(),
+      });
+    }
+    return json({ error: 'incomplete' }, 409);
+  }
+  if (normPassport(c.passport_number) !== passport) return fail();
+
+  const { data: acc } = await db
+    .from('app_students')
+    .select('status, password_hash, deleted_at')
+    .eq('counterparty_id', c.id)
+    .maybeSingle();
+  if (acc?.status === 'disabled' && !acc.deleted_at) return json({ error: 'disabled' }, 403);
+  await db.from('app_first_access_attempts').insert({ email_hash: key, ok: true });
+  return json({
+    ticket: await makeTicket(c.id),
+    alreadyActive: acc?.status === 'active' && !!acc.password_hash,
+    profile: await fichaSummary(c),
+  });
+}
+
+async function firstAccessComplete(body: { ticket?: unknown; password?: unknown; correction?: unknown }) {
+  const cp = await readTicket(String(body.ticket ?? ''));
+  if (!cp) return json({ error: 'expired' }, 400);
+  const password = String(body.password ?? '');
+  if (password.length < 8) return json({ error: 'tooShort' }, 400);
+  const correction = String(body.correction ?? '').trim().slice(0, 1000);
+  if (correction && LINK.test(correction)) return json({ error: 'links' }, 400);
+  if (accessEnded(await accessUntil(cp))) return json({ error: 'accessEnded' }, 403);
+
+  const { data: acc } = await db
+    .from('app_students')
+    .select('session_version, status, deleted_at')
+    .eq('counterparty_id', cp)
+    .maybeSingle();
+  if (acc?.status === 'disabled' && !acc.deleted_at) return json({ error: 'disabled' }, 403);
+  const version = (acc?.session_version ?? 0) + 1;
+  const now = new Date().toISOString();
+  const row = {
+    counterparty_id: cp,
+    status: 'active',
+    password_hash: await hashPassword(password),
+    must_change_password: false,
+    session_version: version,
+    activated_at: now,
+    deleted_at: null,
+    updated_at: now,
+  };
+  const { error } = acc
+    ? await db.from('app_students').update(row).eq('counterparty_id', cp)
+    : await db.from('app_students').insert(row);
+  if (error) return json({ error: 'server' }, 500);
+  await db
+    .from('app_password_resets')
+    .update({ handled_at: now })
+    .eq('counterparty_id', cp)
+    .eq('channel', 'team')
+    .is('handled_at', null);
+  if (correction) await db.from('app_profile_corrections').insert({ counterparty_id: cp, message: correction });
   return json({ token: await makeToken(cp, version) });
 }
 
@@ -890,6 +1106,10 @@ Deno.serve(async (req) => {
         return await passwordResetConfirm(body);
       case 'account-delete':
         return await accountDelete(req, body);
+      case 'first-access-verify':
+        return await firstAccessVerify(body);
+      case 'first-access-complete':
+        return await firstAccessComplete(body);
       default:
         return json({ error: 'notFound' }, 404);
     }

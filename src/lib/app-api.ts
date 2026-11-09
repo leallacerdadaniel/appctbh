@@ -38,7 +38,12 @@ export type ApiError =
   | 'suspended'
   | 'full'
   // 2026-11-09: a link in something the student wrote (src/lib/no-links.ts), refused before sending
-  | 'links';
+  | 'links'
+  // first access (2026-11-09): details don't match the form, too many tries, form without passport, disabled
+  | 'noMatch'
+  | 'tooMany'
+  | 'incomplete'
+  | 'disabled';
 
 export class AppApiError extends Error {
   constructor(public code: ApiError) {
