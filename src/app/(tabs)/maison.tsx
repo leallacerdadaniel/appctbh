@@ -1,5 +1,5 @@
 import * as Clipboard from 'expo-clipboard';
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { useState } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
 
@@ -12,6 +12,7 @@ import { AppText, Card, PressableScale } from '@/components/ui';
 import { TapTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
+import { useChores, useChoreStatus } from '@/lib/chores';
 import { canRate, formatLongDate, pastCleanings, upcomingCleanings } from '@/lib/cleaning';
 import { useBalanceLabel, useExpenses } from '@/lib/expenses';
 import { formatTime, shortAddress } from '@/lib/format';
@@ -31,7 +32,9 @@ export default function MaisonScreen() {
   const { apartment, cleanings, roommates } = useHome();
   const { refresh } = useHomeState();
   const { reload: reloadExpenses } = useExpenses();
+  const { reload: reloadChores } = useChores();
   const balance = useBalanceLabel();
+  const choreStatus = useChoreStatus();
 
   async function copy(value: string, message: string) {
     await Clipboard.setStringAsync(value);
@@ -51,7 +54,7 @@ export default function MaisonScreen() {
     <Screen
       title={t.tabs.maison}
       subtitle={t.maison.subtitle}
-      onRefresh={() => Promise.all([refresh(), reloadExpenses()])}>
+      onRefresh={() => Promise.all([refresh(), reloadExpenses(), reloadChores()])}>
       <Section title={t.maison.daily} subtitle={t.maison.dailyHint}>
         <Card style={styles.listCard}>
           <ListGroup inset>
@@ -133,10 +136,16 @@ export default function MaisonScreen() {
         </HubGrid>
       </Section>
 
-      {/* Nobody to split with, nobody to list, when the student lives alone. Chores come later. */}
+      {/* Nobody to take turns or split with, nobody to list, when the student lives alone. */}
       {roommates.length > 0 && (
         <Section title={t.maison.roommates} subtitle={t.maison.roommatesHint}>
           <HubGrid>
+            <HubTile
+              emoji="✅"
+              title={t.chores.tile}
+              status={choreStatus || t.chores.subtitle}
+              onPress={() => router.push('/house/chores' as Href)}
+            />
             <HubTile
               emoji="💸"
               title={t.expenses.tile}

@@ -1,5 +1,5 @@
-import { router } from 'expo-router';
-import { Linking, StyleSheet } from 'react-native';
+import { router, type Href } from 'expo-router';
+import { StyleSheet } from 'react-native';
 
 import { ListGroup, ListRow } from '@/components/list';
 import {
@@ -17,9 +17,8 @@ import { useI18n } from '@/i18n';
 import { formatCents, formatDate, formatMoney, isFutureMonth } from '@/lib/format';
 import { useHandovers } from '@/lib/handovers';
 import { useHome, useHomeState } from '@/lib/home';
-import { contacts } from '@/lib/mock-data';
 import { isOpen, upcomingCharges, useRequests } from '@/lib/requests';
-import { trackAction } from '@/lib/usage';
+import { openWhatsApp } from '@/lib/whatsapp';
 
 /** Open requests shown on the tab; the rest is one tap away in "Mes demandes". */
 const OPEN_MAX = 3;
@@ -177,18 +176,17 @@ export default function ChezToiScreen() {
         <Card style={styles.listCard}>
           <ListGroup inset>
             <ListRow
+              icon="assistant"
+              title={t.chezToi.assistant}
+              subtitle={t.chezToi.assistantHint}
+              onPress={() => router.push('/assistant' as Href)}
+            />
+            <ListRow
               icon="whatsapp"
               title={t.home.writeUs}
               subtitle="WhatsApp"
-              onPress={() => {
-                trackAction('open_whatsapp', 'chez-toi');
-                Linking.openURL(`https://wa.me/${contacts.whatsapp}`);
-              }}
+              onPress={() => openWhatsApp('chez-toi')}
             />
-            {/*
-              TODO(assistant): an "Assistant" row goes here once the in-app assistant exists.
-              No placeholder row until then (no dead buttons).
-            */}
           </ListGroup>
         </Card>
       </Section>

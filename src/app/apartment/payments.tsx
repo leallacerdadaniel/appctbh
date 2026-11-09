@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { HowToPay } from '@/components/how-to-pay';
 import { Icon } from '@/components/icon';
 import { ListGroup, ListRow } from '@/components/list';
 import { rentMonthLabel, requestHref, requestIcon, requestTitle, requestWhen } from '@/components/request-ui';
@@ -12,11 +13,12 @@ import { useTheme } from '@/hooks/use-theme';
 import { useI18n, type Lang } from '@/i18n';
 import { formatCents, formatDate, formatMoney, isFutureMonth } from '@/lib/format';
 import { useHome, useHomeState } from '@/lib/home';
+import { usePaymentInfo } from '@/lib/payment-info';
 import { billedCents, upcomingCharges, useRequests } from '@/lib/requests';
 
 /**
- * Rent month by month (paid / due / still to come, never the amount), the extras that go on the
- * next rents (wave 6) and the student's security deposit.
+ * Rent month by month (paid / due / still to come, never the amount), how to pay (Pix, bank, Wise),
+ * the extras that go on the next rents (wave 6) and the student's security deposit.
  */
 export default function PaymentsScreen() {
   const { t, lang } = useI18n();
@@ -29,6 +31,7 @@ export default function PaymentsScreen() {
   const { state: requestsState, reload: reloadRequests } = useRequests();
   const requestsData = requestsState.status === 'ready' ? requestsState.data : null;
   const charges = requestsData ? upcomingCharges(requestsData.requests) : [];
+  const payInfo = usePaymentInfo();
 
   const depositColor =
     deposit?.status === 'returned'
@@ -38,7 +41,11 @@ export default function PaymentsScreen() {
         : theme.textSecondary;
 
   return (
-    <Screen back title={p.title} subtitle={p.subtitle} onRefresh={() => Promise.all([refresh(), reloadRequests()])}>
+    <Screen
+      back
+      title={p.title}
+      subtitle={p.subtitle}
+      onRefresh={() => Promise.all([refresh(), reloadRequests(), payInfo.reload()])}>
       <Section title={p.rent}>
         <Card style={payments.length ? { paddingVertical: 0 } : undefined}>
           {payments.length ? (
@@ -86,6 +93,8 @@ export default function PaymentsScreen() {
           )}
         </Card>
       </Section>
+
+      <HowToPay {...payInfo} />
 
       {charges.length > 0 && (
         <Section title={t.requests.nextRent} subtitle={t.requests.nextRentHint}>

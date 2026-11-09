@@ -15,8 +15,10 @@ import { ToastProvider } from '@/components/toast';
 import { useTheme } from '@/hooks/use-theme';
 import { LanguageProvider } from '@/i18n';
 import { AuthProvider, useAuth } from '@/lib/auth';
+import { ChoresProvider } from '@/lib/chores';
 import { ExpensesProvider } from '@/lib/expenses';
 import { HomeProvider, useHomeState } from '@/lib/home';
+import { NoticesProvider } from '@/lib/notices';
 import { PlacesProvider } from '@/lib/places';
 import { RequestsProvider } from '@/lib/requests';
 import { UsageTracker } from '@/lib/usage';
@@ -46,9 +48,13 @@ export default function RootLayout() {
               <ExpensesProvider>
                 <PlacesProvider>
                   <RequestsProvider>
-                    <ToastProvider>
-                      <RootStack />
-                    </ToastProvider>
+                    <ChoresProvider>
+                      <NoticesProvider>
+                        <ToastProvider>
+                          <RootStack />
+                        </ToastProvider>
+                      </NoticesProvider>
+                    </ChoresProvider>
                   </RequestsProvider>
                 </PlacesProvider>
               </ExpensesProvider>
@@ -125,6 +131,10 @@ function RootStack() {
           <Stack.Screen name="requests/stay-change" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="requests/gourmet" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="requests/[id]" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="house/chores" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="house/chore-edit" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="notices" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="assistant" options={{ animation: 'slide_from_right' }} />
         </Stack.Protected>
       </Stack>
       {isSignedIn && !mustChangePassword && <BirthdayGreeting key={token} />}

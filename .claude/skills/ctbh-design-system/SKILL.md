@@ -27,11 +27,11 @@ All values live in `src/constants/theme.ts`; full table in [references/tokens.md
 
 Read [references/components.md](references/components.md). In order of preference:
 
-1. `Screen` — always draws the red `BrandBar` (logo centered). Tab screens get the SOS button on its left; pushed screens pass `back` to get the back arrow there instead.
+1. `Screen` — always draws the red `BrandBar` (logo centered). Tab screens get the SOS button on its left and the notifications bell on its right; pushed screens pass `back` to get the back arrow on the left instead (and no bell).
 2. `Section` — title, optional one-line subtitle, optional "Voir plus ›".
 3. `PhotoCard` (carousel item), `PlaceRow` (list row with square photo), `HeroCard` (suggestion of the week), `CategoryCircle` (emoji in a white circle).
 4. `Card` + `ListGroup`/`ListRow` for lists of facts and settings (white card on the canvas).
-5. `Icon` for UI icons (never import an icon library directly); emoji only inside `CategoryCircle`.
+5. `Icon` for UI icons (never import an icon library directly); emoji only inside `CategoryCircle`, `HubTile` and `ChoreBadge`.
 
 New patterns go in `src/components/` and get documented in `references/components.md` in the same change.
 
@@ -43,18 +43,18 @@ Go through the Regras, then run the `ctbh-design-review` skill (static check + s
 
 **Tabs (structure by task, owner 2026-11-08):** Accueil (what needs action now) · Maison (the apartment and the roommates) · Chez Toi (ask, pay, sign) · Agenda · BH (Guide · Explorer). Each tab groups its content in `Section`s by task or frequency; the map with routes is in [references/components.md](references/components.md) ("Tabs").
 
-**Home (only what needs action now):** red bar (SOS left, logo) → greeting + address + round red profile button → apartment hero ("Votre logement") → action rows that appear only when relevant (rent due, cleaning today or tomorrow, open requests) → "À venir" (3 next dates, "Voir l’agenda ›"; no cleaning row twice) → "Raccourcis" card (Wi‑Fi, WhatsApp) → "Explorer" invitation card last. No shared expenses (Maison), no emergency row (SOS in the bar), no category circles (BH › Guide), no search pill.
+**Home (only what needs action now):** red bar (SOS left, logo, bell right) → greeting + address + round red profile button → apartment hero ("Votre logement") → action rows that appear only when relevant (rent due, cleaning today or tomorrow, my chore this week, open requests) → "À venir" (3 next dates, "Voir l’agenda ›"; no cleaning row twice) → "Raccourcis" card (Wi‑Fi, WhatsApp) → "Explorer" invitation card last. No shared expenses (Maison), no emergency row (SOS in the bar), no category circles (BH › Guide), no search pill.
 
 **Restaurant list row:** white card, 88 px square photo with a dark rating pill, bold name, "Italienne • $$$" with unused $ dimmed, "Lourdes • 9 min à pied".
 
 ## Regras
 
-- **Brand bar on every screen**: red, white logo centered, no neighborhood or city. Left side: the **SOS button** on tab screens (white icon + "SOS" on a `onBrandTrack` pill, 44 pt touch area, opens `/emergency`), the white back arrow on pushed screens (never both). Right side stays empty, reserved for the notifications bell (wave 9): no placeholder until it works. Status bar text is white.
+- **Brand bar on every screen**: red, white logo centered, no neighborhood or city. Left side: the **SOS button** on tab screens (white icon + "SOS" on a `onBrandTrack` pill, 44 pt touch area, opens `/emergency`), the white back arrow on pushed screens (never both). Right side: the **notifications bell** on tab screens only (white `bell` icon, 44 pt, unread count in a white badge with red digits, "9+" above 9, opens `/notices`); pushed screens leave it empty. Status bar text is white.
 - **Canvas + cards**: content sits in white `Card`s (radius 16, `Shadow.card`) on the gray canvas. No borders on cards; hairlines only inside a card.
 - **Photos first**: places, restaurants and the apartment are shown with a photo whenever one exists; the rating sits on the photo in a dark pill.
 - **Sections explain themselves**: title + one-line subtitle; "Voir plus ›" when there is a full list.
 - **Red accents**: brand bar, primary button, active tab, list-row icons, back arrow, small accents (selected filter), the round profile button on Home (red circle, white person icon). Errors never use brand red: `error` + icon + text.
-- **Categories and hub tiles** use emoji (`CategoryCircle`, `HubTile`); UI controls use `Icon`. No emoji anywhere else.
+- **Categories, hub tiles and chores** use emoji (`CategoryCircle`, `HubTile`, `ChoreBadge`: the chore's emoji chosen by the roommates, in a small `fill` circle); UI controls use `Icon`. No emoji anywhere else.
 - **Hub + sub-pages, not long pages**: a tab screen shows what is used daily plus `HubTile`s or `ListRow`s (with a live status line) leading to sub-pages (`src/app/<topic>/…`, `Screen back`), grouped in `Section`s by task or frequency. Never stack every topic on one page, never show the same entry twice on one tab.
 - **Loading and errors are never blank**: `LoadingState` while data loads, `RetryCard` (what failed + "Réessayer") when it fails. Never "Bientôt disponible" for something that exists but didn't load.
 - **Pull to refresh** on every screen that shows live data (`Screen onRefresh`).
@@ -93,4 +93,5 @@ When the owner approves or rejects a visual decision, add one line here with the
 - 2026-10-28: Home reorganised: "Cette semaine" became "À venir" (next dates from the calendar), roommates and the search pill removed, "Explorer" invitation card at the end. A checklist of first steps and a weekly outing idea were tried and rejected ("não gostei"). The profile entry as a white pill with the word "Profil" was rejected ("muito grande, truncando as frases"): it is now a compact red circle with a person icon (the owner adds the drawing).
 - 2026-10-28: shared expenses redesigned after "achei ela muito básica": balance card with roommates' avatars, activity grouped by month with date blocks and what each expense means for the student ("vous avez prêté" in green / "vous devez"), avatar pickers, large calculator-style amount with an R$ / € switch. No category emoji (owner's choice).
 - 2026-11-04: birthday card (`birthday-greeting.tsx`) may use brand red: red band with small dots, round white badge with the cake, the name large. Owner asked for it to look nicer; it shows once a year, so it is the one festive exception.
+- 2026-11-08: the notifications bell joined the brand bar on the right of tab screens (SOS left, bell right; pushed screens: back arrow only). Chores show their emoji in a `ChoreBadge`; the assistant is a chat (student bubble `fill` on the right, assistant bubble white card on the left, dark round send button, no brand red).
 - 2026-11-08: owner approved the "structure by task" navigation (stage 1): tabs Accueil · Maison · Chez Toi · Agenda · BH. Home keeps only what needs action now; "Mon appart" became Maison (apartment + roommates + cleaning); the new Chez Toi tab gathers requests, payments, contract and help; Guide and Explorer share the BH tab under a segmented control (full fusion is stage 2). The brand bar now carries **SOS on the left of tab screens**, superseding the 2026-10-16 "only the logo" rule for tab screens (pushed screens keep the back arrow, no SOS).

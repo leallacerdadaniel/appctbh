@@ -1,3 +1,4 @@
+import { router, type Href } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
 import { Icon } from '@/components/icon';
@@ -8,7 +9,10 @@ import { Fonts, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 
-/** House rules from the Cartilha: quiet hours, what is forbidden, toilet, deposit, reminders, contacts. */
+/**
+ * House rules from the Cartilha: quiet hours, what is forbidden, toilet, deposit, reminders, contacts;
+ * a question left? The assistant knows the rules (row at the end).
+ */
 export default function RulesScreen() {
   const theme = useTheme();
   const { t } = useI18n();
@@ -57,6 +61,15 @@ export default function RulesScreen() {
           </ListGroup>
         </Card>
       </Section>
+
+      <Card style={styles.listCard}>
+        <ListRow
+          icon="assistant"
+          title={r.question}
+          subtitle={r.questionHint}
+          onPress={() => router.push('/assistant' as Href)}
+        />
+      </Card>
     </Screen>
   );
 }

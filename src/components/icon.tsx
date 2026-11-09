@@ -94,6 +94,16 @@ const REGISTRY = {
   info: { ios: 'info.circle', material: 'info', glyph: 0xe88e },
   wallet: { ios: 'creditcard', material: 'account_balance_wallet', glyph: 0xe850 },
   people: { ios: 'person.2', material: 'group', glyph: 0xe7ef },
+  bell: { ios: 'bell', material: 'notifications', glyph: 0xe7f4 },
+  send: { ios: 'arrow.up', material: 'arrow_upward', glyph: 0xe5d8 },
+  swap: { ios: 'arrow.left.arrow.right', material: 'swap_horiz', glyph: 0xe8d4 },
+  assistant: { ios: 'questionmark.bubble', material: 'contact_support', glyph: 0xe94c },
+  edit: { ios: 'pencil', material: 'edit', glyph: 0xe3c9 },
+  circle: { ios: 'circle', material: 'radio_button_unchecked', glyph: 0xe836 },
+  checkCircleFill: { ios: 'checkmark.circle.fill', material: 'check_circle', glyph: 0xe86c },
+  chores: { ios: 'checklist', material: 'checklist', glyph: 0xe6b1 },
+  pix: { ios: 'brazilianrealsign.circle', material: 'pix', glyph: 0xeaa3 },
+  retry: { ios: 'arrow.clockwise', material: 'refresh', glyph: 0xe5d5 },
 } as const satisfies Record<string, Entry>;
 
 export type IconName = keyof typeof REGISTRY;

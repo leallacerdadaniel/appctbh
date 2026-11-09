@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -8,13 +8,22 @@ import { AppText, PressableScale } from '@/components/ui';
 import { Fonts, MaxContentWidth, Radius, Spacing, TapTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
+import { useNotices } from '@/lib/notices';
 
 /**
  * Red bar with the white logo, on top of every screen (DUO reference: references/duo.md).
  * Pushed screens have a back arrow on the left; tab screens have the SOS button there instead
- * (owner, 2026-11-08). The right side stays free for the notifications bell (wave 9).
+ * (owner, 2026-11-08) and the notifications bell on the right.
  */
-export function BrandBar({ back = false, sos = false }: { back?: boolean; sos?: boolean }) {
+export function BrandBar({
+  back = false,
+  sos = false,
+  bell = false,
+}: {
+  back?: boolean;
+  sos?: boolean;
+  bell?: boolean;
+}) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { t } = useI18n();
@@ -58,9 +67,32 @@ export function BrandBar({ back = false, sos = false }: { back?: boolean; sos?: 
           )}
         </View>
 
-        <View style={styles.side} />
+        <View style={[styles.side, styles.right]}>{bell && !back && <NoticesBell />}</View>
       </View>
     </View>
+  );
+}
+
+/** White bell, 44 pt, with the number of unread notices in a white badge. Opens /notices. */
+function NoticesBell() {
+  const theme = useTheme();
+  const { t } = useI18n();
+  const { unread } = useNotices();
+  return (
+    <PressableScale
+      accessibilityRole="button"
+      accessibilityLabel={t.notices.bell(unread)}
+      onPress={() => router.push('/notices' as Href)}
+      style={styles.bell}>
+      <Icon name="bell" size={22} color={theme.onBrand} />
+      {unread > 0 && (
+        <View style={[styles.badge, { backgroundColor: theme.onBrand, borderColor: theme.brand }]}>
+          <AppText variant="caption" color={theme.brand} style={styles.badgeText}>
+            {unread > 9 ? '9+' : String(unread)}
+          </AppText>
+        </View>
+      )}
+    </PressableScale>
   );
 }
 
@@ -79,6 +111,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.gutter,
   },
   side: { flex: 1, flexDirection: 'row', alignItems: 'center' },
+  right: { justifyContent: 'flex-end' },
   logoSlot: {
     position: 'absolute',
     top: 0,
@@ -99,6 +132,26 @@ const styles = StyleSheet.create({
     marginLeft: -4,
     borderRadius: Radius.pill,
   },
+  bell: {
+    width: TapTarget,
+    height: TapTarget,
+    marginRight: -11,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badge: {
+    position: 'absolute',
+    top: 4,
+    right: 3,
+    minWidth: 20,
+    height: 20,
+    paddingHorizontal: 4,
+    borderRadius: 10,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badgeText: { fontFamily: Fonts.bodyMedium, lineHeight: 14 },
   back: {
     width: TapTarget,
     height: TapTarget,

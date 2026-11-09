@@ -1,5 +1,5 @@
 import * as Clipboard from 'expo-clipboard';
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { Linking, StyleSheet, View } from 'react-native';
 
 import { HeroCard } from '@/components/hero-card';
@@ -13,6 +13,7 @@ import { Fonts, Radius, Shadow, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { getAttraction } from '@/lib/attractions';
+import { choreById, myChoresThisWeek, useChores } from '@/lib/chores';
 import { daysUntil, upcomingCleanings } from '@/lib/cleaning';
 import type { EventKind } from '@/lib/events';
 import { formatDayDate, formatTime, isFutureMonth, shortAddress } from '@/lib/format';
@@ -38,7 +39,7 @@ const EXPLORE_PHOTO = getAttraction('praca-liberdade')?.photo;
 
 /**
  * Accueil (structure by task, owner 2026-11-08): what needs the student now, as rows that only appear
- * when relevant (rent due, cleaning today or tomorrow, open requests), the next dates, and the two
+ * when relevant (rent due, cleaning today or tomorrow, my chore this week, open requests), the next dates, and the two
  * shortcuts used every day (Wi‑Fi, WhatsApp). Everything else lives in its tab: shared expenses in
  * Maison, SOS in the brand bar, the "around you" categories in BH.
  */
@@ -49,6 +50,7 @@ export default function HomeScreen() {
   const { student, apartment, contract, cleanings, payments } = useHome();
   const { refresh } = useHomeState();
   const { state: requestsState, reload: reloadRequests } = useRequests();
+  const { state: choresState, reload: reloadChores } = useChores();
   const colon = lang === 'fr' ? ' : ' : ': ';
 
   // Rent months already due and not paid (the current one, or an older one still pending).
@@ -56,6 +58,13 @@ export default function HomeScreen() {
   const nextCleaning = upcomingCleanings(cleanings)[0];
   const cleaningSoon = nextCleaning && daysUntil(nextCleaning.date) <= 1 ? nextCleaning : null;
   const openRequests = requestsState.status === 'ready' ? requestsState.data.requests.filter(isOpen) : [];
+  // My chores this week that are still to do.
+  const choresData = choresState.status === 'ready' ? choresState.data : null;
+  const myChores = choresData
+    ? myChoresThisWeek(choresData)
+        .filter((i) => !i.done)
+        .map((i) => choreById(choresData, i.choreId)?.name ?? '')
+    : [];
   // The cleaning row above already says it: don't repeat it in "À venir".
   const upcoming = upcomingEvents({ cleanings, ...contract })
     .filter((e) => !(cleaningSoon && e.kind === 'cleaning'))
@@ -69,7 +78,7 @@ export default function HomeScreen() {
   }
 
   return (
-    <Screen onRefresh={() => Promise.all([refresh(), reloadRequests()])}>
+    <Screen onRefresh={() => Promise.all([refresh(), reloadRequests(), reloadChores()])}>
       <View style={styles.greeting}>
         <View style={{ flex: 1, gap: Spacing.xs }}>
           <AppText variant="display">
@@ -102,7 +111,7 @@ export default function HomeScreen() {
       />
 
       {/* Only what needs attention now; each row appears only when it is relevant. */}
-      {(dueRent.length > 0 || cleaningSoon || openRequests.length > 0) && (
+      {(dueRent.length > 0 || cleaningSoon || myChores.length > 0 || openRequests.length > 0) && (
         <Card style={styles.listCard}>
           <ListGroup inset>
             {dueRent.length > 0 && (
@@ -126,6 +135,14 @@ export default function HomeScreen() {
                   .filter(Boolean)
                   .join(' · ')}
                 onPress={() => router.push('/apartment/cleaning')}
+              />
+            )}
+            {myChores.length > 0 && (
+              <ListRow
+                icon="chores"
+                title={myChores.length === 1 ? t.home.myChore : t.home.myChores}
+                subtitle={`${myChores.join(', ')} · ${t.home.myChoreHint}`}
+                onPress={() => router.push('/house/chores' as Href)}
               />
             )}
             {openRequests.length > 0 && (

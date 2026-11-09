@@ -4,9 +4,9 @@ All in `src/components/`. Use these before writing custom styles. Visual referen
 
 ## Tabs (structure by task, owner 2026-11-08)
 Order and routes in `src/app/(tabs)/_layout.tsx`; icons in `FloatingTabBar`'s `ICONS`.
-- **Accueil** `index.tsx` (`home`): greeting + profile button, apartment hero → `/maison`, action rows only when relevant (rent due → `/apartment/payments`, cleaning today/tomorrow → `/apartment/cleaning`, open requests → `/requests`), "À venir" (3 max → `/calendar`), Raccourcis (Wi‑Fi copy, WhatsApp), Explorer card → `/bh?section=explorer`.
-- **Maison** `maison.tsx` (`apartment`): "Au quotidien" (unit, address maps/copy, Wi‑Fi, tiles → `/apartment/trash`, `/apartment/rules`), "Entre colocataires" (only with roommates: → `/expenses`, `/apartment/roommates`; chores later), "Ménage" (→ `/apartment/cleaning`, rating tile → `/apartment/feedback?id=` while a visit can be rated).
-- **Chez Toi** `chez-toi.tsx` (`receipt`): "Demander" (→ `/requests/new`, `/requests/maintenance`; up to 3 open requests with `StatusPill` + → `/requests`), "Payer" (rent, extras on the next rents from `upcomingCharges`, deposit → `/apartment/payments`), "Mon contrat" (→ `/apartment/contract`, `/apartment/checkin`, `/apartment/checkout`; other documents later), "Aide" (WhatsApp; Assistant later).
+- **Accueil** `index.tsx` (`home`): greeting + profile button, apartment hero → `/maison`, action rows only when relevant (rent due → `/apartment/payments`, cleaning today/tomorrow → `/apartment/cleaning`, my undone chore this week → `/house/chores`, open requests → `/requests`), "À venir" (3 max → `/calendar`), Raccourcis (Wi‑Fi copy, WhatsApp), Explorer card → `/bh?section=explorer`.
+- **Maison** `maison.tsx` (`apartment`): "Au quotidien" (unit, address maps/copy, Wi‑Fi, tiles → `/apartment/trash`, `/apartment/rules` — the rules page ends with "Une question ?" → `/assistant`), "Entre colocataires" (only with roommates: Tâches → `/house/chores` with "Cette semaine : Poubelles", → `/expenses`, `/apartment/roommates`), "Ménage" (→ `/apartment/cleaning`, rating tile → `/apartment/feedback?id=` while a visit can be rated).
+- **Chez Toi** `chez-toi.tsx` (`receipt`): "Demander" (→ `/requests/new`, `/requests/maintenance`; up to 3 open requests with `StatusPill` + → `/requests`), "Payer" (rent, extras on the next rents from `upcomingCharges`, deposit → `/apartment/payments`, which also shows "Comment payer"), "Mon contrat" (→ `/apartment/contract`, `/apartment/checkin`, `/apartment/checkout`; other documents later), "Aide" (Assistant → `/assistant`, WhatsApp).
 - **Agenda** `calendar.tsx` (`calendar`): route name stays `calendar`.
 - **BH** `bh.tsx` (`map`): `SegmentedControl` Guide · Explorer, kept in the route param `section` (`/bh?section=guide|explorer`, default guide). Bodies in `guide-content.tsx` (category circles on top, then search and hubs; `q` / `focus` params passed on) and `explorer-content.tsx`. Detail routes (`/attraction/[id]`, `/travel/[id]`, `/festival/[id]`…) are unchanged.
 
@@ -16,11 +16,11 @@ Every screen. Draws the red `BrandBar` on top, then a scrollable gray canvas wit
 - `back`: pushed screens — white back arrow in the bar.
 - `header`: extra content right under the bar (Home greeting).
 - `onRefresh`: pull-to-refresh; pass a function returning a promise (the spinner stays until it settles). On every screen with live data: Accueil, Maison, Chez Toi, payments, cleaning, expenses, "Mes demandes", a request's page. `useHomeState().refresh`, `useRequests().reload` and `useExpenses().reload` return promises and keep what is on screen when the refresh fails.
-- No `back` = tab screen: the bar shows the SOS button.
+- No `back` = tab screen: the bar shows the SOS button and the notifications bell.
 - `Reveal` is kept for old call sites and renders immediately (screens appear whole).
 
 ## BrandBar (`brand-bar.tsx`)
-Red bar with the white logo centered (`logo-wordmark-white.png`). Left: `back` → white back arrow (pushed screens); `sos` → SOS pill on tab screens (`Icon` "emergency" 16 + "SOS" callout medium, white on the `onBrandTrack` pill, 32 pt tall with `hitSlop` to 44 pt, opens `/emergency`; accessibility label "Urgences"). `Screen` passes `sos` whenever `back` is off. Right side empty, reserved for the notifications bell (wave 9). Status bar text white.
+Red bar with the white logo centered (`logo-wordmark-white.png`). Left: `back` → white back arrow (pushed screens); `sos` → SOS pill on tab screens (`Icon` "emergency" 16 + "SOS" callout medium, white on the `onBrandTrack` pill, 32 pt tall with `hitSlop` to 44 pt, opens `/emergency`; accessibility label "Urgences"). Right: `bell` → notifications bell on tab screens (`Icon` "bell" 22 white in a 44 pt button; unread count from `useNotices()` in a 20 pt white badge with a red border and red digits, "9+" above 9; accessibility label "Notifications, 2 non lues"; opens `/notices`). `Screen` passes `sos` and `bell` whenever `back` is off; pushed screens keep the right side empty. Status bar text white.
 
 ## Section (`screen.tsx`)
 `<Section title subtitle? action? onAction?>` — `title` in Outfit 20, one-line `subtitle` in `textSecondary`, "Voir plus ›" on the right. Keeps header and content together.
@@ -38,7 +38,7 @@ Carousel item, 220 px wide: `PlacePhoto` 16:10 with `RatingPill` over it, bold n
 Horizontal ScrollView that bleeds to the screen edges with the gutter as inner padding, 12 px between items.
 
 ## CategoryCircle (`category-circle.tsx`)
-64 px white circle with `Shadow.card`, emoji 28 px, short label under it (one line). Opens `/nearby?category=…`. The only place emoji are allowed.
+64 px white circle with `Shadow.card`, emoji 28 px, short label under it (one line). Opens `/nearby?category=…`. Emoji are allowed only here, in `HubTile` and in `ChoreBadge`.
 
 ## RatingPill (`photo-card.tsx`)
 Dark `scrim` pill with a yellow star and the rating, top-right over photos.
@@ -116,6 +116,28 @@ Filter pills: white with hairline border; selected = red fill, white label. 36 p
 - `useOpenSentRequest()`: after a request is created, dismisses the request flow (form, catalog, list) and pushes "Mes demandes" + the new request, so Back lands on the list, never on the form.
 - Catalog extras are `HubTile`s with the catalog's emoji, grouped by category with a small label; free requests are `ListRow`s.
 - Forms: one `Card` per group of fields (`FieldLabel` + chips), inputs always inside a card, one primary button at the end; cancel is a secondary button that asks "Appuyez encore pour annuler" (no Alert).
+
+## Notices (`src/app/notices.tsx`, data `src/lib/notices.tsx`)
+`NoticesProvider` (root layout) loads the team's notices, refreshes when the app returns to the foreground (at most every 15 s) and on pull. The page lists them newest first in one card: a dark 8 pt dot + medium title while new, the body in full (callout), a relative date ("Il y a 5 min", "Hier", then "6 nov."). Opening the page marks everything read (the dots stay until the page closes). Rows with `href` open it (in-app route with expo-router, `http…` in the browser); rows without one aren't pressable.
+
+## Chores (`chore-ui.tsx`, screens `src/app/house/`, data `src/lib/chores.tsx`)
+- `ChoreBadge`: the chore's emoji in a 40 pt `fill` circle (44 pt in the picker). One of the three places emoji are allowed.
+- `ChoreRow`: badge + name + status line, like a `ListRow`; either pressable (opens the chore) or with an accessory (the tick), never both. Children render under the status (the "Échanger" pill).
+- `DoneToggle`: 44 pt checkbox, empty `circle` in `textTertiary` / filled check in `success`.
+- `PillButton`: small `fill` pill (icon 14 + caption medium), 32 pt with `hitSlop` to 44 pt.
+- `RotationPicker`: roommates as 48 pt avatars tapped in order; chosen ones get the dark ring and their place number in a dark badge. `EmojiPicker`: the short emoji list as badges, dark ring on the chosen one.
+- Screen: "Cette semaine" (tick for every chore, "Échanger" on my undone chores → inline `PersonPicker` + "Donner la semaine à Léa"), "Les prochaines semaines" (3 weeks, chore left / person right, "Vous" in `text`), "Les tâches" (rows with the order "Vous → Léa → Tom", → edit) + secondary "Ajouter une tâche". Empty state: one card with the primary "Créer la première tâche". Edit: name, emoji, order, primary "Enregistrer", delete = secondary button asking "Appuyez encore pour supprimer".
+
+## How to pay (`how-to-pay.tsx`, data `src/lib/payment-info.ts`)
+Section on the payments page, after the rent. Pix card first (`ListRow` with the `pix` icon, "Clé Pix · CNPJ", the key, then a secondary "Copier la clé Pix"), then the bank rows (beneficiary, CNPJ/CPF, bank, agency, account: label + value in `text` + 44 pt copy button), the Wise card only when there is an IBAN, then a card with the team's note and a secondary "Envoyer le reçu sur WhatsApp" (message prefilled). Only filled fields show; no section at all while the team hasn't entered anything.
+
+## Assistant (`assistant-ui.tsx`, screen `src/app/assistant.tsx`, data `src/lib/assistant.ts`)
+Not a `Screen`: `BrandBar back`, a scroll with the title, an intro card (what it knows, that it can be wrong, that nothing is saved) and suggestion pills until the first question, then the conversation; a white composer bar at the bottom (hairline on top, `fill` input with radius 22 that grows to ~5 lines, dark 44 pt round send button, `fill` when disabled) inside a `KeyboardAvoidingView`.
+- `Bubble`: student = `fill`, right, 85 % wide max; assistant = white card with `Shadow.card`, left, 92 % max; radius 16 with the tail corner at 6.
+- `TypingBubble`: three pulsing dots in an assistant bubble (still with reduced motion).
+- `SuggestionPill`: like `Chip` but wraps (questions can be long).
+- `TextLink`: icon + callout medium, 44 pt tall, under a bubble: "Parler à l’équipe" (WhatsApp) under refused answers, answers that mention WhatsApp and the notConfigured / limit / noRental errors; "Réessayer" under busy / network / server errors. Errors use `error` + `warning` icon inside the bubble, never brand red.
+- The conversation stays in memory while the app runs (never on disk); "Nouvelle conversation" clears it.
 
 ## Common Issues
 ### "button cannot be a descendant of button" (web console)

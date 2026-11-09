@@ -23,7 +23,10 @@ export type ApiError =
   | 'network'
   | 'server'
   | 'tooSoon'
-  | 'taken';
+  | 'taken'
+  | 'limit'
+  | 'busy'
+  | 'notConfigured';
 
 export class AppApiError extends Error {
   constructor(public code: ApiError) {
@@ -40,6 +43,19 @@ export function appApi<T>(route: string, options: CallOptions = {}): Promise<T> 
 /** Same as appApi, for the "app-requests" function. */
 export function requestsApi<T>(route: string, options: CallOptions = {}): Promise<T> {
   return call<T>(REQUESTS_URL, route, options);
+}
+
+/** Sibling functions in the same Supabase project; all accept the app-api session token. */
+const sibling = (name: string) => BASE_URL.replace(/\/[^/]*$/, `/${name}`);
+
+/** "app-house": chores, notices (the bell), how to pay Chez Toi, push device registration. */
+export function houseApi<T>(route: string, options: CallOptions = {}): Promise<T> {
+  return call<T>(process.env.EXPO_PUBLIC_HOUSE_API_URL ?? sibling('app-house'), route, options);
+}
+
+/** "app-assistant": the AI assistant (contract, rules, guide, the student's own data). */
+export function assistantApi<T>(route: string, options: CallOptions = {}): Promise<T> {
+  return call<T>(process.env.EXPO_PUBLIC_ASSISTANT_API_URL ?? sibling('app-assistant'), route, options);
 }
 
 async function call<T>(base: string, route: string, options: CallOptions): Promise<T> {
