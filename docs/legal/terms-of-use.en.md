@@ -12,8 +12,8 @@ Last updated: [publication date]
 6. **Requests and extra services.** Paid services follow the prices and conditions shown in the app and confirmed by the team.
 7. **Forbidden use.** Don’t use the app to bother other people, try to access data that isn’t yours, get around limits or disrupt the service.
 8. **Availability.** We do our best to keep the app running, but it may be unavailable for maintenance or because of failures. The usual channels (the team’s WhatsApp) still apply.
-9. **Privacy.** How your data is used is described in the Privacy policy: https://cheztoibh.com.br/app/privacidade.
-10. **Deleting your account.** At any time, in Profile › Delete my account (details at https://cheztoibh.com.br/app/excluir-conta).
+9. **Privacy.** How your data is used is described in the Privacy policy: https://housing.cheztoibh.com.br/app/privacidade.
+10. **Deleting your account.** At any time, in Profile › Delete my account (details at https://housing.cheztoibh.com.br/app/excluir-conta).
 11. **Changes.** We will tell you in the app before important changes to these terms.
 12. **Governing law.** Brazilian law; courts of Belo Horizonte, MG, without prejudice to consumer rights [to be confirmed].
 

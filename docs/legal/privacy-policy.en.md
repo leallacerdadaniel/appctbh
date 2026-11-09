@@ -98,7 +98,7 @@ Some providers are outside Brazil (for example in the United States). Internatio
 Under the LGPD (art. 18) you can: confirm whether we process your data; access it; correct incomplete or wrong data; ask for anonymisation, blocking or deletion of unnecessary data; ask for portability; know who we share it with; withdraw consent; and complain to Brazil’s data protection authority (ANPD).
 
 - **Correct**: on first access, with the record correction button; afterwards, by asking the team in the app or on WhatsApp.
-- **Delete your account**: in the app, **Profile › Delete my account**. The account is deleted at once, with everything that only belongs to the app (profile, community posts, reviews, visitors, packages, notification devices and what the app kept on the phone). The contract, payments, expenses shared with roommates and the acceptance of the house rules stay with Chez Toi for its legal obligations. You can also ask by e-mail. Details at https://cheztoibh.com.br/app/excluir-conta.
+- **Delete your account**: in the app, **Profile › Delete my account**. The account is deleted at once, with everything that only belongs to the app (profile, community posts, reviews, visitors, packages, notification devices and what the app kept on the phone). The contract, payments, expenses shared with roommates and the acceptance of the house rules stay with Chez Toi for its legal obligations. You can also ask by e-mail. Details at https://housing.cheztoibh.com.br/app/excluir-conta.
 - **Other requests**: [privacidade@cheztoibh.com.br — to be confirmed]. We answer within 15 days.
 
 ## 7. Security
@@ -111,7 +111,7 @@ The app is for students under contract with Chez Toi, as a rule over 18. [If a s
 
 ## 9. Changes
 
-If this policy changes in an important way, we will tell you in the app before the change applies. The current version is always at https://cheztoibh.com.br/app/privacidade.
+If this policy changes in an important way, we will tell you in the app before the change applies. The current version is always at https://housing.cheztoibh.com.br/app/privacidade.
 
 ## 10. Contact
 

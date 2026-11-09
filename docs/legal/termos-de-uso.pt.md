@@ -12,8 +12,8 @@
 6. **Pedidos e serviços extras.** Pedidos de serviços pagos seguem os preços e condições mostrados no app e confirmados pela equipe.
 7. **Uso proibido.** Não use o app para incomodar outras pessoas, tentar acessar dados que não são seus, burlar limites ou atrapalhar o funcionamento do serviço.
 8. **Disponibilidade.** Fazemos o possível para manter o app no ar, mas ele pode ficar indisponível por manutenção ou falhas. Os canais de sempre (WhatsApp da equipe) continuam valendo.
-9. **Privacidade.** O uso dos seus dados está na Política de privacidade: https://cheztoibh.com.br/app/privacidade.
-10. **Excluir a conta.** A qualquer momento, em Profil › Supprimer mon compte (detalhes em https://cheztoibh.com.br/app/excluir-conta).
+9. **Privacidade.** O uso dos seus dados está na Política de privacidade: https://housing.cheztoibh.com.br/app/privacidade.
+10. **Excluir a conta.** A qualquer momento, em Profil › Supprimer mon compte (detalhes em https://housing.cheztoibh.com.br/app/excluir-conta).
 11. **Mudanças.** Avisaremos no app antes de mudanças importantes nestes termos.
 12. **Lei e foro.** Lei brasileira; foro de Belo Horizonte, MG, ressalvados os direitos do consumidor [a confirmar].
 

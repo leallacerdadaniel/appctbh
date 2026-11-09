@@ -98,7 +98,7 @@ Certains prestataires sont situés hors du Brésil (par exemple aux États-Unis)
 Selon la LGPD (art. 18), vous pouvez : savoir si nous traitons vos données ; y accéder ; corriger des données incomplètes ou fausses ; demander l’anonymisation, le blocage ou la suppression de données inutiles ; demander la portabilité ; savoir avec qui nous les partageons ; retirer votre consentement ; et vous plaindre auprès de l’autorité brésilienne (ANPD).
 
 - **Corriger** : au premier accès, avec le bouton de correction de la fiche ; ensuite, en le demandant à l’équipe par l’app ou par WhatsApp.
-- **Supprimer le compte** : dans l’app, **Profil › Supprimer mon compte**. Le compte est supprimé tout de suite, avec ce qui est propre à l’app (profil, publications de la communauté, avis, visites, colis, appareils de notification et ce que l’app gardait sur le téléphone). Le contrat, les paiements, les dépenses partagées avec les colocataires et l’acceptation des règles restent à la Chez Toi pour ses obligations légales. Vous pouvez aussi le demander par e-mail. Détails sur https://cheztoibh.com.br/app/excluir-conta.
+- **Supprimer le compte** : dans l’app, **Profil › Supprimer mon compte**. Le compte est supprimé tout de suite, avec ce qui est propre à l’app (profil, publications de la communauté, avis, visites, colis, appareils de notification et ce que l’app gardait sur le téléphone). Le contrat, les paiements, les dépenses partagées avec les colocataires et l’acceptation des règles restent à la Chez Toi pour ses obligations légales. Vous pouvez aussi le demander par e-mail. Détails sur https://housing.cheztoibh.com.br/app/excluir-conta.
 - **Autres demandes** : [privacidade@cheztoibh.com.br — à confirmer]. Réponse sous 15 jours.
 
 ## 7. Sécurité
@@ -111,7 +111,7 @@ L’app est destinée aux étudiants sous contrat avec la Chez Toi, en principe 
 
 ## 9. Modifications
 
-En cas de changement important, nous vous prévenons dans l’app avant qu’il s’applique. La version en vigueur est toujours sur https://cheztoibh.com.br/app/privacidade.
+En cas de changement important, nous vous prévenons dans l’app avant qu’il s’applique. La version en vigueur est toujours sur https://housing.cheztoibh.com.br/app/privacidade.
 
 ## 10. Contact
 

@@ -98,7 +98,7 @@ Alguns desses prestadores ficam fora do Brasil (por exemplo, nos Estados Unidos)
 Pela LGPD (art. 18) você pode: confirmar se tratamos seus dados; acessá-los; corrigir dados incompletos ou errados; pedir anonimização, bloqueio ou eliminação de dados desnecessários; pedir a portabilidade; saber com quem compartilhamos; retirar o consentimento; e reclamar à Autoridade Nacional de Proteção de Dados (ANPD).
 
 - **Corrigir**: no primeiro acesso, pelo botão de correção da ficha; depois, pedindo à equipe pelo app ou pelo WhatsApp.
-- **Apagar a conta**: no app, em **Profil › Supprimer mon compte**. A conta é apagada na hora, com o que é só do app (perfil, publicações da comunidade, avaliações, visitas, encomendas, aparelhos de notificação e o que o app guardava no telefone). O contrato, os pagamentos, as despesas compartilhadas com os colegas e o aceite das regras ficam com a Chez Toi pelas obrigações legais. Também é possível pedir pelo e-mail abaixo. Mais detalhes em https://cheztoibh.com.br/app/excluir-conta.
+- **Apagar a conta**: no app, em **Profil › Supprimer mon compte**. A conta é apagada na hora, com o que é só do app (perfil, publicações da comunidade, avaliações, visitas, encomendas, aparelhos de notificação e o que o app guardava no telefone). O contrato, os pagamentos, as despesas compartilhadas com os colegas e o aceite das regras ficam com a Chez Toi pelas obrigações legais. Também é possível pedir pelo e-mail abaixo. Mais detalhes em https://housing.cheztoibh.com.br/app/excluir-conta.
 - **Outros pedidos**: [privacidade@cheztoibh.com.br — a confirmar]. Respondemos em até 15 dias.
 
 ## 7. Segurança
@@ -111,7 +111,7 @@ O app é para estudantes com contrato com a Chez Toi, em regra maiores de 18 ano
 
 ## 9. Mudanças nesta política
 
-Quando a política mudar de forma importante, avisaremos no app antes de a mudança valer. A versão em vigor fica sempre em https://cheztoibh.com.br/app/privacidade.
+Quando a política mudar de forma importante, avisaremos no app antes de a mudança valer. A versão em vigor fica sempre em https://housing.cheztoibh.com.br/app/privacidade.
 
 ## 10. Contato
 

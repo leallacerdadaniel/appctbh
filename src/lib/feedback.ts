@@ -65,7 +65,7 @@ export type ReferralData = {
 export type LoadState<T> = { status: 'loading' } | { status: 'ready'; data: T } | { status: 'error' };
 
 /** The site the share message points to. */
-export const SITE_URL = 'https://cheztoibh.com.br';
+export const SITE_URL = 'https://housing.cheztoibh.com.br';
 
 /* ---------- Shared stores ---------- */
 

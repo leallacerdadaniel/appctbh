@@ -123,9 +123,9 @@ com código nativo, ícone): subir `version` no `app.json` e fazer build novo.
 
 ## 8. Fichas das lojas (o que vão perguntar)
 
-- **Política de privacidade**: `https://cheztoibh.com.br/app/privacidade` (rascunho em `docs/legal/`, página no site na
+- **Política de privacidade**: `https://housing.cheztoibh.com.br/app/privacidade` (rascunho em `docs/legal/`, página no site na
   branch `app/painel-do-app`; publicar só depois da revisão jurídica e confirmar o domínio que serve a página).
-- **Exclusão de conta** (Google Play): `https://cheztoibh.com.br/app/excluir-conta`; no app: Profil › Supprimer mon compte.
+- **Exclusão de conta** (Google Play): `https://housing.cheztoibh.com.br/app/excluir-conta`; no app: Profil › Supprimer mon compte.
 - **Conta de demonstração** para a revisão da Apple e do Google: o app só abre com login. Criar um aluno de teste com
   estadia ativa no banco de produção (ou apontar o build de revisão para o appctbh) e informar e-mail e senha no
   formulário da loja.
