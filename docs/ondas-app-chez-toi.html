@@ -155,7 +155,7 @@ h2{font-family:var(--display);font-weight:400;font-size:clamp(24px,3.4vw,32px);l
     <p class="logo"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 15.5 16 6l11 9.5V27a1 1 0 0 1-1 1h-6.5v-7.5h-7V28H6a1 1 0 0 1-1-1z" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/></svg>Chez Toi BH</p>
     <h1>Do app demo ao app que nenhum estudante quer largar</h1>
     <p class="lead">Dezenove ondas, na ordem em que as dependências mandam. O painel mora no site da Chez Toi e alimenta o perfil de cada morador; o app lê o mesmo banco. Marque as caixas conforme andar: o que você marcar fica salvo para todo mundo que abrir este link.</p>
-    <div class="meta"><span>Expo SDK 58 e Expo Router</span><span>Supabase da Chez Toi</span><span>Painel no site (Lovable)</span><span>iOS e Android</span><span id="atualizado">Atualizado em 09/11/2026 às 19:31</span></div>
+    <div class="meta"><span>Expo SDK 58 e Expo Router</span><span>Supabase da Chez Toi</span><span>Painel no site (Lovable)</span><span>iOS e Android</span><span id="atualizado">Atualizado em 09/11/2026 às 20:46</span></div>
     <!-- span#atualizado: dia e hora da última atualização deste arquivo, horário de Brasília.
          Toda vez que este HTML mudar, o carimbo muda junto, antes de republicar. -->
   </div>
@@ -197,7 +197,7 @@ h2{font-family:var(--display);font-weight:400;font-size:clamp(24px,3.4vw,32px);l
       <div class="dl"><code>R6</code><b>Valor do aluguel</b><span class="tag meio">Parcial</span><p>Pagamentos mês a mês (pago ou pendente, meses futuros não aparecem como pendentes) e o aluguel do apartamento no contrato. Sem vencimento nem valor da fatura do mês: onda 5.</p></div>
       <div class="dl"><code>R7</code><b>Contrato</b><span class="tag ok">Real</span><p>Abre o PDF real do contrato, com link temporário do bucket privado.</p></div>
       <div class="dl"><code>R8</code><b>Conta da Chez Toi para pagamento</b><span class="tag meio">Desenvolvimento</span><p>"Como pagar" em Paiements com Pix, conta e euro, copiar e recibo por WhatsApp, lendo da tabela que a equipe vai editar. Dados de exemplo até a Chez Toi passar os reais. Onda 5.</p></div>
-      <div class="dl"><code>R9</code><b>Lembretes</b><span class="tag meio">Desenvolvimento</span><p>Sino com avisos da equipe e aviso automático quando um pedido muda. Notificação no celular e lembretes: onda 9.</p></div>
+      <div class="dl"><code>R9</code><b>Lembretes</b><span class="tag meio">Desenvolvimento</span><p>Sino com avisos da equipe e aviso automático quando um pedido muda. Push pronto no servidor de desenvolvimento (09/11/2026): chega ao celular com o build nativo. Lembretes: onda 9.</p></div>
       <div class="dl"><code>R10</code><b>Cartilha</b><span class="tag nao">Não existe</span><p>Onda 10.</p></div>
       <div class="dl"><code>R11</code><b>PDF do QR code</b><span class="tag nao">Não existe</span><p>Onda 10.</p></div>
       <div class="dl"><code>R12</code><b>Chamados de manutenção</b><span class="tag meio">Desenvolvimento</span><p>Chamado com cômodo, tipo, urgência e até 3 fotos, com linha do tempo, pronto no <code>appctbh</code>. Onda 6.</p></div>
@@ -310,7 +310,7 @@ const ONDAS = [
      "Regras de acesso: o morador vê só a própria estadia; colegas veem só o que é da casa",
      "Buckets privados para contrato, vistoria e documentos, com link que expira (DECISÃO-2)",
      "Tipos gerados do banco, usados pelo app e pelo site",
-     "Prova escrita como aluno mal-intencionado: tentar ler o contrato e os documentos de outro"
+     "Prova escrita como aluno mal-intencionado: tentar ler o contrato e os documentos de outro (revisão de segurança feita em 09/11/2026: nenhum caminho para ler dado de outro aluno; as falhas achadas foram corrigidas no desenvolvimento, SQL 021)"
    ],
    pronto:"o site continua funcionando igual, e um aluno de teste só enxerga o que é dele."},
 
@@ -324,7 +324,7 @@ const ONDAS = [
      "Sessão guardada com segurança no aparelho (Keychain e Keystore, pronto no desenvolvimento em 09/11/2026)",
      "Acesso que se encerra sozinho depois da saída, com prazo para baixar recibos e documentos (30 dias, com aviso em Séjour; pronto no desenvolvimento em 09/11/2026)",
      "Excluir a conta pelo próprio app (exigência das lojas; pronto no desenvolvimento em 09/11/2026, em Profil › Supprimer mon compte)",
-     "Primeiro acesso ligado à ficha do site: o aluno ativa sozinho com o e-mail do contrato, a data de nascimento e o número do passaporte da ficha, confere os dados (o que estiver errado vai para a equipe no painel, nunca direto na ficha) e escolhe a senha; ficha sem passaporte cai na fila do painel. Login redesenhado com BH vista da Serra do Curral (pronto no desenvolvimento em 09/11/2026)"
+     "Primeiro acesso ligado à ficha do site: o aluno ativa sozinho com o e-mail do contrato, a data de nascimento e o número do passaporte da ficha, confere os dados (o que estiver errado vai para a equipe no painel, nunca direto na ficha) e escolhe a senha; ficha sem passaporte cai na fila do painel. Login redesenhado com BH vista da Serra do Curral (pronto no desenvolvimento em 09/11/2026; desde a revisão de segurança, só para conta ainda sem senha, com limite de tentativas no login e no primeiro acesso)"
    ],
    pronto:"um aluno convidado pelo painel entra no app e vê o próprio nome e apartamento."},
 
@@ -407,16 +407,16 @@ const ONDAS = [
   {n:9, t:"Avisos, lembretes e agenda", tags:[["app","app"],["back","backend"],["infra","build"]],
    por:"Push não funciona no Expo Go. Esta onda faz o primeiro build de desenvolvimento e liga os lembretes que fazem o aluno não perder prazo. <em>O push segue o desenho que já funciona na onda 9 do Café com Crédito</em>, e as datas da Chez Toi passam a aparecer também na agenda do celular do aluno.",
    itens:[
-     "Build de desenvolvimento pelo EAS ou na máquina",
-     "Tabela de aparelhos: o app registra o token ao entrar, e o token que o Expo recusar é desligado sozinho (como no Café com Crédito)",
-     "Gatilho no banco: todo aviso gravado vira push pela função de envio, com o segredo guardado no Vault",
-     "Sino com a central de avisos, e cada push abre a tela certa: pedido, aluguel, limpeza ou comunicado",
+     "Build de desenvolvimento pelo EAS ou na máquina (configuração pronta em 09/11/2026: <code>eas.json</code> e <code>docs/eas-setup.md</code>; falta a conta da Apple/Expo e o <code>eas init</code>)",
+     "Tabela de aparelhos: o app registra o token ao entrar, e o token que o Expo recusar é desligado sozinho (como no Café com Crédito) (pronto no desenvolvimento em 09/11/2026, com a língua do aparelho)",
+     "Gatilho no banco: todo aviso gravado vira push pela função de envio, com o segredo guardado no Vault (pronto no desenvolvimento em 09/11/2026: SQL 022 e função <code>app-push</code>, testado até a Expo)",
+     "Sino com a central de avisos, e cada push abre a tela certa: pedido, aluguel, limpeza ou comunicado (pronto no desenvolvimento em 09/11/2026; o toque no push só funciona no build nativo)",
      "Sincronizar com a agenda do celular: limpeza, vencimento do aluguel, check-out, serviços agendados e eventos aparecem na agenda do iPhone ou do Google",
      "Link de agenda pessoal (assinatura .ics) que se atualiza sozinho quando o painel muda uma data, para Google Agenda, Apple e Outlook",
      "Escolher o que vai para a agenda e desligar a sincronização quando quiser",
      "Lembretes automáticos: aluguel (3 dias antes e no dia), limpeza, check-out, documento vencendo e prazo do RNM",
      "Lembretes pessoais criados pelo próprio aluno",
-     "Comunicado do painel vira push e fica guardado na central de avisos",
+     "Comunicado do painel vira push e fica guardado na central de avisos (pronto no desenvolvimento em 09/11/2026; chega ao celular com o build nativo, a chave APNs e o Firebase)",
      "Preferências: o que receber e em que língua",
      "Encomendas: o aluno avisa o que espera, a equipe marca \"chegou na portaria\" e o aviso cai no sino (pronto no desenvolvimento em 09/11/2026; tela Encomendas na branch local <code>app/painel-do-app</code> do site)",
      "Widget na tela de bloqueio e na tela inicial: senha do wifi, endereço, próxima faxina, minha tarefa e o atalho \"voltar pra casa\" (Uber) (aprovado em 08/11/2026; precisa do build de desenvolvimento desta onda, não roda no Expo Go)"
@@ -524,10 +524,10 @@ const ONDAS = [
   {n:17, fase:"Fase 5 · Lojas", t:"Pré-requisitos das lojas", tags:[["loja","lojas"],["voce","você faz"]],
    por:"As contas e os textos legais levam dias para aprovar. Dá para começar em paralelo com a fase 2.",
    itens:[
-     "Contas Apple Developer e Google Play em nome da Chez Toi",
-     "Build pelo EAS, com ícone, splash e nome nas lojas",
-     "Política de privacidade e termos em francês, inglês e português, cobrindo documentos de estrangeiros",
-     "Manifesto de privacidade do iOS e declaração de dados do Google",
+     "Contas Apple Developer e Google Play em nome da Chez Toi, como organização (D-U-N-S; páginas de cadastro abertas em 09/11/2026)",
+     "Build pelo EAS, com ícone, splash e nome nas lojas (configuração pronta em 09/11/2026: ícone do Android com o logo, splash com o mapa de Minas e abertura animada, permissões limpas; falta o primeiro build)",
+     "Política de privacidade e termos em francês, inglês e português, cobrindo documentos de estrangeiros (rascunhos em 09/11/2026 em <code>docs/legal/</code> e nas páginas <code>/app/privacidade</code> e <code>/app/excluir-conta</code> da branch do site; falta a revisão jurídica e os dados da empresa)",
+     "Manifesto de privacidade do iOS e declaração de dados do Google (manifesto do iOS pronto em 09/11/2026; a declaração do Google se preenche no Play Console)",
      "Conta de demonstração para a revisão das lojas",
      "Pagamento fora do app, por Pix e conta (DECISÃO-3)"
    ],
@@ -539,7 +539,7 @@ const ONDAS = [
      "TestFlight e teste interno com a equipe e um grupo de alunos",
      "Publicação nas duas lojas",
      "Monitoramento de erros e de uso",
-     "Atualizações pelo ar (EAS Update)",
+     "Atualizações pelo ar (EAS Update) (versão de runtime e canais no <code>eas.json</code> em 09/11/2026; falta o <code>eas update:configure</code>)",
      "Rotina de virada de semestre: arquivar quem saiu e convidar a nova turma"
    ],
    pronto:"a turma do próximo semestre recebe o convite e baixa o app na loja."}
