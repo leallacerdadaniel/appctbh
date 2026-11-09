@@ -153,10 +153,13 @@ async function arrivalAndDeparture(cp: string) {
     .eq('counterparty_id', cp)
     .eq('is_active', true)
     .in('rental_id', rentals ?? []);
+  // apartment_departures.tenant_id é a PESSOA (finance_counterparties.id), não rental_tenants.id:
+  // conferido no banco do site em 08/11/2026 (157 de 157 saídas). Busca pela pessoa nos contratos do aluno.
   const { data: departures } = await db
     .from('apartment_departures')
     .select('departure_date, checkout_datetime')
-    .in('tenant_id', (tenants ?? []).map((t) => t.id));
+    .eq('tenant_id', cp)
+    .in('rental_id', rentals ?? []);
 
   const first = (tenants ?? [])
     .filter((t) => t.arrival_confirmed_date)
