@@ -137,7 +137,7 @@ td.esf{white-space:nowrap}
     <p class="eyebrow">Chez Toi BH · para a conversa com o Arthur</p>
     <h1>V2 do app do morador</h1>
     <p class="lead">O que a V2 já tem, o que ainda não funciona, o que muda no design e no tour, o resultado da revisão de segurança e o caminho até a App Store e o Google Play. Fechado em 09/11/2026 a partir do código, do banco de desenvolvimento e de três revisões independentes (design, segurança e lojas). Na mesma noite, quase tudo o que dependia só do desenvolvimento foi resolvido: está marcado em cada seção e resumido em "Feito hoje".</p>
-    <p class="atualizado">Atualizado em <span id="atualizado">09/11/2026, 20:45 (Brasília)</span></p>
+    <p class="atualizado">Atualizado em <span id="atualizado">09/11/2026, 20:51 (Brasília)</span></p>
     <div class="chips">
       <span>86 telas · francês e inglês</span><span>11 funções no servidor</span><span>12 telas no painel do site</span><span>App: 16 commits à frente da main</span><span>Falhas de segurança corrigidas no dev</span><span>Nada em produção ainda</span>
     </div>
@@ -194,9 +194,11 @@ td.esf{white-space:nowrap}
         <li>Testado de ponta a ponta até a Expo. Para chegar ao celular falta o build nativo, a chave APNs (Apple) e o Firebase (Google).</li></ul></div>
     </div>
     <div class="card"><h3>Agora depende de vocês</h3><ul>
-      <li>Conta Apple Developer e Google Play como organização (D-U-N-S) e conta na Expo; depois, <code>eas login</code> e <code>eas init</code>.</li>
+      <li><b>Apple:</b> D-U-N-S obtido e inscrição como organização enviada (em análise; a Apple costuma ligar ou mandar e-mail para confirmar, depois cobra os US$ 99).</li>
+      <li><b>Google Play:</b> conta da organização CHEZ TOI BH criada. Faltam quatro verificações: documento de identidade, declaração de comerciante (UE), site no Search Console e telefones.</li>
+      <li>Conta na Expo; depois, <code>eas login</code> e <code>eas init</code>.</li>
       <li>Revisão jurídica dos textos; razão social, CNPJ, encarregado de dados e e-mail de privacidade para preencher.</li>
-      <li>Domínio das páginas legais: o app aponta para <code>cheztoibh.com.br/app/privacidade</code>; o site usa <code>housing.cheztoibh.com.br</code> no SEO.</li>
+      <li><s>Domínio das páginas legais</s> <span class="tag t-ok">Decidido</span> <code>housing.cheztoibh.com.br/app/privacidade</code> e <code>/app/excluir-conta</code> (app e site já apontam para lá).</li>
       <li>Painel: mostrar o erro "só admin" ao gerar senha nova; tela para as respostas da Charlotte marcadas como erradas (opcional).</li></ul></div>
   </section>
 
@@ -336,9 +338,10 @@ td.esf{white-space:nowrap}
         <li><s>Manifesto de privacidade, criptografia, 21 pacotes</s> <span class="tag t-ok">Feito</span>; primeiro build de teste depende da conta.</li>
         <li><s>"Bientôt disponible" no Wi‑Fi</s> <span class="tag t-ok">Feito</span>; a conta de demonstração ainda precisa ser montada.</li></ul></div>
       <div class="card"><h3>Com a Chez Toi <span class="tag t-ct">Chez Toi</span></h3><ul>
-        <li>D-U-N-S com razão social e endereço exatos do CNPJ (Apple: até 5 dias úteis; Google: até 30 dias).</li>
+        <li><s>D-U-N-S</s> <span class="tag t-ok">Feito</span> e inscrição na Apple enviada (09/11/2026, em análise).</li>
         <li>E-mail @cheztoibh.com.br para as contas e domínio verificado no Google.</li>
-        <li>Apple Developer e Google Play como organização (não pessoa física: evita a regra de 12 testadores por 14 dias).</li>
+        <li>Apple Developer e Google Play como organização (não pessoa física: evita a regra de 12 testadores por 14 dias). <span class="tag t-medio">Em andamento</span> Google criado, faltam as verificações; Apple em análise.</li>
+        <li>Verificar o site no Google Search Console com a conta Google da Chez Toi (o Google Play exige). Recomendação: registro TXT no DNS do domínio, que não mexe no site.</li>
         <li>Política de privacidade (LGPD: passaporte, nascimento, fotos, IA, retenção), termos e página web de exclusão de conta, em FR, EN e PT, revisados por advogado.</li>
         <li>Declaração de "trader" para a União Europeia (os alunos franceses baixam na loja da França).</li>
         <li>Conta de demonstração completa para os revisores; material de loja em FR, EN e PT.</li>
@@ -386,7 +389,7 @@ td.esf{white-space:nowrap}
       <li><b>Orçamento da IA.</b><span class="rec">Modelo menor para a moderação, limite diário por aluno na Charlotte e na comunidade, alerta de gasto.</span></li>
       <li><b>Escopo da V2.</b><span class="rec">Confirmar o corte proposto acima (V2 = endurecer + produção + push + lojas; o resto na V3) e quem toca cada frente.</span></li>
       <li><b>TestFlight já ou só com a conta da Chez Toi.</b><span class="rec">Time da Apple da CLRD como ponte (identificador separado, só teste interno) ou esperar o D-U-N-S. Quem entra como testador.</span></li>
-      <li><b>Domínio e dados das páginas legais.</b><span class="rec"><code>cheztoibh.com.br</code> ou <code>housing.cheztoibh.com.br</code>; razão social, CNPJ, encarregado de dados e e-mail de privacidade.</span></li>
+      <li><b>Dados das páginas legais.</b><span class="rec">Domínio decidido (<code>housing.cheztoibh.com.br</code>). Faltam razão social, CNPJ, encarregado de dados e e-mail de privacidade.</span></li>
     </ol>
   </section>
 

@@ -169,6 +169,10 @@ próprio artefato).
   Firebase, TestFlight). Rascunhos de política e termos em PT/FR/EN em `docs/legal/` ("RASCUNHO para revisão jurídica");
   no site, páginas públicas `/app/privacidade` e `/app/excluir-conta` na branch `app/painel-do-app` (`noindex`).
   A Charlotte pede ciência do uso da IA (Anthropic) antes da primeira pergunta e tem "Signaler cette réponse".
+  Contas (09/11/2026): o site oficial é `housing.cheztoibh.com.br` (links de privacidade, exclusão e indicação apontam para lá).
+  Apple: D-U-N-S obtido, inscrição como organização enviada pelo Apple ID da Chez Toi, em análise. Google Play: conta
+  da organização CHEZ TOI BH criada na conta Google da Chez Toi (não na pessoal do Daniel); faltam documento, declaração de
+  comerciante, site no Search Console (sugestão: TXT no DNS, sem mexer no site) e telefones.
 
 ## Armadilhas conhecidas (08/11/2026)
 
