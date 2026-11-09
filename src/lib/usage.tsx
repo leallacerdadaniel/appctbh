@@ -30,7 +30,9 @@ export type UsageAction =
   | 'chore_done'
   | 'explorer_category'
   | 'explorer_ask'
-  | 'get_app';
+  | 'get_app'
+  // 2026-11-09: "Autour de moi" (Google Maps search where the student is)
+  | 'around_me';
 
 type UsageEvent = { kind: 'screen' | 'action'; name: string; item?: string; at: string };
 type UsageSearch = { query: string; results: number; at: string };

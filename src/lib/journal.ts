@@ -131,6 +131,8 @@ export const monthOf = (day: string) => day.slice(0, 7);
 /**
  * City and neighbourhood of a rough position. With the opt-in (and the permission), the phone's own map
  * service names them; otherwise, or when it fails, the app's tables do (BH, the trips of Explorer).
+ * Owner's choice (2026-11-09): keep the Apple/Google names (the rounded position goes to that service, as
+ * the opt-in screen says) rather than "nothing leaves the phone".
  */
 async function describe(p: { lat: number; lng: number }, geocode: boolean) {
   let city: string | null = null;

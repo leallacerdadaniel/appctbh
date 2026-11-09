@@ -3,6 +3,7 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
+import { AroundMe } from '@/components/around-me';
 import { BhEventsSection } from '@/components/bh-events-ui';
 import { CharlotteFace } from '@/components/charlotte';
 import { ExplorerContent } from '@/components/explorer-content';
@@ -13,6 +14,7 @@ import { Carousel, RestaurantPhotoCard } from '@/components/photo-card';
 import { PhoneStolenEntry } from '@/components/phone-stolen-ui';
 import { PhraseOfTheDay, PortugueseEntry } from '@/components/portuguese-ui';
 import { Screen, Section } from '@/components/screen';
+import { TopRatedNearHome } from '@/components/top-rated-near-home';
 import { AppText, PressableScale } from '@/components/ui';
 import { Fonts, Radius, Shadow, Spacing, TapTarget, Type } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -178,6 +180,8 @@ function CategoryContent({ category }: { category: Category }) {
           <TeamPick />
           <PhraseOfTheDay />
           <NearHome />
+          <TopRatedNearHome />
+          <AroundMe />
         </>
       );
     case 'out':
@@ -187,6 +191,7 @@ function CategoryContent({ category }: { category: Category }) {
           <Section title={e.bars} subtitle={e.barsHint} action={e.seeAll} onAction={() => router.push('/nightlife')}>
             <TonightCarousel />
           </Section>
+          <TopRatedNearHome only={['bar']} />
           <ExplorerContent segments={['events']} />
         </>
       );
@@ -207,6 +212,7 @@ function CategoryContent({ category }: { category: Category }) {
                 ))}
             </Carousel>
           </Section>
+          <TopRatedNearHome only={['restaurant', 'cafe']} />
           <GuideContent query="" only={['eat']} />
         </>
       );
@@ -215,7 +221,12 @@ function CategoryContent({ category }: { category: Category }) {
     case 'culture':
       return <ExplorerContent segments={['bh']} />;
     case 'trips':
-      return <ExplorerContent segments={['mg', 'br', 'sa']} />;
+      return (
+        <>
+          <AroundMe />
+          <ExplorerContent segments={['mg', 'br', 'sa']} />
+        </>
+      );
     case 'practical':
       return (
         <>

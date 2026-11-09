@@ -83,9 +83,18 @@ próprio artefato).
   visitas, encomendas e perfis (`src/app/house/`). O widget espera o build de desenvolvimento (onda 9).
 - Recap mensal (09/11/2026): `src/app/recap/` (central, histórias, linha do tempo, "carte de BH"), dados só no celular
   (`src/lib/journal.ts`: pontos de localização arredondados, fotos do mês, português por mês). Localização só com
-  opt-in; os nomes de cidade vêm do geocodificador da Apple/Google. Em segundo plano, só com o build da onda 9.
+  opt-in; os nomes de cidade vêm do geocodificador da Apple/Google (decisão do Daniel em 09/11/2026: manter, avisando
+  na tela de opt-in que a posição arredondada passa por esse serviço). Em segundo plano, só com o build da onda 9.
 - Pesquisas para as próximas ondas: `docs/pesquisa/agenda-bh.md` (fontes de eventos) e `docs/pesquisa/saude-bh.md`
   (seção Saúde; só publicar o que a equipe confirmar).
+- Mais bem avaliados do Google perto de casa (09/11/2026): `scripts/nearby.py` (`TOP_RATED`: restaurantes, bares e cafés a
+  até 15 min a pé, nota ponderada pelo número de avaliações) grava em `app_apartment_places.nearby.topRated`; no app,
+  `src/components/top-rated-near-home.tsx` na Explorer, com toque para o Google Maps. Some enquanto o apartamento não tem a lista.
+  Rodar `python3 scripts/apartment_places.py --top-rated` (só acrescenta a lista) com `GOOGLE_MAPS_API_KEY` no ambiente,
+  em `~/Desktop/Chez Toi BH/.env` ou no `.env.local`. Nesta máquina a chave não está; no `appctbh` nenhum apartamento tem lugares.
+- Fora de casa, "Autour de moi" (`src/components/around-me.tsx`): botões que abrem o Google Maps buscando onde o aluno está
+  (link do Maps, sem chave e sem custo). Busca ao vivo do Google dentro do app foi descartada pelo custo (09/11/2026:
+  de US$ 70 a US$ 1.850 por mês para 100 alunos); se voltar, só no toque, com limite por aluno e alerta de gasto.
 - Base de conhecimento da IA: `node scripts/assistant/build.mjs` gera
   `supabase/functions/app-assistant/knowledge.ts`; rodar de novo e republicar quando regras ou guia mudarem.
 - O site tem o banco de produção fixo no código (`src/integrations/supabase/client.ts`): rodar o site
