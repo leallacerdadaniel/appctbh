@@ -1,3 +1,5 @@
+> Publicada no site em 10/11/2026 com as lacunas preenchidas: a versão no ar é `src/content/appLegal.ts` do repositório do site. Este arquivo é o rascunho de origem.
+
 > **RASCUNHO para revisão jurídica** (09/11/2026). Os trechos entre colchetes [ ] dependem de decisão da Chez Toi ou do advogado. Não publicar antes da revisão.
 
 # Política de privacidade do app Chez Toi BH

@@ -100,9 +100,23 @@ passa a abrir o development build; para continuar no Expo Go, usar `npx expo sta
 
 ## 5. TestFlight (testadores internos)
 
+Precisa da conta da Apple aprovada (em 10/11/2026 ainda "Your enrollment is being processed"). Com ela aprovada,
+um comando faz o build e manda para o TestFlight (rodar no terminal: pede o login da Apple e o código de 2 fatores;
+responder "sim" para criar certificado, perfil e chave de push):
+
+```bash
+npx eas-cli@latest build -p ios --profile production --auto-submit
+```
+
+Ou, com um build já pronto:
+
 ```bash
 npx eas-cli@latest submit -p ios --latest
 ```
+
+**Antes da Apple aprovar**, para mostrar no iPhone: Expo Go (App Store) no celular, Mac e celular no mesmo Wi-Fi,
+`npx expo start --lan` no Mac e a câmera do iPhone no QR code do terminal. O app fala com o `appctbh` (dados fictícios);
+push e widget não funcionam no Expo Go. O Mac precisa ficar ligado com o Metro rodando durante a demonstração.
 
 Na primeira vez, o EAS pede o login da Apple e cria o app no App Store Connect (ou pergunta o `ascAppId`).
 Depois, no App Store Connect → TestFlight → "Testes internos": criar o grupo e adicionar até 100 pessoas da equipe

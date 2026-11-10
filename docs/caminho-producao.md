@@ -50,6 +50,9 @@ Montar um arquivo único "produção" com o resto (002 e 004 a 022 sem as partes
   Resend, usado pelo site), `APP_MODERATION_MODEL` (opcional), `EXPO_ACCESS_TOKEN` (opcional).
 - Vault: segredo do push (`app_push_secret`) e do robô da agenda; agendamento das 06:15 (013).
 - Bucket privado das fotos dos chamados (`request-photos`).
+- **Rotina de limpeza antes de abrir para os alunos.** A política publicada em 10/11/2026 promete: dados só do app
+  apagados ou anonimizados em até 12 meses depois do fim do acesso, e dados de uso por 6 meses (depois só números
+  agregados). Hoje nenhuma tarefa agendada faz isso: criar o `pg_cron` que cumpre esses prazos (ou mudar a política).
 
 ## 5. Painel do site
 

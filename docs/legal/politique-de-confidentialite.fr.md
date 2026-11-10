@@ -1,3 +1,5 @@
+> Publiée sur le site le 10/11/2026, lacunes remplies : la version en ligne est `src/content/appLegal.ts` du dépôt du site. Ce fichier est le brouillon d’origine.
+
 > **RASCUNHO para revisão jurídica** (09/11/2026). Brouillon à faire relire par un juriste : les passages entre crochets [ ] dépendent d’une décision de la Chez Toi ou de l’avocat. Ne pas publier avant la relecture.
 
 # Politique de confidentialité de l’app Chez Toi BH

@@ -187,8 +187,12 @@ próprio artefato).
   O mapa é vetor (`src/components/minas-shape.ts`, gerado por `python3 scripts/brand/minas_shape.py` a partir do logo).
 - Lojas (09/11/2026): `app.json` sem permissões que o app não usa, manifesto de privacidade, `eas.json` (development,
   preview, production) e o passo a passo em `docs/eas-setup.md` (`eas login`, `eas init`, variáveis no EAS, APNs,
-  Firebase, TestFlight). Rascunhos de política e termos em PT/FR/EN em `docs/legal/` ("RASCUNHO para revisão jurídica");
-  no site, páginas públicas `/app/privacidade` e `/app/excluir-conta` na branch `app/painel-do-app` (`noindex`).
+  Firebase, TestFlight). Rascunhos de política e termos em PT/FR/EN em `docs/legal/` ("RASCUNHO para revisão jurídica").
+  No site, páginas públicas `/app/privacidade` e `/app/excluir-conta` (`noindex`), texto final de 10/11/2026 (decisão do
+  Daniel: canal `cheztoibh@gmail.com`, sem encarregado nomeado por ser agente de pequeno porte, guarda legal de 5 anos,
+  12 meses depois do fim do acesso, 6 meses para dados de uso; revisão jurídica depois como atualização). Fonte única:
+  `src/content/appLegal.ts` do site. Só as duas páginas foram para a `main` do site (branch `app/paginas-legais`), o resto
+  do painel continua em `app/painel-do-app`.
   A Charlotte pede ciência do uso da IA (Anthropic) antes da primeira pergunta e tem "Signaler cette réponse".
   Contas (09/11/2026): o site oficial é `housing.cheztoibh.com.br` (links de privacidade, exclusão e indicação apontam para lá).
   Apple: D-U-N-S obtido, inscrição como organização enviada pelo Apple ID da Chez Toi, em análise. Google Play: conta

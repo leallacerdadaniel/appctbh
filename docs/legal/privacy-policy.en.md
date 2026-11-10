@@ -1,3 +1,5 @@
+> Published on the site on 2026-11-10 with the gaps filled in: the live version is `src/content/appLegal.ts` in the site repository. This file is the original draft.
+
 > **RASCUNHO para revisão jurídica** (09/11/2026). Draft for legal review: text in square brackets [ ] depends on a decision by Chez Toi or its lawyer. Do not publish before the review.
 
 # Chez Toi BH app privacy policy
