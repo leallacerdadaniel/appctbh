@@ -120,6 +120,15 @@
     },
     "locales": {
       "fr": "./locales/fr.json"
+    },
+    "owner": "chez-toi-bh",
+    "extra": {
+      "eas": {
+        "projectId": "ffdec189-77d7-41fb-a116-433987cca0a2"
+      }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/ffdec189-77d7-41fb-a116-433987cca0a2"
     }
   }
 }

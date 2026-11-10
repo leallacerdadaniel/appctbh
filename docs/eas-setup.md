@@ -1,8 +1,13 @@
 # EAS: builds, TestFlight, Play e atualizações (09/11/2026)
 
-Guia para o Daniel levar o app às lojas. Tudo aqui pede login nas contas da Chez Toi (Expo, Apple, Google),
-por isso nenhum destes comandos foi rodado pelo Claude. Rodar na pasta do app, com `npx eas-cli@latest`
-(o projeto usa npm; não precisa instalar o EAS globalmente).
+Guia para o Daniel levar o app às lojas. Tudo aqui pede login nas contas da Chez Toi (Expo, Apple, Google).
+Rodar na pasta do app, com `npx eas-cli@latest` (o projeto usa npm; não precisa instalar o EAS globalmente).
+
+**Já feito em 09/11/2026:** login na Expo (conta `cheztoibh`, pelo navegador), `eas init` na organização
+`chez-toi-bh` (projeto `@chez-toi-bh/chez-toi-bh`), `expo-updates` instalado e `eas update:configure`, variável
+`EXPO_PUBLIC_APP_API_URL` nos três ambientes. Identificador do app: `br.cheztoibh.app`. Atenção: o `eas init` e o
+`eas update:configure` reescrevem o `app.json` inteiro; conferir o diff antes de commitar. Falta: conta da Apple
+aprovada (primeiro `eas build -p ios`), Firebase para o push no Android, primeiro build.
 
 O que já está pronto no repositório: `eas.json` (perfis `development`, `preview`, `production`),
 `app.json` (permissões enxutas, manifesto de privacidade do iOS, criptografia isenta, ícone adaptativo do Android,

@@ -172,7 +172,13 @@ próprio artefato).
   Contas (09/11/2026): o site oficial é `housing.cheztoibh.com.br` (links de privacidade, exclusão e indicação apontam para lá).
   Apple: D-U-N-S obtido, inscrição como organização enviada pelo Apple ID da Chez Toi, em análise. Google Play: conta
   da organização CHEZ TOI BH criada na conta Google da Chez Toi (não na pessoal do Daniel); comerciante declarado e documento
-  enviado (09/11/2026, em análise); falta a verificação dos telefones. O site foi verificado (09/11/2026): domínio `cheztoibh.com.br` no Search Console da conta Google da
+  enviado (09/11/2026, em análise); falta a verificação dos telefones.
+  Expo/EAS (09/11/2026): projeto `@chez-toi-bh/chez-toi-bh` (organização `chez-toi-bh`, logado como `cheztoibh`), ID no
+  `app.json` (`extra.eas.projectId`), `expo-updates` com canais `development`/`preview`/`production`, variável
+  `EXPO_PUBLIC_APP_API_URL` no EAS nos três ambientes (por enquanto o `appctbh`). Identificador do app decidido:
+  `br.cheztoibh.app` (não muda depois do primeiro envio). Cuidado: `eas init` e `eas update:configure` reescrevem o
+  `app.json` inteiro com a configuração calculada (duplicam o manifesto de privacidade); conferir o diff e manter só a
+  mudança pretendida. O Metro precisa rodar fora do sandbox (terminal do usuário) para assinar o manifesto do Expo Go. O site foi verificado (09/11/2026): domínio `cheztoibh.com.br` no Search Console da conta Google da
   Chez Toi, por um TXT `google-site-verification` na raiz do DNS (HostGator, dns3/dns4). Não apagar esse TXT.
   O DNS também mostra o Resend já verificado no domínio (`resend._domainkey`, `send.`), usado pelo site.
 
