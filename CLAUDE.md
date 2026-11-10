@@ -172,7 +172,9 @@ próprio artefato).
   Contas (09/11/2026): o site oficial é `housing.cheztoibh.com.br` (links de privacidade, exclusão e indicação apontam para lá).
   Apple: D-U-N-S obtido, inscrição como organização enviada pelo Apple ID da Chez Toi, em análise. Google Play: conta
   da organização CHEZ TOI BH criada na conta Google da Chez Toi (não na pessoal do Daniel); faltam documento, declaração de
-  comerciante, site no Search Console (sugestão: TXT no DNS, sem mexer no site) e telefones.
+  comerciante e telefones. O site foi verificado (09/11/2026): domínio `cheztoibh.com.br` no Search Console da conta Google da
+  Chez Toi, por um TXT `google-site-verification` na raiz do DNS (HostGator, dns3/dns4). Não apagar esse TXT.
+  O DNS também mostra o Resend já verificado no domínio (`resend._domainkey`, `send.`), usado pelo site.
 
 ## Armadilhas conhecidas (08/11/2026)
 
