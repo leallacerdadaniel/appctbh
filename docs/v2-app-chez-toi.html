@@ -137,15 +137,15 @@ td.esf{white-space:nowrap}
     <p class="eyebrow">Chez Toi BH · para a conversa com o Arthur</p>
     <h1>V2 do app do morador</h1>
     <p class="lead">O que a V2 já tem, o que ainda não funciona, o que muda no design e no tour, o resultado da revisão de segurança e o caminho até a App Store e o Google Play. Fechado em 09/11/2026 a partir do código, do banco de desenvolvimento e de três revisões independentes (design, segurança e lojas). Na mesma noite, quase tudo o que dependia só do desenvolvimento foi resolvido: está marcado em cada seção e resumido em "Feito hoje".</p>
-    <p class="atualizado">Atualizado em <span id="atualizado">09/11/2026, 21:30 (Brasília)</span></p>
+    <p class="atualizado">Atualizado em <span id="atualizado">10/11/2026, 15:06 (Brasília)</span></p>
     <div class="chips">
-      <span>86 telas · francês e inglês</span><span>11 funções no servidor</span><span>12 telas no painel do site</span><span>App: 16 commits à frente da main</span><span>Falhas de segurança corrigidas no dev</span><span>Nada em produção ainda</span>
+      <span>86 telas · francês e inglês</span><span>11 funções no servidor</span><span>12 telas no painel do site</span><span>App: 16 commits à frente da main</span><span>47 defeitos achados e corrigidos em 10/11</span><span>135 testes automáticos</span><span>Nada em produção ainda</span>
     </div>
   </div>
 </header>
 
 <div class="gutter"><nav class="miolo indice" aria-label="Seções">
-  <a href="#resumo">Resumo</a><a href="#feito">Feito hoje</a><a href="#tem">O que a V2 tem</a><a href="#falta">O que falta</a><a href="#design">Design e tour</a><a href="#seguranca">Segurança</a><a href="#lojas">Lojas</a><a href="#plano">Plano</a><a href="#decisoes">Decisões</a>
+  <a href="#resumo">Resumo</a><a href="#revisao">Revisão de 10/11</a><a href="#feito">Feito em 09/11</a><a href="#tem">O que a V2 tem</a><a href="#falta">O que falta</a><a href="#design">Design e tour</a><a href="#seguranca">Segurança</a><a href="#lojas">Lojas</a><a href="#plano">Plano</a><a href="#decisoes">Decisões</a>
 </nav></div>
 
 <main class="miolo gutter">
@@ -163,8 +163,34 @@ td.esf{white-space:nowrap}
     </div>
   </section>
 
+  <section class="sec" id="revisao">
+    <div class="sec-cab"><p class="rot">10/11</p><h2>Revisão independente: 47 defeitos achados e corrigidos</h2>
+      <p>Três revisores que não escreveram o código leram o app e o servidor procurando defeitos reais. Tudo foi corrigido no desenvolvimento, conferido no simulador e coberto por testes. Nada foi para a produção nem para o banco do site.</p></div>
+    <div class="grid2">
+      <div class="card"><h3>Os que mais importavam</h3><ul class="feito-lista">
+        <li><b>Contrato errado:</b> o app podia abrir o contrato do proprietário em vez do contrato do aluno (a Charlotte respondia com base nele). Provavelmente também na versão de produção do Arthur.</li>
+        <li><b>Fim da estadia:</b> no dia do checkout o aluno perdia tudo, sem os 30 dias prometidos.</li>
+        <li><b>Rede de aeroporto:</b> numa rede que conecta mas não responde, o app ficava preso na abertura. Agora desiste em 20 s e abre com a cópia offline.</li>
+        <li><b>Troca de conta no mesmo celular:</b> o próximo aluno via nome, endereço e Wi‑Fi do anterior.</li>
+        <li><b>Falha passageira do banco</b> tiraria todos os alunos da conta de uma vez.</li>
+        <li><b>Celular roubado</b> continuava recebendo push depois de o dono trocar a senha.</li>
+        <li><b>Tour do primeiro acesso</b> mostrava só o passo de boas-vindas; no Android, o botão voltar fechava as regras sem assinar.</li>
+        <li><b>Contas da casa</b> quebravam quando um colega saía; reembolsos em francês errado ("Vous a payé").</li>
+      </ul></div>
+      <div class="card"><h3>Também feito em 10/11</h3><ul class="feito-lista">
+        <li>Filtro de links reescrito, igual no app, nas funções e no banco: recusa <code>linktr.ee/…</code> e <code>site.ru/login</code>, aceita "Merci.De rien".</li>
+        <li>Charlotte conhece Saúde, Comunidade, celular roubado e a navegação nova; a base sai dos textos do app.</li>
+        <li>Agenda com eventos e viagens; "Je viens" fixo na viagem; Explorer sem repetições; aviso da IA na carta.</li>
+        <li>Painel: tela "Respostas da Charlotte" (o que os alunos marcam como errado).</li>
+        <li>Testes: 135 no app (relógio de Paris e de BH), 16 checagens de ponta a ponta no servidor, e checagem automática no GitHub a cada push.</li>
+        <li>Datas dos avisos em inglês no formato inglês; espaço gourmet sem reserva dupla no mesmo prédio.</li>
+      </ul></div>
+    </div>
+    <p class="nota">Para levar à produção, os mesmos defeitos 1 e 2 precisam ser conferidos na <code>bright-service</code> do Arthur. O roteiro está em <code>docs/caminho-producao.md</code>.</p>
+  </section>
+
   <section class="sec" id="feito">
-    <div class="sec-cab"><p class="rot">Noite de 09/11</p><h2>Feito hoje, no desenvolvimento</h2>
+    <div class="sec-cab"><p class="rot">Noite de 09/11</p><h2>Feito em 09/11, no desenvolvimento</h2>
       <p>Tudo abaixo roda no projeto <code>appctbh</code> e nos commits locais (app <code>c3b5ef8</code>, site <code>6ba84da4</code>, sem push). Nada foi para a produção nem para o banco do site.</p></div>
     <div class="grid2">
       <div class="card"><h3>Segurança <span class="tag t-ok">3 altas e 6 médias corrigidas</span></h3><ul class="feito-lista">
@@ -245,9 +271,9 @@ td.esf{white-space:nowrap}
         <li>Inventário e vistoria com fotos; documentos do aluno com validade.</li>
         <li>Conversa com a equipe dentro do app (hoje é WhatsApp); SOS que avisa a equipe e manda a localização.</li></ul></div>
       <div class="card"><h3>Engenharia</h3><ul>
-        <li>Nenhum teste automático no app.</li>
         <li>Sem monitoramento de erros; atualização pelo ar (EAS Update) configurada, falta ligar com o <code>eas update:configure</code>.</li>
         <li><s>21 pacotes atrás da versão do SDK 58</s> <span class="tag t-ok">Feito</span></li>
+        <li><s>Nenhum teste automático no app</s> <span class="tag t-ok">Feito</span> 135 testes + checagem de ponta a ponta + GitHub.</li>
         <li>Rotina de virada de semestre (arquivar quem saiu, ativar a nova turma).</li></ul></div>
     </div>
   </section>

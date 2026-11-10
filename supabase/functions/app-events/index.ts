@@ -57,9 +57,13 @@ async function readToken(req: Request) {
     return null;
   }
   const { data, error } = await db.rpc('app_session_state', { p_cp: cp, p_version: v });
-  if (!error && data === 'ended') throw new AccessEnded();
-  if (error || data !== 'ok') return null;
-  return { cp, version: v };
+  // Erro do banco (reinício, cache do PostgREST recarregando depois de uma migração) não é sessão inválida:
+  // lança, o Deno.serve responde 'server' (500) e o app tenta de novo. Só um 'invalid' de verdade vira 401.
+  if (error) throw new Error(`app_session_state: ${error.message}`);
+  if (data === 'ended') throw new AccessEnded();
+  if (data === 'ok') return { cp, version: v };
+  if (data === 'invalid') return null;
+  throw new Error('app_session_state: resposta inesperada');
 }
 
 const CATEGORIES = ['show', 'party', 'exhibition', 'theatre', 'festival', 'other'];

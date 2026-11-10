@@ -14,6 +14,8 @@
 //       quando sendEmail = true, senão um aviso de que a equipe gerou uma senha provisória.
 //   { action: 'disable' | 'enable', counterpartyId } → { ok: true }
 // A senha provisória aparece uma vez no painel e nunca é guardada em texto (só o hash, como na app-api).
+// Revisão de 10/11/2026 (025): locação 'finished' (check-out concluído no site) conta até 30 dias depois do fim, como no
+// app; erro do banco ao conferir o papel de quem chama responde 'server' (500), não 'forbidden'.
 import { createClient } from 'npm:@supabase/supabase-js@2.119.0';
 
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -73,10 +75,12 @@ async function teamMember(req: Request) {
   const { data, error } = await db.auth.getUser(jwt);
   if (error || !data.user) return null;
   const id = data.user.id;
-  const [{ data: admin }, { data: equipe }] = await Promise.all([
+  const [{ data: admin, error: e1 }, { data: equipe, error: e2 }] = await Promise.all([
     db.rpc('has_role', { _user_id: id, _role: 'admin' }),
     db.rpc('has_role', { _user_id: id, _role: 'equipe' }),
   ]);
+  // Banco fora do ar não é "sem permissão": lança e o Deno.serve responde 'server' (500).
+  if (e1 || e2) throw new Error(`has_role: ${(e1 ?? e2)!.message}`);
   return admin || equipe ? { id, admin: admin === true } : null;
 }
 type Team = { id: string; admin: boolean };
@@ -89,12 +93,15 @@ const addDays = (iso: string, n: number) => {
 };
 const isUuid = (s: unknown): s is string => typeof s === 'string' && /^[0-9a-f-]{36}$/.test(s);
 
-/** Alunos de locações ativas que ainda não acabaram há mais de 30 dias, mais quem já tem conta no app. */
+/**
+ * Alunos de locações ativas ou encerradas ('finished', check-out concluído) que acabaram há no máximo 30 dias, mais
+ * quem já tem conta no app. Mesmo recorte do app (app_rental_for e app_access_until, 025).
+ */
 async function students() {
   const { data: rentals } = await db
     .from('apartment_rentals')
     .select('id, apartment_id, start_date, end_date')
-    .eq('status', 'active')
+    .in('status', ['active', 'finished'])
     .gte('end_date', addDays(todayBH(), -30));
   const rentalIds = (rentals ?? []).map((r) => r.id);
   const [{ data: tenants }, { data: accounts }] = await Promise.all([
@@ -171,7 +178,7 @@ async function invite(team: Team, body: { counterpartyId?: unknown; sendEmail?: 
     .select('session_version, password_hash')
     .eq('counterparty_id', cp)
     .maybeSingle();
-  // Só quem mora (o mesmo recorte da lista: locação ativa até 30 dias depois do fim) ou quem já tem conta.
+  // Só quem mora (o mesmo recorte da lista: locação ativa ou encerrada, até 30 dias depois do fim) ou quem já tem conta.
   if (!acc) {
     const { data: until } = await db.rpc('app_access_until', { p_cp: cp });
     if (typeof until !== 'string' || until < todayBH()) return json({ error: 'notFound' }, 404);
@@ -257,10 +264,10 @@ async function setEnabled(body: { counterpartyId?: unknown }, enabled: boolean) 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
   if (req.method !== 'POST') return json({ error: 'method' }, 405);
-  const team = await teamMember(req);
-  if (!team) return json({ error: 'forbidden' }, 403);
   const body = await req.json().catch(() => ({}));
   try {
+    const team = await teamMember(req);
+    if (!team) return json({ error: 'forbidden' }, 403);
     switch (body.action) {
       case 'students':
         return await students();

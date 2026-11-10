@@ -161,6 +161,7 @@ const fr = {
       `Votre séjour est terminé. L’app reste ouverte jusqu’au ${date} : téléchargez votre contrat et vos documents avant.`,
     errors: {
       wrongCredentials: 'Mot de passe incorrect.',
+      tooMany: 'Trop d’essais. Attendez 15 minutes avant de réessayer.',
       network: 'Pas de connexion. Vérifiez internet et réessayez.',
       server: 'Une erreur est survenue. Réessayez.',
     },
@@ -2430,6 +2431,7 @@ const en: Strings = {
       `Your stay has ended. The app stays open until ${date}: download your contract and documents before then.`,
     errors: {
       wrongCredentials: 'Wrong password.',
+      tooMany: 'Too many tries. Wait 15 minutes before trying again.',
       network: 'No connection. Check your internet and try again.',
       server: 'Something went wrong. Try again.',
     },

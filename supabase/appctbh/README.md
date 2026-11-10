@@ -16,6 +16,8 @@ Serve para desenvolver e testar sem tocar no banco do site (`miucfiiporxhvvbefon
 | `011_faxineira_do_apartamento.sql` | Faxineira de cada apartamento; `app_home_for` devolve nome e telefone (se autorizado) |
 | `012_visitas_encomendas_perfis.sql` | Visitas na portaria, encomendas (gatilho → aviso), perfis dos colegas |
 | `013_agenda_bh.sql` | Agenda de BH: eventos, links colados pela equipe, robô diário (pg_cron 06:15) |
+| `023_data_dos_avisos.sql` | Aviso de evento com a hora em cada língua (`app_notice_when`: fr « 19/11 à 19h00 », en « Nov 19, 7:00 PM »); só troca funções |
+| `025_revisao_do_servidor.sql` | Revisão do servidor (10/11/2026): contrato só o 'tenant' em `app_home_for`; locação 'finished' vale até 30 dias depois do fim (`app_rental_for`, `app_access_until`, data de BH); aparelhos desligados quando a sessão cai (gatilho em `app_students`); push nunca derruba o aviso; `app_account_delete` guarda suspensão, bloqueios sofridos e histórico, avisa quem ia nas viagens e limpa avisos órfãos; cota da Charlotte ignora 'pending' velho; `app_has_link` com a regra nova (A a D, igual às funções e ao app); reserva do espaço gourmet atômica e por prédio (`app_gourmet_book`); sem SELECT do painel em `app_students` e `app_password_resets` |
 
 As funções `app-api`, `app-requests`, `app-house`, `app-assistant`, `app-events` e `app-events-sync`
 (`supabase/functions/`) estão publicadas no `appctbh` com Verify JWT desligado: o app usa token próprio e o

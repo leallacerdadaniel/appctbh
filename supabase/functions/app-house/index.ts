@@ -13,7 +13,8 @@
 //   /app-house/payment-info  → { info }
 //   /app-house/device        { token, platform, lang? }   (onda 9: push; lang 'fr' | 'en' = língua do app, 022)
 //   /app-house/rules-status  → { accepted: string | null }  (versão das regras já aceita nesta locação)
-//   /app-house/rules-accept  { version: 'AAAA-MM', lang }    (introdução obrigatória das regras)
+//   /app-house/rules-accept  { version, lang }    (introdução obrigatória das regras; version tem de ser a
+//                            RULES_VERSION daqui, igual à do app: outra versão → 'invalid')
 //   A vida no prédio (012_visitas_encomendas_perfis.sql):
 //   /app-house/visitors          → { visitors: [{ id, name, date, time, note, notifiedAt }], portaria: { whatsapp } }
 //   /app-house/visitor-save      { id?, name, date, time?, note? }   → { id }   (muda nome/dia/hora = avisar de novo)
@@ -26,6 +27,8 @@
 //   /app-house/profile           → { profile: { school, hometown, languages, instagram, about, visible } | null }
 //   /app-house/profile-save      { school?, hometown?, languages: string[], instagram?, about?, visible: boolean }
 //   /app-house/roommate-profiles → { roommates: [{ id, name, profile | null }] }  (só perfis com visible = true)
+// Texto livre com link (nome da tarefa, visita, encomenda, perfil) responde 'links' (400): revisão de 10/11/2026.
+// Erro do banco ao conferir a sessão responde 'server' (500), nunca 'unauthorized'.
 import { createClient } from 'npm:@supabase/supabase-js@2.119.0';
 
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -75,10 +78,33 @@ async function readToken(req: Request) {
     return null;
   }
   const { data, error } = await db.rpc('app_session_state', { p_cp: cp, p_version: v });
-  if (!error && data === 'ended') throw new AccessEnded();
-  if (error || data !== 'ok') return null;
-  return { cp, version: v };
+  // Erro do banco (reinício, cache do PostgREST recarregando depois de uma migração) não é sessão inválida:
+  // lança, o Deno.serve responde 'server' (500) e o app tenta de novo. Só um 'invalid' de verdade vira 401.
+  if (error) throw new Error(`app_session_state: ${error.message}`);
+  if (data === 'ended') throw new AccessEnded();
+  if (data === 'ok') return { cp, version: v };
+  if (data === 'invalid') return null;
+  throw new Error('app_session_state: resposta inesperada');
 }
+
+// ---------- nenhum link no que o aluno escreve ----------
+// A MESMA regra em app_has_link (025_revisao_do_servidor.sql), nas funções app-api, app-community, app-house,
+// app-requests, app-feedback e app-assistant e no app (src/lib/no-links.ts): mudou uma, mudam todas.
+const LINK_RULES = [
+  // A: esquema ou www.
+  /(?:https?|ftp):\/\/|\bwww\.[a-z0-9-]/i,
+  // B: qualquer domínio seguido de caminho (evil.ru/x, linktr.ee/abc)
+  /\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,24}\/[^\s]/i,
+  // C: endereço IP
+  /\b\d{1,3}(?:\.\d{1,3}){3}\b/,
+  // D: domínio sem caminho, só com as terminações mais comuns. Diferencia maiúsculas de propósito: maiúscula depois
+  // do ponto é frase nova ("Merci.De rien"), e de/me/to/be/us/es/it/co deixaram de valer como terminação.
+  /\b[A-Za-z0-9-]{2,}\.(?:com|net|org|io|fr|br|eu|uk|pt|ru|cn|xyz|info|online|link|shop|store|site|app|ly|gg|ee|gy)(?![A-Za-z0-9À-ÿ-])/,
+];
+const hasLink = (...texts: unknown[]) =>
+  texts.some((t) => typeof t === 'string' && LINK_RULES.some((rule) => rule.test(t)));
+/** O banco também recusa (regras *_no_links, 019), mas lá o erro viraria 'server' (500): aqui o aluno recebe o motivo. */
+const noLinks = () => json({ error: 'links' }, 400);
 
 // ---------- grupo (locação do aluno e colegas ativos) ----------
 async function group(cp: string) {
@@ -186,6 +212,7 @@ async function choreSave(req: Request, body: { id?: unknown; emoji?: unknown; na
   ) {
     return json({ error: 'invalid' }, 400);
   }
+  if (hasLink(name)) return noLinks();
   const fields = { emoji, name, rotation, updated_at: new Date().toISOString() };
   if (body.id) {
     if (!isUuid(body.id)) return json({ error: 'invalid' }, 400);
@@ -357,6 +384,12 @@ async function device(req: Request, body: { token?: unknown; platform?: unknown;
 }
 
 // ---------- regras da casa (aceite obrigatório) ----------
+/**
+ * Versão das regras da casa que o aluno assina. É a MESMA constante do app (RULES_VERSION em
+ * src/lib/rules-intro.ts): mudou a regra, sobem as duas juntas. O servidor só grava o aceite desta versão.
+ */
+const RULES_VERSION = '2026-11';
+
 async function rulesStatus(req: Request) {
   const who = await readToken(req);
   if (!who) return json({ error: 'unauthorized' }, 401);
@@ -377,14 +410,15 @@ async function rulesStatus(req: Request) {
 async function rulesAccept(req: Request, body: { version?: unknown; lang?: unknown }) {
   const who = await readToken(req);
   if (!who) return json({ error: 'unauthorized' }, 401);
-  if (typeof body.version !== 'string' || !/^\d{4}-\d{2}$/.test(body.version)) return json({ error: 'invalid' }, 400);
+  // Só a versão em vigor: o que o app mandar de diferente (versão antiga, futura ou inventada) não vira aceite.
+  if (body.version !== RULES_VERSION) return json({ error: 'invalid' }, 400);
   const { data: rentalId } = await db.rpc('app_rental_for', { p_cp: who.cp });
   if (!rentalId) return json({ error: 'noRental' }, 404);
   const { error } = await db.from('app_rules_acceptances').upsert(
     {
       counterparty_id: who.cp,
       rental_id: rentalId,
-      version: body.version,
+      version: RULES_VERSION,
       lang: body.lang === 'en' ? 'en' : 'fr',
     },
     { onConflict: 'counterparty_id,rental_id,version', ignoreDuplicates: true },
@@ -395,6 +429,9 @@ async function rulesAccept(req: Request, body: { version?: unknown; lang?: unkno
 
 // ---------- a vida no prédio: visitas, encomendas, perfis ----------
 
+/** Caracteres de controle (códigos 0 a 31 e 127), montados sem escapes no código-fonte. */
+const CONTROL_CHARS = new RegExp(`[${String.fromCharCode(0)}-${String.fromCharCode(31)}${String.fromCharCode(127)}]`, 'g');
+
 /**
  * Texto livre de uma linha: sem caracteres de controle, espaços juntados. null = vazio;
  * undefined = inválido (tipo errado ou longo demais).
@@ -402,8 +439,7 @@ async function rulesAccept(req: Request, body: { version?: unknown; lang?: unkno
 function line(v: unknown, max: number): string | null | undefined {
   if (v === undefined || v === null) return null;
   if (typeof v !== 'string') return undefined;
-  // deno-lint-ignore no-control-regex
-  const s = v.replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim();
+  const s = v.replace(CONTROL_CHARS, ' ').replace(/\s+/g, ' ').trim();
   if (s.length > max) return undefined;
   return s || null;
 }
@@ -478,6 +514,7 @@ async function visitorSave(req: Request, body: { id?: unknown; name?: unknown; d
   ) {
     return json({ error: 'invalid' }, 400);
   }
+  if (hasLink(name, note)) return noLinks();
   const fields = { name, visit_date: body.date, visit_time: time, note, updated_at: new Date().toISOString() };
 
   if (body.id !== undefined && body.id !== null) {
@@ -587,6 +624,7 @@ async function packageSave(
   ) {
     return json({ error: 'invalid' }, 400);
   }
+  if (hasLink(description, carrier)) return noLinks();
   const fields = { description, carrier, expected_date: expected };
 
   if (body.id !== undefined && body.id !== null) {
@@ -696,6 +734,8 @@ async function profileSave(
   ) {
     return json({ error: 'invalid' }, 400);
   }
+  // O Instagram fica de fora: já foi reduzido ao nome de usuário logo acima.
+  if (hasLink(school, hometown, about)) return noLinks();
   const { data: rentalId } = await db.rpc('app_rental_for', { p_cp: who.cp });
   const { data, error } = await db
     .from('app_profiles')

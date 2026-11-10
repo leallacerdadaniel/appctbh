@@ -30,6 +30,11 @@
 // Erros próprios: 'terms' (falta aceitar a carta), 'suspended', 'full', 'invalid', 'forbidden', 'notFound',
 // 'links' (pedido do Daniel, 09/11/2026: nenhum link no que o aluno escreve; o banco também recusa, 019),
 // 'limit' (passou de WRITES_PER_DAY em 24 h).
+// Revisão de 10/11/2026: a conversa da viagem segue os bloqueios como os comentários do mural; sair de uma viagem só
+// pede ser membro (vale com a viagem escondida, cancelada ou terminada); o organizador recebe no máximo um aviso de
+// entrada por pessoa e viagem em 24 h; editar uma viagem que espera a equipe (pendente, ou escondida por denúncias)
+// não a põe de volta no ar; a chamada à IA tem limite de tempo (45 s, uma nova tentativa); erro do banco ao conferir
+// a sessão responde 'server' (500), nunca 'unauthorized'.
 import Anthropic from 'npm:@anthropic-ai/sdk@1.6.0';
 import { createClient } from 'npm:@supabase/supabase-js@2.119.0';
 
@@ -49,11 +54,6 @@ const json = (body: unknown, status = 200) =>
 /** Versão da carta da comunidade (src/lib/community.ts, COMMUNITY_TERMS_VERSION): mudou a carta, sobe as duas. */
 const TERMS_VERSION = '2026-11';
 const REPORTS_TO_HIDE = 3;
-/** Igual a app_has_link (019) e a src/lib/no-links.ts: http(s)://, www. e nome de domínio. */
-const LINK =
-  /(https?:\/\/|www\.|[a-z0-9-]+\.(com|net|org|br|fr|io|me|ly|gl|co|app|link|info|xyz|site|online|shop|store|tv|gg|to|be|us|eu|es|it|de|uk|ai|dev|page|club|live|click|top|vip|lat|pro|biz|cc|ws|tk|gov|edu)\b)/i;
-const hasLink = (...texts: (string | null | undefined)[]) => texts.some((t) => !!t && LINK.test(t));
-const noLinks = () => json({ error: 'links' }, 400);
 const MODEL = Deno.env.get('APP_MODERATION_MODEL') ?? 'claude-opus-5-5';
 /** Textos moderados (posts, comentários, conversa das viagens, viagens) por aluno em 24 h: cada um custa uma chamada à IA. */
 const WRITES_PER_DAY = 30;
@@ -92,10 +92,33 @@ async function readToken(req: Request) {
     return null;
   }
   const { data, error } = await db.rpc('app_session_state', { p_cp: cp, p_version: v });
-  if (!error && data === 'ended') throw new AccessEnded();
-  if (error || data !== 'ok') return null;
-  return { cp, version: v };
+  // Erro do banco (reinício, cache do PostgREST recarregando depois de uma migração) não é sessão inválida:
+  // lança, o Deno.serve responde 'server' (500) e o app tenta de novo. Só um 'invalid' de verdade vira 401.
+  if (error) throw new Error(`app_session_state: ${error.message}`);
+  if (data === 'ended') throw new AccessEnded();
+  if (data === 'ok') return { cp, version: v };
+  if (data === 'invalid') return null;
+  throw new Error('app_session_state: resposta inesperada');
 }
+
+// ---------- nenhum link no que o aluno escreve ----------
+// A MESMA regra em app_has_link (025_revisao_do_servidor.sql), nas funções app-api, app-community, app-house,
+// app-requests, app-feedback e app-assistant e no app (src/lib/no-links.ts): mudou uma, mudam todas.
+const LINK_RULES = [
+  // A: esquema ou www.
+  /(?:https?|ftp):\/\/|\bwww\.[a-z0-9-]/i,
+  // B: qualquer domínio seguido de caminho (evil.ru/x, linktr.ee/abc)
+  /\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,24}\/[^\s]/i,
+  // C: endereço IP
+  /\b\d{1,3}(?:\.\d{1,3}){3}\b/,
+  // D: domínio sem caminho, só com as terminações mais comuns. Diferencia maiúsculas de propósito: maiúscula depois
+  // do ponto é frase nova ("Merci.De rien"), e de/me/to/be/us/es/it/co deixaram de valer como terminação.
+  /\b[A-Za-z0-9-]{2,}\.(?:com|net|org|io|fr|br|eu|uk|pt|ru|cn|xyz|info|online|link|shop|store|site|app|ly|gg|ee|gy)(?![A-Za-z0-9À-ÿ-])/,
+];
+const hasLink = (...texts: unknown[]) =>
+  texts.some((t) => typeof t === 'string' && LINK_RULES.some((rule) => rule.test(t)));
+/** O banco também recusa (regras *_no_links, 019), mas lá o erro viraria 'server' (500): aqui o aluno recebe o motivo. */
+const noLinks = () => json({ error: 'links' }, 400);
 
 // ---------- quem participa ----------
 type Member = { cp: string; rentalId: string };
@@ -214,7 +237,8 @@ const escapeTags = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;')
 async function moderate(kind: 'post' | 'comment' | 'trip', content: string): Promise<Moderation> {
   if (!Deno.env.get('ANTHROPIC_API_KEY')) return heldForTeam('Moderação automática desligada (sem chave): conferir.');
   try {
-    const client = new Anthropic();
+    // A rota espera a IA antes de responder (o app espera 60 s): 45 s por tentativa e uma nova tentativa no máximo.
+    const client = new Anthropic({ timeout: 45_000, maxRetries: 1 });
     const response = await client.messages.create({
       model: MODEL,
       max_tokens: 2000,
@@ -504,6 +528,7 @@ async function report(req: Request, body: { type?: unknown; id?: unknown; reason
   if (!target || author === m.cp) return json({ error: 'notFound' }, 404);
 
   const note = text(body.note, 300) || null;
+  if (hasLink(note)) return noLinks();
   const { error } = await db
     .from('app_community_reports')
     .insert({ target_type: type, target_id: body.id, reporter_cp: m.cp, reason: body.reason, note });
@@ -660,13 +685,21 @@ async function tripCommentSave(req: Request, body: { tripId?: unknown; body?: un
   const content = text(body.body, 500);
   if (!content || content.length > 500) return json({ error: 'invalid' }, 400);
   if (hasLink(content)) return noLinks();
-  const [{ data: t }, { data: rows }] = await Promise.all([
+  const [{ data: t }, { data: rows }, blocked] = await Promise.all([
     db.from('app_trips').select(TRIP_COLS).eq('id', body.tripId).maybeSingle(),
     db.from('app_trip_members').select('counterparty_id').eq('trip_id', body.tripId),
+    blockedWith(m.cp),
   ]);
   const trip = t as TripRow | null;
   const ids = (rows ?? []).map((r) => r.counterparty_id as string);
-  if (!trip || trip.status !== 'published' || !(ids.includes(m.cp) || trip.creator_cp === m.cp)) {
+  // Mesma regra dos comentários do mural: quem bloqueou o organizador (ou foi bloqueado por ele) não vê a viagem e
+  // não escreve nela. Entre dois membros que se bloquearam, um não vê o que o outro escreve (rota trip).
+  if (
+    !trip ||
+    trip.status !== 'published' ||
+    !canSeeTrip(trip, m, blocked) ||
+    !(ids.includes(m.cp) || trip.creator_cp === m.cp)
+  ) {
     return json({ error: 'notFound' }, 404);
   }
   const over = await takeWrite(m.cp);
@@ -690,7 +723,6 @@ async function tripCommentSave(req: Request, body: { tripId?: unknown; body?: un
   await log('comment', data.id, 'ai', verdict.status, verdict.reason?.pt ?? verdict.verdict);
 
   if (verdict.status === 'published') {
-    const blocked = await blockedWith(m.cp);
     const nameOf = await names([m.cp]);
     const who = nameOf.get(m.cp) ?? '';
     const excerpt = content.length > 120 ? `${content.slice(0, 117)}...` : content;
@@ -760,7 +792,25 @@ async function tripSave(
       const over = await takeWrite(m.cp);
       if (over) return over;
     }
-    const verdict = textChanged ? await moderate('trip', moderationText) : null;
+    const moderated = textChanged ? await moderate('trip', moderationText) : null;
+    // Viagem que espera a equipe (pendente, ou escondida por REPORTS_TO_HIDE denúncias ainda abertas) não volta ao ar
+    // porque o autor mudou o texto e a IA aprovou: fica como está até a equipe decidir.
+    let verdict = moderated;
+    if (moderated?.status === 'published' && (o.status === 'pending' || o.status === 'hidden')) {
+      const { count: open } = await db
+        .from('app_community_reports')
+        .select('id', { count: 'exact', head: true })
+        .eq('target_type', 'trip')
+        .eq('target_id', body.id)
+        .is('resolved_at', null);
+      if (o.status === 'pending' || (open ?? 0) >= REPORTS_TO_HIDE) {
+        verdict = {
+          status: o.status as Moderation['status'],
+          verdict: moderated.verdict,
+          reason: { pt: 'Editada enquanto esperava a equipe: a IA aprovou o texto novo, conferir.', ...HELD_FOR_TEAM, categories: [] },
+        };
+      }
+    }
     const { error } = await db
       .from('app_trips')
       .update({
@@ -834,6 +884,7 @@ async function tripJoin(req: Request, body: { id?: unknown }, join: boolean) {
   const m = await member(req);
   if (m instanceof Response) return m;
   if (!isUuid(body.id)) return json({ error: 'notFound' }, 404);
+  if (!join) return tripLeave(m, body.id);
   const [{ data: t }, blocked] = await Promise.all([
     db.from('app_trips').select(TRIP_COLS).eq('id', body.id).maybeSingle(),
     blockedWith(m.cp),
@@ -842,16 +893,11 @@ async function tripJoin(req: Request, body: { id?: unknown }, join: boolean) {
   if (!row || row.status !== 'published' || blocked.has(row.creator_cp) || row.ends_on < todayBH()) {
     return json({ error: 'notFound' }, 404);
   }
-  if (!join) {
-    if (row.creator_cp === m.cp) return json({ error: 'forbidden' }, 403);
-    await db.from('app_trip_members').delete().eq('trip_id', body.id).eq('counterparty_id', m.cp);
-    return json({ ok: true });
-  }
   const { count } = await db.from('app_trip_members').select('trip_id', { count: 'exact', head: true }).eq('trip_id', body.id);
   if (row.seats != null && (count ?? 0) >= row.seats) return json({ error: 'full' }, 409);
   const { error } = await db.from('app_trip_members').insert({ trip_id: body.id, counterparty_id: m.cp });
   if (error && error.code !== '23505') return json({ error: 'server' }, 500);
-  if (!error && row.creator_cp !== m.cp) {
+  if (!error && row.creator_cp !== m.cp && (await firstJoinNoticeToday(body.id, m.cp))) {
     const nameOf = await names([m.cp]);
     const who = nameOf.get(m.cp) ?? '';
     await notify(
@@ -861,6 +907,38 @@ async function tripJoin(req: Request, body: { id?: unknown }, join: boolean) {
       `/community/trips/${body.id}`,
     );
   }
+  return json({ ok: true });
+}
+
+/**
+ * Entrar e sair em sequência mandava ao organizador um aviso (e um push) a cada entrada. Agora vai no máximo um por
+ * pessoa e viagem em 24 h (021: app_rate_take, atômico). Se o contador falhar, o aviso fica de fora; a entrada vale.
+ */
+async function firstJoinNoticeToday(tripId: string, cp: string) {
+  const { data, error } = await db.rpc('app_rate_take', {
+    p_bucket: 'trip_join_notice',
+    p_keys: [`${tripId}:${cp}`],
+    p_limits: [1],
+    p_window_seconds: 86_400,
+  });
+  return !error && !!data;
+}
+
+/**
+ * Sair só pede ser membro: vale também com a viagem escondida, pendente, cancelada ou já terminada (senão a pessoa
+ * ficava presa na lista). O organizador não sai da própria viagem: ele a cancela.
+ */
+async function tripLeave(m: Member, id: string) {
+  const { data: t } = await db.from('app_trips').select('creator_cp').eq('id', id).maybeSingle();
+  if (t?.creator_cp === m.cp) return json({ error: 'forbidden' }, 403);
+  const { data, error } = await db
+    .from('app_trip_members')
+    .delete()
+    .eq('trip_id', id)
+    .eq('counterparty_id', m.cp)
+    .select('trip_id');
+  if (error) return json({ error: 'server' }, 500);
+  if (!data?.length) return json({ error: 'notFound' }, 404);
   return json({ ok: true });
 }
 

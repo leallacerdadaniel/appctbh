@@ -21,7 +21,7 @@ export type SignInError = 'invalidEmail' | 'wrongCredentials' | 'accessEnded' | 
  * accepts the session (signed out elsewhere, password changed, account switched off).
  */
 export type SignOutReason = 'accessEnded' | 'deleted' | 'expired';
-export type DeleteAccountError = 'wrongCredentials' | 'links' | 'network' | 'server';
+export type DeleteAccountError = 'wrongCredentials' | 'tooMany' | 'links' | 'network' | 'server';
 
 type Session = { token: string | null; mustChangePassword: boolean };
 
@@ -127,7 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await appApi('account-delete', { token: session.token, body: { password, reason } });
     } catch (e) {
       const code = e instanceof AppApiError ? e.code : 'server';
-      return code === 'wrongCredentials' || code === 'links' || code === 'network' ? code : 'server';
+      return code === 'wrongCredentials' || code === 'tooMany' || code === 'links' || code === 'network' ? code : 'server';
     }
     // Everything the app kept on this phone for the student goes too (journal, recap, progress, cache).
     const keys = await AsyncStorage.getAllKeys().catch(() => [] as readonly string[]);

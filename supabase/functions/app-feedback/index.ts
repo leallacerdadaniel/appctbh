@@ -5,13 +5,16 @@
 //
 // Rotas (POST, JSON, Authorization: Bearer <token da app-api>):
 //   /app-feedback/feedback       → { items: [{ id, topic, body, status, reply, repliedAt, replyRead, createdAt }] }
-//   /app-feedback/feedback-send  { topic, body, lang }  → { id }   (até FEEDBACK_PER_DAY por dia)
+//   /app-feedback/feedback-send  { topic, body, lang }  → { id }   (até FEEDBACK_PER_DAY em 24 h, contador atômico → 'limit')
 //   /app-feedback/feedback-read  { id } ou { ids }      (marca reply_read_at das respostas da equipe)
 //   /app-feedback/survey-status  → { due: 'mid' | 'end' | null, answered: ('mid' | 'end')[] }
 //   /app-feedback/survey-send    { kind, nps, scores: { apartment?, cleaning?, team?, app? }, comment?, testimonialOk?, lang }
 //                                → { ok: true }   (uma por tipo por locação; 'taken' se já respondida)
 //   /app-feedback/referral       → { code, program: { active, reward, terms }, referrals: [{ friendFirstName, status, createdAt }] }
 //                                (o código nasce na primeira chamada; do amigo só sai o primeiro nome)
+//
+// Texto livre com link (mensagem, comentário da pesquisa) responde 'links' (400); erro do banco ao conferir a sessão
+// responde 'server' (500), nunca 'unauthorized' (revisão de 10/11/2026).
 //
 // Janelas da pesquisa (datas de Brasília), na estadia do aluno: início da locação atual (app_rental_for) até
 // o fim mais tardio entre ela e as continuações (app_rentals_for):
@@ -66,10 +69,33 @@ async function readToken(req: Request) {
     return null;
   }
   const { data, error } = await db.rpc('app_session_state', { p_cp: cp, p_version: v });
-  if (!error && data === 'ended') throw new AccessEnded();
-  if (error || data !== 'ok') return null;
-  return { cp, version: v };
+  // Erro do banco (reinício, cache do PostgREST recarregando depois de uma migração) não é sessão inválida:
+  // lança, o Deno.serve responde 'server' (500) e o app tenta de novo. Só um 'invalid' de verdade vira 401.
+  if (error) throw new Error(`app_session_state: ${error.message}`);
+  if (data === 'ended') throw new AccessEnded();
+  if (data === 'ok') return { cp, version: v };
+  if (data === 'invalid') return null;
+  throw new Error('app_session_state: resposta inesperada');
 }
+
+// ---------- nenhum link no que o aluno escreve ----------
+// A MESMA regra em app_has_link (025_revisao_do_servidor.sql), nas funções app-api, app-community, app-house,
+// app-requests, app-feedback e app-assistant e no app (src/lib/no-links.ts): mudou uma, mudam todas.
+const LINK_RULES = [
+  // A: esquema ou www.
+  /(?:https?|ftp):\/\/|\bwww\.[a-z0-9-]/i,
+  // B: qualquer domínio seguido de caminho (evil.ru/x, linktr.ee/abc)
+  /\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,24}\/[^\s]/i,
+  // C: endereço IP
+  /\b\d{1,3}(?:\.\d{1,3}){3}\b/,
+  // D: domínio sem caminho, só com as terminações mais comuns. Diferencia maiúsculas de propósito: maiúscula depois
+  // do ponto é frase nova ("Merci.De rien"), e de/me/to/be/us/es/it/co deixaram de valer como terminação.
+  /\b[A-Za-z0-9-]{2,}\.(?:com|net|org|io|fr|br|eu|uk|pt|ru|cn|xyz|info|online|link|shop|store|site|app|ly|gg|ee|gy)(?![A-Za-z0-9À-ÿ-])/,
+];
+const hasLink = (...texts: unknown[]) =>
+  texts.some((t) => typeof t === 'string' && LINK_RULES.some((rule) => rule.test(t)));
+/** O banco também recusa (regras *_no_links, 019), mas lá o erro viraria 'server' (500): aqui o aluno recebe o motivo. */
+const noLinks = () => json({ error: 'links' }, 400);
 
 // ---------- utilitários ----------
 const todayBH = () => new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
@@ -83,13 +109,16 @@ const daysBetween = (from: string, to: string) =>
 const isUuid = (s: unknown): s is string => typeof s === 'string' && /^[0-9a-f-]{36}$/.test(s);
 const langOf = (v: unknown) => (v === 'en' ? 'en' : 'fr');
 
+/** Caracteres de controle menos a quebra de linha (códigos 0 a 9, 11 a 31 e 127), montados sem escapes no código-fonte. */
+const C = (n: number) => String.fromCharCode(n);
+const CONTROL_BUT_NEWLINE = new RegExp(`[${C(0)}-${C(9)}${C(11)}-${C(31)}${C(127)}]`, 'g');
+
 /** Texto livre de várias linhas: sem caracteres de controle (menos a quebra de linha), sem linhas vazias demais. */
 function text(v: unknown, max: number): string | null | undefined {
   if (v === undefined || v === null) return null;
   if (typeof v !== 'string') return undefined;
   const s = v
-    // deno-lint-ignore no-control-regex
-    .replace(/[\u0000-\u0009\u000b-\u001f\u007f]/g, ' ')
+    .replace(CONTROL_BUT_NEWLINE, ' ')
     .replace(/[ \t]+\n/g, '\n')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
@@ -136,14 +165,18 @@ async function feedbackSend(req: Request, body: { topic?: unknown; body?: unknow
   const topic = typeof body.topic === 'string' && TOPICS.includes(body.topic) ? body.topic : null;
   const message = text(body.body, FEEDBACK_MAX);
   if (!topic || !message) return json({ error: 'invalid' }, 400);
+  if (hasLink(message)) return noLinks();
 
-  const since = new Date(Date.now() - 86_400_000).toISOString();
-  const { count } = await db
-    .from('app_feedback')
-    .select('id', { count: 'exact', head: true })
-    .eq('counterparty_id', who.cp)
-    .gte('created_at', since);
-  if ((count ?? 0) >= FEEDBACK_PER_DAY) return json({ error: 'limit' }, 429);
+  // Contador atômico (021: app_rate_take): duas mensagens ao mesmo tempo não passam juntas do limite. A reserva é
+  // devolvida quando a gravação falha, para um erro do servidor não gastar a cota do aluno.
+  const { data: taken, error: takeError } = await db.rpc('app_rate_take', {
+    p_bucket: 'feedback_send',
+    p_keys: [who.cp],
+    p_limits: [FEEDBACK_PER_DAY],
+    p_window_seconds: 86_400,
+  });
+  if (takeError) return json({ error: 'server' }, 500);
+  if (!taken) return json({ error: 'limit' }, 429);
 
   const { data: rentalId } = await db.rpc('app_rental_for', { p_cp: who.cp });
   const { data, error } = await db
@@ -157,7 +190,10 @@ async function feedbackSend(req: Request, body: { topic?: unknown; body?: unknow
     })
     .select('id')
     .single();
-  if (error || !data) return json({ error: 'server' }, 500);
+  if (error || !data) {
+    await db.rpc('app_rate_refund', { p_ids: taken });
+    return json({ error: 'server' }, 500);
+  }
   return json({ id: data.id });
 }
 
@@ -245,6 +281,7 @@ async function surveySend(
   const nps = typeof body.nps === 'number' && Number.isInteger(body.nps) && body.nps >= 0 && body.nps <= 10 ? body.nps : null;
   const comment = text(body.comment, 2000);
   if (!kind || nps === null || comment === undefined) return json({ error: 'invalid' }, 400);
+  if (hasLink(comment)) return noLinks();
 
   const raw = body.scores && typeof body.scores === 'object' && !Array.isArray(body.scores)
     ? (body.scores as Record<string, unknown>)

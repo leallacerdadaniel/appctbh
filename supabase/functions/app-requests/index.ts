@@ -16,6 +16,10 @@
 //   /app-requests/photo-upload   { contentType } → { path, signedUrl } para enviar uma foto (PUT)
 //
 // Cobrança: extra acumula e é faturado com o aluguel do mês seguinte ao serviço (billing_month).
+// Revisão de 10/11/2026 (025_revisao_do_servidor.sql): texto livre com link (nota, descrição, cômodo, comentário da
+// avaliação) responde 'links' (400); o espaço gourmet é do prédio: a reserva confere e grava num passo só
+// (app_gourmet_book), contra as reservas de todos os apartamentos que dividem o espaço ('taken', 409); erro do banco
+// ao conferir a sessão responde 'server' (500), nunca 'unauthorized'.
 import { createClient } from 'npm:@supabase/supabase-js@2.119.0';
 
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -67,10 +71,33 @@ async function readToken(req: Request) {
     return null;
   }
   const { data, error } = await db.rpc('app_session_state', { p_cp: cp, p_version: v });
-  if (!error && data === 'ended') throw new AccessEnded();
-  if (error || data !== 'ok') return null;
-  return { cp, version: v };
+  // Erro do banco (reinício, cache do PostgREST recarregando depois de uma migração) não é sessão inválida:
+  // lança, o Deno.serve responde 'server' (500) e o app tenta de novo. Só um 'invalid' de verdade vira 401.
+  if (error) throw new Error(`app_session_state: ${error.message}`);
+  if (data === 'ended') throw new AccessEnded();
+  if (data === 'ok') return { cp, version: v };
+  if (data === 'invalid') return null;
+  throw new Error('app_session_state: resposta inesperada');
 }
+
+// ---------- nenhum link no que o aluno escreve ----------
+// A MESMA regra em app_has_link (025_revisao_do_servidor.sql), nas funções app-api, app-community, app-house,
+// app-requests, app-feedback e app-assistant e no app (src/lib/no-links.ts): mudou uma, mudam todas.
+const LINK_RULES = [
+  // A: esquema ou www.
+  /(?:https?|ftp):\/\/|\bwww\.[a-z0-9-]/i,
+  // B: qualquer domínio seguido de caminho (evil.ru/x, linktr.ee/abc)
+  /\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,24}\/[^\s]/i,
+  // C: endereço IP
+  /\b\d{1,3}(?:\.\d{1,3}){3}\b/,
+  // D: domínio sem caminho, só com as terminações mais comuns. Diferencia maiúsculas de propósito: maiúscula depois
+  // do ponto é frase nova ("Merci.De rien"), e de/me/to/be/us/es/it/co deixaram de valer como terminação.
+  /\b[A-Za-z0-9-]{2,}\.(?:com|net|org|io|fr|br|eu|uk|pt|ru|cn|xyz|info|online|link|shop|store|site|app|ly|gg|ee|gy)(?![A-Za-z0-9À-ÿ-])/,
+];
+const hasLink = (...texts: unknown[]) =>
+  texts.some((t) => typeof t === 'string' && LINK_RULES.some((rule) => rule.test(t)));
+/** O banco também recusa (regras *_no_links, 019), mas lá o erro viraria 'server' (500): aqui o aluno recebe o motivo. */
+const noLinks = () => json({ error: 'links' }, 400);
 
 // ---------- validação ----------
 const KINDS = ['service', 'maintenance', 'late_checkout', 'early_checkin', 'gourmet'] as const;
@@ -245,6 +272,7 @@ async function create(req: Request, body: CreateBody) {
   if (!KINDS.includes(kind)) return json({ error: 'invalid' }, 400);
 
   const note = text(body.note, 500) || null;
+  if (hasLink(note)) return noLinks();
   const base = { counterparty_id: who.cp, rental_id: rental.id, kind, note };
   let fields: Record<string, unknown>;
 
@@ -284,6 +312,7 @@ async function create(req: Request, body: CreateBody) {
     ) {
       return json({ error: 'invalid' }, 400);
     }
+    if (hasLink(description, room)) return noLinks();
     fields = { description, room, category: body.category, urgency: body.urgency, photo_paths: photos };
   } else if (kind === 'late_checkout' || kind === 'early_checkin') {
     if (!isDate(body.date) || !isTime(body.time) || body.date < todayBH()) return json({ error: 'invalid' }, 400);
@@ -306,20 +335,23 @@ async function create(req: Request, body: CreateBody) {
     ) {
       return json({ error: 'invalid' }, 400);
     }
-    // Ocupado: outra reserva ativa no mesmo apartamento (e, quando houver, no mesmo prédio) que se cruza.
-    const { data: rentals } = await db.from('apartment_rentals').select('id').eq('apartment_id', rental.apartment_id);
-    const { data: taken } = await db
-      .from('app_requests')
-      .select('start_time, end_time')
-      .eq('kind', 'gourmet')
-      .eq('scheduled_date', date)
-      .in('rental_id', (rentals ?? []).map((r) => r.id))
-      .not('status', 'in', '(cancelled,declined)');
-    const clash = (taken ?? []).some(
-      (t) => minutes(String(t.start_time)) < end && start < minutes(String(t.end_time)),
-    );
-    if (clash) return json({ error: 'taken' }, 409);
-    fields = { scheduled_date: date, start_time: startTime, end_time: endTime, guests };
+    // O espaço é do prédio: o horário é conferido contra as reservas de TODOS os apartamentos que o dividem
+    // (app_gourmet_space: building_info.gourmet.space ou o mesmo endereço) e gravado no mesmo passo, com a trava do
+    // espaço e do dia (025): duas reservas ao mesmo tempo não passam juntas. null = horário ocupado.
+    const { data: id, error } = await db.rpc('app_gourmet_book', {
+      p_cp: who.cp,
+      p_rental: rental.id,
+      p_date: date,
+      p_start: startTime,
+      p_end: endTime,
+      p_guests: guests,
+      p_note: note,
+    });
+    if (error) return json({ error: 'server' }, 500);
+    if (!id) return json({ error: 'taken' }, 409);
+    const { data: booked, error: readError } = await db.from('app_requests').select(SELECT).eq('id', id).single();
+    if (readError || !booked) return json({ error: 'server' }, 500);
+    return json({ request: shape(booked as Row) });
   }
 
   const { data, error } = await db.from('app_requests').insert({ ...base, ...fields }).select(SELECT).single();
@@ -353,9 +385,11 @@ async function rate(req: Request, body: { id?: unknown; rating?: unknown; commen
   const rating = Number(body.rating);
   if (row.status !== 'done') return json({ error: 'forbidden' }, 403);
   if (!Number.isInteger(rating) || rating < 1 || rating > 5) return json({ error: 'invalid' }, 400);
+  const comment = text(body.comment, 500) || null;
+  if (hasLink(comment)) return noLinks();
   const { data, error } = await db
     .from('app_requests')
-    .update({ rating, rating_comment: text(body.comment, 500) || null })
+    .update({ rating, rating_comment: comment })
     .eq('id', row.id as string)
     .select(SELECT)
     .single();

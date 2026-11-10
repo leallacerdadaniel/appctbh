@@ -15,14 +15,20 @@
 //   - `signature` (revisão de segurança, 09/11/2026): assinatura da resposta, feita aqui e presa ao aluno. O app
 //     guarda e manda de volta nas mensagens da Charlotte: { role: 'assistant', content: <answer igual>, signature }.
 //     Mensagem 'assistant' sem assinatura válida é descartada (o aluno não consegue pôr frases na boca da Charlotte).
-//   /app-assistant/report { answer: string (≤ 4000), question?: string (≤ 2000), reason?: string (≤ 300) } → { ok: true }
+//   /app-assistant/report { answer: string, signature: string, question?: string (≤ 2000), reason?: string (≤ 300) } → { ok: true }
 //     "Esta resposta está errada": vai para app_assistant_reports (021), que a equipe lê. REPORTS_PER_DAY por aluno.
+//     answer é a resposta INTEIRA como veio de /ask (até 20 000 caracteres) e signature a assinatura que veio com ela:
+//     sem assinatura válida → 'invalid' (ninguém denuncia uma "resposta" inventada); grava os primeiros 4 000 caracteres.
+//     question e reason com link → 'links' (a resposta pode ter links: é texto da própria Charlotte).
 //   - `image` só vale na ÚLTIMA mensagem do aluno (foto de um problema no apartamento); as anteriores vão
 //     só em texto, com `photo: true` quando tinham foto. Base64 acima de MAX_IMAGE_B64 → erro `imageTooBig`.
 //   - `maintenance`: o modelo termina a resposta com a linha [[CHAMADO: título | categoria | cômodo]] quando
 //     é um problema de manutenção; a função tira a linha e devolve o título (o app mostra "Signaler à l’équipe").
 // As perguntas, fotos e respostas não são gravadas; só o uso de tokens (app_assistant_usage). A cota do dia é
-// reservada no banco antes de chamar o modelo (021: app_assistant_reserve) e devolvida se a chamada falhar.
+// reservada no banco antes de chamar o modelo (021: app_assistant_reserve) e devolvida sempre que o modelo não
+// respondeu (try/finally: sem contrato, erro do banco, da API ou tempo esgotado). Revisão de 10/11/2026: contrato só o
+// 'tenant'; erro do banco ao conferir a sessão responde 'server' (500), nunca 'unauthorized'; chamada ao modelo com
+// limite de tempo (110 s, uma nova tentativa; o app espera 120 s).
 import Anthropic from 'npm:@anthropic-ai/sdk@1.6.0';
 import { createClient } from 'npm:@supabase/supabase-js@2.119.0';
 
@@ -100,10 +106,33 @@ async function readToken(req: Request) {
     return null;
   }
   const { data, error } = await db.rpc('app_session_state', { p_cp: cp, p_version: v });
-  if (!error && data === 'ended') throw new AccessEnded();
-  if (error || data !== 'ok') return null;
-  return { cp, version: v };
+  // Erro do banco (reinício, cache do PostgREST recarregando depois de uma migração) não é sessão inválida:
+  // lança, o Deno.serve responde 'server' (500) e o app tenta de novo. Só um 'invalid' de verdade vira 401.
+  if (error) throw new Error(`app_session_state: ${error.message}`);
+  if (data === 'ended') throw new AccessEnded();
+  if (data === 'ok') return { cp, version: v };
+  if (data === 'invalid') return null;
+  throw new Error('app_session_state: resposta inesperada');
 }
+
+// ---------- nenhum link no que o aluno escreve ----------
+// A MESMA regra em app_has_link (025_revisao_do_servidor.sql), nas funções app-api, app-community, app-house,
+// app-requests, app-feedback e app-assistant e no app (src/lib/no-links.ts): mudou uma, mudam todas.
+const LINK_RULES = [
+  // A: esquema ou www.
+  /(?:https?|ftp):\/\/|\bwww\.[a-z0-9-]/i,
+  // B: qualquer domínio seguido de caminho (evil.ru/x, linktr.ee/abc)
+  /\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,24}\/[^\s]/i,
+  // C: endereço IP
+  /\b\d{1,3}(?:\.\d{1,3}){3}\b/,
+  // D: domínio sem caminho, só com as terminações mais comuns. Diferencia maiúsculas de propósito: maiúscula depois
+  // do ponto é frase nova ("Merci.De rien"), e de/me/to/be/us/es/it/co deixaram de valer como terminação.
+  /\b[A-Za-z0-9-]{2,}\.(?:com|net|org|io|fr|br|eu|uk|pt|ru|cn|xyz|info|online|link|shop|store|site|app|ly|gg|ee|gy)(?![A-Za-z0-9À-ÿ-])/,
+];
+const hasLink = (...texts: unknown[]) =>
+  texts.some((t) => typeof t === 'string' && LINK_RULES.some((rule) => rule.test(t)));
+/** O banco também recusa (regras *_no_links, 019), mas lá o erro viraria 'server' (500): aqui o aluno recebe o motivo. */
+const noLinks = () => json({ error: 'links' }, 400);
 
 // ---------- respostas assinadas: o histórico que volta do app não pode trazer falas inventadas da Charlotte ----------
 let answerKey: CryptoKey | null = null;
@@ -143,6 +172,8 @@ async function contractPdf(cp: string) {
     .from('rental_contracts')
     .select('file_path')
     .eq('rental_id', rentalId)
+    // rental_contracts tem duas linhas por locação: 'owner' (proprietário) e 'tenant'. Do aluno é só a 'tenant'.
+    .eq('contract_type', 'tenant')
     .not('file_path', 'is', null)
     .order('uploaded_at', { ascending: false })
     .limit(1)
@@ -301,9 +332,13 @@ async function reserveUsage(cp: string) {
   if (error) throw new Error(error.message);
   return (data as number | null) ?? null;
 }
-/** A chamada não aconteceu (sem contrato, erro da API): a pergunta volta para a cota. */
+/** O modelo não respondeu (sem locação, erro do banco ou da API, tempo esgotado): a pergunta volta para a cota. */
 async function releaseUsage(id: number) {
-  await db.from('app_assistant_usage').delete().eq('id', id);
+  try {
+    await db.from('app_assistant_usage').delete().eq('id', id);
+  } catch {
+    // a linha 'pending' deixa de contar sozinha depois de 10 minutos (025: app_assistant_reserve)
+  }
 }
 
 async function ask(req: Request, body: { messages?: unknown; lang?: unknown }) {
@@ -315,52 +350,61 @@ async function ask(req: Request, body: { messages?: unknown; lang?: unknown }) {
   const { turns: history, image } = cleaned;
   const usageId = await reserveUsage(who.cp);
   if (usageId === null) return json({ error: 'limit' }, 429);
-
-  const [pdf, data] = await Promise.all([contractPdf(who.cp), studentData(who.cp)]);
-  if (!data) {
-    await releaseUsage(usageId);
-    return json({ error: 'noRental' }, 404);
-  }
-
-  // Ordem pensada para o cache: base fixa (system) → contrato (muda por aluno, quase nunca) →
-  // dados do aluno (mudam às vezes) → conversa. Cada bloco estável leva um ponto de cache.
-  const context: Anthropic.Beta.BetaContentBlockParam[] = [];
-  if (pdf) {
-    context.push({
-      type: 'document',
-      source: { type: 'base64', media_type: 'application/pdf', data: pdf },
-      title: 'Contrat de location / Rental contract',
-      cache_control: { type: 'ephemeral' },
-    });
-  }
-  context.push({
-    type: 'text',
-    text: `Dados do aluno no app (JSON):\n${JSON.stringify(data)}${pdf ? '' : '\n\nO contrato em PDF deste aluno não está disponível no app.'}`,
-  });
-
-  // A foto (se houver) vai na última mensagem do aluno, antes do texto dela, depois dos pontos de cache.
-  const photo: Anthropic.Beta.BetaContentBlockParam[] = image
-    ? [{ type: 'image', source: { type: 'base64', media_type: image.media_type, data: image.data } }]
-    : [];
-  const lastIndex = history.length - 1;
-  const messages: Anthropic.Beta.BetaMessageParam[] = history.map((t, i) => {
-    const blocks = [...(i === 0 ? context : []), ...(i === lastIndex ? photo : [])];
-    return blocks.length
-      ? { role: t.role, content: [...blocks, { type: 'text' as const, text: t.content }] }
-      : { role: t.role, content: t.content };
-  });
-
-  const client = new Anthropic();
+  // Daqui em diante a linha reservada sempre termina: gravada com o uso quando o modelo respondeu, apagada em
+  // qualquer outro caminho (return antes da chamada, exceção em contractPdf/studentData, erro da API).
+  let answered = false;
   try {
-    const response = await client.beta.messages.create({
-      model: MODEL,
-      max_tokens: 4000,
-      betas: ['server-side-fallback-2026-07-01'],
-      fallbacks: 'default',
-      output_config: { effort: EFFORT },
-      system: [{ type: 'text', text: SYSTEM, cache_control: { type: 'ephemeral' } }],
-      messages,
-    } as Anthropic.Beta.MessageCreateParamsNonStreaming);
+    const [pdf, data] = await Promise.all([contractPdf(who.cp), studentData(who.cp)]);
+    if (!data) return json({ error: 'noRental' }, 404);
+
+    // Ordem pensada para o cache: base fixa (system) → contrato (muda por aluno, quase nunca) →
+    // dados do aluno (mudam às vezes) → conversa. Cada bloco estável leva um ponto de cache.
+    const context: Anthropic.Beta.BetaContentBlockParam[] = [];
+    if (pdf) {
+      context.push({
+        type: 'document',
+        source: { type: 'base64', media_type: 'application/pdf', data: pdf },
+        title: 'Contrat de location / Rental contract',
+        cache_control: { type: 'ephemeral' },
+      });
+    }
+    context.push({
+      type: 'text',
+      text: `Dados do aluno no app (JSON):\n${JSON.stringify(data)}${pdf ? '' : '\n\nO contrato em PDF deste aluno não está disponível no app.'}`,
+    });
+
+    // A foto (se houver) vai na última mensagem do aluno, antes do texto dela, depois dos pontos de cache.
+    const photo: Anthropic.Beta.BetaContentBlockParam[] = image
+      ? [{ type: 'image', source: { type: 'base64', media_type: image.media_type, data: image.data } }]
+      : [];
+    const lastIndex = history.length - 1;
+    const messages: Anthropic.Beta.BetaMessageParam[] = history.map((t, i) => {
+      const blocks = [...(i === 0 ? context : []), ...(i === lastIndex ? photo : [])];
+      return blocks.length
+        ? { role: t.role, content: [...blocks, { type: 'text' as const, text: t.content }] }
+        : { role: t.role, content: t.content };
+    });
+
+    // O app espera 120 s: 110 s por tentativa e uma nova tentativa no máximo (o padrão do SDK são 10 min e 2).
+    const client = new Anthropic({ timeout: 110_000, maxRetries: 1 });
+    let response;
+    try {
+      response = await client.beta.messages.create({
+        model: MODEL,
+        max_tokens: 4000,
+        betas: ['server-side-fallback-2026-07-01'],
+        fallbacks: 'default',
+        output_config: { effort: EFFORT },
+        system: [{ type: 'text', text: SYSTEM, cache_control: { type: 'ephemeral' } }],
+        messages,
+      } as Anthropic.Beta.MessageCreateParamsNonStreaming);
+    } catch (error) {
+      if (error instanceof Anthropic.RateLimitError) return json({ error: 'busy' }, 429);
+      if (error instanceof Anthropic.APIError) return json({ error: 'server' }, 502);
+      throw error;
+    }
+    // O modelo respondeu: a pergunta conta na cota, mesmo que a gravação do uso abaixo falhe.
+    answered = true;
 
     const refused = response.stop_reason === 'refusal';
     const { answer, maintenance } = splitMaintenance(
@@ -386,11 +430,8 @@ async function ask(req: Request, body: { messages?: unknown; lang?: unknown }) {
 
     if (refused || !answer) return json({ answer: null, refused: true, maintenance: null, signature: null });
     return json({ answer, refused: false, maintenance, signature: await signAnswer(who.cp, answer) });
-  } catch (error) {
-    await releaseUsage(usageId);
-    if (error instanceof Anthropic.RateLimitError) return json({ error: 'busy' }, 429);
-    if (error instanceof Anthropic.APIError) return json({ error: 'server' }, 502);
-    return json({ error: 'server' }, 500);
+  } finally {
+    if (!answered) await releaseUsage(usageId);
   }
 }
 
@@ -402,16 +443,26 @@ function optionalText(v: unknown, max: number): string | null | undefined {
   return s.length > max ? undefined : s || null;
 }
 
-/** "Esta resposta está errada": a equipe lê no painel (app_assistant_reports). */
-async function report(req: Request, body: { answer?: unknown; question?: unknown; reason?: unknown }) {
+/** Tamanho máximo da resposta conferida no report (a resposta inteira, como veio de /ask) e do que é gravado. */
+const REPORT_CHECK_MAX = 20_000;
+const REPORT_STORE_MAX = 4000;
+
+/**
+ * "Esta resposta está errada": a equipe lê no painel (app_assistant_reports). Só respostas que a Charlotte deu a
+ * este aluno: o texto inteiro e a assinatura que veio com ele em /ask.
+ */
+async function report(req: Request, body: { answer?: unknown; signature?: unknown; question?: unknown; reason?: unknown }) {
   const who = await readToken(req);
   if (!who) return json({ error: 'unauthorized' }, 401);
-  const answer = typeof body.answer === 'string' ? body.answer.trim() : '';
+  const full = typeof body.answer === 'string' ? body.answer : '';
   const question = optionalText(body.question, 2000);
   const reason = optionalText(body.reason, 300);
-  if (!answer || answer.length > 4000 || question === undefined || reason === undefined) {
+  if (!full.trim() || full.length > REPORT_CHECK_MAX || question === undefined || reason === undefined) {
     return json({ error: 'invalid' }, 400);
   }
+  if (!(await validAnswer(who.cp, full, body.signature))) return json({ error: 'invalid' }, 400);
+  // A resposta pode ter links (é texto da Charlotte); o que o aluno escreveu, não.
+  if (hasLink(question, reason)) return noLinks();
   const { data: slot, error: limitError } = await db.rpc('app_rate_take', {
     p_bucket: 'assistant_report',
     p_keys: [who.cp],
@@ -420,6 +471,7 @@ async function report(req: Request, body: { answer?: unknown; question?: unknown
   });
   if (limitError) return json({ error: 'server' }, 500);
   if (!slot) return json({ error: 'limit' }, 429);
+  const answer = full.trim().slice(0, REPORT_STORE_MAX);
   const { error } = await db.from('app_assistant_reports').insert({ counterparty_id: who.cp, answer, question, reason });
   if (error) return json({ error: 'server' }, 500);
   return json({ ok: true });

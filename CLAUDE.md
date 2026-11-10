@@ -75,6 +75,13 @@ próprio artefato).
   e **nenhum grant para anon** nas `app_*`; `authenticated` só tem o que os hooks do painel usam (tabela nova do app:
   revogar de anon na própria migration; tela nova do painel: dar o grant). Os hashes de senha e código não saem nem para a equipe.
   022 push: `app_devices.lang`, `app_notices.pushed_at`, gatilho em `app_notices` → função `app-push` (segredo no Vault).
+  023 datas dos avisos por língua (`app_notice_when`: FR « 19/11 à 19h00 », EN « Nov 19, 7:00 PM »).
+  024 a equipe marca como vista a resposta da Charlotte sinalizada (tela "Respostas da Charlotte" do painel).
+  025 revisão independente do servidor (10/11/2026): contrato só `contract_type = 'tenant'`; locação `finished` vale
+  até 30 dias depois do fim (antes o aluno perdia tudo no checkout); data de BH em `app_rental_for`; aparelhos de
+  push desligados quando a sessão cai (`app_students_devices_off`); o aviso nunca falha por causa do push;
+  `app_account_delete` mantém suspensão, bloqueios e log sobre o aluno e avisa os membros das viagens dele;
+  `app_gourmet_book` (reserva atômica, por prédio); regra de links A–D (igual a `src/lib/no-links.ts`).
   A conta de teste fica no `.env.local` (fora do Git).
 - **Produção:** banco do site (`miucfiiporxhvvbefonh`), função `bright-service` (a `app-api` do Arthur) e
   tabelas `app_*`. **Nunca escrever no banco do site** sem aprovação do Daniel: lá só leitura do catálogo.
@@ -96,6 +103,18 @@ próprio artefato).
   admin e equipe): lista alunos, convida (senha provisória mostrada uma vez), desliga e religa; nova senha para quem já
   tem senha só pelo papel admin. A `app-push` (sem JWT, segredo no cabeçalho) manda os avisos novos pela Expo Push API.
   Login com limite (10 erros por e-mail e 30 por IP em 15 min), sessão de 60 dias, `/app-api/logout` ao sair.
+- Revisão independente de 10/11/2026 (3 revisores, 47 achados, todos corrigidos no dev): funções `app-api` v9,
+  `app-house` v9, `app-requests` v6, `app-community` v7, `app-feedback` v6, `app-events` v6, `app-admin` v6,
+  `app-assistant` v9. Contrato novo que o app segue: 500 `server` nunca tira da conta (só 401 = sessão recusada,
+  `signOut('expired')` sem `/logout`); `change-password` pede `currentPassword` fora da troca obrigatória;
+  `expenses` traz `former` (quem saiu) e `expense-save` responde `former`; `links` 400 em todo texto livre;
+  `rules-accept` só aceita a versão do servidor (`RULES_VERSION`, mudar nos dois lados); report da Charlotte com
+  `signature`. No app: toda chamada tem tempo-limite (`src/lib/app-api.ts`), estado por sessão
+  (`src/lib/session-state.ts`), "hoje" de BH (`src/lib/bh-time.ts`), parâmetros de link (`src/lib/params.ts`).
+- Testes: `npm test` (jest-expo, 135 testes, roda com o relógio em Paris e em BH) e `npm run test:api` (16 checagens
+  de ponta a ponta no dev, só login certo do aluno de teste). O GitHub roda tipos, lint e testes a cada push
+  (`.github/workflows/ci.yml`). Charlotte: `node scripts/assistant/build.mjs` regenera a base a partir dos textos do
+  app e para se algo sumir; depois publicar `index.ts` e `knowledge.ts` juntos.
 - Segredos que faltam no `appctbh`: para e-mail, `RESEND_API_KEY` + `RESEND_FROM` (a `ANTHROPIC_API_KEY` já está lá).
   Sem e-mail, o "esqueci a senha" vira pedido na tela Acesso ao app do painel. Se a IA falhar ou faltar a chave, o que o
   aluno publica fica `pending` (fora do ar) até a equipe decidir. A Charlotte só relê respostas que ela assinou (`signature`).
@@ -137,8 +156,7 @@ próprio artefato).
 - Pesquisas para as próximas ondas: `docs/pesquisa/agenda-bh.md` (fontes de eventos) e `docs/pesquisa/saude-bh.md`
   (seção Saúde; só publicar o que a equipe confirmar). Seção Saúde pronta em 09/11/2026 (`src/app/health/`,
   `src/lib/health.ts`, entradas no SOS e em Explorer › Pratique) com as respostas da equipe na seção 9 da pesquisa;
-  SUS para estrangeiros, seguro da SKEMA e vacinas ficam de fora a pedido da equipe. A Charlotte ainda não sabe dela
-  (rodar `scripts/assistant/build.mjs` e republicar a `app-assistant`).
+  SUS para estrangeiros, seguro da SKEMA e vacinas ficam de fora a pedido da equipe. A Charlotte conhece a seção desde 10/11/2026.
 - Mais bem avaliados do Google perto de casa (09/11/2026): `scripts/nearby.py` (`TOP_RATED`: restaurantes, bares e cafés a
   até 15 min a pé, nota ponderada pelo número de avaliações) grava em `app_apartment_places.nearby.topRated`; no app,
   `src/components/top-rated-near-home.tsx` na Explorer, com toque para o Google Maps. Some enquanto o apartamento não tem a lista.
