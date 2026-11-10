@@ -191,7 +191,7 @@ próprio artefato).
   No site, páginas públicas `/app/privacidade` e `/app/excluir-conta` (`noindex`), texto final de 10/11/2026 (decisão do
   Daniel: canal `cheztoibh@gmail.com`, sem encarregado nomeado por ser agente de pequeno porte, guarda legal de 5 anos,
   12 meses depois do fim do acesso, 6 meses para dados de uso; revisão jurídica depois como atualização). Fonte única:
-  `src/content/appLegal.ts` do site. Só as duas páginas foram para a `main` do site (branch `app/paginas-legais`), o resto
+  `src/content/appLegal.ts` do site. Só as duas páginas foram para a `main` do site (branch `app/paginas-legais`), no ar desde 10/11/2026 18h37; o resto
   do painel continua em `app/painel-do-app`.
   A Charlotte pede ciência do uso da IA (Anthropic) antes da primeira pergunta e tem "Signaler cette réponse".
   Contas (09/11/2026): o site oficial é `housing.cheztoibh.com.br` (links de privacidade, exclusão e indicação apontam para lá).
