@@ -158,6 +158,9 @@ próprio artefato).
   Para valer em produção: aplicar no site 004, 008 e 011 a 017 (só as partes marcadas "site"), publicar a `app-admin`
   lá e trocar `appDb` por `supabase`. Textos de um idioma só que o aluno lê: `team_note` dos pedidos e encomendas e a
   resposta do feedback (a equipe escreve na língua do aluno).
+- Caminho para a produção (09/11/2026): `docs/caminho-producao.md`. Resumo: o código junta na `main` sem conflito; o
+  banco é aditivo (9 de 11 tabelas `app_*` iguais, 2 com colunas novas, 43 novas), mas sem 001, dados de teste, a
+  `user_roles` da 006 e o fim da 020; a produção não tem `pg_net`; a `bright-service` mudou em 08/11 22h32 fora do repo.
 - O trabalho em modo local de 06/11 (extras e pedidos, fatura com extras, lembretes, agenda, tarefas da casa)
   está na branch `arquivo/modo-local-0611`, para portar sobre a `app-api`, uma onda por vez.
 - Abertura do app (09/11/2026, ideia do Daniel: "o formato de MG, as letras saem de dentro dele, zoom no mapinha e abre
