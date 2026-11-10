@@ -259,7 +259,9 @@ export default function AssistantScreen() {
                     onFlag={(reason) => flag(e, reason)}
                   />
                 ))}
-                {!pending && <Button variant="plain" label={a.newChat} onPress={clear} />}
+                {/* Also while an answer is on its way: a request that hangs must never lock the chat (review,
+                    2026-11-10). The late answer of a cleared conversation is dropped (lib/assistant.ts, `patch`). */}
+                <Button variant="plain" label={a.newChat} onPress={clear} />
               </View>
             )}
           </View>

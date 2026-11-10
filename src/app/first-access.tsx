@@ -115,6 +115,8 @@ export default function FirstAccessScreen() {
   const stepIndex = STEPS.indexOf(step);
 
   async function verify() {
+    // Also reached from the keyboard's "Go": one request at a time (each try counts against the limit).
+    if (loading) return;
     setError(null);
     setIncomplete(false);
     const birthDate = isoFromTyped(birth);
@@ -136,7 +138,9 @@ export default function FirstAccessScreen() {
   }
 
   async function complete() {
-    if (!verified) return;
+    // Also reached from the keyboard's "Go", which skips the disabled button: the two passwords must match,
+    // or the account would be created with one the student did not mean to type.
+    if (!verified || loading || confirm !== password) return;
     setError(null);
     if (!rules.every((r) => r.ok)) return setError('tooShort');
     if (hasLink(correction)) return setError('links');

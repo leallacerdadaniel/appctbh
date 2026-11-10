@@ -8,6 +8,7 @@ import { Fonts, MaxFontScale, Radius, Spacing, TapTarget } from '@/constants/the
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n, type Lang } from '@/i18n';
 import type { Strings } from '@/i18n/strings';
+import { addDays, BH_OFFSET_MS, bhToday } from '@/lib/bh-time';
 import { formatDayDate, formatTime } from '@/lib/format';
 import {
   AppApiError,
@@ -51,19 +52,12 @@ export function useOpenSentRequest() {
 
 /* ---------- Belo Horizonte dates (UTC−3 all year, no daylight saving) ---------- */
 
-const BH_OFFSET_MS = 3 * 3_600_000;
 const pad = (n: number) => String(n).padStart(2, '0');
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 const locale = (lang: Lang) => (lang === 'fr' ? 'fr-FR' : 'en-US');
 
-/** Today in Belo Horizonte, YYYY-MM-DD. */
-export const bhToday = (now = Date.now()) => new Date(now - BH_OFFSET_MS).toISOString().slice(0, 10);
-
-/** YYYY-MM-DD plus `n` days. */
-export function addDays(iso: string, n: number) {
-  const [y, m, d] = iso.split('-').map(Number);
-  return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10);
-}
+/** Today in Belo Horizonte and "plus n days": shared with the rest of the app (lib/bh-time.ts). */
+export { addDays, bhToday };
 
 /** The instant of a Belo Horizonte date and time (same rule as the server). */
 export const bhInstant = (date: string, time: string) => Date.parse(`${date}T${time}:00-03:00`);

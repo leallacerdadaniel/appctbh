@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 
 import { CommentRow, ContentStatusNote } from '@/components/community-ui';
+import { Icon } from '@/components/icon';
 import { ListGroup, ListRow } from '@/components/list';
 import { PlacePhoto } from '@/components/place-photo';
 import { Notice } from '@/components/request-ui';
@@ -16,12 +17,14 @@ import {
   communityError,
   errorCode,
   initialsOf,
+  replaceRefused,
   tripDates,
   useCommunity,
   useCommunityActions,
   type Comment,
   type TripDetail,
 } from '@/lib/community';
+import { bhToday } from '@/lib/events';
 import { hasLink } from '@/lib/no-links';
 import { getDestination } from '@/lib/travel';
 import { openWhatsApp } from '@/lib/whatsapp';
@@ -30,6 +33,9 @@ import { openWhatsApp } from '@/lib/whatsapp';
  * A group trip: the plan, who is going, join or leave, the group chat (only for the people going, moderated like the
  * wall; no WhatsApp group link: owner, 2026-11-09, "se for malicioso nos complicamos"), and a line to ask Chez Toi
  * for transport or accommodation.
+ * Joining and leaving sit in a bar pinned at the bottom (`Screen footer`, UX review 2026-11-10) so the answer stays
+ * reachable while the page scrolls. No bar for the organiser, a cancelled or unpublished trip, a trip that is over
+ * (the server refuses it too) or a full one the student is not part of.
  */
 export default function TripScreen() {
   const theme = useTheme();
@@ -45,6 +51,8 @@ export default function TripScreen() {
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
   const [talkError, setTalkError] = useState<string | null>(null);
+  // The message the AI refused on the last try: deleted before the corrected text goes out (one try, one message).
+  const [refusedId, setRefusedId] = useState<string | null>(null);
 
   async function run(action: () => Promise<unknown>) {
     setBusy(true);
@@ -83,6 +91,10 @@ export default function TripScreen() {
   const guide = trip.destinationId ? getDestination(trip.destinationId) : undefined;
   const mine = trip.creator.me;
   const open = trip.status === 'published';
+  // Days are Belo Horizonte days, like on the server (`ends_on < todayBH()` refuses the answer).
+  const over = trip.endsOn < bhToday();
+  const fullForMe = trip.full && !trip.joined;
+  const canAnswer = open && !mine && !over && !fullForMe;
 
   function block(author: { id: string; name: string }, leave: boolean) {
     Alert.alert(c.post.blockConfirmTitle(author.name), c.post.blockConfirmBody, [
@@ -132,8 +144,11 @@ export default function TripScreen() {
     if (hasLink(message)) return setTalkError(t.common.noLinks);
     setSending(true);
     try {
+      await replaceRefused(refusedId, act.deleteComment);
+      setRefusedId(null);
       const r = await act.saveTripComment(trip.id, message.trim());
       if (r.status === 'hidden') {
+        setRefusedId(r.id);
         setTalkError([c.wall.notPublished, r.reason?.[lang]].filter(Boolean).join(' · '));
       } else {
         setMessage('');
@@ -150,7 +165,36 @@ export default function TripScreen() {
   }
 
   return (
-    <Screen back title={trip.destination} subtitle={dates} onRefresh={reload}>
+    <Screen
+      back
+      title={trip.destination}
+      subtitle={dates}
+      onRefresh={reload}
+      footer={
+        canAnswer ? (
+          <>
+            {error && <InlineMessage kind="error" text={error} />}
+            {trip.joined ? (
+              <View style={styles.joined}>
+                <View style={styles.joinedLabel}>
+                  <Icon name="checkCircleFill" size={20} color={theme.success} />
+                  <AppText color={theme.success} style={{ fontFamily: Fonts.bodySemi, flexShrink: 1 }}>
+                    {tr.joined}
+                  </AppText>
+                </View>
+                <Button
+                  label={tr.leave}
+                  variant="secondary"
+                  onPress={() => run(() => act.leaveTrip(trip.id))}
+                  loading={busy}
+                />
+              </View>
+            ) : (
+              <Button label={tr.join} onPress={() => run(() => act.joinTrip(trip.id))} loading={busy} />
+            )}
+          </>
+        ) : undefined
+      }>
       {/* The destination's photo when the trip points at one of the Voyages pages (UX review 2026-11-09). */}
       {guide && (
         <PlacePhoto
@@ -174,6 +218,12 @@ export default function TripScreen() {
         <AppText variant="callout" color={theme.textSecondary}>
           {tr.organizer(mine ? t.common.you : trip.creator.name)} · {tr.members(trip.membersCount, trip.seats)}
         </AppText>
+        {/* Full, and the student is not in: said here, with no button to press. */}
+        {open && !mine && !over && fullForMe && (
+          <AppText variant="callout" style={{ fontFamily: Fonts.bodySemi }}>
+            {tr.full}
+          </AppText>
+        )}
         {trip.description ? (
           <>
             <AppText style={{ fontFamily: Fonts.bodyMedium }}>{tr.program}</AppText>
@@ -182,16 +232,8 @@ export default function TripScreen() {
         ) : null}
       </Card>
 
-      {open && !mine && (
-        <Button
-          label={trip.joined ? tr.leave : trip.full ? tr.full : tr.join}
-          variant={trip.joined ? 'secondary' : 'primary'}
-          onPress={() => run(() => (trip.joined ? act.leaveTrip(trip.id) : act.joinTrip(trip.id)))}
-          loading={busy}
-          disabled={!trip.joined && trip.full}
-        />
-      )}
-      {error && <InlineMessage kind="error" text={error} />}
+      {/* With the pinned bar, the error shows right above its button. */}
+      {error && !canAnswer && <InlineMessage kind="error" text={error} />}
 
       <Section title={tr.who}>
         <Card style={{ gap: Spacing.md }}>
@@ -275,4 +317,7 @@ export default function TripScreen() {
 
 const styles = StyleSheet.create({
   member: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+  // Wraps under the label with large text or a long translation: nothing is cut.
+  joined: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: Spacing.md },
+  joinedLabel: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, flexGrow: 1, flexShrink: 1 },
 });

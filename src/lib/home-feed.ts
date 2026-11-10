@@ -1,4 +1,4 @@
-import { daysUntil } from '@/lib/cleaning';
+import { bhTodayDate, daysUntil } from '@/lib/cleaning';
 import { buildEvents, parseIso, toIso, type CalendarEvent, type EventKind, type StudentDates } from '@/lib/events';
 
 /**
@@ -15,7 +15,8 @@ const MAX_UPCOMING = 4;
  */
 export function upcomingEvents(
   student: StudentDates,
-  today = new Date(),
+  // Today in Belo Horizonte: a phone on Paris time is already on tomorrow in the evening.
+  today = bhTodayDate(),
 ): UpcomingEvent[] {
   const year = today.getFullYear();
   const todayIso = toIso(today);
@@ -55,5 +56,5 @@ export function upcomingEvents(
 
 export type UpcomingEvent = CalendarEvent & { endDate?: string };
 
-const isHoliday = (e: CalendarEvent) => e.kind !== 'cleaning' && e.kind !== 'contract';
-const RANK: Record<EventKind, number> = { optional: 0, city: 1, national: 2, cleaning: 0, contract: 0 };
+const isHoliday = (e: CalendarEvent) => e.kind === 'national' || e.kind === 'city' || e.kind === 'optional';
+const RANK: Record<EventKind, number> = { optional: 0, city: 1, national: 2, cleaning: 0, contract: 0, chezToi: 0, trip: 0 };

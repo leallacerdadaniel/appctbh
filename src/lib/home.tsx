@@ -1,8 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, type ReactNode } from 'react';
 
 import { appApi, AppApiError } from '@/lib/app-api';
 import { useAuth } from '@/lib/auth';
+import { useSessionState } from '@/lib/session-state';
 import type { CleaningVisit } from '@/lib/cleaning';
 import type { Localized } from '@/lib/mock-data';
 
@@ -205,25 +206,45 @@ async function readCache(token: string): Promise<Cached | null> {
   }
 }
 
+const LOADING: HomeState = { status: 'loading' };
+/** How long the opening waits for the server before showing the offline copy, when there is one. */
+const SLOW_MS = 4000;
+
 export function HomeProvider({ children }: { children: ReactNode }) {
   const { token, signOut } = useAuth();
-  const [state, setState] = useState<HomeState>({ status: 'loading' });
+  // Emptied on sign-out; answers for another session are dropped (lib/session-state.ts).
+  const { state, setState, isCurrent } = useSessionState<HomeState>(token, LOADING);
 
   const load = useCallback(() => {
     if (!token) return Promise.resolve();
+    // Slow network at launch: after a few seconds without an answer, open on the offline copy (with its date)
+    // while the request goes on, instead of holding the student on the opening until it times out.
+    const slow = setTimeout(async () => {
+      const cached = await readCache(token);
+      if (!cached || !isCurrent(token)) return;
+      setState((s) =>
+        s.status === 'loading' ? { status: 'ready', home: toHome(cached.data), savedAt: cached.savedAt } : s,
+      );
+    }, SLOW_MS);
     return appApi<HomeResponse>('home', { token })
       .then((r) => {
+        clearTimeout(slow);
+        if (!isCurrent(token)) return;
         setState({ status: 'ready', home: toHome(r) });
         const cached: Cached = { session: sessionOf(token), savedAt: new Date().toISOString(), data: r };
         AsyncStorage.setItem(CACHE_KEY, JSON.stringify(cached)).catch(() => {});
       })
       .catch(async (e) => {
+        clearTimeout(slow);
+        if (!isCurrent(token)) return;
         const code = e instanceof AppApiError ? e.code : 'server';
-        if (code === 'unauthorized') return signOut();
+        // The server no longer accepts this session: leave quietly (no server logout, see lib/auth.tsx).
+        if (code === 'unauthorized') return signOut('expired');
         if (code === 'accessEnded') return signOut('accessEnded');
         if (code === 'noRental') return setState({ status: 'noRental' });
         // A refresh that fails (no network) must not swap the app for the error gate.
         const cached = await readCache(token);
+        if (!isCurrent(token)) return;
         setState((s) =>
           s.status === 'ready' ? s : cached ? { status: 'ready', home: toHome(cached.data), savedAt: cached.savedAt } : { status: 'error' },
         );
@@ -237,7 +258,7 @@ export function HomeProvider({ children }: { children: ReactNode }) {
   }, [load]);
 
   function reload() {
-    setState({ status: 'loading' });
+    setState(LOADING);
     load();
   }
 

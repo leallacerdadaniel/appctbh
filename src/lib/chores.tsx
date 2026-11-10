@@ -1,8 +1,9 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, type ReactNode } from 'react';
 
 import { useI18n, type Lang } from '@/i18n';
 import { AppApiError, houseApi } from '@/lib/app-api';
 import { useAuth } from '@/lib/auth';
+import { useSessionState } from '@/lib/session-state';
 import { person, type Person } from '@/lib/home';
 
 /**
@@ -53,26 +54,33 @@ type Ctx = {
 
 const ChoresContext = createContext<Ctx | null>(null);
 
+const LOADING: State = { status: 'loading' };
+
 export function ChoresProvider({ children }: { children: ReactNode }) {
   const { token } = useAuth();
-  const [state, setState] = useState<State>({ status: 'loading' });
+  // Emptied on sign-out; answers for another session are dropped (lib/session-state.ts).
+  const { state, setState, setFor } = useSessionState<State>(token, LOADING);
 
   const reload = useCallback(() => {
     if (!token) return Promise.resolve();
+    const set = setFor(token);
     return houseApi<Raw>('chores', { token, body: { weeks: WEEKS } })
       .then((r) =>
-        setState({
+        set({
           status: 'ready',
           data: { ...r, members: r.members.map((m) => ({ id: m.id, ...person(m.name) })) },
         }),
       )
       // A failed refresh (pull-to-refresh offline) keeps what is already on screen.
-      .catch(() => setState((s) => (s.status === 'ready' ? s : { status: 'error' })));
-  }, [token]);
+      .catch(() => set((s) => (s.status === 'ready' ? s : { status: 'error' })));
+  }, [token, setFor]);
 
-  const patch = useCallback((fn: (data: ChoresData) => ChoresData) => {
-    setState((s) => (s.status === 'ready' ? { status: 'ready', data: fn(s.data) } : s));
-  }, []);
+  const patch = useCallback(
+    (fn: (data: ChoresData) => ChoresData) => {
+      setState((s) => (s.status === 'ready' ? { status: 'ready', data: fn(s.data) } : s));
+    },
+    [setState],
+  );
 
   useEffect(() => {
     reload();
@@ -93,7 +101,7 @@ export function useChores() {
  */
 export function useChoreActions() {
   const { token } = useAuth();
-  const { reload, patch } = useChores();
+  const { state, reload, patch } = useChores();
 
   return {
     async save(input: { id?: string; emoji: string; name: string; rotation: string[] }) {
@@ -114,24 +122,34 @@ export function useChoreActions() {
       await houseApi('chore-swap', { token, body: { choreId, weekStart, cp } });
       await reload();
     },
-    /** The tick shows at once; the server's answer replaces it (or undoes it on failure). */
+    /**
+     * The tick shows at once; the server's answer replaces it. On failure the tick goes back to what it was here,
+     * without waiting for a reload (offline, the reload fails too and kept the wrong tick: review, 2026-11-10).
+     */
     async setDone(choreId: string, weekStart: string, done: boolean, me: string) {
-      patch((d) => ({
-        ...d,
-        weeks: d.weeks.map((w) =>
-          w.weekStart !== weekStart
-            ? w
-            : {
-                ...w,
-                items: w.items.map((i) => (i.choreId === choreId ? { ...i, done, doneBy: done ? me : null } : i)),
-              },
-        ),
-      }));
+      const before =
+        state.status === 'ready'
+          ? state.data.weeks.find((w) => w.weekStart === weekStart)?.items.find((i) => i.choreId === choreId)
+          : undefined;
+      const mark = (fields: Pick<ChoreItem, 'done' | 'doneBy'>) =>
+        patch((d) => ({
+          ...d,
+          weeks: d.weeks.map((w) =>
+            w.weekStart !== weekStart
+              ? w
+              : { ...w, items: w.items.map((i) => (i.choreId === choreId ? { ...i, ...fields } : i)) },
+          ),
+        }));
+      mark({ done, doneBy: done ? me : null });
       try {
         await houseApi('chore-done', { token, body: { choreId, weekStart, done } });
-      } finally {
-        await reload();
+      } catch (e) {
+        mark(before ? { done: before.done, doneBy: before.doneBy } : { done: !done, doneBy: null });
+        // The server's version when it can be reached; not awaited, so the error shows at once.
+        reload();
+        throw e;
       }
+      await reload();
     },
   };
 }

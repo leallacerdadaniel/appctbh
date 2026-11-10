@@ -41,11 +41,14 @@ const fr = {
       accessEnded:
         'Votre séjour est terminé depuis plus de 30 jours : l’accès à l’app est fermé. Besoin d’un document ? Écrivez‑nous sur WhatsApp.',
       network: 'Pas de connexion. Vérifiez internet et réessayez.',
+      tooMany: 'Trop d’essais. Attendez 15 minutes avant de réessayer, ou utilisez « Mot de passe oublié ».',
+      server: 'Une erreur est survenue de notre côté. Réessayez dans un instant.',
     },
     signedOut: {
       accessEnded:
         'Votre séjour est terminé depuis plus de 30 jours : l’accès à l’app est fermé. Besoin d’un document ? Écrivez‑nous sur WhatsApp.',
       deleted: 'Votre compte a été supprimé. Merci d’avoir vécu chez nous.',
+      expired: 'Votre session a expiré. Reconnectez‑vous.',
     },
   },
   auth: {
@@ -269,6 +272,8 @@ const fr = {
       ],
       moderation:
         'Chaque message passe par l’assistante avant d’être publié. Ce qui pose question va à l’équipe Chez Toi, qui décide. Un contenu signalé par 3 personnes est masqué en attendant l’équipe. Ne pas respecter la charte peut suspendre votre accès à la communauté.',
+      // Says who checks first; informs only, so COMMUNITY_TERMS_VERSION does not change.
+      ai: 'Vérification par une IA : avant d’arriver à l’équipe Chez Toi, ce que vous publiez (messages, commentaires, voyages) est analysé automatiquement par une intelligence artificielle, Claude, de la société Anthropic. Le détail est dans la politique de confidentialité.',
       accept: 'J’accepte la charte',
       accepted: 'Vous avez accepté la charte.',
     },
@@ -327,6 +332,9 @@ const fr = {
       suspended: 'Votre accès à la communauté est suspendu pour le moment.',
       full: 'C’est complet.',
       invalid: 'Vérifiez les champs.',
+      // 30 moderated texts a day (posts, comments, trip messages, trips).
+      limit: 'Vous avez atteint la limite de publications pour aujourd’hui. Réessayez demain.',
+      forbidden: 'Vous ne pouvez pas faire cette action.',
       noRental: 'La communauté est réservée aux résidents actuels.',
       load: 'Impossible de charger la communauté.',
       notFound: 'Ce contenu n’est plus disponible.',
@@ -384,6 +392,8 @@ const fr = {
     quick: { wifi: 'Wi‑Fi', services: 'Services en plus', roommates: 'Colocs', sos: 'SOS' },
     wifiCopied: 'Mot de passe Wi‑Fi copié : collez-le dans Réglages › Wi‑Fi',
     tonight: 'Ce soir à BH',
+    // The same carousel before 17:00 in Belo Horizonte (bars and clubs: not "today's programme").
+    goingOut: 'Sortir à BH',
     tonightAction: 'Explorer',
     walk: (min: number) => `${min} min à pied`,
     drive: (min: number) => `${min} min en voiture`,
@@ -822,6 +832,14 @@ const fr = {
     hospitalNotice:
       'Les hôpitaux privés de référence de BH. Avant d’y aller, vérifiez auprès de votre assurance santé que l’hôpital est couvert. En cas d’urgence vitale, appelez le 192 (SAMU).',
     restaurantsLink: 'Restaurants : voir notre sélection',
+    // "Courses" and "Pharmacie" in Explorer › Pratique: one shortcut, two places to look (UX review 2026-11-10).
+    where: {
+      title: (what: string) => `${what} : où chercher ?`,
+      home: 'Chez moi',
+      homeHint: 'La liste près de votre appartement, avec le temps à pied',
+      here: 'Où je suis',
+      hereHint: 'Google Maps s’ouvre autour de vous, à BH ou en voyage',
+    },
     short: {
       supermarket: 'Courses',
       pharmacy: 'Pharmacie',
@@ -849,9 +867,7 @@ const fr = {
       restaurant: 'Restaurants',
       bar: 'Bars',
       cafe: 'Cafés',
-      pharmacy: 'Pharmacie',
       atm: 'Distributeur',
-      supermarket: 'Courses',
     },
     open: (what: string) => `${what} autour de moi, dans Google Maps`,
   },
@@ -1271,13 +1287,13 @@ const fr = {
   },
   calendar: {
     title: 'Agenda',
-    subtitle: 'Jours fériés, ménage et dates clés.',
-    searchPlaceholder: 'Rechercher un jour férié',
+    subtitle: 'Jours fériés, ménage, événements Chez Toi et dates clés.',
+    searchPlaceholder: 'Rechercher dans l’agenda',
     today: 'Aujourd’hui',
     upcoming: 'À venir',
     results: 'Résultats',
     nothingThisDay: 'Rien de prévu ce jour‑là.',
-    noResults: (q: string) => `Aucun jour férié pour « ${q} »`,
+    noResults: (q: string) => `Rien dans l’agenda pour « ${q} »`,
     previousMonth: 'Mois précédent',
     nextMonth: 'Mois suivant',
     kinds: {
@@ -1286,6 +1302,8 @@ const fr = {
       optional: 'Facultatif',
       cleaning: 'Ménage',
       contract: 'Contrat',
+      chezToi: 'Événement Chez Toi',
+      trip: 'Voyage en groupe',
     },
     optionalHint: 'Facultatif : administrations parfois fermées, commerces ouverts.',
     weekStartsOn: 1,
@@ -1306,9 +1324,19 @@ const fr = {
     activity: 'Activité',
     empty: 'Aucune dépense pour l’instant. Ajoutez la première : courses, gaz, produits de ménage.',
     paidBy: (name: string) => `Payé par ${name}`,
+    paidByYou: 'Payé par vous',
     addedBy: (name: string) => `Ajouté par ${name}`,
+    addedByYou: 'Ajouté par vous',
     youCap: 'Vous',
+    // A repayment, three ways (never "Vous a payé Hugo"): the student paid, was paid, or two roommates.
+    youPaid: (name: string) => `Vous avez payé ${name}`,
+    paidYou: (name: string) => `${name} vous a payé`,
     payment: (from: string, to: string) => `${from} a payé ${to}`,
+    // Someone who appears in the expenses and no longer lives in the apartment: "Hugo (parti·e)".
+    leftMark: '(parti·e)',
+    formerRoommate: 'Ancien colocataire',
+    formerNoEdit:
+      'Cette dépense concerne une personne qui a quitté l’appartement : elle ne peut plus être modifiée, seulement supprimée.',
     // form
     newTitle: 'Nouvelle dépense',
     editTitle: 'Modifier la dépense',
@@ -1337,6 +1365,7 @@ const fr = {
       amount: 'Indiquez un montant valide.',
       people: 'Choisissez au moins une personne.',
       sum: 'La somme des parts doit être égale au montant.',
+      former: 'Cette dépense concerne une personne qui a quitté l’appartement : elle ne peut plus être modifiée.',
       server: 'Impossible d’enregistrer. Vérifiez votre connexion et réessayez.',
     },
     // detail
@@ -2283,11 +2312,14 @@ const en: Strings = {
       accessEnded:
         'Your stay ended more than 30 days ago, so the app is closed. Need a document? Message us on WhatsApp.',
       network: 'No connection. Check your internet and try again.',
+      tooMany: 'Too many tries. Wait 15 minutes before trying again, or use “Forgot password”.',
+      server: 'Something went wrong on our side. Try again in a moment.',
     },
     signedOut: {
       accessEnded:
         'Your stay ended more than 30 days ago, so the app is closed. Need a document? Message us on WhatsApp.',
       deleted: 'Your account was deleted. Thank you for living with us.',
+      expired: 'Your session has expired. Please sign in again.',
     },
   },
   auth: {
@@ -2509,6 +2541,7 @@ const en: Strings = {
       ],
       moderation:
         'Every post goes through the assistant before it is published. Anything doubtful goes to the Chez Toi team, who decide. Content reported by 3 people is hidden until the team looks at it. Not following the guidelines can suspend your access to the community.',
+      ai: 'Checked by an AI: before it reaches the Chez Toi team, what you post (messages, comments, trips) is analysed automatically by an artificial intelligence, Claude, made by Anthropic. The details are in the privacy policy.',
       accept: 'I accept the guidelines',
       accepted: 'You accepted the guidelines.',
     },
@@ -2566,6 +2599,8 @@ const en: Strings = {
       suspended: 'Your access to the community is suspended for now.',
       full: 'It’s full.',
       invalid: 'Check the fields.',
+      limit: 'You’ve reached today’s limit of posts. Try again tomorrow.',
+      forbidden: 'You can’t do this.',
       noRental: 'The community is for current residents.',
       load: 'We couldn’t load the community.',
       notFound: 'This content is no longer available.',
@@ -2623,6 +2658,7 @@ const en: Strings = {
     quick: { wifi: 'Wi‑Fi', services: 'Extra services', roommates: 'Roommates', sos: 'SOS' },
     wifiCopied: 'Wi‑Fi password copied: paste it in Settings › Wi‑Fi',
     tonight: 'Tonight in BH',
+    goingOut: 'Going out in BH',
     tonightAction: 'Explore',
     walk: (min: number) => `${min} min walk`,
     drive: (min: number) => `${min} min by car`,
@@ -3060,6 +3096,13 @@ const en: Strings = {
     hospitalNotice:
       'BH’s leading private hospitals. Before going, check with your health insurance that the hospital is covered. In a life-threatening emergency, call 192 (SAMU).',
     restaurantsLink: 'Restaurants: see our picks',
+    where: {
+      title: (what: string) => `${what}: where to look?`,
+      home: 'Near home',
+      homeHint: 'The list near your apartment, with walking times',
+      here: 'Where I am',
+      hereHint: 'Google Maps opens around you, in BH or on a trip',
+    },
     short: {
       supermarket: 'Groceries',
       pharmacy: 'Pharmacy',
@@ -3087,9 +3130,7 @@ const en: Strings = {
       restaurant: 'Restaurants',
       bar: 'Bars',
       cafe: 'Cafés',
-      pharmacy: 'Pharmacy',
       atm: 'ATM',
-      supermarket: 'Groceries',
     },
     open: (what: string) => `${what} around me, in Google Maps`,
   },
@@ -3509,13 +3550,13 @@ const en: Strings = {
   },
   calendar: {
     title: 'Agenda',
-    subtitle: 'Holidays, cleaning and key dates.',
-    searchPlaceholder: 'Search a holiday',
+    subtitle: 'Holidays, cleaning, Chez Toi events and key dates.',
+    searchPlaceholder: 'Search the agenda',
     today: 'Today',
     upcoming: 'Coming up',
     results: 'Results',
     nothingThisDay: 'Nothing planned that day.',
-    noResults: (q: string) => `No holiday matches “${q}”`,
+    noResults: (q: string) => `Nothing in the agenda for “${q}”`,
     previousMonth: 'Previous month',
     nextMonth: 'Next month',
     kinds: {
@@ -3524,6 +3565,8 @@ const en: Strings = {
       optional: 'Optional',
       cleaning: 'Cleaning',
       contract: 'Contract',
+      chezToi: 'Chez Toi event',
+      trip: 'Group trip',
     },
     optionalHint: 'Optional: some public offices close, shops stay open.',
     weekStartsOn: 0,
@@ -3544,9 +3587,16 @@ const en: Strings = {
     activity: 'Activity',
     empty: 'No expenses yet. Add the first one: groceries, gas, cleaning products.',
     paidBy: (name: string) => `Paid by ${name}`,
+    paidByYou: 'Paid by you',
     addedBy: (name: string) => `Added by ${name}`,
+    addedByYou: 'Added by you',
     youCap: 'You',
+    youPaid: (name: string) => `You paid ${name}`,
+    paidYou: (name: string) => `${name} paid you`,
     payment: (from: string, to: string) => `${from} paid ${to}`,
+    leftMark: '(left)',
+    formerRoommate: 'Former roommate',
+    formerNoEdit: 'This expense involves someone who has left the apartment: it can no longer be changed, only deleted.',
     // form
     newTitle: 'New expense',
     editTitle: 'Edit expense',
@@ -3575,6 +3625,7 @@ const en: Strings = {
       amount: 'Enter a valid amount.',
       people: 'Choose at least one person.',
       sum: 'The shares must add up to the amount.',
+      former: 'This expense involves someone who has left the apartment: it can no longer be changed.',
       server: 'Couldn’t save. Check your connection and try again.',
     },
     // detail

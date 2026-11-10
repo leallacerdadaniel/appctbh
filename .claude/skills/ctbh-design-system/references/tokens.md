@@ -23,6 +23,7 @@ Source of truth: `src/constants/theme.ts`. If you change a value there, change i
 | `error` / `errorSoft` | `#B42318` / `#FEF3F2` | Errors (with icon + text) |
 | `warning` | `#B54708` | Tips, attention |
 | `eventCity` / `eventOptional` / `eventCleaning` | `#DC6803` / `#1570EF` / `#0E9384` | Calendar dots only |
+| `eventTrip` | `#3B7C0F` | Group trips in the Agenda (dot, chip, label). Chez Toi events use `brandText`, no token of their own (2026-11-10) |
 
 ## Typography
 

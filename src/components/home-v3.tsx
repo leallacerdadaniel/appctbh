@@ -216,6 +216,22 @@ export function QuickActions({ apartment }: { apartment: Home['apartment'] }) {
 /* ---------- Tonight in BH ---------- */
 
 /** Bars with a team photo, closest to the apartment first. */
+/** Belo Horizonte is UTC−3 all year (no daylight saving). */
+const BH_OFFSET_MS = 3 * 3_600_000;
+const EVENING_FROM_HOUR = 17;
+const NIGHT_UNTIL_HOUR = 5;
+
+/**
+ * Is it the evening in Belo Horizonte (17:00 to 04:59), whatever the phone's time zone? The carousel below shows
+ * the same bars and clubs all day, so on Accueil only its title follows the clock: "Sortir à BH" by day,
+ * "Ce soir à BH" from 17:00 (UX review 2026-11-10: "Ce soir" at 9 in the morning read wrong).
+ */
+export function isEveningInBh(now = Date.now()) {
+  const hour = new Date(now - BH_OFFSET_MS).getUTCHours();
+  return hour >= EVENING_FROM_HOUR || hour < NIGHT_UNTIL_HOUR;
+}
+
+/** The team's bars and clubs with a photo, closest to the apartment first (the same list all day). */
 export function TonightCarousel() {
   const theme = useTheme();
   const { t, lang } = useI18n();

@@ -53,6 +53,8 @@ export const Colors = {
     eventCity: '#DC6803',
     eventOptional: '#1570EF',
     eventCleaning: '#0E9384',
+    /** Group trips in the Agenda. */
+    eventTrip: '#3B7C0F',
   },
 } as const;
 

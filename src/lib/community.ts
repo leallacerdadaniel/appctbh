@@ -108,12 +108,18 @@ export function useCommunity<T>(route: string, body?: Record<string, unknown>) {
   const [stored, setStored] = useState<{ key: string; query: Query<T> }>({ key, query: { status: 'loading' } });
 
   const load = useCallback(async () => {
+    // The state now belongs to this query; an answer for another one (the wall's scope changed while it was on
+    // its way) is dropped below, or it would take the place of this one and the list would spin forever.
+    setStored((s) => (s.key === key ? s : { key, query: { status: 'loading' } }));
     try {
       const data = await communityApi<T>(route, { token, body: JSON.parse(key) });
-      setStored({ key, query: { status: 'ready', data } });
+      setStored((s) => (s.key === key ? { key, query: { status: 'ready', data } } : s));
     } catch (e) {
       const code = errorCode(e);
-      setStored((s) => (s.key === key && s.query.status === 'ready' ? s : { key, query: { status: 'error', code } }));
+      // A failed refresh keeps what is on screen.
+      setStored((s) =>
+        s.key !== key || s.query.status === 'ready' ? s : { key, query: { status: 'error', code } },
+      );
     }
   }, [route, key, token]);
 
@@ -158,6 +164,20 @@ export function useCommunityActions() {
 }
 
 export const errorCode = (e: unknown): ApiError => (e instanceof AppApiError ? e.code : 'server');
+
+/**
+ * Before the corrected text of something the AI refused goes out, the refused one is deleted (it is already stored,
+ * and its author still sees it): one attempt stays one item. Already gone (`notFound`) is fine; any other failure
+ * stops the send, so nothing is doubled.
+ */
+export async function replaceRefused(refusedId: string | null, remove: (id: string) => Promise<unknown>) {
+  if (!refusedId) return;
+  try {
+    await remove(refusedId);
+  } catch (e) {
+    if (errorCode(e) !== 'notFound') throw e;
+  }
+}
 
 /** The message for an error of this function, in the student's language. */
 export function communityError(e: unknown, t: Strings) {

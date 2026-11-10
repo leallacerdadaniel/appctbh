@@ -191,7 +191,9 @@ function Opening({ done, onGone }: { done: boolean; onGone: () => void }) {
 
   return (
     <Animated.View
-      pointerEvents={done ? 'none' : 'auto'}
+      // Takes the touches for as long as it covers the screen (it unmounts in onGone): letting them through
+      // as soon as the data arrived meant tapping blind on whatever was underneath (review, 2026-11-10).
+      pointerEvents="auto"
       style={[StyleSheet.absoluteFill, overlayStyle]}
       accessibilityRole="progressbar"
       accessibilityLabel={t.gate.loading}>

@@ -1,11 +1,12 @@
 import * as Clipboard from 'expo-clipboard';
-import { router, useLocalSearchParams, type Href } from 'expo-router';
-import { cloneElement, useRef, useState, type ComponentRef, type ReactElement } from 'react';
+import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
+import { cloneElement, useCallback, useRef, useState, type ComponentRef, type ReactElement } from 'react';
 import { View, type ScrollView } from 'react-native';
 
 import {
   AddressCard,
   fullAddress,
+  isEveningInBh,
   QuickActions,
   RowPill,
   TintCard,
@@ -24,10 +25,11 @@ import { AppText } from '@/components/ui';
 import { Fonts, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
+import { bhHour, bhToday } from '@/lib/bh-time';
 import { choreById, myChoresThisWeek, useChoreActions, useChores } from '@/lib/chores';
 import { daysUntil, upcomingCleanings } from '@/lib/cleaning';
 import { useCommunity, type ChezEvent } from '@/lib/community';
-import type { EventKind } from '@/lib/events';
+import { toIso, type EventKind } from '@/lib/events';
 import { formatDayDate, formatTime, isFutureMonth } from '@/lib/format';
 import { useHome, useHomeState, type Home } from '@/lib/home';
 import { upcomingEvents } from '@/lib/home-feed';
@@ -50,6 +52,9 @@ const EVENT_ICON: Record<EventKind, IconName> = {
   optional: 'calendar',
   cleaning: 'cleaning',
   contract: 'key',
+  // Community entries only show in the Agenda; "Cette semaine" has its own card for the next Chez Toi event.
+  chezToi: 'people',
+  trip: 'travel',
 };
 
 /**
@@ -104,10 +109,10 @@ export default function HomeScreen() {
       {savedAt && <OfflineNotice savedAt={savedAt} />}
       <View style={{ gap: 2, marginTop: -Spacing.sm }}>
         <AppText variant="callout" color={theme.textSecondary}>
-          {capitalize(formatDayDate(todayIso(), lang))}
+          {capitalize(formatDayDate(bhToday(), lang))}
         </AppText>
         <AppText variant="display">
-          {new Date().getHours() < 18 ? t.home.morning : t.home.evening}, {student.firstName}
+          {bhHour() < 18 ? t.home.morning : t.home.evening}, {student.firstName}
         </AppText>
       </View>
       <View style={{ gap: Spacing.lg, marginTop: -Spacing.md }}>
@@ -132,7 +137,10 @@ export default function HomeScreen() {
 function OfflineNotice({ savedAt }: { savedAt: string }) {
   const theme = useTheme();
   const { t, lang } = useI18n();
-  const when = `${formatDayDate(savedAt.slice(0, 10), lang)} · ${formatTime(new Date(savedAt).toTimeString().slice(0, 5), lang)}`;
+  // Day and time from the same instant, on the phone's clock (the UTC day of `savedAt` is tomorrow at night in BH).
+  const at = new Date(savedAt);
+  const hhmm = `${String(at.getHours()).padStart(2, '0')}:${String(at.getMinutes()).padStart(2, '0')}`;
+  const when = `${formatDayDate(toIso(at), lang)} · ${formatTime(hhmm, lang)}`;
   return (
     <View
       accessible
@@ -148,11 +156,12 @@ function OfflineNotice({ savedAt }: { savedAt: string }) {
   );
 }
 
+/** The team's bars and clubs: "Ce soir à BH" from 17:00 in Belo Horizonte, "Sortir à BH" during the day. */
 function TonightSection() {
   const { t } = useI18n();
   return (
     <Section
-      title={t.today.tonight}
+      title={isEveningInBh() ? t.today.tonight : t.today.goingOut}
       action={t.today.tonightAction}
       onAction={() => router.navigate('/explorer')}>
       <TonightCarousel />
@@ -167,7 +176,9 @@ function TonightSection() {
 function NextEventSection() {
   const { t } = useI18n();
   const { state } = useCommunity<{ events: ChezEvent[] }>('events');
-  const [now] = useState(() => Date.now());
+  // Accueil never unmounts (it is a tab): the clock is read again each time it comes back on screen.
+  const [now, setNow] = useState(() => Date.now());
+  useFocusEffect(useCallback(() => setNow(Date.now()), []));
   if (state.status !== 'ready') return null;
   const event = state.data.events
     .filter((e) => !e.cancelled)
@@ -319,12 +330,13 @@ function WeekSection() {
   const { state: choresState } = useChores();
   const choreActions = useChoreActions();
 
-  // Rent: from 3 days before the 5th, or when a month is late. Never earlier (v3).
-  const today = new Date();
-  const thisMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-01`;
-  const unpaid = payments.filter((m) => !m.paid && !isFutureMonth(m.month));
-  const late = unpaid.filter((m) => m.month < thisMonth || (m.month === thisMonth && today.getDate() > RENT_DAY));
-  const daysToRent = RENT_DAY - today.getDate();
+  // Rent: from 3 days before the 5th, or when a month is late. Never earlier (v3). The day is Belo Horizonte's.
+  const today = bhToday();
+  const thisMonth = `${today.slice(0, 7)}-01`;
+  const dayOfMonth = Number(today.slice(8, 10));
+  const unpaid = payments.filter((m) => !m.paid && !isFutureMonth(m.month, today));
+  const late = unpaid.filter((m) => m.month < thisMonth || (m.month === thisMonth && dayOfMonth > RENT_DAY));
+  const daysToRent = RENT_DAY - dayOfMonth;
   const soon =
     late.length === 0 && daysToRent >= 0 && daysToRent <= RENT_NOTICE_DAYS
       ? unpaid.find((m) => m.month === thisMonth)
@@ -441,8 +453,3 @@ function WeekSection() {
 }
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
-
-function todayIso() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}

@@ -1,8 +1,9 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, type ReactNode } from 'react';
 
 import type { Lang } from '@/i18n';
 import { AppApiError, requestsApi } from '@/lib/app-api';
 import { useAuth } from '@/lib/auth';
+import { useSessionState } from '@/lib/session-state';
 
 /**
  * Requests to the Chez Toi team (wave 6): extra services, maintenance, late check-out, early check-in
@@ -142,16 +143,20 @@ type State = { status: 'loading' } | { status: 'ready'; data: RequestsData } | {
 
 const RequestsContext = createContext<{ state: State; reload: () => Promise<void> } | null>(null);
 
+const LOADING: State = { status: 'loading' };
+
 export function RequestsProvider({ children }: { children: ReactNode }) {
   const { token } = useAuth();
-  const [state, setState] = useState<State>({ status: 'loading' });
+  // Emptied on sign-out; answers for another session are dropped (lib/session-state.ts).
+  const { state, setFor } = useSessionState<State>(token, LOADING);
 
   const reload = useCallback(() => {
     if (!token) return Promise.resolve();
+    const set = setFor(token);
     return requestsApi<RequestsData>('list', { token })
-      .then((data) => setState({ status: 'ready', data }))
-      .catch(() => setState((s) => (s.status === 'ready' ? s : { status: 'error' })));
-  }, [token]);
+      .then((data) => set({ status: 'ready', data }))
+      .catch(() => set((s) => (s.status === 'ready' ? s : { status: 'error' })));
+  }, [token, setFor]);
 
   useEffect(() => {
     reload();

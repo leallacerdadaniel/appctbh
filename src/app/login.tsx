@@ -32,6 +32,8 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
 
   async function submit() {
+    // The keyboard's "Go" also lands here: one request at a time (each wrong try counts against the limit).
+    if (loading || !email || !password) return;
     setError(null);
     setLoading(true);
     const err = await signIn(email.trim(), password);
@@ -119,7 +121,7 @@ export default function LoginScreen() {
             />
             {!error && signOutReason && (
               <InlineMessage
-                kind={signOutReason === 'deleted' ? 'success' : 'error'}
+                kind={signOutReason === 'deleted' ? 'success' : signOutReason === 'expired' ? 'warning' : 'error'}
                 text={t.login.signedOut[signOutReason]}
               />
             )}

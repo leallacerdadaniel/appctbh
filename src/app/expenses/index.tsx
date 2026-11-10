@@ -2,17 +2,29 @@ import { router } from 'expo-router';
 import { Fragment } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { DateBlock } from '@/components/expense-ui';
+import { DateBlock, PersonName } from '@/components/expense-ui';
 import { Icon } from '@/components/icon';
 import { Screen, Section } from '@/components/screen';
 import { AppText, Avatar, Button, Card, LoadingState, PressableScale, RetryCard } from '@/components/ui';
 import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
-import { allDebts, myBalances, useExpenses, type Debt, type ExpensesData } from '@/lib/expenses';
+import {
+  allDebts,
+  formerPeople,
+  myBalances,
+  paymentLabel,
+  personLabel,
+  useExpenses,
+  type Debt,
+  type ExpensesData,
+} from '@/lib/expenses';
 import { formatCents } from '@/lib/format';
 
-/** Shared expenses: my balance per currency, each roommate's balance with me, and the activity by month. */
+/**
+ * Shared expenses: my balance per currency, each roommate's balance with me, and the activity by month.
+ * A roommate who left stays in the list, marked "(parti·e)", for as long as there is something to settle with them.
+ */
 export default function ExpensesScreen() {
   const { t } = useI18n();
   const { state, reload } = useExpenses();
@@ -34,12 +46,16 @@ function Content({ data }: { data: ExpensesData }) {
   const theme = useTheme();
   const { t, lang } = useI18n();
   const money = (c: number, cur: Debt['currency']) => formatCents(c, lang, cur);
-  const firstName = (cp: string) =>
-    cp === data.me ? t.expenses.youCap : (data.members.find((m) => m.id === cp)?.firstName ?? '?');
 
   const mine = myBalances(data);
   const debts = allDebts(data);
-  const roommates = data.members.filter((m) => m.id !== data.me);
+  const withMe = (cp: string) =>
+    debts.filter((d) => (d.from === cp && d.to === data.me) || (d.to === cp && d.from === data.me));
+  // The roommates of today, then the ones who left and still owe or are owed something by the student.
+  const roommates = [
+    ...data.members.filter((m) => m.id !== data.me),
+    ...formerPeople(data).filter((m) => withMe(m.id).length > 0),
+  ];
 
   const activity = [
     ...data.expenses.map((e) => ({ kind: 'expense' as const, date: e.spentOn, at: e.createdAt, e })),
@@ -73,20 +89,18 @@ function Content({ data }: { data: ExpensesData }) {
         {roommates.length > 0 && (
           <View style={[styles.roommates, { borderTopColor: theme.line }]}>
             {roommates.map((m) => {
-              const withMe = debts.filter(
-                (d) => (d.from === m.id && d.to === data.me) || (d.to === m.id && d.from === data.me),
-              );
+              const open = withMe(m.id);
               return (
                 <View key={m.id} style={styles.roommate}>
                   <Avatar initials={m.initials} size={40} />
                   <View style={{ flex: 1 }}>
-                    <AppText style={{ fontFamily: Fonts.bodyMedium }}>{m.firstName}</AppText>
-                    {withMe.length === 0 ? (
+                    <PersonName data={data} cp={m.id} style={{ fontFamily: Fonts.bodyMedium }} />
+                    {open.length === 0 ? (
                       <AppText variant="callout" color={theme.textSecondary}>
                         {t.expenses.upToDate}
                       </AppText>
                     ) : (
-                      withMe.map((d) => (
+                      open.map((d) => (
                         <AppText
                           key={d.currency}
                           variant="callout"
@@ -98,17 +112,17 @@ function Content({ data }: { data: ExpensesData }) {
                       ))
                     )}
                   </View>
-                  {withMe.length > 0 && (
+                  {open.length > 0 && (
                     <PressableScale
                       accessibilityRole="button"
                       onPress={() =>
                         router.push({
                           pathname: '/expenses/settle',
                           params: {
-                            from: withMe[0].from,
-                            to: withMe[0].to,
-                            amount: String(withMe[0].amountCents),
-                            currency: withMe[0].currency,
+                            from: open[0].from,
+                            to: open[0].to,
+                            amount: String(open[0].amountCents),
+                            currency: open[0].currency,
                           },
                         })
                       }
@@ -147,7 +161,10 @@ function Content({ data }: { data: ExpensesData }) {
                       subtitle={
                         a.e.paidBy === data.me
                           ? t.expenses.youPaidAmount(money(a.e.amountCents, a.e.currency))
-                          : t.expenses.paidAmount(firstName(a.e.paidBy), money(a.e.amountCents, a.e.currency))
+                          : t.expenses.paidAmount(
+                              personLabel(data, a.e.paidBy, t.expenses),
+                              money(a.e.amountCents, a.e.currency),
+                            )
                       }
                       {...myPart(a.e)}
                       onPress={() =>
@@ -157,7 +174,7 @@ function Content({ data }: { data: ExpensesData }) {
                   ) : (
                     <ActivityRow
                       date={a.s.paidOn}
-                      title={t.expenses.payment(firstName(a.s.from), firstName(a.s.to))}
+                      title={paymentLabel(data, a.s.from, a.s.to, t.expenses)}
                       subtitle={t.expenses.paymentRow}
                       tag=""
                       amount={money(a.s.amountCents, a.s.currency)}

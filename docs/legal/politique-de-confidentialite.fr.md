@@ -10,7 +10,7 @@ L’app est réservée aux étudiants qui logent dans les appartements de la Che
 
 ## 1. Responsable du traitement
 
-**[RAISON SOCIALE DE LA CHEZ TOI BH]**, CNPJ [00.000.000/0000-00], [adresse complète], Belo Horizonte, MG, Brésil (« la Chez Toi », « nous »).
+**CHEZ TOI BH LTDA**, CNPJ 60.589.794/0001-00, Rua dos Inconfidentes, 344, apto 1201, Funcionários, CEP 30140-120, Belo Horizonte, MG, Brésil (« la Chez Toi », « nous »).
 
 Délégué à la protection des données (DPO) : [nom], e-mail [privacidade@cheztoibh.com.br — à confirmer].
 
@@ -79,7 +79,7 @@ Nous ne vendons aucune donnée. Nous partageons seulement le nécessaire avec de
 - **Supabase** (base de données et serveurs de l’app) ;
 - **Anthropic** (Claude : assistante Charlotte et modération de la communauté). Selon les conditions commerciales d’Anthropic, les données envoyées par l’API ne servent pas à entraîner les modèles et peuvent être conservées pendant une durée limitée pour la sécurité [à confirmer dans le contrat en vigueur] ;
 - **Expo** (envoi des notifications), **Apple** et **Google** (livraison des notifications et service de cartes du téléphone) ;
-- **[prestataire d’e-mail, ex. : Resend]** (code « mot de passe oublié ») ;
+- **Resend** (code « mot de passe oublié ») ;
 - **Les autres résidents** : seulement ce que vous publiez dans la communauté ou laissez visible dans votre profil, et votre prénom pour vos colocataires ;
 - **Les autorités**, quand la loi l’exige.
 
@@ -115,6 +115,6 @@ En cas de changement important, nous vous prévenons dans l’app avant qu’il 
 
 ## 10. Contact
 
-[RAISON SOCIALE] · [adresse] · [privacidade@cheztoibh.com.br — à confirmer] · WhatsApp de l’équipe depuis l’app.
+CHEZ TOI BH LTDA · Rua dos Inconfidentes, 344, apto 1201, Funcionários, CEP 30140-120 · [privacidade@cheztoibh.com.br — à confirmer] · WhatsApp de l’équipe depuis l’app.
 
 Cette politique existe en portugais, en français et en anglais. En cas de différence, la version portugaise prévaut.

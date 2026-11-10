@@ -2,6 +2,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { Fragment, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { PersonName } from '@/components/expense-ui';
 import { Icon } from '@/components/icon';
 import { Screen, Section } from '@/components/screen';
 import { useToast } from '@/components/toast';
@@ -10,10 +11,13 @@ import { Fonts, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { formatLongDate } from '@/lib/cleaning';
-import { useExpenseAction, useExpenses } from '@/lib/expenses';
+import { findPerson, involvesFormer, personLabel, useExpenseAction, useExpenses } from '@/lib/expenses';
 import { formatCents } from '@/lib/format';
 
-/** One expense (with each roommate's share) or one payment. Only its author can edit or delete it. */
+/**
+ * One expense (with each roommate's share) or one payment. Only its author can edit or delete it; an expense that
+ * involves a roommate who has left can only be deleted (the form only offers the people living there now).
+ */
 export default function ExpenseDetailScreen() {
   const theme = useTheme();
   const toast = useToast();
@@ -46,8 +50,9 @@ export default function ExpenseDetailScreen() {
     );
   }
 
-  const member = (cp: string) => data.members.find((m) => m.id === cp);
-  const name = (cp: string) => (cp === data.me ? t.expenses.youCap : (member(cp)?.fullName ?? '?'));
+  const initials = (cp: string) => findPerson(data, cp)?.initials ?? '?';
+  const name = (cp: string) => personLabel(data, cp, t.expenses, 'fullName');
+  const frozen = !!expense && involvesFormer(data, expense);
   const money = (c: number) => formatCents(c, lang, item.currency);
   const day = capitalize(formatLongDate(expense ? expense.spentOn : payment!.paidOn, lang));
   const mine = item.createdBy === data.me;
@@ -78,22 +83,22 @@ export default function ExpenseDetailScreen() {
               {expense.description}
             </AppText>
             <View style={styles.payer}>
-              <Avatar initials={member(expense.paidBy)?.initials ?? '?'} size={28} />
-              <AppText variant="callout" color={theme.textSecondary}>
-                {t.expenses.paidBy(name(expense.paidBy))}
+              <Avatar initials={initials(expense.paidBy)} size={28} />
+              <AppText variant="callout" color={theme.textSecondary} style={{ flexShrink: 1 }}>
+                {expense.paidBy === data.me ? t.expenses.paidByYou : t.expenses.paidBy(name(expense.paidBy))}
               </AppText>
             </View>
           </>
         ) : (
           <View style={styles.transfer}>
             <View style={styles.party}>
-              <Avatar initials={member(payment!.from)?.initials ?? '?'} size={48} />
-              <AppText variant="caption">{name(payment!.from)}</AppText>
+              <Avatar initials={initials(payment!.from)} size={48} />
+              <PersonName data={data} cp={payment!.from} full variant="caption" style={{ textAlign: 'center' }} />
             </View>
             <Icon name="chevronRight" size={20} color={theme.textTertiary} />
             <View style={styles.party}>
-              <Avatar initials={member(payment!.to)?.initials ?? '?'} size={48} />
-              <AppText variant="caption">{name(payment!.to)}</AppText>
+              <Avatar initials={initials(payment!.to)} size={48} />
+              <PersonName data={data} cp={payment!.to} full variant="caption" style={{ textAlign: 'center' }} />
             </View>
           </View>
         )}
@@ -108,8 +113,8 @@ export default function ExpenseDetailScreen() {
                 <Fragment key={s.cp}>
                   {i > 0 && <View style={[styles.divider, { backgroundColor: theme.line }]} />}
                   <View style={styles.share}>
-                    <Avatar initials={member(s.cp)?.initials ?? '?'} size={36} />
-                    <AppText style={{ flex: 1 }}>{name(s.cp)}</AppText>
+                    <Avatar initials={initials(s.cp)} size={36} />
+                    <PersonName data={data} cp={s.cp} full style={{ flex: 1 }} />
                     <AppText style={{ fontFamily: Fonts.bodyMedium }}>{money(s.amountCents)}</AppText>
                   </View>
                 </Fragment>
@@ -119,17 +124,22 @@ export default function ExpenseDetailScreen() {
       )}
 
       <AppText variant="caption" color={theme.textSecondary}>
-        {t.expenses.addedBy(name(item.createdBy))}
+        {mine ? t.expenses.addedByYou : t.expenses.addedBy(name(item.createdBy))}
       </AppText>
 
       {error && <InlineMessage kind="error" text={error} />}
       {mine ? (
         <View style={{ gap: Spacing.sm }}>
-          {expense && (
+          {expense && !frozen && (
             <Button
               label={t.expenses.editTitle}
               onPress={() => router.push({ pathname: '/expenses/edit', params: { id: expense.id } })}
             />
+          )}
+          {frozen && (
+            <AppText variant="callout" color={theme.textSecondary}>
+              {t.expenses.formerNoEdit}
+            </AppText>
           )}
           <Button
             variant="secondary"

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { eventsApi } from '@/lib/app-api';
 import { useAuth } from '@/lib/auth';
+import { bhToday } from '@/lib/bh-time';
 
 /**
  * What's on in BH, from the "app-events" function (supabase/functions/app-events): CCBB BH, Palácio das Artes,
@@ -83,8 +84,9 @@ export function bhTime(iso: string) {
   return new Date(Date.parse(iso) - BH_OFFSET_MS).toISOString().slice(11, 16);
 }
 
+/** Today in BH (the app's one helper, lib/bh-time.ts). */
 export function todayBh() {
-  return bhDay(new Date().toISOString());
+  return bhToday();
 }
 
 export function addDays(day: string, n: number) {

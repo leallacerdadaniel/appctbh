@@ -45,7 +45,9 @@ export type ApiError =
   | 'incomplete'
   | 'disabled'
   // security review (2026-11-09): the account already has a password, so first access sends to "forgot password"
-  | 'hasAccount';
+  | 'hasAccount'
+  // shared expenses (2026-11-10): editing an expense that involves a roommate who has left (delete it instead)
+  | 'former';
 
 export class AppApiError extends Error {
   constructor(public code: ApiError) {
@@ -53,8 +55,20 @@ export class AppApiError extends Error {
   }
 }
 
-/** `allowLinks`: only for the assistant, whose questions never reach other people. */
-type CallOptions = { token?: string | null; body?: unknown; allowLinks?: boolean };
+/**
+ * `allowLinks`: only for the assistant, whose questions never reach other people.
+ * `timeoutMs`: how long to wait before giving up with `network` (default below).
+ */
+type CallOptions = { token?: string | null; body?: unknown; allowLinks?: boolean; timeoutMs?: number };
+
+/**
+ * Every call gives up after a while (review, 2026-11-10): fetch has no timeout of its own on Android and about a
+ * minute on iOS, so on a network that connects but never answers (airport portal) the opening stayed up forever
+ * and the offline copy was never shown. The AI routes get longer: the model can take its time.
+ */
+const DEFAULT_TIMEOUT_MS = 20_000;
+const AI_TIMEOUT_MS = 120_000;
+const MODERATED_TIMEOUT_MS = 60_000;
 
 export function appApi<T>(route: string, options: CallOptions = {}): Promise<T> {
   return call<T>(BASE_URL, route, options);
@@ -75,7 +89,11 @@ export function houseApi<T>(route: string, options: CallOptions = {}): Promise<T
 
 /** "app-assistant": the AI assistant (contract, rules, guide, the student's own data). */
 export function assistantApi<T>(route: string, options: CallOptions = {}): Promise<T> {
-  return call<T>(process.env.EXPO_PUBLIC_ASSISTANT_API_URL ?? sibling('app-assistant'), route, { ...options, allowLinks: true });
+  return call<T>(process.env.EXPO_PUBLIC_ASSISTANT_API_URL ?? sibling('app-assistant'), route, {
+    timeoutMs: AI_TIMEOUT_MS,
+    ...options,
+    allowLinks: true,
+  });
 }
 
 /** "app-events": what's on in BH (CCBB, Palácio das Artes, city open data, links pasted by the team). */
@@ -90,13 +108,20 @@ export function feedbackApi<T>(route: string, options: CallOptions = {}): Promis
 
 /** "app-community": the residents' wall, group trips, Chez Toi events, reports and blocks (wave 15). */
 export function communityApi<T>(route: string, options: CallOptions = {}): Promise<T> {
-  return call<T>(process.env.EXPO_PUBLIC_COMMUNITY_API_URL ?? sibling('app-community'), route, options);
+  // Posts, comments and trips wait for the AI moderation before answering.
+  return call<T>(process.env.EXPO_PUBLIC_COMMUNITY_API_URL ?? sibling('app-community'), route, {
+    timeoutMs: MODERATED_TIMEOUT_MS,
+    ...options,
+  });
 }
 
 async function call<T>(base: string, route: string, options: CallOptions): Promise<T> {
   // No links in anything a student writes (owner, 2026-11-09); usage stats are not student text.
   if (!options.allowLinks && route !== 'track' && bodyHasLink(options.body)) throw new AppApiError('links');
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), options.timeoutMs ?? DEFAULT_TIMEOUT_MS);
   let res: Response;
+  let data: { error?: ApiError };
   try {
     res = await fetch(`${base}/${route}`, {
       method: 'POST',
@@ -105,11 +130,16 @@ async function call<T>(base: string, route: string, options: CallOptions): Promi
         ...(options.token ? { Authorization: `Bearer ${options.token}` } : {}),
       },
       body: JSON.stringify(options.body ?? {}),
+      signal: controller.signal,
     });
+    data = await res.json().catch(() => ({}));
+    // Timed out while reading the body: the empty object above is not an answer.
+    if (controller.signal.aborted) throw new AppApiError('network');
   } catch {
     throw new AppApiError('network');
+  } finally {
+    clearTimeout(timer);
   }
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new AppApiError((data.error as ApiError) ?? 'server');
+  if (!res.ok) throw new AppApiError(data.error ?? 'server');
   return data as T;
 }

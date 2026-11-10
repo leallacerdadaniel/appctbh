@@ -10,7 +10,7 @@ The app is only for students who live in Chez Toi BH apartments in Belo Horizont
 
 ## 1. Controller
 
-**[CHEZ TOI BH LEGAL NAME]**, CNPJ [00.000.000/0000-00], [full address], Belo Horizonte, MG, Brazil ("Chez Toi", "we").
+**CHEZ TOI BH LTDA**, CNPJ 60.589.794/0001-00, Rua dos Inconfidentes, 344, apt 1201, Funcionários, CEP 30140-120, Belo Horizonte, MG, Brazil ("Chez Toi", "we").
 
 Data protection officer (DPO): [name], e-mail [privacidade@cheztoibh.com.br — to be confirmed].
 
@@ -79,7 +79,7 @@ We never sell data. We only share what is needed with providers who process data
 - **Supabase** (the app’s database and servers);
 - **Anthropic** (Claude: Charlotte and community moderation). Under Anthropic’s commercial terms, data sent through the API is not used to train its models and may be kept for a limited time for safety [to be confirmed against the current agreement];
 - **Expo** (sending notifications), **Apple** and **Google** (delivering notifications and the phone’s map service);
-- **[e-mail provider, e.g. Resend]** ("forgot password" code);
+- **Resend** ("forgot password" code);
 - **Other residents**: only what you post in the community or leave visible in your profile, and your first name for your roommates;
 - **Authorities**, when the law requires it.
 
@@ -115,6 +115,6 @@ If this policy changes in an important way, we will tell you in the app before t
 
 ## 10. Contact
 
-[LEGAL NAME] · [address] · [privacidade@cheztoibh.com.br — to be confirmed] · the team’s WhatsApp from the app.
+CHEZ TOI BH LTDA · Rua dos Inconfidentes, 344, apt 1201, Funcionários, CEP 30140-120 · [privacidade@cheztoibh.com.br — to be confirmed] · the team’s WhatsApp from the app.
 
 This policy exists in Portuguese, French and English. If they differ, the Portuguese version prevails.

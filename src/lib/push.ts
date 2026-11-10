@@ -11,6 +11,7 @@ import { houseApi } from '@/lib/app-api';
 import { useAuth } from '@/lib/auth';
 import { useNotices } from '@/lib/notices';
 import { RULES_VERSION } from '@/lib/rules-intro';
+import { isTourOpen } from '@/lib/tour';
 
 /**
  * Push notifications (wave 9). The team writes a notice in the panel (or a trigger writes one: a request
@@ -38,10 +39,15 @@ const tourKey = (email: string) => `ctbh.tour.v1.${email.toLowerCase()}`;
 const rulesKey = (email: string) => `ctbh.rules.v1.${email.toLowerCase()}`;
 /** Same rule as the `href` check of app_notices (008_casa_avisos_pagamento.sql). */
 const INTERNAL_PATH = /^\/[a-z0-9/_\-[\]?=&]*$/;
-/** A notification tapped while signed out is only followed if the student signs in soon after. */
-const LAST_RESPONSE_MAX_AGE_MS = 10 * 60 * 1000;
-/** Lets the tabs settle before the system prompt. */
-const ASK_DELAY_MS = 1500;
+/**
+ * A notification that opened the app is followed if the student is signed in within this long of the launch
+ * (already signed in, or signs in soon after). Measured from the launch, not from the notification's own date:
+ * that field is in seconds on iOS and is the send time on Android (review, 2026-11-10).
+ */
+const FOLLOW_AFTER_LAUNCH_MS = 10 * 60 * 1000;
+const LAUNCHED_AT = Date.now();
+/** Lets the opening animation finish and the tabs settle before the system prompt. */
+const ASK_DELAY_MS = 4500;
 
 let loaded: NotificationsModule | null | undefined;
 
@@ -79,7 +85,8 @@ async function firstRunDone(email: string) {
   try {
     const [[, rules], [, tour]] = await AsyncStorage.multiGet([rulesKey(email), tourKey(email)]);
     const signed = rules ? (JSON.parse(rules) as { version?: string }).version === RULES_VERSION : false;
-    return signed && tour === 'done';
+    // The tour counts as seen from its first step (lib/tour.tsx), so also wait for it to be closed.
+    return signed && !!tour && !isTourOpen();
   } catch {
     return false;
   }
@@ -154,10 +161,11 @@ export function PushSetup({ email }: { email: string }) {
         shouldSetBadge: false,
       }),
     });
-    // The notification that opened the app (cold start), if it is recent.
+    // The notification that opened the app (cold start). Always cleared, so it is never followed twice nor
+    // by whoever signs in later on this phone.
     const last = N.getLastNotificationResponse();
-    if (last && Date.now() - last.notification.date < LAST_RESPONSE_MAX_AGE_MS) {
-      follow(last);
+    if (last) {
+      if (Date.now() - LAUNCHED_AT < FOLLOW_AFTER_LAUNCH_MS) follow(last);
       N.clearLastNotificationResponse();
     }
     const tapped = N.addNotificationResponseReceivedListener(follow);

@@ -1,4 +1,5 @@
 import type { Lang } from '@/i18n';
+import { bhToday } from '@/lib/bh-time';
 import type { Localized } from '@/lib/mock-data';
 
 /**
@@ -55,8 +56,14 @@ export function formatLongDate(isoDate: string, lang: Lang) {
   });
 }
 
-/** Whole days from today to the date (0 = today). */
-export function daysUntil(isoDate: string, today = new Date()) {
+/** Today in Belo Horizonte as a local date at midnight (what `daysUntil` counts from by default). */
+export function bhTodayDate() {
+  const [y, m, d] = bhToday().split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+/** Whole days from today (in Belo Horizonte, unless another day is given) to the date (0 = today). */
+export function daysUntil(isoDate: string, today = bhTodayDate()) {
   const [y, m, d] = isoDate.split('-').map(Number);
   const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   return Math.round((new Date(y, m - 1, d).getTime() - start.getTime()) / 86_400_000);

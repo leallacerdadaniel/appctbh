@@ -9,13 +9,24 @@ import { useToast } from '@/components/toast';
 import { Button, Card, Chip, InlineMessage, Input } from '@/components/ui';
 import { Spacing } from '@/constants/theme';
 import { useI18n } from '@/i18n';
-import { communityError, errorCode, useCommunityActions, type PostKind, type Scope } from '@/lib/community';
+import {
+  communityError,
+  errorCode,
+  replaceRefused,
+  useCommunityActions,
+  type PostKind,
+  type Scope,
+} from '@/lib/community';
 import { hasLink } from '@/lib/no-links';
 
 const KINDS: PostKind[] = ['post', 'question', 'giveaway'];
 const MAX = 1000;
 
-/** Write on the wall. The AI checks it first: published, held for the team, or not published with the reason. */
+/**
+ * Write on the wall. The AI checks it first: published, held for the team, or not published with the reason.
+ * A refused post is already stored (its author sees it, with the reason): sending the corrected text deletes it
+ * first, so one attempt stays one post (review, 2026-11-10).
+ */
 export default function NewPostScreen() {
   const { t, lang } = useI18n();
   const c = t.community;
@@ -27,15 +38,20 @@ export default function NewPostScreen() {
   const [body, setBody] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // The post the AI refused on the last try, deleted before the corrected text goes out.
+  const [refusedId, setRefusedId] = useState<string | null>(null);
 
   async function send() {
     setError(null);
     if (hasLink(body)) return setError(t.common.noLinks);
     setSending(true);
     try {
+      await replaceRefused(refusedId, act.deletePost);
+      setRefusedId(null);
       const r = await act.savePost({ scope, kind, body: body.trim() });
       if (r.status === 'hidden') {
         // Not published: keep the text so the student can change it and try again.
+        setRefusedId(r.id);
         setError([c.compose.notPublished, r.reason?.[lang]].filter(Boolean).join(' · '));
         setSending(false);
         return;
@@ -43,12 +59,13 @@ export default function NewPostScreen() {
       toast(r.status === 'published' ? c.compose.published : c.compose.pending);
       router.back();
     } catch (e) {
+      setSending(false);
+      // First post: the guidelines come first, then back here with the text still typed.
       if (errorCode(e) === 'terms') {
-        router.replace({ pathname: '/community/charter', params: { next: `/community/post-new?scope=${scope}` } });
+        router.push({ pathname: '/community/charter', params: { next: 'back' } });
         return;
       }
       setError(communityError(e, t));
-      setSending(false);
     }
   }
 

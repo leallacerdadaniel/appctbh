@@ -225,6 +225,16 @@ export async function locationPermission(): Promise<'granted' | 'denied' | 'bloc
 const folderName = (email: string) => email.toLowerCase().replace(/[^a-z0-9]+/g, '_');
 const photoDir = (email: string) => new Directory(Paths.document, 'recap-photos', folderName(email));
 
+/** Account deleted: the copies of the student's recap photos in the app's own folder go too. */
+export function deleteRecapPhotos(email: string) {
+  try {
+    const dir = photoDir(email);
+    if (dir.exists) dir.delete();
+  } catch {
+    // Web, or nothing was ever saved.
+  }
+}
+
 export function photoUri(email: string, photo: RecapPhoto) {
   return new File(photoDir(email), photo.file).uri;
 }

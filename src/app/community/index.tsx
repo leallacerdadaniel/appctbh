@@ -18,6 +18,7 @@ import {
   type Scope,
   type Trip,
 } from '@/lib/community';
+import { bhDateTime } from '@/lib/bh-time';
 import { formatDate } from '@/lib/format';
 
 const TRIPS_ON_HUB = 3;
@@ -72,7 +73,11 @@ export default function CommunityScreen() {
       subtitle={c.subtitle}
       onRefresh={() => Promise.all([status.reload(), events.reload(), trips.reload(), feed.reload()])}>
       {me?.suspendedUntil && (
-        <InlineMessage kind="error" text={c.suspended(formatDate(me.suspendedUntil.slice(0, 10), lang))} />
+        // The day the suspension ends in Belo Horizonte (the UTC day of the timestamp is tomorrow at night).
+        <InlineMessage
+          kind="error"
+          text={c.suspended(formatDate(bhDateTime(me.suspendedUntil)?.date ?? me.suspendedUntil.slice(0, 10), lang))}
+        />
       )}
 
       {eventList.length > 0 && (

@@ -22,6 +22,7 @@ import { clearMaintenancePhoto, peekMaintenancePhoto } from '@/lib/maintenance-p
 import { contacts } from '@/lib/mock-data';
 import { useRequestActions, type MaintenanceCategory, type Urgency } from '@/lib/requests';
 import { trackAction } from '@/lib/usage';
+import { textParam } from '@/lib/params';
 
 const ROOMS = ['kitchen', 'bathroom', 'bedroom', 'living', 'laundry', 'other'] as const;
 type Room = (typeof ROOMS)[number];
@@ -50,14 +51,20 @@ export default function MaintenanceScreen() {
   const { t } = useI18n();
   const r = t.requests;
   const { create, uploadPhoto } = useRequestActions();
-  const prefill = useLocalSearchParams<Prefill>();
+  // A link can repeat a parameter (it then arrives as a list): only plain text is read.
+  const params = useLocalSearchParams<Prefill>();
+  const prefill = {
+    room: textParam(params.room),
+    category: textParam(params.category),
+    description: textParam(params.description),
+  };
 
   const [room, setRoom] = useState<Room | undefined>(() => ROOMS.find((k) => k === prefill.room));
   const [category, setCategory] = useState<MaintenanceCategory | undefined>(() =>
     CATEGORIES.find((k) => k === prefill.category),
   );
   const [urgency, setUrgency] = useState<Urgency>('normal');
-  const [description, setDescription] = useState(() => (prefill.description ?? '').slice(0, 1000));
+  const [description, setDescription] = useState(() => prefill.description.slice(0, 1000));
   // The assistant's photo goes in the list as if it had been picked here (already a resized JPEG).
   const [photos, setPhotos] = useState<Photo[]>(() => {
     const handed = peekMaintenancePhoto();

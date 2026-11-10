@@ -10,7 +10,7 @@ O app é feito para os estudantes que moram nos apartamentos da Chez Toi BH em B
 
 ## 1. Quem é o controlador
 
-**[RAZÃO SOCIAL DA CHEZ TOI BH]**, CNPJ [00.000.000/0000-00], [endereço completo], Belo Horizonte, MG, Brasil ("Chez Toi", "nós").
+**CHEZ TOI BH LTDA**, CNPJ 60.589.794/0001-00, Rua dos Inconfidentes, 344, apto 1201, Funcionários, CEP 30140-120, Belo Horizonte, MG, Brasil ("Chez Toi", "nós").
 
 Encarregado de dados (DPO): [nome], e-mail [privacidade@cheztoibh.com.br — a confirmar].
 
@@ -79,7 +79,7 @@ Não vendemos dados. Compartilhamos só o necessário com prestadores que tratam
 - **Supabase** (banco de dados e servidores do app);
 - **Anthropic** (Claude: assistente Charlotte e moderação da comunidade). Segundo os termos comerciais da Anthropic, os dados enviados pela API não são usados para treinar os modelos e podem ser retidos por um período limitado para segurança [confirmar no contrato vigente];
 - **Expo** (envio das notificações), **Apple** e **Google** (entrega das notificações e serviço de mapas do telefone);
-- **[provedor de e-mail, ex.: Resend]** (código de "esqueci a senha");
+- **Resend** (código de "esqueci a senha");
 - **Outros moradores**: só o que você publica na comunidade ou deixa visível no perfil, e o seu primeiro nome para os colegas de apartamento;
 - **Autoridades**, quando a lei exigir.
 
@@ -115,6 +115,6 @@ Quando a política mudar de forma importante, avisaremos no app antes de a mudan
 
 ## 10. Contato
 
-[RAZÃO SOCIAL] · [endereço] · [privacidade@cheztoibh.com.br — a confirmar] · WhatsApp da equipe pelo app.
+CHEZ TOI BH LTDA · Rua dos Inconfidentes, 344, apto 1201, Funcionários, CEP 30140-120 · [privacidade@cheztoibh.com.br — a confirmar] · WhatsApp da equipe pelo app.
 
 Esta política existe em português, francês e inglês. Em caso de diferença, vale a versão em português.

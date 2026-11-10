@@ -4,7 +4,7 @@
 
 Dernière mise à jour : [date de publication]
 
-1. **Qui peut l’utiliser.** L’app appartient à **[RAISON SOCIALE], CNPJ [00.000.000/0000-00]** (« la Chez Toi ») et est réservée aux étudiants qui ont un séjour dans un appartement de la Chez Toi. L’accès commence au premier accès (vérifié avec votre fiche) et se termine 30 jours après la fin du séjour.
+1. **Qui peut l’utiliser.** L’app appartient à **CHEZ TOI BH LTDA, CNPJ 60.589.794/0001-00** (« la Chez Toi ») et est réservée aux étudiants qui ont un séjour dans un appartement de la Chez Toi. L’accès commence au premier accès (vérifié avec votre fiche) et se termine 30 jours après la fin du séjour.
 2. **Le contrat prime.** L’app affiche des informations de votre contrat de location, de vos paiements et de vos ménages pour simplifier le quotidien. En cas de différence, c’est le contrat signé et ce que l’équipe confirme par écrit qui comptent.
 3. **Votre compte.** Vous êtes responsable de votre mot de passe et de ce qui est fait avec votre compte. Prévenez l’équipe si vous pensez que quelqu’un y a accédé.
 4. **Assistante Charlotte.** Les réponses sont générées par une intelligence artificielle (Claude, d’Anthropic) et peuvent contenir des erreurs. Pour une décision importante (paiements, départ anticipé, caution, santé, sécurité), vérifiez avec l’équipe. En urgence, appelez le 190 (police), le 192 (SAMU) ou le 193 (pompiers). Utilisez « Signaler cette réponse » quand une réponse est fausse ou déplacée.

@@ -41,7 +41,7 @@ export function HomeGate() {
             label="WhatsApp"
             onPress={() => Linking.openURL(`https://wa.me/${contacts.whatsapp}`)}
           />
-          <Button variant="plain" label={t.profile.signOut} onPress={signOut} />
+          <Button variant="plain" label={t.profile.signOut} onPress={() => signOut()} />
         </Card>
       </View>
     </View>

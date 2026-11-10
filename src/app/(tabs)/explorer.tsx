@@ -28,6 +28,7 @@ import { usePlaces } from '@/lib/places';
 import { restaurants } from '@/lib/restaurants';
 import { getService } from '@/lib/services';
 import { trackAction } from '@/lib/usage';
+import { textParam } from '@/lib/params';
 
 /** "Pratique" second (UX review 2026-11-09): health, Portuguese and the stolen phone must be easy to find. */
 const CATEGORIES = ['forYou', 'practical', 'out', 'eat', 'sport', 'culture', 'trips'] as const;
@@ -54,11 +55,11 @@ const NEAR_MIN = 15;
 export default function ExplorerScreen() {
   const theme = useTheme();
   const { t, lang } = useI18n();
+  // A link can repeat a parameter (it then arrives as a list): only plain text is read.
   const params = useLocalSearchParams<{ category?: string; q?: string }>();
-  const category: Category = (CATEGORIES as readonly string[]).includes(params.category ?? '')
-    ? (params.category as Category)
-    : 'forYou';
-  const [query, setQuery] = useState(params.q ?? '');
+  const asked = textParam(params.category);
+  const category: Category = (CATEGORIES as readonly string[]).includes(asked) ? (asked as Category) : 'forYou';
+  const [query, setQuery] = useState(() => textParam(params.q));
   const q = query.trim();
   const e = t.explorerTab;
 
@@ -256,7 +257,7 @@ function CategoryContent({ category }: { category: Category }) {
       return (
         <>
           <GroupTripsEntry />
-          <AroundMe />
+          {/* "Autour de moi" lives in Pour vous only (UX review 2026-11-10: it was in two categories). */}
           <ExplorerContent segments={['mg', 'br', 'sa']} />
         </>
       );

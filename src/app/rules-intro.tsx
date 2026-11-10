@@ -1,7 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { BackHandler, Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   cancelAnimation,
@@ -42,6 +42,17 @@ export default function RulesIntroScreen() {
   const total = r.slides.length + 2;
   const [step, setStep] = useState(0);
   const signed = step === total;
+
+  // Android: the hardware back button would close the modal without signing (gestureEnabled only covers iOS).
+  // Until signed, it goes back one slide instead and never leaves.
+  useEffect(() => {
+    if (signed) return;
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      setStep((s) => Math.max(0, s - 1));
+      return true;
+    });
+    return () => sub.remove();
+  }, [signed]);
 
   const isRule = step >= 1 && step <= r.slides.length;
   const isCommit = step === total - 1;

@@ -4,6 +4,7 @@ import { AppState } from 'react-native';
 import type { Lang } from '@/i18n';
 import { houseApi } from '@/lib/app-api';
 import { useAuth } from '@/lib/auth';
+import { useSessionState } from '@/lib/session-state';
 
 /**
  * Notices from the Chez Toi team (the bell in the brand bar), served by the "app-house" function:
@@ -45,20 +46,24 @@ const FOREGROUND_MIN_MS = 15_000;
 
 const NoticesContext = createContext<Ctx | null>(null);
 
+const LOADING: State = { status: 'loading' };
+
 export function NoticesProvider({ children }: { children: ReactNode }) {
   const { token } = useAuth();
-  const [state, setState] = useState<State>({ status: 'loading' });
+  // Emptied on sign-out; answers for another session are dropped (lib/session-state.ts).
+  const { state, setState, setFor } = useSessionState<State>(token, LOADING);
   const [justRead, setJustRead] = useState<Set<string>>(() => new Set());
   const lastLoad = useRef(0);
 
   const reload = useCallback(() => {
     if (!token) return Promise.resolve();
     lastLoad.current = Date.now();
+    const set = setFor(token);
     return houseApi<{ notices: Notice[] }>('notices', { token })
-      .then((r) => setState({ status: 'ready', notices: r.notices ?? [] }))
+      .then((r) => set({ status: 'ready', notices: r.notices ?? [] }))
       // A failed refresh keeps what is on screen.
-      .catch(() => setState((s) => (s.status === 'ready' ? s : { status: 'error' })));
-  }, [token]);
+      .catch(() => set((s) => (s.status === 'ready' ? s : { status: 'error' })));
+  }, [token, setFor]);
 
   useEffect(() => {
     reload();
@@ -84,7 +89,7 @@ export function NoticesProvider({ children }: { children: ReactNode }) {
       // Not critical: if it fails, the notices show as unread again after the next refresh.
       houseApi('notices-read', { token, body: { ids } }).catch(() => {});
     },
-    [token],
+    [token, setState],
   );
 
   const forgetJustRead = useCallback(() => setJustRead(new Set()), []);

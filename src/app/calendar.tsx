@@ -1,8 +1,10 @@
+import { router, type Href } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown, LinearTransition } from 'react-native-reanimated';
 
 import { eventColor, eventKinds } from '@/components/event-style';
+import { Icon } from '@/components/icon';
 import { MonthGrid } from '@/components/month-grid';
 import { Screen, Section } from '@/components/screen';
 import { normalize, SearchField } from '@/components/search-field';
@@ -10,38 +12,69 @@ import { AppText, Card, PressableScale } from '@/components/ui';
 import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n, type Lang } from '@/i18n';
-import { buildEvents, parseIso, toIso, type CalendarEvent, type EventKind } from '@/lib/events';
+import { tripDates, useCommunity, type ChezEvent, type Trip } from '@/lib/community';
+import {
+  bhToday,
+  buildEvents,
+  byDateTime,
+  communityEvents,
+  daysBetween,
+  isOnDay,
+  parseIso,
+  type CalendarEvent,
+  type EventKind,
+} from '@/lib/events';
 import { formatDayDate, formatTime } from '@/lib/format';
 import { useHome } from '@/lib/home';
 
-const UPCOMING_COUNT = 6;
+const UPCOMING_COUNT = 8;
 
 export default function CalendarScreen() {
   const theme = useTheme();
   const { t, lang } = useI18n();
   const { cleanings, contract } = useHome();
 
-  const today = new Date();
-  const todayIso = toIso(today);
-  const [month, setMonth] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
+  // The calendar's days are Belo Horizonte days, whatever the phone's time zone.
+  const todayIso = bhToday();
+  const [month, setMonth] = useState(() => {
+    const d = parseIso(todayIso);
+    return new Date(d.getFullYear(), d.getMonth(), 1);
+  });
   const [selectedIso, setSelectedIso] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [hidden, setHidden] = useState<Set<EventKind>>(new Set());
 
+  // The community's dates (Chez Toi events, my group trips) are a bonus: they join the calendar when they
+  // arrive, reload when the screen comes back into view, and the calendar never waits for them nor shows
+  // an error when they fail.
+  const chezEvents = useCommunity<{ events: ChezEvent[] }>('events').state;
+  const groupTrips = useCommunity<{ trips: Trip[] }>('trips').state;
+  const community = useMemo(
+    () =>
+      communityEvents(
+        chezEvents.status === 'ready' ? (chezEvents.data.events ?? []) : [],
+        groupTrips.status === 'ready' ? (groupTrips.data.trips ?? []) : [],
+      ),
+    [chezEvents, groupTrips],
+  );
+
   // Current year and the next one cover any running semester.
-  const year = today.getFullYear();
+  const year = Number(todayIso.slice(0, 4));
   const allEvents = useMemo(
-    () => buildEvents([year, year + 1], { cleanings, ...contract }),
-    [year, cleanings, contract],
+    () => [...buildEvents([year, year + 1], { cleanings, ...contract }), ...community].sort(byDateTime),
+    [year, cleanings, contract, community],
   );
   const events = useMemo(() => allEvents.filter((e) => !hidden.has(e.kind)), [allEvents, hidden]);
 
   const kindsByDate = useMemo(() => {
     const map = new Map<string, EventKind[]>();
     for (const e of events) {
-      const kinds = map.get(e.date) ?? [];
-      if (!kinds.includes(e.kind)) kinds.push(e.kind);
-      map.set(e.date, kinds);
+      // A group trip marks every day from its start to its end.
+      for (const day of e.endDate ? daysBetween(e.date, e.endDate) : [e.date]) {
+        const kinds = map.get(day) ?? [];
+        if (!kinds.includes(e.kind)) kinds.push(e.kind);
+        map.set(day, kinds);
+      }
     }
     return map;
   }, [events]);
@@ -55,11 +88,13 @@ export default function CalendarScreen() {
   const searchResults = q
     ? allEvents.filter(
         (e) =>
-          e.kind !== 'cleaning' && normalize([e.title.fr, e.title.en, e.ptName ?? ''].join(' ')).includes(q),
+          e.kind !== 'cleaning' &&
+          normalize([e.title.fr, e.title.en, e.ptName ?? '', e.venue ?? ''].join(' ')).includes(q),
       )
     : [];
-  const selectedEvents = selectedIso ? events.filter((e) => e.date === selectedIso) : [];
-  const upcoming = events.filter((e) => e.date >= todayIso).slice(0, UPCOMING_COUNT);
+  const selectedEvents = selectedIso ? events.filter((e) => isOnDay(e, selectedIso)) : [];
+  // A trip that has started stays in the list until its last day.
+  const upcoming = events.filter((e) => (e.endDate ?? e.date) >= todayIso).slice(0, UPCOMING_COUNT);
 
   function shiftMonth(delta: number) {
     setMonth((m) => new Date(m.getFullYear(), m.getMonth() + delta, 1));
@@ -99,7 +134,7 @@ export default function CalendarScreen() {
                 <AppText color={theme.textSecondary}>{t.calendar.noResults(query)}</AppText>
               </Card>
             ) : (
-              <EventList events={searchResults} lang={lang} onPress={(e) => jumpTo(e.date)} />
+              <EventList events={searchResults} lang={lang} onJump={(e) => jumpTo(e.date)} />
             )}
           </Section>
         </Animated.View>
@@ -165,7 +200,7 @@ export default function CalendarScreen() {
           )}
 
           <Section title={t.calendar.upcoming}>
-            <EventList events={upcoming} lang={lang} onPress={(e) => jumpTo(e.date)} />
+            <EventList events={upcoming} lang={lang} onJump={(e) => jumpTo(e.date)} />
           </Section>
 
           <AppText variant="caption" color={theme.textSecondary}>
@@ -188,15 +223,18 @@ function longDate(iso: string, lang: Lang) {
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-/** Events in one card: colored dot = kind, title, date (and Portuguese name), kind in its color. */
+/**
+ * Events in one card: colored dot = kind, title, date (and Portuguese name), kind in its color.
+ * A Chez Toi event or a group trip opens its page (chevron); the other rows jump to their day when `onJump` is set.
+ */
 function EventList({
   events,
   lang,
-  onPress,
+  onJump,
 }: {
   events: CalendarEvent[];
   lang: Lang;
-  onPress?: (e: CalendarEvent) => void;
+  onJump?: (e: CalendarEvent) => void;
 }) {
   const theme = useTheme();
   const { t } = useI18n();
@@ -205,19 +243,24 @@ function EventList({
       {events.map((event, i) => {
         const color = eventColor(theme, event.kind);
         const details = [
-          capitalize(formatDayDate(event.date, lang, true)),
+          event.endDate
+            ? capitalize(tripDates(event.date, event.endDate, lang))
+            : capitalize(formatDayDate(event.date, lang, true)),
           event.time ? formatTime(event.time, lang) : null,
           event.ptName && event.ptName !== event.title[lang] ? event.ptName : null,
         ]
           .filter(Boolean)
           .join(' · ');
+        const href = event.href;
+        const onPress = href ? () => router.push(href as Href) : onJump ? () => onJump(event) : undefined;
         return (
           <Animated.View key={event.id} layout={LinearTransition}>
             {i > 0 && <View style={[styles.divider, { backgroundColor: theme.line }]} />}
             <PressableScale
+              accessibilityRole={onPress ? 'button' : undefined}
               disabled={!onPress}
               haptic={!!onPress}
-              onPress={onPress ? () => onPress(event) : undefined}
+              onPress={onPress}
               style={styles.row}>
               <View style={[styles.dot, { backgroundColor: color, marginTop: 7 }]} />
               <View style={{ flex: 1, gap: 2 }}>
@@ -225,12 +268,30 @@ function EventList({
                 <AppText variant="callout" color={theme.textSecondary}>
                   {details}
                 </AppText>
+                {event.venue && (
+                  <AppText variant="callout" color={theme.textSecondary}>
+                    {event.venue}
+                  </AppText>
+                )}
+                {event.going && (
+                  <View style={styles.going}>
+                    <Icon name="check" size={12} color={theme.success} />
+                    <AppText variant="caption" color={theme.success} style={{ fontFamily: Fonts.bodyMedium }}>
+                      {t.community.events.myGoing}
+                    </AppText>
+                  </View>
+                )}
               </View>
               {/* Same rule as Home: the title of a cleaning or contract event already says what it is. */}
               {event.kind !== 'cleaning' && event.kind !== 'contract' && (
-                <AppText variant="caption" color={color} style={{ fontFamily: Fonts.bodyMedium }}>
+                <AppText variant="caption" color={color} style={styles.kind}>
                   {t.calendar.kinds[event.kind]}
                 </AppText>
+              )}
+              {href && (
+                <View style={styles.chevron}>
+                  <Icon name="chevronRight" size={14} color={theme.textTertiary} />
+                </View>
               )}
             </PressableScale>
           </Animated.View>
@@ -255,4 +316,8 @@ const styles = StyleSheet.create({
   listCard: { paddingVertical: 0 },
   divider: { height: StyleSheet.hairlineWidth },
   row: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.md, paddingVertical: 14 },
+  going: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  chevron: { marginTop: 3, marginLeft: -Spacing.xs },
+  // The kind never squeezes the title into a narrow column: it wraps on its own instead.
+  kind: { fontFamily: Fonts.bodyMedium, maxWidth: '38%', textAlign: 'right' },
 });

@@ -4,6 +4,7 @@ import { useI18n, type Lang } from '@/i18n';
 import type { Strings } from '@/i18n/strings';
 import { AppApiError, houseApi } from '@/lib/app-api';
 import { useAuth } from '@/lib/auth';
+import { bhToday } from '@/lib/bh-time';
 import { formatDayDate, formatTime } from '@/lib/format';
 
 /**
@@ -194,13 +195,21 @@ export function useHouseSocialActions() {
       if (!token) throw new AppApiError('unauthorized');
       return houseApi<T>(route, { token, body });
     }
-    /** Optimistic change, then the server; on failure the list comes back from the server. */
+    /**
+     * Optimistic change, then the server. On failure the list goes back at once to what it was before the change
+     * (offline, a reload fails too and left the change on screen: review, 2026-11-10), then refreshes in the
+     * background when the server can be reached.
+     */
     async function quick<T>(store: Store<T>, fn: (data: T) => T, route: string, body: unknown) {
+      const before = store.get();
       store.patch(fn);
+      const changed = store.get();
       try {
         await run(route, body);
       } catch (e) {
-        await store.load(true);
+        // Only while nothing newer (a reload, another session) has replaced the list in the meantime.
+        if (before.status === 'ready' && store.get() === changed) store.patch(() => before.data);
+        store.load(true);
         throw e;
       }
       store.load(true);
@@ -264,8 +273,8 @@ export function houseSocialErrorText(error: unknown, t: Strings, fallback: 'serv
 
 /* ---------- Dates (Belo Horizonte, UTC−3 all year) ---------- */
 
-/** Today in Belo Horizonte, YYYY-MM-DD. */
-export const todayInBH = (now = Date.now()) => new Date(now - 3 * 3_600_000).toISOString().slice(0, 10);
+/** Today in Belo Horizonte, YYYY-MM-DD (the app's one helper, lib/bh-time.ts). */
+export const todayInBH = (now = Date.now()) => bhToday(now);
 
 export function plusDays(iso: string, n: number) {
   const [y, m, d] = iso.split('-').map(Number);

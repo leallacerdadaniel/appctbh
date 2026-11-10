@@ -17,6 +17,8 @@ import { useTheme } from '@/hooks/use-theme';
  * white status bar text, and the header draws its own top row.
  * `onRefresh` adds pull-to-refresh (the spinner shows until the promise settles).
  * `scrollRef` gives the screen's ScrollView to the caller (Accueil scrolls to the top before the tour).
+ * `footer` pins the screen's main action under the scroll (white bar, hairline on top, above the safe area):
+ * for a page whose action must stay reachable while the content scrolls (joining a group trip).
  */
 export function Screen({
   title,
@@ -28,6 +30,7 @@ export function Screen({
   onPhoto = false,
   onRefresh,
   scrollRef,
+  footer,
 }: {
   title?: string;
   subtitle?: string;
@@ -38,6 +41,7 @@ export function Screen({
   onPhoto?: boolean;
   onRefresh?: () => Promise<unknown>;
   scrollRef?: RefObject<ComponentRef<typeof ScrollView> | null>;
+  footer?: ReactNode;
 }) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -67,7 +71,8 @@ export function Screen({
         contentContainerStyle={{
           // Pushed screens: the red bar floats over the top, and the content starts under it.
           paddingTop: back ? barHeight : 0,
-          paddingBottom: back ? insets.bottom + Spacing.xl : Spacing.xl + Spacing.md,
+          // With a pinned footer, the footer keeps clear of the home indicator instead of the content.
+          paddingBottom: footer ? Spacing.xl : back ? insets.bottom + Spacing.xl : Spacing.xl + Spacing.md,
         }}
         scrollIndicatorInsets={back ? { top: barHeight } : undefined}
         keyboardShouldPersistTaps="handled"
@@ -111,6 +116,19 @@ export function Screen({
           {children}
         </View>
       </ScrollView>
+      {footer ? (
+        <View
+          style={[
+            styles.footer,
+            {
+              backgroundColor: theme.surface,
+              borderTopColor: theme.line,
+              paddingBottom: Math.max(insets.bottom, Spacing.md),
+            },
+          ]}>
+          <View style={styles.footerColumn}>{footer}</View>
+        </View>
+      ) : null}
       {/* Tab screens: the canvas color stays under the status bar while the content scrolls. */}
       {tab && !photoTop && (
         <View
@@ -202,6 +220,14 @@ const PHOTO_SCROLL = 220;
 
 const styles = StyleSheet.create({
   statusMask: { position: 'absolute', top: 0, left: 0, right: 0 },
+  footer: { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: Spacing.md },
+  footerColumn: {
+    width: '100%',
+    maxWidth: MaxContentWidth,
+    alignSelf: 'center',
+    paddingHorizontal: Spacing.gutter,
+    gap: Spacing.sm,
+  },
   sectionHeader: { gap: 2 },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
   action: { flexDirection: 'row', alignItems: 'center', gap: 2 },

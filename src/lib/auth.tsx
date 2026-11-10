@@ -15,10 +15,13 @@ const STORAGE_KEY = 'ctbh.session';
 /** Device-level preferences that survive signing out and deleting the account. */
 const KEEP_ON_DELETE = ['ctbh.lang'];
 
-export type SignInError = 'invalidEmail' | 'wrongCredentials' | 'accessEnded' | 'network';
-/** Why the student was signed out without asking: the login screen explains it. */
-export type SignOutReason = 'accessEnded' | 'deleted';
-export type DeleteAccountError = 'wrongCredentials' | 'network' | 'server';
+export type SignInError = 'invalidEmail' | 'wrongCredentials' | 'accessEnded' | 'tooMany' | 'network' | 'server';
+/**
+ * Why the student was signed out without asking: the login screen explains it. `expired`: the server no longer
+ * accepts the session (signed out elsewhere, password changed, account switched off).
+ */
+export type SignOutReason = 'accessEnded' | 'deleted' | 'expired';
+export type DeleteAccountError = 'wrongCredentials' | 'links' | 'network' | 'server';
 
 type Session = { token: string | null; mustChangePassword: boolean };
 
@@ -90,9 +93,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       update({ token: r.token, mustChangePassword: r.mustChangePassword });
       return null;
     } catch (e) {
-      if (e instanceof AppApiError && e.code === 'network') return 'network';
-      if (e instanceof AppApiError && e.code === 'accessEnded') return 'accessEnded';
-      return 'wrongCredentials';
+      const code = e instanceof AppApiError ? e.code : 'server';
+      if (code === 'network' || code === 'accessEnded' || code === 'tooMany') return code;
+      // Only what the server calls wrong credentials is shown as such: a blocked or failing login is not a typo.
+      return code === 'wrongCredentials' || code === 'invalid' ? 'wrongCredentials' : 'server';
     }
   }
 
@@ -104,12 +108,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function changePassword(newPassword: string) {
     try {
-      const r = await appApi<{ token: string }>('change-password', { token: session.token, body: { password: newPassword } });
+      const r = await appApi<{ token: string }>('change-password', {
+        token: session.token,
+        // The server asks for the current password unless this is the forced change after a temporary one.
+        body: { password: newPassword, ...(lastPassword ? { currentPassword: lastPassword } : {}) },
+      });
       setLastPassword(null);
       update({ token: r.token, mustChangePassword: false });
       return true;
     } catch (e) {
-      if (e instanceof AppApiError && e.code === 'unauthorized') signOut();
+      if (e instanceof AppApiError && e.code === 'unauthorized') signOut('expired');
       return false;
     }
   }
@@ -118,8 +126,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await appApi('account-delete', { token: session.token, body: { password, reason } });
     } catch (e) {
-      if (e instanceof AppApiError && e.code === 'wrongCredentials') return 'wrongCredentials';
-      return e instanceof AppApiError && e.code === 'network' ? 'network' : 'server';
+      const code = e instanceof AppApiError ? e.code : 'server';
+      return code === 'wrongCredentials' || code === 'links' || code === 'network' ? code : 'server';
     }
     // Everything the app kept on this phone for the student goes too (journal, recap, progress, cache).
     const keys = await AsyncStorage.getAllKeys().catch(() => [] as readonly string[]);
@@ -129,11 +137,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   function signOut(reason?: SignOutReason) {
-    // The student chose to leave: end the session on the server too (security review, 2026-11-09), so a copy of
-    // the token stops working. Fire and forget: no network must not keep anyone signed in.
-    if (!reason && session.token) appApi('logout', { token: session.token }).catch(() => {});
+    // Called from a button handler by mistake, `reason` would be the press event: only the known words count.
+    const why = typeof reason === 'string' ? reason : null;
+    // Only when the student chose to leave (no reason): end the session on the server too, so a copy of the
+    // token stops working (security review, 2026-11-09). Never for `expired`: the server already refused it, and
+    // if that refusal was a passing failure the logout would sign the student out of every phone.
+    // Fire and forget: no network must not keep anyone signed in.
+    if (!why && session.token) appApi('logout', { token: session.token }).catch(() => {});
     setLastPassword(null);
-    setSignOutReason(reason ?? null);
+    setSignOutReason(why);
     // The offline copy of the student's data (lib/home.tsx) leaves with the session.
     AsyncStorage.removeItem('ctbh.home.cache.v1').catch(() => {});
     update(signedOut);

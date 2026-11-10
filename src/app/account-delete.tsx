@@ -8,6 +8,8 @@ import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { useAuth, type DeleteAccountError } from '@/lib/auth';
+import { useHome } from '@/lib/home';
+import { deleteRecapPhotos } from '@/lib/journal';
 
 /**
  * Delete the app account from the app itself (App Store and Google Play requirement, 2026-11-09). Says plainly
@@ -17,19 +19,25 @@ export default function AccountDeleteScreen() {
   const theme = useTheme();
   const { t } = useI18n();
   const { deleteAccount } = useAuth();
+  const { student } = useHome();
   const [reason, setReason] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<DeleteAccountError | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function run() {
+    if (loading) return;
     setLoading(true);
     setError(null);
+    const email = student.email;
     const err = await deleteAccount(password, reason.trim() || undefined);
     // On success the session ends and the layout shows the login screen with a goodbye message.
     if (err) {
       setError(err);
       setLoading(false);
+    } else {
+      // The screen promises the journal and the recap go too: that includes the photo copies on this phone.
+      deleteRecapPhotos(email);
     }
   }
 
@@ -83,7 +91,9 @@ export default function AccountDeleteScreen() {
             secureTextEntry
             autoComplete="current-password"
           />
-          {error && <InlineMessage kind="error" text={t.account.errors[error]} />}
+          {error && (
+            <InlineMessage kind="error" text={error === 'links' ? t.common.noLinks : t.account.errors[error]} />
+          )}
           <Button label={t.account.confirm} onPress={ask} loading={loading} disabled={!password} />
         </Card>
       </Screen>

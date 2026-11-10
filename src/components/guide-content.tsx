@@ -2,6 +2,7 @@ import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import { Linking, ScrollView, StyleSheet, TextInput } from 'react-native';
 
+import { openAroundMe, type AroundMeId } from '@/components/around-me';
 import { CategoryCircle } from '@/components/category-circle';
 import { HubGrid, HubTile } from '@/components/hub-tile';
 import { Icon } from '@/components/icon';
@@ -9,7 +10,7 @@ import { ListGroup, ListRow } from '@/components/list';
 import { Section } from '@/components/screen';
 import { SearchField } from '@/components/search-field';
 import { AppText, Button, Card } from '@/components/ui';
-import { Spacing } from '@/constants/theme';
+import { Fonts, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { adminProcedures } from '@/lib/admin';
@@ -41,10 +42,16 @@ import { trackAction, trackSearch } from '@/lib/usage';
  */
 const SEARCH_SETTLE_MS = 1500;
 
-/** Everyday categories shown as circles (moved from Home); they open "À proximité" on that category. */
-const CATEGORIES: { id: NearbyCategoryId; emoji: string }[] = [
-  { id: 'supermarket', emoji: '🛒' },
-  { id: 'pharmacy', emoji: '💊' },
+/**
+ * Everyday categories shown as circles (moved from Home); they open "À proximité" on that category.
+ * One entry per need (UX review 2026-11-10): the two that also make sense away from home (`aroundMe`) ask
+ * "Chez moi / Où je suis" under the row: the list near the apartment, or Google Maps around the phone
+ * (what the "Autour de moi" section used to offer as a second "Pharmacie" and "Courses"). While the apartment
+ * has no list for that category there is nothing to choose: the circle opens Google Maps straight away.
+ */
+const CATEGORIES: { id: NearbyCategoryId; emoji: string; aroundMe?: AroundMeId }[] = [
+  { id: 'supermarket', emoji: '🛒', aroundMe: 'supermarket' },
+  { id: 'pharmacy', emoji: '💊', aroundMe: 'pharmacy' },
   { id: 'bakery', emoji: '🥐' },
   { id: 'gym', emoji: '🏋️' },
   { id: 'laundry', emoji: '🧺' },
@@ -73,9 +80,15 @@ export function GuideContent({
   const { t, lang } = useI18n();
   const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
   const [ownQuery, setQuery] = useState('');
+  // The circle whose "Chez moi / Où je suis" choice is open.
+  const [whereFor, setWhereFor] = useState<NearbyCategoryId | null>(null);
+  const whereChoice = CATEGORIES.find((c) => c.id === whereFor && c.aroundMe);
   const query = controlled ?? ownQuery;
   const show = (block: GuideBlock) => !only || only.includes(block);
   const nearby = usePlaces()?.nearby;
+  /** Does the apartment have its own list of places for this category? (new apartments have none yet) */
+  const hasHomeList = (id: NearbyCategoryId) =>
+    (nearby?.categories ?? []).some((c) => c.id === id && c.places.length > 0);
 
   // Arriving with a search (`/bh?section=guide&q=…`) or asked to focus the search field.
   useFocusEffect(
@@ -168,10 +181,37 @@ export function GuideContent({
                     key={c.id}
                     emoji={c.emoji}
                     label={t.nearby.short[c.id]}
-                    onPress={() => router.push({ pathname: '/nearby', params: { category: c.id } })}
+                    expanded={c.aroundMe && hasHomeList(c.id) ? whereFor === c.id : undefined}
+                    onPress={() => {
+                      if (!c.aroundMe) router.push({ pathname: '/nearby', params: { category: c.id } });
+                      else if (hasHomeList(c.id)) setWhereFor(whereFor === c.id ? null : c.id);
+                      else openAroundMe(c.aroundMe);
+                    }}
                   />
                 ))}
               </ScrollView>
+              {whereChoice?.aroundMe && hasHomeList(whereChoice.id) && (
+                <Card style={styles.whereCard}>
+                  <AppText variant="callout" color={theme.textSecondary} style={styles.whereTitle}>
+                    {t.nearby.where.title(t.nearby.categories[whereChoice.id])}
+                  </AppText>
+                  <ListGroup inset>
+                    <ListRow
+                      icon="home"
+                      title={t.nearby.where.home}
+                      subtitle={t.nearby.where.homeHint}
+                      onPress={() => router.push({ pathname: '/nearby', params: { category: whereChoice.id } })}
+                    />
+                    <ListRow
+                      icon="address"
+                      title={t.nearby.where.here}
+                      subtitle={t.nearby.where.hereHint}
+                      accessory={<Icon name="external" size={15} color={theme.textTertiary} />}
+                      onPress={() => whereChoice.aroundMe && openAroundMe(whereChoice.aroundMe)}
+                    />
+                  </ListGroup>
+                </Card>
+              )}
             </Section>
           )}
 
@@ -476,5 +516,7 @@ const styles = StyleSheet.create({
   // Vertical padding leaves room for the circles' shadow.
   categories: { gap: 4, paddingHorizontal: Spacing.gutter - 6, paddingVertical: 6 },
   listCard: { paddingVertical: 0 },
+  whereCard: { paddingTop: Spacing.md, paddingBottom: 0, gap: Spacing.xs },
+  whereTitle: { fontFamily: Fonts.bodyMedium },
   empty: { gap: Spacing.md, alignItems: 'center', paddingVertical: Spacing.xl },
 });

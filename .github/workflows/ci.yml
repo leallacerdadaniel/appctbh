@@ -1,0 +1,30 @@
+# Checagem automática a cada push e pull request: tipos, lint e testes.
+# Não publica nada e não usa segredos; só avisa no GitHub se algo quebrou.
+name: Checagem
+
+on:
+  push:
+    branches: [main, 'onda-*']
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Tipos
+        run: npx tsc --noEmit
+      - name: Lint
+        run: npx expo lint
+      - name: Testes
+        run: npm test --if-present

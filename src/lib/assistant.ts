@@ -76,7 +76,8 @@ function subscribe(listener: () => void) {
 const getSnapshot = () => store;
 
 function patch(id: string, fields: Partial<Exchange>) {
-  // The conversation may have been cleared while the answer was on its way.
+  // The conversation may have been cleared while the answer was on its way ("Nouvelle conversation" works while
+  // one is pending): ids are never reused, so a late answer finds nothing and is dropped.
   if (!store.exchanges.some((e) => e.id === id)) return;
   set({ ...store, exchanges: store.exchanges.map((e) => (e.id === id ? { ...e, ...fields } : e)) });
 }
@@ -157,6 +158,7 @@ export function useAssistant() {
       patch(id, { status: 'pending', error: undefined });
       run(token, id, lang);
     },
+    /** Starts over, also while an answer is pending (that answer is then ignored when it arrives). */
     clear() {
       set({ owner: token, exchanges: [] });
     },
@@ -239,7 +241,9 @@ export async function reportAnswer(token: string | null, e: Exchange, reason: Re
   try {
     await assistantApi('report', {
       token,
-      body: { answer: e.answer.slice(0, 4000), question: e.question.slice(0, 2000), reason },
+      // The whole answer with its signature: the server only files what Charlotte really said to this student
+      // (it checks the signature on the exact text, then keeps the first 4,000 characters).
+      body: { answer: e.answer, signature: e.signature, question: e.question.slice(0, 2000), reason },
     });
     return 'sent';
   } catch (err) {

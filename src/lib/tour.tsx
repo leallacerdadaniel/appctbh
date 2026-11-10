@@ -106,6 +106,10 @@ type TourContextValue = {
 
 const TourContext = createContext<TourContextValue | null>(null);
 
+let open = false;
+/** True while the tour is on screen (the push permission prompt waits for it to close, lib/push.ts). */
+export const isTourOpen = () => open;
+
 export function TourProvider({ email, children }: { email: string; children: ReactNode }) {
   const targets = useRef(new Map<TourTargetId, RefObject<ViewRef | null>>());
   const scrollers = useRef(new Set<() => void>());
@@ -163,19 +167,29 @@ export function TourProvider({ email, children }: { email: string; children: Rea
       }
       setSteps(shown);
       setIndex(0);
+      open = true;
     } finally {
       starting.current = false;
     }
   }, [markSeen]);
 
   const stop = useCallback(() => {
+    open = false;
     setIndex(null);
     markSeen();
   }, [markSeen]);
 
   const next = useCallback(() => {
-    setIndex((i) => (i == null || i + 1 >= steps.length ? null : i + 1));
-  }, [steps.length]);
+    if (index == null || index + 1 >= steps.length) {
+      open = false;
+      setIndex(null);
+    } else {
+      setIndex(index + 1);
+    }
+  }, [index, steps.length]);
+
+  // Leaving the tabs (sign-out) with the tour open must not leave the flag up.
+  useEffect(() => () => void (open = false), []);
 
   const value = useMemo(
     () => ({ register, registerScroll, steps, index, start, next, stop }),

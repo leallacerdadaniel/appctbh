@@ -1,4 +1,4 @@
-import { router, Tabs, type Href } from 'expo-router';
+import { router, Tabs, useIsFocused, type Href } from 'expo-router';
 import { useEffect, type ReactNode } from 'react';
 import { View } from 'react-native';
 
@@ -45,8 +45,13 @@ export default function TabLayout() {
   );
 }
 
-/** Inside the provider: starts the tour once the student has signed the house rules. */
+/**
+ * Inside the provider: starts the tour once the student has signed the house rules AND the tabs are the screen in
+ * front. While the rules (or any other screen) are on top, the tabs are not focused and none of the tour targets
+ * is registered: starting then left only the welcome step (review, 2026-11-10).
+ */
 function TourStarter({ email, ready }: { email: string; ready: boolean }): ReactNode {
-  useTourAutoStart(email, ready);
+  const focused = useIsFocused();
+  useTourAutoStart(email, ready && focused);
   return null;
 }

@@ -183,8 +183,8 @@ export const services: Service[] = [
       'Latin America’s biggest airline group: handy for trips around South America and international connections through São Paulo.',
     ),
     tip: L(
-      'Pour l’Amérique du Sud, vérifiez les documents demandés dans l’onglet BH, rubrique Explorer, page de chaque destination.',
-      'For South America, check the required documents in the BH tab, Explore section, on each destination’s page.',
+      'Pour l’Amérique du Sud, vérifiez les documents demandés dans l’onglet Explorer, rubrique Voyages, sur la page de chaque destination.',
+      'For South America, check the required documents in the Explore tab, under Trips, on each destination’s page.',
     ),
     website: 'https://www.latamairlines.com/br/pt',
     appStoreId: '1497908631',

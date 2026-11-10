@@ -13,6 +13,7 @@ import { useI18n } from '@/i18n';
 import {
   communityError,
   errorCode,
+  replaceRefused,
   useCommunity,
   useCommunityActions,
   type Author,
@@ -34,6 +35,8 @@ export default function PostScreen() {
   const [comment, setComment] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // The comment the AI refused on the last try: deleted before the corrected text goes out (one try, one comment).
+  const [refusedId, setRefusedId] = useState<string | null>(null);
 
   const report = (type: ReportTarget, targetId: string) =>
     router.push({ pathname: '/community/report', params: { type, id: targetId } });
@@ -96,8 +99,11 @@ export default function PostScreen() {
     if (hasLink(comment)) return setError(t.common.noLinks);
     setSending(true);
     try {
+      await replaceRefused(refusedId, act.deleteComment);
+      setRefusedId(null);
       const r = await act.saveComment(id, comment.trim());
       if (r.status === 'hidden') {
+        setRefusedId(r.id);
         setError([c.wall.notPublished, r.reason?.[lang]].filter(Boolean).join(' · '));
       } else {
         setComment('');

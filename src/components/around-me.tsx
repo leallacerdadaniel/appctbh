@@ -8,16 +8,28 @@ import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { trackAction } from '@/lib/usage';
 
-type AroundMeId = 'restaurant' | 'bar' | 'cafe' | 'pharmacy' | 'atm' | 'supermarket';
+export type AroundMeId = 'restaurant' | 'bar' | 'cafe' | 'pharmacy' | 'atm' | 'supermarket';
 
 /** What Google Maps searches for (in Portuguese: the places are in Brazil); "melhores" ranks by rating. */
-const SEARCHES: { id: AroundMeId; icon: IconName; query: string }[] = [
-  { id: 'restaurant', icon: 'restaurant', query: 'melhores restaurantes' },
-  { id: 'bar', icon: 'bar', query: 'melhores bares' },
-  { id: 'cafe', icon: 'cafe', query: 'melhores cafés' },
-  { id: 'pharmacy', icon: 'pharmacy', query: 'farmácia' },
-  { id: 'atm', icon: 'bank', query: 'caixa eletrônico 24 horas' },
-  { id: 'supermarket', icon: 'supermarket', query: 'supermercado' },
+const QUERIES: Record<AroundMeId, string> = {
+  restaurant: 'melhores restaurantes',
+  bar: 'melhores bares',
+  cafe: 'melhores cafés',
+  pharmacy: 'farmácia',
+  atm: 'caixa eletrônico 24 horas',
+  supermarket: 'supermercado',
+};
+
+/**
+ * The circles of the "Autour de moi" section. One entry per need (UX review 2026-11-10): the pharmacy and the
+ * groceries are not here any more, they are the "Pharmacie" and "Courses" shortcuts of Explorer › Pratique, which
+ * ask "Chez moi / Où je suis" and call `openAroundMe` for the second answer.
+ */
+const SEARCHES: { id: 'restaurant' | 'bar' | 'cafe' | 'atm'; icon: IconName }[] = [
+  { id: 'restaurant', icon: 'restaurant' },
+  { id: 'bar', icon: 'bar' },
+  { id: 'cafe', icon: 'cafe' },
+  { id: 'atm', icon: 'bank' },
 ];
 
 /** Google Maps search around wherever the phone is (Maps URLs: no key, free); opens the Maps app when installed. */
@@ -25,9 +37,16 @@ export function aroundMeUrl(query: string) {
   return `https://www.google.com/maps/search/?${new URLSearchParams({ api: '1', query })}`;
 }
 
+/** Opens Google Maps on that need, around where the phone is. */
+export function openAroundMe(id: AroundMeId) {
+  trackAction('around_me', id);
+  Linking.openURL(aroundMeUrl(QUERIES[id])).catch(() => {});
+}
+
 /**
  * "Autour de moi" (owner, 2026-11-09): the best places around the student wherever they are, in BH or on a
  * trip (Rio, Lençóis), at no cost. The app never reads the location: Google Maps uses its own.
+ * In one place only: Explorer › Pour vous (UX review 2026-11-10).
  */
 export function AroundMe() {
   const theme = useTheme();
@@ -42,10 +61,7 @@ export function AroundMe() {
               key={s.id}
               accessibilityRole="link"
               accessibilityLabel={t.aroundMe.open(label)}
-              onPress={() => {
-                trackAction('around_me', s.id);
-                Linking.openURL(aroundMeUrl(s.query));
-              }}
+              onPress={() => openAroundMe(s.id)}
               style={styles.item}>
               <View style={[styles.circle, Shadow.card, { backgroundColor: theme.surface }]}>
                 <Icon name={s.icon} size={22} color={theme.text} />

@@ -18,6 +18,7 @@ import {
   type TripMember,
 } from '@/lib/community';
 import { hasLink } from '@/lib/no-links';
+import { textParam } from '@/lib/params';
 import { destinations } from '@/lib/travel';
 
 const DAYS_AHEAD = 120;
@@ -26,7 +27,7 @@ const SEATS = [null, 3, 4, 5, 6, 8, 10, 15] as const;
 
 /** Propose a group trip (or edit mine): where, when, how many, the plan and the WhatsApp group. */
 export default function TripEditScreen() {
-  const { id } = useLocalSearchParams<{ id?: string }>();
+  const id = textParam(useLocalSearchParams<{ id?: string }>().id);
   return id ? <EditExisting id={id} /> : <TripForm />;
 }
 
@@ -52,7 +53,9 @@ function TripForm({ initial }: { initial?: Trip }) {
   const te = c.tripEdit;
   const toast = useToast();
   const act = useCommunityActions();
-  const id = initial?.id;
+  // A new trip the AI refused is already stored (its author sees it): the next try edits that one, never a second trip.
+  const [savedId, setSavedId] = useState<string | undefined>();
+  const id = initial?.id ?? savedId;
 
   const [destination, setDestination] = useState(initial?.destination ?? '');
   const [destinationId, setDestinationId] = useState<string | null>(initial?.destinationId ?? null);
@@ -86,26 +89,28 @@ function TripForm({ initial }: { initial?: Trip }) {
         description: description.trim() || null,
       });
       if (r.status === 'hidden') {
+        setSavedId(r.id);
         setError([c.wall.notPublished, r.reason?.[lang]].filter(Boolean).join(' · '));
         setSaving(false);
         return;
       }
       toast(r.status === 'published' ? te.saved : c.compose.pending);
-      if (id) router.back();
+      if (initial) router.back();
       else router.replace(`/community/trips/${r.id}` as Href);
     } catch (e) {
+      setSaving(false);
+      // First trip: the guidelines come first, then back here with the form still filled in.
       if (errorCode(e) === 'terms') {
-        router.replace({ pathname: '/community/charter', params: { next: '/community/trips/edit' } });
+        router.push({ pathname: '/community/charter', params: { next: 'back' } });
         return;
       }
       setError(communityError(e, t));
-      setSaving(false);
     }
   }
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <Screen back title={id ? te.titleEdit : te.titleNew}>
+      <Screen back title={initial ? te.titleEdit : te.titleNew}>
         <Card style={{ gap: Spacing.lg }}>
           <Input
             label={te.destination}
@@ -174,7 +179,7 @@ function TripForm({ initial }: { initial?: Trip }) {
           <Notice icon="shield" text={c.compose.aiNote} />
           {error && <InlineMessage kind="error" text={error} />}
           <Button
-            label={id ? te.saveEdit : te.save}
+            label={initial ? te.saveEdit : te.save}
             onPress={save}
             loading={saving}
             disabled={destination.trim().length < 2 || !start}
