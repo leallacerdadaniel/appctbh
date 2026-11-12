@@ -17,7 +17,8 @@ set local lock_timeout = '10s';
 
 -- ===== extensões =====
 -- A produção já tem pg_cron, pgcrypto e supabase_vault. Falta pg_net: o push (022) e o robô da agenda (013) usam.
-create extension if not exists pg_cron with schema pg_catalog;
+-- pg_cron fica fora: a produção já tem, e o "create extension" dispara o gatilho do Supabase que regrava as
+-- permissões do esquema cron (achado da homologação de 12/11/2026).
 create extension if not exists pg_net with schema extensions;
 
 -- ===== 002_tabelas_e_funcoes_do_app.sql =====
