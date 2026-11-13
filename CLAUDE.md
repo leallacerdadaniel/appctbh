@@ -31,7 +31,7 @@ próprio artefato).
 | Onda | O que é | Estado |
 |---|---|---|
 | 0 | O app demo | **Concluída** (05/11/2026) |
-| 1 | Acessos e ambiente | Quase: Lovable, Supabase (admin) e GitHub do site liberados; falta a homologação e levar a branch para a `main` |
+| 1 | Acessos e ambiente | Quase: Lovable, Supabase (admin) e GitHub do site liberados; **banco do app e as 10 funções na produção desde 12/11/2026** (homologação numa cópia passou); **painel no ar no site e segredos das funções na produção desde 13/11/2026**; falta levar a branch do app para a `main` |
 | 2, 3, 5, 7, 8, 11 | Banco, login, apartamento, faxinas, contas da casa, lugares | **Em parte pelo Arthur (27/10 a 07/11)**: `app-api` + tabelas `app_*`; caixas marcadas no plano em 08/11 |
 | 6 | Pedidos e extras | **Pronta no desenvolvimento (08/11/2026)**: branch `onda-6-pedidos`, função `app-requests` e tabelas `app_requests*` só no `appctbh` |
 | 5, 7, 9 (parte) | Pix, tarefas da casa, sino de avisos | **Prontos no desenvolvimento (08/11/2026)**: função `app-house`, tabelas `app_chores*`, `app_notices*`, `app_payment_info`, `app_devices` |
@@ -40,7 +40,7 @@ próprio artefato).
 | 3 (resto) | Convite, esqueci a senha, sessão segura, fim do acesso, excluir conta | **Pronto no desenvolvimento (09/11/2026)**: `app-api` v3 e `app-admin` no `appctbh` |
 | 14 | Feedback, pesquisa de satisfação, indicação | **Pronto no desenvolvimento (09/11/2026)**: função `app-feedback` |
 | 15 | Comunidade: mural, viagens em grupo, eventos, denúncia e bloqueio, IA moderando | **Pronto no desenvolvimento (09/11/2026)**: função `app-community`; falta `ANTHROPIC_API_KEY` |
-| 4 (parte) | Painel: preços dos extras e 11 telas do "App do aluno" | Branches locais `app/catalogo-extras` e `app/painel-do-app` (esta parte da outra) no repositório do site, sem commit da segunda, sem push e sem teste no navegador |
+| 4 (parte) | Painel: preços dos extras e 11 telas do "App do aluno" | **No ar no site desde 13/11/2026** (`main` do site no commit `db965fd0`, publicada pelo Lovable); as 13 telas conferidas no ar com o login da equipe, sem gravar nada |
 | Revisões V2 | Segurança, design e tour, lojas | **Feito no desenvolvimento (09/11/2026, noite)**: 021 (limites atômicos, grants, exclusão numa transação), as 9 funções republicadas, tour refeito, ajustes de UX, `app.json`/`eas.json`, abertura animada; resumo em `docs/v2-app-chez-toi.html` |
 | 9 (parte) | Push | **Servidor pronto no desenvolvimento (09/11/2026)**: 022 + função `app-push` + `src/lib/push.ts`; chega ao celular só com build nativo, chave APNs e Firebase (`docs/eas-setup.md`) |
 | 4 (resto), 9 (resto), 10, 12, 13, 16 a 18 | Ficha do morador e do apartamento, lembretes, chegada, emergência, línguas, lojas | Não iniciadas ou em parte (lojas: falta conta Apple/Google, `eas init` e o primeiro build) |
@@ -84,7 +84,15 @@ próprio artefato).
   `app_gourmet_book` (reserva atômica, por prédio); regra de links A–D (igual a `src/lib/no-links.ts`).
   A conta de teste fica no `.env.local` (fora do Git).
 - **Produção:** banco do site (`miucfiiporxhvvbefonh`), função `bright-service` (a `app-api` do Arthur) e
-  tabelas `app_*`. **Nunca escrever no banco do site** sem aprovação do Daniel: lá só leitura do catálogo.
+  tabelas `app_*`. Desde 12/11/2026 (18h08, com aprovação do Daniel): as 53 tabelas `app_*` e funções do banco iguais
+  ao dev (`supabase/producao/001_app_do_aluno.sql`, uma transação, sem dados de teste), `pg_net`, bucket
+  `app-request-photos`, agenda das 06:15, as duas senhas internas no Vault (`002_segredos_internos.sql`) e as 10
+  funções do app publicadas com os mesmos nomes do dev. O site ficou igual (mesmas 80 tabelas, 51 funções e 192
+  políticas, conferido por impressão digital antes e depois). A `bright-service` continua no ar, sem mudança.
+  Em 13/11/2026 o Daniel pôs os segredos das funções (`ANTHROPIC_API_KEY`, `RESEND_API_KEY`, `RESEND_FROM`). A chave do
+  Resend é de uma conta nova com o domínio verificado e vale também para os e-mails do próprio site (`send-email`,
+  `send-password-reset`, `send-confirmation-email`, que usam `EMAIL_FROM`).
+  **Nunca escrever no banco do site** sem aprovação do Daniel: lá só leitura do catálogo.
   Nunca escrever em `rental_tenants` nem `apartment_rentals` (gatilho refaz mensalidades e faxinas).
 - O conector Supabase desta conta escreve nos dois projetos: conferir o `project_id` antes de cada
   `apply_migration`, `execute_sql` ou `deploy_edge_function`.
@@ -115,8 +123,8 @@ próprio artefato).
   de ponta a ponta no dev, só login certo do aluno de teste). O GitHub roda tipos, lint e testes a cada push
   (`.github/workflows/ci.yml`). Charlotte: `node scripts/assistant/build.mjs` regenera a base a partir dos textos do
   app e para se algo sumir; depois publicar `index.ts` e `knowledge.ts` juntos.
-- Segredos que faltam no `appctbh`: para e-mail, `RESEND_API_KEY` + `RESEND_FROM` (a `ANTHROPIC_API_KEY` já está lá).
-  Sem e-mail, o "esqueci a senha" vira pedido na tela Acesso ao app do painel. Se a IA falhar ou faltar a chave, o que o
+- Segredos que faltam no `appctbh` (o dev): para e-mail, `RESEND_API_KEY` + `RESEND_FROM` (a `ANTHROPIC_API_KEY` já
+  está lá; na produção os três estão desde 13/11/2026). Sem e-mail, o "esqueci a senha" vira pedido na tela Acesso ao app do painel. Se a IA falhar ou faltar a chave, o que o
   aluno publica fica `pending` (fora do ar) até a equipe decidir. A Charlotte só relê respostas que ela assinou (`signature`).
 - Primeiro acesso (09/11/2026, decisão do Daniel: nascimento + passaporte): `src/app/first-access.tsx` (3 passos:
   quem é você, seus dados da ficha, senha) e as rotas `first-access-verify` e `first-access-complete` da `app-api`.
@@ -170,13 +178,14 @@ próprio artefato).
   `supabase/functions/app-assistant/knowledge.ts`; rodar de novo e republicar quando regras ou guia mudarem.
 - O site tem o banco de produção fixo no código (`src/integrations/supabase/client.ts`): rodar o site
   localmente mexe em produção.
-- Painel do app no site (09/11/2026): branch `app/painel-do-app` (sem commit) com o grupo "App do aluno" no menu e 11
-  telas em `src/pages/admin/AdminApp*.tsx`, hooks em `src/hooks/app-panel/` (cliente `appDb` tipado à parte: o
-  `types.ts` do site é refeito pelo Lovable a partir de produção e não pode ganhar tabelas que lá não existem).
-  Para valer em produção: aplicar no site 004, 008 e 011 a 017 (só as partes marcadas "site"), publicar a `app-admin`
-  lá e trocar `appDb` por `supabase`. Textos de um idioma só que o aluno lê: `team_note` dos pedidos e encomendas e a
+- Painel do app no site (**no ar desde 13/11/2026**): o grupo "App do aluno" no menu e 11 telas em
+  `src/pages/admin/AdminApp*.tsx`, mais "Serviços extras do app"; hooks em `src/hooks/app-panel/` (cliente `appDb`
+  tipado à parte: o `types.ts` do site é refeito pelo Lovable a partir de produção). Foi para a `main` do site pela
+  branch `app/painel-producao` (merge `db965fd0` sobre a `main` de 12/11), com push do Daniel e publicação no Lovable.
+  As tabelas e a `app-admin` já estão na produção; trocar `appDb` por `supabase` só quando o `types.ts` do site tiver
+  as tabelas `app_*` (não é preciso para funcionar). Textos de um idioma só que o aluno lê: `team_note` dos pedidos e encomendas e a
   resposta do feedback (a equipe escreve na língua do aluno).
-- Caminho para a produção (09/11/2026): `docs/caminho-producao.md`. Resumo: o código junta na `main` sem conflito; o
+- Caminho para a produção (09/11/2026; passos 1 a 4 feitos em 12/11/2026, ver o topo do arquivo): `docs/caminho-producao.md`. Resumo: o código junta na `main` sem conflito; o
   banco é aditivo (9 de 11 tabelas `app_*` iguais, 2 com colunas novas, 43 novas), mas sem 001, dados de teste, a
   `user_roles` da 006 e o fim da 020; a produção não tem `pg_net`; a `bright-service` mudou em 08/11 22h32 fora do repo.
 - O trabalho em modo local de 06/11 (extras e pedidos, fatura com extras, lembretes, agenda, tarefas da casa)
@@ -192,7 +201,7 @@ próprio artefato).
   Daniel: canal `cheztoibh@gmail.com`, sem encarregado nomeado por ser agente de pequeno porte, guarda legal de 5 anos,
   12 meses depois do fim do acesso, 6 meses para dados de uso; revisão jurídica depois como atualização). Fonte única:
   `src/content/appLegal.ts` do site. Só as duas páginas foram para a `main` do site (branch `app/paginas-legais`), no ar desde 10/11/2026 18h37; o resto
-  do painel continua em `app/painel-do-app`.
+  do painel foi para a `main` em 13/11/2026.
   A Charlotte pede ciência do uso da IA (Anthropic) antes da primeira pergunta e tem "Signaler cette réponse".
   Contas (09/11/2026): o site oficial é `housing.cheztoibh.com.br` (links de privacidade, exclusão e indicação apontam para lá).
   Apple: D-U-N-S obtido, inscrição como organização enviada pelo Apple ID da Chez Toi, em análise. Google Play: conta
@@ -213,3 +222,11 @@ próprio artefato).
   `npx expo start --localhost` e abrir `exp://localhost:8081` com `xcrun simctl openurl` no iPhone 18 Pro.
 - O servidor `supabase-cheztoi-leitura` (`.mcp.json`) lê o token de `SUPABASE_CHEZTOI_TOKEN`; o app do
   Claude não carrega o `~/.zshrc`, então a variável tem de ir por `launchctl setenv` (some ao reiniciar).
+- O `node_modules` do site nesta máquina tem `@supabase/supabase-js` 2.119, mas o `bun.lock` e o `package-lock.json`
+  do site (e o Lovable) usam 2.55.0. Com a 2.119 o admin quebra ("cannot add `postgres_changes` callbacks … after
+  `subscribe()`", canal `admin-notifications-realtime` usado em dois lugares). Para testar o painel localmente, instalar
+  a versão do lock (`npm install --no-save --no-package-lock @supabase/supabase-js@2.55.0`) numa cópia à parte
+  (`git worktree add`), lembrando que o site local lê e escreve na produção.
+- Abrir um endereço do admin do site direto (recarregando a página) às vezes volta para a home: corrida antiga em
+  `src/hooks/useRoles.tsx` do site (um render sem papéis depois que o login carrega, e o `AdminRoute` manda para `/`).
+  Não é do painel do app; tentar de novo abre.
