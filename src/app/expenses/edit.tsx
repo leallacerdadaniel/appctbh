@@ -11,9 +11,12 @@ import { AppText, Avatar, Button, Card, Chip, InlineMessage, Input } from '@/com
 import { Fonts, Radius, Spacing, Type } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
-import { parseIso, toIso } from '@/lib/events';
+import { addDays, bhToday } from '@/lib/bh-time';
+import { parseIso } from '@/lib/events';
 import {
+  AppApiError,
   centsToInput,
+  involvesFormer,
   parseCents,
   splitEqual,
   useExpenseAction,
@@ -22,16 +25,31 @@ import {
   type ExpensesData,
 } from '@/lib/expenses';
 import { formatCents, formatShortDate } from '@/lib/format';
+import { textParam } from '@/lib/params';
 import { trackAction } from '@/lib/usage';
+import { hasLink } from '@/lib/no-links';
 
-/** New expense, or edit one (?id=) that the student added. */
+/**
+ * New expense, or edit one (?id=) that the student added. Only the people living in the apartment today can pay
+ * or share an expense, so one that involves a roommate who has left is not editable (the server answers `former`):
+ * the page says so instead of opening a form that could not keep that person.
+ */
 export default function ExpenseFormScreen() {
+  const theme = useTheme();
   const { t } = useI18n();
-  const { id } = useLocalSearchParams<{ id?: string }>();
+  const id = textParam(useLocalSearchParams<{ id?: string }>().id) || undefined;
   const { state } = useExpenses();
+  const existing = id && state.status === 'ready' ? state.data.expenses.find((e) => e.id === id) : undefined;
+  const frozen = !!existing && state.status === 'ready' && involvesFormer(state.data, existing);
   return (
     <Screen back title={id ? t.expenses.editTitle : t.expenses.newTitle}>
-      {state.status === 'ready' && <Form data={state.data} id={id} />}
+      {state.status !== 'ready' ? null : frozen ? (
+        <Card>
+          <AppText color={theme.textSecondary}>{t.expenses.formerNoEdit}</AppText>
+        </Card>
+      ) : (
+        <Form data={state.data} id={id} />
+      )}
     </Screen>
   );
 }
@@ -43,9 +61,10 @@ function Form({ data, id }: { data: ExpensesData; id?: string }) {
   const act = useExpenseAction();
   const existing = id ? data.expenses.find((e) => e.id === id) : undefined;
 
+  // "Aujourd’hui" is today in Belo Horizonte: a phone still on Paris time is already on tomorrow in the evening.
   const [{ today, yesterday }] = useState(() => {
-    const now = new Date();
-    return { today: toIso(now), yesterday: toIso(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1)) };
+    const today = bhToday();
+    return { today, yesterday: addDays(today, -1) };
   });
   const everyone = data.members.map((m) => m.id);
   // The student first, then the roommates (same order as the pickers).
@@ -97,6 +116,7 @@ function Form({ data, id }: { data: ExpensesData; id?: string }) {
     setError(null);
     if (!cents) return setError(t.expenses.errors.amount);
     if (!description.trim()) return setError(t.expenses.errors.description);
+    if (hasLink(description)) return setError(t.common.noLinks);
     let shares;
     if (mode === 'equal') {
       if (people.length === 0) return setError(t.expenses.errors.people);
@@ -123,8 +143,10 @@ function Form({ data, id }: { data: ExpensesData; id?: string }) {
       if (!id) trackAction('expense_added');
       toast(t.expenses.saved);
       router.back();
-    } catch {
-      setError(t.expenses.errors.server);
+    } catch (e) {
+      // `former`: someone in this expense left the apartment between the page opening and the save.
+      const former = e instanceof AppApiError && e.code === 'former';
+      setError(former ? t.expenses.errors.former : t.expenses.errors.server);
       setSaving(false);
     }
   }

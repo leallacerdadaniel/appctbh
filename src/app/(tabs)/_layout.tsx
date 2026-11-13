@@ -1,26 +1,57 @@
-import { Tabs } from 'expo-router';
+import { router, Tabs, useIsFocused, type Href } from 'expo-router';
+import { useEffect, type ReactNode } from 'react';
+import { View } from 'react-native';
 
-import { FloatingTabBar } from '@/components/floating-tab-bar';
+import { TabBar } from '@/components/tab-bar';
+import { TourOverlay } from '@/components/tour-overlay';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
+import { useHome } from '@/lib/home';
+import { useRulesIntro } from '@/lib/rules-intro';
+import { TourProvider, useTourAutoStart } from '@/lib/tour';
 
 export default function TabLayout() {
   const theme = useTheme();
   const { t } = useI18n();
+  const { student } = useHome();
+  // The house rules intro opens over the tabs until the student signs the current version.
+  const rulesNeeded = useRulesIntro(student.email);
+  useEffect(() => {
+    if (rulesNeeded) router.push('/rules-intro' as Href);
+  }, [rulesNeeded]);
 
   return (
-    <Tabs
-      tabBar={(props) => <FloatingTabBar {...props} />}
-      screenOptions={{
-        headerShown: false,
-        animation: 'shift',
-        sceneStyle: { backgroundColor: theme.background },
-      }}>
-      <Tabs.Screen name="index" options={{ title: t.tabs.home }} />
-      <Tabs.Screen name="calendar" options={{ title: t.tabs.calendar }} />
-      <Tabs.Screen name="apartment" options={{ title: t.tabs.apartment }} />
-      <Tabs.Screen name="travel" options={{ title: t.tabs.travel }} />
-      <Tabs.Screen name="guide" options={{ title: t.tabs.guide }} />
-    </Tabs>
+    <TourProvider email={student.email}>
+      <View style={{ flex: 1 }}>
+        <TourStarter email={student.email} ready={rulesNeeded === false} />
+        <Tabs
+          tabBar={(props) => <TabBar {...props} />}
+          screenOptions={{
+            headerShown: false,
+            animation: 'shift',
+            sceneStyle: { backgroundColor: theme.background },
+          }}>
+          {/* v3 (owner, 2026-11-08): what the student uses most. The assistant button sits in the middle of
+              the bar (not a tab); the Agenda became a page opened from Accueil and Maison. */}
+          <Tabs.Screen name="index" options={{ title: t.tabs.home }} />
+          <Tabs.Screen name="explorer" options={{ title: t.tabs.explorer }} />
+          <Tabs.Screen name="maison" options={{ title: t.tabs.maison }} />
+          <Tabs.Screen name="sejour" options={{ title: t.tabs.sejour }} />
+        </Tabs>
+        {/* The app tour (once, after the house rules), above the tab bar too. */}
+        <TourOverlay />
+      </View>
+    </TourProvider>
   );
+}
+
+/**
+ * Inside the provider: starts the tour once the student has signed the house rules AND the tabs are the screen in
+ * front. While the rules (or any other screen) are on top, the tabs are not focused and none of the tour targets
+ * is registered: starting then left only the welcome step (review, 2026-11-10).
+ */
+function TourStarter({ email, ready }: { email: string; ready: boolean }): ReactNode {
+  const focused = useIsFocused();
+  useTourAutoStart(email, ready && focused);
+  return null;
 }

@@ -1,53 +1,39 @@
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { Linking, StyleSheet } from 'react-native';
 
+import { EmergencyNumbers } from '@/components/health-ui';
 import { ListGroup, ListRow } from '@/components/list';
+import { PhoneStolenEntry } from '@/components/phone-stolen-ui';
 import { Screen, Section } from '@/components/screen';
-import { AppText, Card } from '@/components/ui';
-import { useTheme } from '@/hooks/use-theme';
+import { Card } from '@/components/ui';
 import { useI18n } from '@/i18n';
 import { contacts } from '@/lib/mock-data';
 import { trackAction } from '@/lib/usage';
 
-/** Brazil's public emergency numbers, free from any phone. */
-const NUMBERS = [
-  { id: 'samu', number: '192' },
-  { id: 'police', number: '190' },
-  { id: 'fire', number: '193' },
-] as const;
-
-/** "Urgences": numbers to call, the private hospitals and Chez Toi for a problem in the apartment. */
+/**
+ * "Urgences": the stolen-phone guide first (2026-11-08), then numbers to call, health (the health page,
+ * 2026-11-09, and the private hospitals near home) and Chez Toi for a problem in the apartment.
+ */
 export default function EmergencyScreen() {
-  const theme = useTheme();
   const { t } = useI18n();
 
   return (
     <Screen back title={t.emergency.title} subtitle={t.emergency.subtitle}>
+      <PhoneStolenEntry />
+
       <Section title={t.emergency.call}>
-        <Card style={styles.listCard}>
-          <ListGroup inset>
-            {NUMBERS.map((n) => (
-              <ListRow
-                key={n.id}
-                icon="phone"
-                title={t.emergency.services[n.id]}
-                subtitle={t.emergency.hints[n.id]}
-                accessibilityLabel={`${t.emergency.services[n.id]}, ${n.number}`}
-                onPress={() => Linking.openURL(`tel:${n.number}`)}
-                accessory={
-                  <AppText variant="display" color={theme.brand}>
-                    {n.number}
-                  </AppText>
-                }
-              />
-            ))}
-          </ListGroup>
-        </Card>
+        <EmergencyNumbers />
       </Section>
 
       <Section title={t.emergency.health}>
         <Card style={styles.listCard}>
           <ListGroup inset>
+            <ListRow
+              icon="emergency"
+              title={t.health.entry}
+              subtitle={t.health.entryHint}
+              onPress={() => router.push('/health' as Href)}
+            />
             <ListRow
               icon="hospital"
               title={t.emergency.hospitals}

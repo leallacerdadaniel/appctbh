@@ -5,7 +5,7 @@ import type { NearbyCategoryId } from '@/lib/nearby';
 import type { SportGroup } from '@/lib/sports';
 
 /**
- * Search of the Guide tab: only what the Guide shows (its sections, their lists and the places
+ * Search of the Guide (BH tab, Guide segment): only what the Guide shows (its sections, their lists and the places
  * around the apartment). Matching works on word starts, in French, English and Portuguese, so
  * "sport" doesn't find "transport" and "pharmacie" finds "Pharmacies".
  */

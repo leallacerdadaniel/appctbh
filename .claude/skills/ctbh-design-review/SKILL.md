@@ -38,7 +38,7 @@ npx tsc --noEmit && npx eslint src
 
 Save screenshots under `.playwright-mcp/` (Playwright only writes inside the home folder) with descriptive names, e.g. `review-home.png`. Screens scroll inside a ScrollView, so a full-page screenshot only shows the viewport: scroll the inner scroller with `browser_evaluate` and take one screenshot per viewport. Look at each image with Read.
 
-Routes: `/` (home), `/calendar`, `/apartment`, `/guide`, `/profile`, `/nearby`, `/restaurants`, `/restaurants/<id>`, `/login`, `/change-password`.
+Routes: `/` (home), `/maison`, `/chez-toi`, `/calendar`, `/bh` (`?section=guide|explorer`), `/profile`, `/requests`, `/apartment/payments`, `/nearby`, `/restaurants`, `/restaurants/<id>`, `/login`, `/change-password`.
 
 ## Etapa 5: Compare against the checklist
 

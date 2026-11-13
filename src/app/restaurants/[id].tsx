@@ -7,6 +7,7 @@ import { Icon, type IconName } from '@/components/icon';
 import { ListGroup, ListRow } from '@/components/list';
 import { PlacePhoto } from '@/components/place-photo';
 import { PriceLevel } from '@/components/price-level';
+import { VisitedToggle } from '@/components/recap-ui';
 import { Screen, Section } from '@/components/screen';
 import { useToast } from '@/components/toast';
 import { AppText, Button, Card, PressableScale } from '@/components/ui';
@@ -33,6 +34,7 @@ export default function RestaurantScreen() {
       <PlacePhoto placeId={r.placeId} width={1000} aspectRatio={4 / 3} radius={Radius.lg} credit="below" />
 
       <AppText style={{ lineHeight: 23 }}>{r.description[lang]}</AppText>
+      <VisitedToggle id={r.id} name={displayName(r)} kind="restaurant" />
 
       <Card style={styles.listCard}>
         <ListGroup inset>

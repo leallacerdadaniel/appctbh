@@ -12,6 +12,7 @@ Usage (from App CTBH/app):
     python3 scripts/apartment_places.py --list              # apartments, no Google calls
     python3 scripts/apartment_places.py --only "Apto Teste" # one contract, prints the calls it used
     python3 scripts/apartment_places.py                     # all the others
+    python3 scripts/apartment_places.py --top-rated         # only "les mieux notés" for apartments already saved
 
 Keys: SUPABASE_SECRET_KEY and EXPO_PUBLIC_SUPABASE_URL from .env.local; Google key as in nearby.py.
 """
@@ -116,13 +117,19 @@ def main():
     parser.add_argument("--list", action="store_true", help="show the apartments and stop")
     parser.add_argument("--only", help="only contracts whose name contains this text")
     parser.add_argument("--force", action="store_true", help="recompute apartments already saved")
+    parser.add_argument("--top-rated", action="store_true",
+                        help="only add the top-rated restaurants, bars and cafés (2026-11-09) to saved apartments")
     args = parser.parse_args()
 
     url, secret = load_env()
     todo = apartments(url, secret)
     if args.only:
         todo = [a for a in todo if any(args.only.lower() in c.lower() for c in a["contracts"])]
-    done = {r["apartment_id"] for r in rest(url, secret, "app_apartment_places?select=apartment_id")}
+    saved = {r["apartment_id"]: r for r in rest(url, secret, "app_apartment_places?select=apartment_id,nearby,times")}
+    done = set(saved)
+    if args.top_rated:
+        # Only the new lists: the rest of the row stays as it is (no need to pay for it again).
+        done = {i for i, r in saved.items() if "topRated" in (r["nearby"] or {})}
 
     missing = [a for a in todo if not (a["lat"] and a["lng"])]
     for a in missing:
@@ -144,11 +151,14 @@ def main():
             print(f"[{n}/{len(todo)}] já pronto: {name}")
             continue
         loc = {"lat": a["lat"], "lng": a["lng"]}
-        row = {
-            "apartment_id": a["id"],
-            "nearby": google.around(loc, key),
-            "times": curated_times(loc, places, key),
-        }
+        if args.top_rated and a["id"] in saved:
+            row = {**saved[a["id"]], "nearby": {**saved[a["id"]]["nearby"], "topRated": google.top_rated(loc, key)}}
+        else:
+            row = {
+                "apartment_id": a["id"],
+                "nearby": google.around(loc, key),
+                "times": curated_times(loc, places, key),
+            }
         rest(url, secret, "app_apartment_places?on_conflict=apartment_id", [row], "resolution=merge-duplicates")
         print(f"[{n}/{len(todo)}] salvo: {name}")
         print(f"    chamadas até agora: {dict(calls)}")

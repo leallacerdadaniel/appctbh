@@ -1,24 +1,29 @@
-import { StyleSheet, View } from 'react-native';
+import { router, type Href } from 'expo-router';
+import { Linking, StyleSheet, View } from 'react-native';
 
 import { Icon } from '@/components/icon';
 import { LanguageSwitch } from '@/components/language-switch';
 import { ListGroup, ListRow } from '@/components/list';
 import { Screen } from '@/components/screen';
-import { useToast } from '@/components/toast';
 import { AppText, Avatar, Card, PressableScale } from '@/components/ui';
 import { Spacing, TapTarget } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { useAuth } from '@/lib/auth';
 import { useHome } from '@/lib/home';
+import { hasContent, useMyProfile } from '@/lib/house-social';
+import { contacts } from '@/lib/mock-data';
+import { trackAction } from '@/lib/usage';
 
-/** Opened from the initials next to the Home greeting (the tab went to "Voyages"). */
+/** Opened from the round profile button next to the Home greeting. */
 export default function ProfileScreen() {
   const theme = useTheme();
-  const toast = useToast();
   const { signOut } = useAuth();
   const { t } = useI18n();
   const { student } = useHome();
+  const { state: social } = useMyProfile();
+  const mine = social.status === 'ready' ? social.data.profile : null;
+  const p = t.houseSocial.profile;
 
   return (
     <Screen back title={t.profile.title}>
@@ -34,18 +39,53 @@ export default function ProfileScreen() {
 
       <Card style={{ paddingVertical: 0 }}>
         <ListGroup inset>
+          <ListRow
+            icon="idCard"
+            title={p.row}
+            subtitle={hasContent(mine) ? (mine.visible ? p.rowVisible : p.rowHidden) : p.rowEmpty}
+            onPress={() => router.push('/house/my-profile' as Href)}
+          />
           <ListRow icon="website" title={t.profile.language} accessory={<LanguageSwitch />} />
-          <ListRow icon="key" title={t.profile.changePassword} onPress={() => toast(t.common.soon)} />
-          <ListRow icon="mail" title={t.profile.contact} onPress={() => toast(t.common.soon)} />
+          {/*
+            No "Changer le mot de passe" row for now: change-password is only reachable while the
+            first-access change is mandatory (Stack.Protected in _layout.tsx) and its server route
+            doesn't ask for the current password. Bring it back with a proper flow, never as "Bientôt".
+          */}
+          <ListRow
+            icon="whatsapp"
+            title={t.profile.contact}
+            subtitle="WhatsApp"
+            onPress={() => {
+              trackAction('open_whatsapp', 'profile');
+              Linking.openURL(`https://wa.me/${contacts.whatsapp}`);
+            }}
+          />
         </ListGroup>
       </Card>
 
       <Card style={{ paddingVertical: 0 }}>
-        <PressableScale accessibilityRole="button" onPress={signOut} style={styles.signOut}>
+        <PressableScale accessibilityRole="button" onPress={() => signOut()} style={styles.signOut}>
           <Icon name="signOut" size={20} color={theme.error} />
           <AppText color={theme.error}>{t.profile.signOut}</AppText>
         </PressableScale>
       </Card>
+
+      {/* Last and gray (UX review 2026-11-09): reachable, never next to the everyday rows. */}
+      <PressableScale
+        accessibilityRole="button"
+        accessibilityLabel={`${t.account.rowTitle}, ${t.account.rowSubtitle}`}
+        onPress={() => router.push('/account-delete' as Href)}
+        style={styles.delete}>
+        <Icon name="trash" size={16} color={theme.textSecondary} />
+        <View style={{ flex: 1 }}>
+          <AppText variant="callout" color={theme.textSecondary}>
+            {t.account.rowTitle}
+          </AppText>
+          <AppText variant="caption" color={theme.textSecondary}>
+            {t.account.rowSubtitle}
+          </AppText>
+        </View>
+      </PressableScale>
     </Screen>
   );
 }
@@ -53,4 +93,12 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   identity: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
   signOut: { flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: TapTarget + 12 },
+  delete: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    minHeight: TapTarget,
+    paddingHorizontal: Spacing.md,
+    marginTop: -Spacing.md,
+  },
 });

@@ -18,7 +18,25 @@ export type UsageAction =
   | 'expense_added'
   | 'settlement_added'
   | 'cleaning_rated'
-  | 'explorer_tab';
+  | 'explorer_tab'
+  | 'bh_section'
+  // v3 (2026-11-08)
+  | 'open_assistant'
+  | 'copy_address'
+  | 'open_uber'
+  | 'open_99'
+  | 'show_address'
+  | 'welcome_step'
+  | 'chore_done'
+  | 'explorer_category'
+  | 'explorer_ask'
+  | 'get_app'
+  // 2026-11-09: "Autour de moi" (Google Maps search where the student is)
+  | 'around_me'
+  // 2026-11-09: wave 14 (feedback, stay survey, refer a friend)
+  | 'feedback_sent'
+  | 'survey_sent'
+  | 'referral_shared';
 
 type UsageEvent = { kind: 'screen' | 'action'; name: string; item?: string; at: string };
 type UsageSearch = { query: string; results: number; at: string };

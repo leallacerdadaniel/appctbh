@@ -6,7 +6,7 @@
 - [ ] Section titles are sentence case `title` text, no uppercase labels, no icons next to them.
 
 ## Brand (DUO reference: `ctbh-design-system/references/duo.md`)
-- [ ] Red brand bar with the white logo at the top of the screen; back arrow on pushed screens; white status bar text.
+- [ ] Red brand bar with the white logo at the top of the screen; SOS pill on the left of tab screens, back arrow on pushed screens (never both); nothing on the right; white status bar text.
 - [ ] Gray canvas, content in white cards with soft shadow, one card level only.
 - [ ] Places/restaurants shown with photos, rating pill over the photo.
 - [ ] Each section has a title and a one-line subtitle when useful; "Voir plus ›" for full lists.

@@ -1,37 +1,50 @@
 import * as Clipboard from 'expo-clipboard';
-import { router } from 'expo-router';
-import { Linking, ScrollView, StyleSheet, View } from 'react-native';
+import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
+import { cloneElement, useCallback, useRef, useState, type ComponentRef, type ReactElement } from 'react';
+import { View, type ScrollView } from 'react-native';
 
-import { CategoryCircle } from '@/components/category-circle';
-import { HeroCard } from '@/components/hero-card';
-import { Icon, type IconName } from '@/components/icon';
-import { ListGroup, ListRow } from '@/components/list';
+import {
+  AddressCard,
+  fullAddress,
+  isEveningInBh,
+  QuickActions,
+  RowPill,
+  TintCard,
+  TintRow,
+  TonightCarousel,
+  WelcomeHero,
+} from '@/components/home-v3';
+import { EventCard } from '@/components/community-ui';
+import type { IconName } from '@/components/icon';
+import { rentMonthLabel, requestHref, requestTitle } from '@/components/request-ui';
 import { Screen, Section } from '@/components/screen';
 import { useToast } from '@/components/toast';
-import { AppText, Card, PressableScale } from '@/components/ui';
-import { Fonts, Radius, Shadow, Spacing } from '@/constants/theme';
+import { RecapEntry } from '@/components/recap-ui';
+import { SurveyInvite } from '@/components/feedback-ui';
+import { AppText } from '@/components/ui';
+import { Fonts, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
-import { getAttraction } from '@/lib/attractions';
-import type { EventKind } from '@/lib/events';
-import { formatDayDate, formatTime, shortAddress } from '@/lib/format';
-import { useBalanceLabel } from '@/lib/expenses';
-import { useHome } from '@/lib/home';
+import { bhHour, bhToday } from '@/lib/bh-time';
+import { choreById, myChoresThisWeek, useChoreActions, useChores } from '@/lib/chores';
+import { daysUntil, upcomingCleanings } from '@/lib/cleaning';
+import { useCommunity, type ChezEvent } from '@/lib/community';
+import { toIso, type EventKind } from '@/lib/events';
+import { formatDayDate, formatTime, isFutureMonth } from '@/lib/format';
+import { useHome, useHomeState, type Home } from '@/lib/home';
 import { upcomingEvents } from '@/lib/home-feed';
-import { contacts } from '@/lib/mock-data';
-import type { NearbyCategoryId } from '@/lib/nearby';
+import { isOpen, useRequests } from '@/lib/requests';
 import { trackAction } from '@/lib/usage';
+import { TourTarget, useTourScrollTop } from '@/lib/tour';
+import { useWelcome, WELCOME_STEPS, type WelcomeStep } from '@/lib/welcome';
 
-/** Everyday categories shown as circles; they open "À proximité" on that category. */
-const CATEGORIES: { id: NearbyCategoryId; emoji: string }[] = [
-  { id: 'supermarket', emoji: '🛒' },
-  { id: 'pharmacy', emoji: '💊' },
-  { id: 'bakery', emoji: '🥐' },
-  { id: 'gym', emoji: '🏋️' },
-  { id: 'laundry', emoji: '🧺' },
-  { id: 'mall', emoji: '🛍️' },
-  { id: 'hospital', emoji: '🏥' },
-];
+/** Rent is due on the 5th: it shows on Accueil from the 2nd, or once late (v3: "aparece só 3 dias antes"). */
+const RENT_DAY = 5;
+const RENT_NOTICE_DAYS = 3;
+/** "Cette semaine": the next 7 days. */
+const WEEK_DAYS = 7;
+/** The next Chez Toi event shows on Accueil from two weeks before. */
+const EVENT_DAYS = 14;
 
 const EVENT_ICON: Record<EventKind, IconName> = {
   national: 'calendar',
@@ -39,200 +52,404 @@ const EVENT_ICON: Record<EventKind, IconName> = {
   optional: 'calendar',
   cleaning: 'cleaning',
   contract: 'key',
+  // Community entries only show in the Agenda; "Cette semaine" has its own card for the next Chez Toi event.
+  chezToi: 'people',
+  trip: 'travel',
 };
 
-/** Photo of the "Explorer" invitation card. */
-const EXPLORE_PHOTO = getAttraction('praca-liberdade')?.photo;
-
+/**
+ * Accueil v3 (owner, 2026-11-08: "mix do Airbnb com o Revolut, focado 100% na experiência do aluno").
+ * Around the arrival: the neighborhood photo and a 5-step checklist (Wi‑Fi first). Every day after that:
+ * the address with Uber and 99 one tap away, quick actions, tonight's ideas and the week of the house.
+ * The rent only shows from 3 days before the 5th (or when late): it is never the first thing on the screen.
+ */
 export default function HomeScreen() {
+  const home = useHome();
+  const { refresh, state: homeState } = useHomeState();
+  const savedAt = homeState.status === 'ready' ? homeState.savedAt : undefined;
+  const { reload: reloadRequests } = useRequests();
+  const { reload: reloadChores } = useChores();
   const theme = useTheme();
-  const toast = useToast();
   const { t, lang } = useI18n();
-  const { student, apartment, contract, cleanings, roommates } = useHome();
-  const balance = useBalanceLabel();
-  const colon = lang === 'fr' ? ' : ' : ': ';
-  const upcoming = upcomingEvents({ cleanings, ...contract });
+  const params = useLocalSearchParams<{ welcome?: string }>();
+  const welcome = useWelcome(home, params.welcome === '1');
+  const { student, apartment } = home;
+  // The tour scrolls Accueil back to the top before it measures what it points at.
+  const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
+  useTourScrollTop(scrollRef);
 
-  async function copyWifi() {
-    if (!apartment.wifiPassword) return toast(t.common.soon);
-    await Clipboard.setStringAsync(apartment.wifiPassword);
-    trackAction('copy_wifi');
-    toast(t.home.wifiCopied);
+  const reload = () => Promise.all([refresh(), reloadRequests(), reloadChores()]);
+
+  if (!welcome.loaded) return <Screen>{null}</Screen>;
+
+  if (welcome.visible) {
+    const days = welcome.days ?? 0;
+    const badge = days > 0 ? t.today.arrivalIn(days) : days === 0 ? t.today.arrivalToday : t.today.firstDays;
+    return (
+      <Screen
+        onPhoto
+        scrollRef={scrollRef}
+        onRefresh={reload}
+        header={<WelcomeHero apartment={apartment} badge={badge} title={t.today.welcome(student.firstName)} />}>
+        <TourTarget id="checklist">
+          <WelcomeChecklist home={home} done={welcome.done} onDone={welcome.markDone} onHide={welcome.hide} />
+        </TourTarget>
+        <TourTarget id="quick">
+          <QuickActions apartment={apartment} />
+        </TourTarget>
+        <TonightSection />
+        <WeekSection />
+        <NextEventSection />
+      </Screen>
+    );
   }
 
   return (
-    <Screen>
-      <View style={styles.greeting}>
-        <View style={{ flex: 1, gap: Spacing.xs }}>
-          <AppText variant="display">
-            {new Date().getHours() < 18 ? t.home.morning : t.home.evening}, {student.firstName}
-          </AppText>
-          <AppText color={theme.textSecondary}>
-            {[shortAddress(apartment.address), apartment.complement].filter(Boolean).join(', ')}
-          </AppText>
-        </View>
-        {/* Profile lives here since the tab became "Voyages". */}
-        <PressableScale
-          accessibilityRole="button"
-          accessibilityLabel={t.profile.title}
-          hitSlop={6}
-          onPress={() => router.push('/profile')}
-          style={[styles.profile, Shadow.card, { backgroundColor: theme.brand }]}>
-          <Icon name="profile" size={16} color={theme.onBrand} />
-        </PressableScale>
+    <Screen onRefresh={reload} scrollRef={scrollRef}>
+      {savedAt && <OfflineNotice savedAt={savedAt} />}
+      <View style={{ gap: 2, marginTop: -Spacing.sm }}>
+        <AppText variant="callout" color={theme.textSecondary}>
+          {capitalize(formatDayDate(bhToday(), lang))}
+        </AppText>
+        <AppText variant="display">
+          {bhHour() < 18 ? t.home.morning : t.home.evening}, {student.firstName}
+        </AppText>
       </View>
-      <HeroCard
-        photo={{ uri: apartment.photoUrl ?? '' }}
-        label={t.home.yourHome}
-        labelIcon="home"
-        title={
-          /^\d/.test(apartment.complement)
-            ? `${t.apartment.unit} ${apartment.complement}`
-            : apartment.complement || shortAddress(apartment.address)
-        }
-        cta={t.home.seeApartment}
-        onPress={() => router.navigate('/apartment')}
-      />
-
-      <Section
-        title={t.home.upcoming}
-        subtitle={t.home.upcomingHint}
-        action={t.home.seeCalendar}
-        onAction={() => router.navigate('/calendar')}>
-        <Card style={styles.listCard}>
-          <ListGroup inset>
-            {upcoming.length === 0 ? (
-              <ListRow icon="calendar" title={t.home.nothingSoon} />
-            ) : (
-              upcoming.map((e) => (
-                <ListRow
-                  key={e.id}
-                  icon={EVENT_ICON[e.kind]}
-                  title={e.title[lang]}
-                  subtitle={[
-                    capitalize(formatDayDate(e.date, lang)) +
-                      (e.endDate ? ` → ${formatDayDate(e.endDate, lang)}` : ''),
-                    e.time && formatTime(e.time, lang),
-                    e.kind !== 'cleaning' && e.kind !== 'contract' && t.calendar.kinds[e.kind],
-                  ]
-                    .filter(Boolean)
-                    .join(' · ')}
-                  onPress={() =>
-                    e.kind === 'cleaning' ? router.push('/apartment/cleaning') : router.navigate('/calendar')
-                  }
-                />
-              ))
-            )}
-          </ListGroup>
-        </Card>
-      </Section>
-
-      <Section title={t.home.shortcuts}>
-        <Card style={styles.listCard}>
-          <ListGroup inset>
-            {/* Network and password written out; tapping the row copies the password (the pill says so). */}
-            <ListRow
-              icon="wifi"
-              title={t.home.wifi}
-              subtitle={
-                apartment.wifiName || apartment.wifiPassword
-                  ? [
-                      apartment.wifiName && `${t.apartment.network}${colon}${apartment.wifiName}`,
-                      apartment.wifiPassword && `${t.apartment.password}${colon}${apartment.wifiPassword}`,
-                    ]
-                      .filter(Boolean)
-                      .join('\n')
-                  : t.common.soon
-              }
-              onPress={copyWifi}
-              accessibilityLabel={apartment.wifiPassword ? t.apartment.copyPassword : undefined}
-              accessory={
-                apartment.wifiPassword ? (
-                  <View style={[styles.copyPill, { backgroundColor: theme.fill }]}>
-                    <Icon name="copy" size={14} color={theme.text} />
-                    <AppText variant="caption" style={{ fontFamily: Fonts.bodyMedium }}>
-                      {t.home.copy}
-                    </AppText>
-                  </View>
-                ) : (
-                  <View />
-                )
-              }
-            />
-            <ListRow
-              icon="whatsapp"
-              title={t.home.writeUs}
-              subtitle="WhatsApp"
-              onPress={() => {
-                trackAction('open_whatsapp', 'home');
-                Linking.openURL(`https://wa.me/${contacts.whatsapp}`);
-              }}
-            />
-            {/* Nobody to split with when the student lives alone. */}
-            {roommates.length > 0 && (
-              <ListRow
-                icon="rent"
-                title={t.expenses.homeRow}
-                subtitle={balance || t.expenses.subtitle}
-                onPress={() => router.push('/expenses')}
-              />
-            )}
-            <ListRow
-              icon="emergency"
-              title={t.home.emergency}
-              subtitle={t.home.usefulNumbers}
-              onPress={() => router.push('/emergency')}
-            />
-          </ListGroup>
-        </Card>
-      </Section>
-
-      <Section title={t.home.around} subtitle={t.home.aroundHint}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.bleed}
-          contentContainerStyle={styles.categories}>
-          {CATEGORIES.map((c) => (
-            <CategoryCircle
-              key={c.id}
-              emoji={c.emoji}
-              label={t.nearby.short[c.id]}
-              onPress={() => router.push({ pathname: '/nearby', params: { category: c.id } })}
-            />
-          ))}
-        </ScrollView>
-      </Section>
-
-      {EXPLORE_PHOTO && (
-        <HeroCard
-          photo={{ asset: EXPLORE_PHOTO }}
-          label={t.home.exploreLabel}
-          labelIcon="map"
-          title={t.home.exploreTitle}
-          cta={t.home.exploreCta}
-          onPress={() => router.navigate('/travel')}
-        />
-      )}
+      <View style={{ gap: Spacing.lg, marginTop: -Spacing.md }}>
+        <TourTarget id="address">
+          <AddressCard apartment={apartment} />
+        </TourTarget>
+        <TourTarget id="quick">
+          <QuickActions apartment={apartment} />
+        </TourTarget>
+      </View>
+      <TonightSection />
+      <WeekSection />
+      <NextEventSection />
+      {/* Wave 14: the stay survey, only while it is due (middle and end of the stay). */}
+      <SurveyInvite />
+      <RecapEntry />
     </Screen>
   );
 }
 
-const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+/** No connection: the screen shows the copy kept on the phone, and says from when. */
+function OfflineNotice({ savedAt }: { savedAt: string }) {
+  const theme = useTheme();
+  const { t, lang } = useI18n();
+  // Day and time from the same instant, on the phone's clock (the UTC day of `savedAt` is tomorrow at night in BH).
+  const at = new Date(savedAt);
+  const hhmm = `${String(at.getHours()).padStart(2, '0')}:${String(at.getMinutes()).padStart(2, '0')}`;
+  const when = `${formatDayDate(toIso(at), lang)} · ${formatTime(hhmm, lang)}`;
+  return (
+    <View
+      accessible
+      accessibilityLiveRegion="polite"
+      style={{ gap: 2, padding: Spacing.md, borderRadius: 16, backgroundColor: theme.warningSoft, marginBottom: -Spacing.md }}>
+      <AppText variant="callout" color={theme.warning} style={{ fontFamily: Fonts.bodySemi }}>
+        {t.offline.banner(when)}
+      </AppText>
+      <AppText variant="caption" color={theme.textSecondary}>
+        {t.offline.hint}
+      </AppText>
+    </View>
+  );
+}
 
-const styles = StyleSheet.create({
-  greeting: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, marginBottom: -Spacing.sm },
-  profile: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
-  bleed: { marginHorizontal: -Spacing.gutter },
-  // Vertical padding leaves room for the circles' shadow.
-  categories: { gap: 4, paddingHorizontal: Spacing.gutter - 6, paddingVertical: 6 },
-  listCard: { paddingVertical: 0 },
-  copyPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: Radius.pill,
-  },
-});
+/** The team's bars and clubs: "Ce soir à BH" from 17:00 in Belo Horizonte, "Sortir à BH" during the day. */
+function TonightSection() {
+  const { t } = useI18n();
+  return (
+    <Section
+      title={isEveningInBh() ? t.today.tonight : t.today.goingOut}
+      action={t.today.tonightAction}
+      onAction={() => router.navigate('/explorer')}>
+      <TonightCarousel />
+    </Section>
+  );
+}
+
+/**
+ * The next Chez Toi event, when there is one in the next two weeks (UX review 2026-11-09: the community
+ * was hard to find). Nothing at all while it loads, fails or when nothing is planned.
+ */
+function NextEventSection() {
+  const { t } = useI18n();
+  const { state } = useCommunity<{ events: ChezEvent[] }>('events');
+  // Accueil never unmounts (it is a tab): the clock is read again each time it comes back on screen.
+  const [now, setNow] = useState(() => Date.now());
+  useFocusEffect(useCallback(() => setNow(Date.now()), []));
+  if (state.status !== 'ready') return null;
+  const event = state.data.events
+    .filter((e) => !e.cancelled)
+    .filter((e) => {
+      const at = Date.parse(e.startsAt);
+      // An event that started less than 3 hours ago still shows (it may be on right now).
+      return at >= now - 3 * 3_600_000 && at <= now + EVENT_DAYS * 86_400_000;
+    })
+    .sort((a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt))[0];
+  if (!event) return null;
+  return (
+    <Section title={t.today.nextEvent} action={t.community.hubRow} onAction={() => router.push('/community' as Href)}>
+      <EventCard
+        event={event}
+        onPress={() => router.push(`/community/events/${event.id}` as Href)}
+      />
+    </Section>
+  );
+}
+
+/* ---------- Arrival checklist ---------- */
+
+function WelcomeChecklist({
+  home,
+  done,
+  onDone,
+  onHide,
+}: {
+  home: Home;
+  done: WelcomeStep[];
+  onDone: (step: WelcomeStep) => void;
+  onHide: () => void;
+}) {
+  const theme = useTheme();
+  const toast = useToast();
+  const { t } = useI18n();
+  const s = t.today.steps;
+  const { apartment, roommates } = home;
+  const count = WELCOME_STEPS.filter((x) => done.includes(x)).length;
+
+  async function copy(text: string, step: WelcomeStep, message: string) {
+    await Clipboard.setStringAsync(text);
+    trackAction('welcome_step', step);
+    onDone(step);
+    toast(message);
+  }
+  function go(step: WelcomeStep, href: Href) {
+    trackAction('welcome_step', step);
+    onDone(step);
+    router.push(href);
+  }
+
+  const isDone = (step: WelcomeStep) => done.includes(step);
+  const names = roommates.map((r) => r.firstName);
+  const namesText = names.length > 1 ? `${names.slice(0, -1).join(', ')} & ${names[names.length - 1]}` : names[0];
+
+  return (
+    <View style={{ gap: Spacing.md }}>
+      <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: Spacing.sm }}>
+        <AppText variant="title" style={{ flex: 1 }}>
+          {t.today.start}
+        </AppText>
+        <AppText variant="callout" color={theme.textSecondary}>
+          {t.today.progress(count, WELCOME_STEPS.length)}
+        </AppText>
+      </View>
+      <View
+        style={{ flexDirection: 'row', gap: 4 }}
+        accessible
+        accessibilityLabel={t.today.progress(count, WELCOME_STEPS.length)}>
+        {WELCOME_STEPS.map((step, i) => (
+          <View
+            key={step}
+            style={{ flex: 1, height: 5, borderRadius: 3, backgroundColor: i < count ? theme.success : theme.track }}
+          />
+        ))}
+      </View>
+      <TintCard>
+        <TintRow
+          first
+          icon="wifi"
+          tint={theme.brandSoft}
+          ink={theme.brand}
+          done={isDone('wifi')}
+          title={s.wifi}
+          subtitle={apartment.wifiName ? s.wifiHint(apartment.wifiName) : s.wifiNoInfo}
+          accessory={
+            apartment.wifiPassword && !isDone('wifi') ? (
+              <RowPill primary label={t.today.copy} onPress={() => copy(apartment.wifiPassword!, 'wifi', t.today.wifiCopied)} />
+            ) : (
+              <View />
+            )
+          }
+        />
+        <TintRow
+          icon="address"
+          tint={theme.infoSoft}
+          ink={theme.info}
+          done={isDone('address')}
+          title={s.address}
+          subtitle={s.addressHint}
+          accessory={
+            <RowPill label={t.today.copy} onPress={() => copy(fullAddress(apartment), 'address', t.today.addressCopied)} />
+          }
+        />
+        <TintRow
+          icon="apps"
+          tint={theme.warningSoft}
+          ink={theme.warning}
+          done={isDone('apps')}
+          title={s.apps}
+          subtitle={`Uber, 99, iFood, Nubank · ${s.appsHint}`}
+          onPress={() => go('apps', '/first-steps' as Href)}
+        />
+        <TintRow
+          icon="people"
+          tint={theme.successSoft}
+          ink={theme.success}
+          done={isDone('roommates')}
+          title={names.length ? s.roommates(namesText) : s.roommatesAlone}
+          subtitle={s.roommatesHint}
+          onPress={() => go('roommates', '/apartment/roommates')}
+        />
+        <TintRow
+          icon="document"
+          tint={theme.fill}
+          ink={theme.text}
+          done={isDone('rules')}
+          title={s.rules}
+          subtitle={s.rulesHint}
+          onPress={() => go('rules', '/apartment/rules')}
+        />
+      </TintCard>
+      <View style={{ alignItems: 'flex-end', marginTop: -Spacing.xs }}>
+        <RowPill label={t.today.hideStart} onPress={onHide} />
+      </View>
+    </View>
+  );
+}
+
+/* ---------- This week ---------- */
+
+function WeekSection() {
+  const theme = useTheme();
+  const toast = useToast();
+  const { t, lang } = useI18n();
+  const { contract, cleanings, payments, cleaner } = useHome();
+  const { state: requestsState } = useRequests();
+  const { state: choresState } = useChores();
+  const choreActions = useChoreActions();
+
+  // Rent: from 3 days before the 5th, or when a month is late. Never earlier (v3). The day is Belo Horizonte's.
+  const today = bhToday();
+  const thisMonth = `${today.slice(0, 7)}-01`;
+  const dayOfMonth = Number(today.slice(8, 10));
+  const unpaid = payments.filter((m) => !m.paid && !isFutureMonth(m.month, today));
+  const late = unpaid.filter((m) => m.month < thisMonth || (m.month === thisMonth && dayOfMonth > RENT_DAY));
+  const daysToRent = RENT_DAY - dayOfMonth;
+  const soon =
+    late.length === 0 && daysToRent >= 0 && daysToRent <= RENT_NOTICE_DAYS
+      ? unpaid.find((m) => m.month === thisMonth)
+      : undefined;
+
+  const choresData = choresState.status === 'ready' ? choresState.data : null;
+  const myChores = choresData ? myChoresThisWeek(choresData).filter((i) => !i.done) : [];
+  const nextCleaning = upcomingCleanings(cleanings).find((c) => daysUntil(c.date) <= WEEK_DAYS);
+  const openRequests = requestsState.status === 'ready' ? requestsState.data.requests.filter(isOpen) : [];
+  const events = upcomingEvents({ cleanings, ...contract })
+    .filter((e) => e.kind !== 'cleaning' && daysUntil(e.date) <= WEEK_DAYS)
+    .slice(0, 2);
+
+  const rows: ReactElement<{ first?: boolean }>[] = [];
+  if (late.length > 0 || soon) {
+    const month = rentMonthLabel((late[0] ?? soon)!.month, lang);
+    rows.push(
+      <TintRow
+        key="rent"
+        icon="pix"
+        tint={theme.brandSoft}
+        ink={theme.brand}
+        title={late.length > 0 ? t.today.rentLate(month) : t.today.rentSoon(month, daysToRent)}
+        subtitle={late.length > 0 ? t.home.rentDueHint : t.today.rentHint}
+        subtitleColor={late.length > 0 ? theme.warning : undefined}
+        accessory={<RowPill primary label={t.today.pay} onPress={() => router.push('/apartment/payments')} />}
+      />,
+    );
+  }
+  for (const item of myChores) {
+    const chore = choresData && choreById(choresData, item.choreId);
+    if (!chore || !choresData) continue;
+    rows.push(
+      <TintRow
+        key={`chore-${item.choreId}`}
+        emoji={chore.emoji}
+        tint={theme.fill}
+        ink={theme.text}
+        title={t.home.myChore}
+        subtitle={chore.name}
+        accessory={
+          <RowPill
+            dark
+            label={t.today.done}
+            onPress={() => {
+              trackAction('chore_done', 'home');
+              choreActions
+                .setDone(item.choreId, choresData.weeks[0].weekStart, true, choresData.me)
+                .then(() => toast(t.today.doneToast))
+                .catch(() => toast(t.chores.errors.action));
+            }}
+          />
+        }
+      />,
+    );
+  }
+  if (nextCleaning) {
+    rows.push(
+      <TintRow
+        key="cleaning"
+        icon="cleaning"
+        tint={theme.infoSoft}
+        ink={theme.info}
+        title={capitalize(formatDayDate(nextCleaning.date, lang))}
+        subtitle={[
+          t.home.cleaning,
+          nextCleaning.time && formatTime(nextCleaning.time, lang),
+          cleaner && t.cleaner.with(cleaner.name.split(' ')[0]),
+        ]
+          .filter(Boolean)
+          .join(' · ')}
+        onPress={() => router.push('/apartment/cleaning')}
+      />,
+    );
+  }
+  if (openRequests.length > 0) {
+    rows.push(
+      <TintRow
+        key="requests"
+        icon="receipt"
+        tint={theme.warningSoft}
+        ink={theme.warning}
+        title={t.requests.openCount(openRequests.length)}
+        subtitle={openRequests.map((r) => requestTitle(r, t, lang)).join(', ')}
+        onPress={() => router.push(requestHref('/requests'))}
+      />,
+    );
+  }
+  for (const e of events) {
+    rows.push(
+      <TintRow
+        key={e.id}
+        icon={EVENT_ICON[e.kind]}
+        tint={theme.fill}
+        ink={theme.text}
+        title={e.title[lang]}
+        subtitle={[capitalize(formatDayDate(e.date, lang)), e.time && formatTime(e.time, lang)].filter(Boolean).join(' · ')}
+        onPress={() => router.push('/calendar')}
+      />,
+    );
+  }
+
+  return (
+    <Section title={t.today.week} action={t.today.weekAction} onAction={() => router.push('/calendar')}>
+      <TintCard>
+        {rows.length === 0 ? (
+          <TintRow first icon="calendar" tint={theme.fill} ink={theme.textSecondary} title={t.today.nothing} />
+        ) : (
+          rows.map((row, i) => (i === 0 ? cloneElement(row, { first: true }) : row))
+        )}
+      </TintCard>
+    </Section>
+  );
+}
+
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);

@@ -1,4 +1,4 @@
-import { Redirect, useLocalSearchParams } from 'expo-router';
+import { Link, Redirect, useLocalSearchParams } from 'expo-router';
 import { Linking, StyleSheet, View } from 'react-native';
 
 import { Icon, type IconName } from '@/components/icon';
@@ -19,21 +19,26 @@ export default function DestinationScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const d = getDestination(id);
 
-  if (!d) return <Redirect href="/travel" />;
+  if (!d) return <Redirect href={{ pathname: '/explorer', params: { category: 'trips' } }} />;
 
   return (
     <Screen back title={d.name} subtitle={`${placeLabel(d, lang)} · ${t.travel.trips[d.trip]}`}>
       {d.mustGo && <MustGoBadge />}
 
-      <PlacePhoto
-        placeId={d.placeId}
-        source={d.photo}
-        photoIndex={d.photoIndex}
-        width={1000}
-        aspectRatio={4 / 3}
-        radius={Radius.lg}
-        credit="below"
-      />
+      {/* Where the card's photo lands in the zoom transition from Explorer (iOS 18+; a plain push elsewhere). */}
+      <Link.AppleZoomTarget>
+        <View>
+          <PlacePhoto
+            placeId={d.placeId}
+            source={d.photo}
+            photoIndex={d.photoIndex}
+            width={1000}
+            aspectRatio={4 / 3}
+            radius={Radius.lg}
+            credit="below"
+          />
+        </View>
+      </Link.AppleZoomTarget>
 
       <AppText style={{ lineHeight: 23 }}>{d.description[lang]}</AppText>
 

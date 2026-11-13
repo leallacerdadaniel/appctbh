@@ -1,11 +1,12 @@
+import type { ComponentProps } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 
 import { Icon } from '@/components/icon';
 import { AppText, Avatar, PressableScale } from '@/components/ui';
 import { Fonts, Radius, Shadow, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import type { Lang } from '@/i18n';
-import type { Currency, Member } from '@/lib/expenses';
+import { useI18n, type Lang } from '@/i18n';
+import { personParts, type Currency, type ExpensesData, type Member } from '@/lib/expenses';
 
 /**
  * Building blocks of the shared-expenses screens (Splitwise-like, in the app's visual language).
@@ -29,8 +30,30 @@ export function DateBlock({ iso, lang }: { iso: string; lang: Lang }) {
 }
 
 /**
+ * A person's name; someone who no longer lives in the apartment gets the quiet "(parti·e)" marker after it
+ * (review, 2026-11-10: they used to show as "?"). `full`: the full name instead of the first name.
+ */
+export function PersonName({
+  data,
+  cp,
+  full,
+  ...text
+}: { data: ExpensesData; cp: string; full?: boolean } & Omit<ComponentProps<typeof AppText>, 'children'>) {
+  const theme = useTheme();
+  const { t } = useI18n();
+  const parts = personParts(data, cp, t.expenses, full ? 'fullName' : 'firstName');
+  return (
+    <AppText {...text}>
+      {parts.name}
+      {parts.mark ? <AppText variant="caption" color={theme.textSecondary}>{` ${parts.mark}`}</AppText> : null}
+    </AppText>
+  );
+}
+
+/**
  * Roommates as tappable avatars with their first name underneath. Single choice (who paid)
  * or several (split between); the selected ones get a dark ring and a green check.
+ * A former roommate (only offered when recording a repayment) has "(parti·e)" under the name.
  */
 export function PersonPicker({
   members,
@@ -46,34 +69,46 @@ export function PersonPicker({
   onPress: (id: string) => void;
 }) {
   const theme = useTheme();
+  const { t } = useI18n();
   // The student first, then the roommates.
   const ordered = [...members.filter((m) => m.id === me), ...members.filter((m) => m.id !== me)];
   return (
     <View style={styles.people}>
       {ordered.map((m) => {
         const on = selected.includes(m.id);
-        const label = m.id === me ? meLabel : m.firstName;
+        // A former roommate the server did not name is "Ancien colocataire": two words, so a wider cell.
+        const unnamed = !!m.former && !m.firstName;
+        const label = m.id === me ? meLabel : unnamed ? t.expenses.formerRoommate : m.firstName;
+        const mark = m.former && !unnamed ? t.expenses.leftMark : undefined;
+        const spoken = m.id === me ? meLabel : unnamed ? label : m.fullName;
         return (
           <PressableScale
             key={m.id}
             accessibilityRole="checkbox"
             accessibilityState={{ checked: on }}
-            accessibilityLabel={m.id === me ? meLabel : m.fullName}
+            accessibilityLabel={mark ? `${spoken} ${mark}` : spoken}
             onPress={() => onPress(m.id)}
-            style={styles.person}>
-            <View style={[styles.ring, { borderColor: on ? theme.text : 'transparent' }]}>
-              <Avatar initials={m.initials} size={48} />
-            </View>
-            {on && (
-              <View style={[styles.check, { backgroundColor: theme.success, borderColor: theme.surface }]}>
-                <Icon name="check" size={12} color={theme.surface} />
+            style={[styles.person, unnamed && styles.personWide]}>
+            <View>
+              <View style={[styles.ring, { borderColor: on ? theme.text : 'transparent' }]}>
+                <Avatar initials={m.initials} size={48} />
               </View>
-            )}
+              {on && (
+                <View style={[styles.check, { backgroundColor: theme.success, borderColor: theme.surface }]}>
+                  <Icon name="check" size={12} color={theme.surface} />
+                </View>
+              )}
+            </View>
             <AppText
               variant="caption"
               color={on ? theme.text : theme.textSecondary}
               style={[{ textAlign: 'center' }, on && { fontFamily: Fonts.bodyMedium }]}>
               {label}
+              {mark ? (
+                <AppText variant="caption" color={theme.textSecondary} style={{ fontFamily: Fonts.body }}>
+                  {`\n${mark}`}
+                </AppText>
+              ) : null}
             </AppText>
           </PressableScale>
         );
@@ -158,11 +193,12 @@ const styles = StyleSheet.create({
   },
   people: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.md },
   person: { width: 64, alignItems: 'center', gap: 6 },
+  personWide: { width: 88 },
   ring: { borderWidth: 2, borderRadius: 30, padding: 2 },
   check: {
     position: 'absolute',
     top: 0,
-    right: 4,
+    right: 0,
     width: 20,
     height: 20,
     borderRadius: 10,

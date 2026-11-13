@@ -3,10 +3,12 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Icon, type IconName } from '@/components/icon';
 import { AppText, tapFeedback } from '@/components/ui';
+import { Fonts } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
-const ICON_SIZE = 20;
-const ICON_GAP = 14;
+/** v3 (2026-11-08): the icon sits in a tinted circle, as in Revolut. */
+const ICON_SIZE = 36;
+const ICON_GAP = 12;
 
 /**
  * Rows separated by hairlines, no outer box (iOS inset-grouped feel, without the grey canvas).
@@ -62,9 +64,15 @@ export function ListRow({
 
   const content = (pressed: boolean) => (
     <View style={[styles.row, pressed && { opacity: 0.55 }]}>
-      {icon && <Icon name={icon} size={ICON_SIZE} color={muted ? theme.textTertiary : theme.brand} />}
+      {icon && (
+        <View style={[styles.iconCircle, { backgroundColor: muted ? theme.fill : theme.brandSoft }]}>
+          <Icon name={icon} size={18} color={muted ? theme.textTertiary : theme.brand} />
+        </View>
+      )}
       <View style={styles.text}>
-        <AppText color={muted ? theme.textSecondary : undefined}>{title}</AppText>
+        <AppText color={muted ? theme.textSecondary : undefined} style={{ fontFamily: Fonts.bodyMedium }}>
+          {title}
+        </AppText>
         {subtitle && (
           <AppText variant="callout" color={subtitleColor ?? theme.textSecondary}>
             {subtitle}
@@ -101,8 +109,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: ICON_GAP,
-    minHeight: 56,
-    paddingVertical: 14,
+    minHeight: 60,
+    paddingVertical: 12,
+  },
+  iconCircle: {
+    width: ICON_SIZE,
+    height: ICON_SIZE,
+    borderRadius: ICON_SIZE / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   text: { flex: 1, gap: 2 },
   value: { maxWidth: '45%', textAlign: 'right' },

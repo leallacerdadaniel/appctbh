@@ -19,6 +19,7 @@ import math
 import os
 import re
 import sys
+import time
 import urllib.parse
 import urllib.request
 
@@ -91,6 +92,24 @@ CATEGORIES = [
 ]
 
 
+# Top rated near the apartment (owner, 2026-11-09: "puxa os mais bem avaliados do Google nas proximidades do
+# apto"), shown in Explorer with a tap to Google Maps. Google's star average alone favours tiny places (5.0 from
+# 12 reviews), so the list is ranked by a weighted rating: the average pulled towards PRIOR_RATING by
+# PRIOR_REVIEWS imaginary reviews. Only places within TOP_MAX_WALK minutes on foot.
+TOP_RATED = [
+    {"id": "restaurant", "type": "restaurant", "radius": 1300, "min_reviews": 300, "min_rating": 4.5,
+     # fast food is not what "best rated" means here
+     "exclude": r"mc ?donald|burger king|subway|habib|\bbob'?s\b|giraffas|\bkfc\b|popeyes"},
+    {"id": "bar", "type": "bar", "radius": 1300, "min_reviews": 300, "min_rating": 4.4, "exclude": None},
+    {"id": "cafe", "type": "cafe", "radius": 1300, "min_reviews": 150, "min_rating": 4.5, "exclude": None},
+]
+TOP_PER_CATEGORY = 6
+TOP_MAX_WALK = 15
+TOP_PAGES = 2  # Google gives 20 places per page; two pages are enough for a 15-minute walk
+PRIOR_RATING = 4.3
+PRIOR_REVIEWS = 400
+
+
 _cache = {}
 
 
@@ -105,14 +124,16 @@ def load_key():
     key = os.environ.get("GOOGLE_MAPS_API_KEY", "").strip()
     if key:
         return key
-    env = os.path.expanduser("~/Desktop/Chez Toi BH/.env")
-    if os.path.exists(env):
-        with open(env, encoding="utf-8") as f:
-            for line in f:
-                k, _, v = line.strip().partition("=")
-                if k.strip() == "GOOGLE_MAPS_API_KEY":
-                    return v.strip().strip('"').strip("'")
-    sys.exit("ERROR: GOOGLE_MAPS_API_KEY not found")
+    # The site folder's .env, or this app's .env.local (both outside Git).
+    here = os.path.dirname(os.path.abspath(__file__))
+    for env in (os.path.expanduser("~/Desktop/Chez Toi BH/.env"), os.path.join(here, "..", ".env.local")):
+        if os.path.exists(env):
+            with open(env, encoding="utf-8") as f:
+                for line in f:
+                    k, _, v = line.strip().partition("=")
+                    if k.strip() == "GOOGLE_MAPS_API_KEY" and v.strip():
+                        return v.strip().strip('"').strip("'")
+    sys.exit("ERROR: GOOGLE_MAPS_API_KEY not found (environment, ~/Desktop/Chez Toi BH/.env or .env.local)")
 
 
 def gmaps_get(endpoint, params, key):
@@ -185,6 +206,68 @@ def nearby(loc, cat, key):
         })
     places.sort(key=lambda p: meters(loc, p))
     return places
+
+
+def as_place(p):
+    return {
+        "name": clean_name(p["name"]),
+        "address": p.get("vicinity", ""),
+        "placeId": p["place_id"],
+        "lat": p["geometry"]["location"]["lat"],
+        "lng": p["geometry"]["location"]["lng"],
+        "rating": p.get("rating"),
+        "ratingCount": p.get("user_ratings_total"),
+    }
+
+
+def weighted_rating(p):
+    v = p["ratingCount"] or 0
+    return (v * (p["rating"] or 0) + PRIOR_REVIEWS * PRIOR_RATING) / (v + PRIOR_REVIEWS)
+
+
+def search_pages(params, key, pages):
+    """Up to `pages` pages of a Nearby Search (the next page token needs a couple of seconds to work)."""
+    results = []
+    data = gmaps_get("place/nearbysearch/json", params, key)
+    for page in range(pages):
+        if data.get("status") not in ("OK", "ZERO_RESULTS"):
+            sys.exit(f"ERROR: places failed for {params.get('type')} — {data.get('status')} {data.get('error_message', '')}")
+        results += data.get("results", [])
+        token = data.get("next_page_token")
+        if not token or page + 1 >= pages:
+            break
+        for _ in range(3):
+            time.sleep(2)
+            data = gmaps_get("place/nearbysearch/json", {"pagetoken": token}, key)
+            if data.get("status") != "INVALID_REQUEST":
+                break
+    return results
+
+
+def top_rated_places(loc, cat, key):
+    found = search_pages({
+        "location": f"{loc['lat']},{loc['lng']}",
+        "radius": cat["radius"],
+        "type": cat["type"],
+        "language": "pt-BR",
+    }, key, TOP_PAGES)
+    candidates = {}
+    for p in found:
+        if p.get("business_status", "OPERATIONAL") != "OPERATIONAL":
+            continue
+        if (p.get("user_ratings_total") or 0) < cat["min_reviews"] or (p.get("rating") or 0) < cat["min_rating"]:
+            continue
+        if cat["exclude"] and re.search(cat["exclude"], p["name"], re.I):
+            continue
+        candidates[p["place_id"]] = {**as_place(p), "priceLevel": p.get("price_level")}
+    # Walking times only for the best ones (Distance Matrix is paid per place).
+    best = sorted(candidates.values(), key=weighted_rating, reverse=True)[:TOP_PER_CATEGORY * 2]
+    near = [p for p in with_times(loc, best, key) if p["walkMin"] <= TOP_MAX_WALK]
+    return sorted(near, key=weighted_rating, reverse=True)[:TOP_PER_CATEGORY]
+
+
+def top_rated(loc, key):
+    return [{"id": c["id"], "places": top_rated_places(loc, c, key)} for c in TOP_RATED]
 
 
 def short_address(formatted):
@@ -332,14 +415,26 @@ def around(loc, key):
     categories.insert(3, {"id": "mall", "places": malls})
 
     categories.append({"id": "hospital", "places": hospital_places(loc, key)})
-    return {"skema": skema, "categories": categories}
+    return {"skema": skema, "categories": categories, "topRated": top_rated(loc, key)}
 
 
 def main():
-    if len(sys.argv) < 2:
-        sys.exit('Usage: python3 scripts/nearby.py "Rua X, 123 - Bairro, Belo Horizonte"')
+    args = sys.argv[1:]
+    only_top = args[:1] == ["--top-rated"]
+    if only_top:
+        args = args[1:]
+    if not args:
+        sys.exit('Usage: python3 scripts/nearby.py [--top-rated] "Rua X, 123 - Bairro, Belo Horizonte" | "-19.93,-43.93"')
     key = load_key()
-    loc, formatted = geocode(" ".join(sys.argv[1:]), key)
+    text = " ".join(args)
+    coords = re.fullmatch(r"\s*(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)\s*", text)
+    if coords:
+        loc, formatted = {"lat": float(coords[1]), "lng": float(coords[2])}, text.strip()
+    else:
+        loc, formatted = geocode(text, key)
+    if only_top:
+        print(json.dumps({"topRated": top_rated(loc, key)}, ensure_ascii=False, indent=2))
+        return
     print(json.dumps({"origin": {"address": formatted, **loc}, **around(loc, key)}, ensure_ascii=False, indent=2))
 
 

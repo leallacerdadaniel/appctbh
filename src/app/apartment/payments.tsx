@@ -1,24 +1,37 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { HowToPay } from '@/components/how-to-pay';
 import { Icon } from '@/components/icon';
 import { ListGroup, ListRow } from '@/components/list';
+import { rentMonthLabel, requestHref, requestIcon, requestTitle, requestWhen } from '@/components/request-ui';
 import { Screen, Section } from '@/components/screen';
 import { AppText, Card, PressableScale, StepNumber } from '@/components/ui';
 import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n, type Lang } from '@/i18n';
-import { formatDate, formatMoney, isFutureMonth } from '@/lib/format';
-import { useHome } from '@/lib/home';
+import { formatCents, formatDate, formatMoney, isFutureMonth } from '@/lib/format';
+import { useHome, useHomeState } from '@/lib/home';
+import { usePaymentInfo } from '@/lib/payment-info';
+import { billedCents, upcomingCharges, useRequests } from '@/lib/requests';
 
-/** Rent month by month (paid / due / still to come, never the amount) + the student's security deposit. */
+/**
+ * Rent month by month (paid / due / still to come, never the amount), how to pay (Pix, bank, Wise),
+ * the extras that go on the next rents (wave 6) and the student's security deposit.
+ */
 export default function PaymentsScreen() {
   const { t, lang } = useI18n();
   const p = t.apartment.payments;
   const theme = useTheme();
   const { payments, deposit } = useHome();
+  const { refresh } = useHomeState();
   const [stepsOpen, setStepsOpen] = useState(false);
   const paidCount = payments.filter((m) => m.paid).length;
+  const { state: requestsState, reload: reloadRequests } = useRequests();
+  const requestsData = requestsState.status === 'ready' ? requestsState.data : null;
+  const charges = requestsData ? upcomingCharges(requestsData.requests) : [];
+  const payInfo = usePaymentInfo();
 
   const depositColor =
     deposit?.status === 'returned'
@@ -28,7 +41,11 @@ export default function PaymentsScreen() {
         : theme.textSecondary;
 
   return (
-    <Screen back title={p.title} subtitle={p.subtitle}>
+    <Screen
+      back
+      title={p.title}
+      subtitle={p.subtitle}
+      onRefresh={() => Promise.all([refresh(), reloadRequests(), payInfo.reload()])}>
       <Section title={p.rent}>
         <Card style={payments.length ? { paddingVertical: 0 } : undefined}>
           {payments.length ? (
@@ -76,6 +93,34 @@ export default function PaymentsScreen() {
           )}
         </Card>
       </Section>
+
+      <HowToPay {...payInfo} />
+
+      {charges.length > 0 && (
+        <Section title={t.requests.nextRent} subtitle={t.requests.nextRentHint}>
+          {charges.map((c) => (
+            <Card key={`${c.month}-${c.currency}`} style={{ paddingVertical: 0 }}>
+              <View style={[styles.summary, styles.chargeHead]}>
+                <AppText style={{ flex: 1 }}>{capitalize(t.requests.rentOf(rentMonthLabel(c.month, lang)))}</AppText>
+                <AppText variant="title">{formatCents(c.cents, lang, c.currency)}</AppText>
+              </View>
+              <View style={[styles.divider, { backgroundColor: theme.line }]} />
+              <ListGroup inset>
+                {c.requests.map((req) => (
+                  <ListRow
+                    key={req.id}
+                    icon={requestIcon(req, requestsData?.catalog)}
+                    title={requestTitle(req, t, lang)}
+                    subtitle={requestWhen(req, t, lang)}
+                    value={formatCents(billedCents(req), lang, req.currency)}
+                    onPress={() => router.push(requestHref(`/requests/${req.id}`))}
+                  />
+                ))}
+              </ListGroup>
+            </Card>
+          ))}
+        </Section>
+      )}
 
       <Section title={p.deposit}>
         <Card style={{ gap: Spacing.md }}>
@@ -151,8 +196,11 @@ function monthLabel(iso: string, lang: Lang) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
 const styles = StyleSheet.create({
   summary: { gap: Spacing.sm, paddingVertical: Spacing.md },
+  chargeHead: { flexDirection: 'row', alignItems: 'baseline' },
   track: { height: 6, borderRadius: Radius.pill, overflow: 'hidden' },
   progress: { height: '100%', borderRadius: Radius.pill },
   divider: { height: StyleSheet.hairlineWidth },
