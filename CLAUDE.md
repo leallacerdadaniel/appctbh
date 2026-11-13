@@ -31,7 +31,7 @@ próprio artefato).
 | Onda | O que é | Estado |
 |---|---|---|
 | 0 | O app demo | **Concluída** (05/11/2026) |
-| 1 | Acessos e ambiente | Quase: Lovable, Supabase (admin) e GitHub do site liberados; **banco do app e as 10 funções na produção desde 12/11/2026** (homologação numa cópia passou); **painel no ar no site e segredos das funções na produção desde 13/11/2026**; falta levar a branch do app para a `main` |
+| 1 | Acessos e ambiente | Quase: Lovable, Supabase (admin) e GitHub do site liberados; **banco do app e as 10 funções na produção desde 12/11/2026** (homologação numa cópia passou); **painel no ar no site e segredos das funções na produção desde 13/11/2026**; a `main` do app recebeu a `onda-6-pedidos` em 13/11/2026 (PR #1) |
 | 2, 3, 5, 7, 8, 11 | Banco, login, apartamento, faxinas, contas da casa, lugares | **Em parte pelo Arthur (27/10 a 07/11)**: `app-api` + tabelas `app_*`; caixas marcadas no plano em 08/11 |
 | 6 | Pedidos e extras | **Pronta no desenvolvimento (08/11/2026)**: branch `onda-6-pedidos`, função `app-requests` e tabelas `app_requests*` só no `appctbh` |
 | 5, 7, 9 (parte) | Pix, tarefas da casa, sino de avisos | **Prontos no desenvolvimento (08/11/2026)**: função `app-house`, tabelas `app_chores*`, `app_notices*`, `app_payment_info`, `app_devices` |
@@ -49,6 +49,7 @@ próprio artefato).
 
 - **Código:** repositório `leallacerdadaniel/appctbh` (remoto `origin`); o do Arthur (`arthurhp14/ctbh-app`)
   ficou como remoto `arthur`, só referência. O Arthur parou de mexer no app em 07/11/2026.
+  Desde 13/11/2026 a `main` tem todo o trabalho da `onda-6-pedidos` (PR #1, merge `a03f0d2`, feito pelo Daniel no GitHub).
 - **Desenvolvimento:** projeto Supabase **`appctbh`** (`gxhvhacqemdwwebsftcd`, organização Chez Toi BH), com a
   estrutura das tabelas do site que o app lê, as tabelas `app_*`, a `app-api` e dados fictícios.
   SQL em `supabase/appctbh/` (001 estrutura do site, 002 tabelas e funções do app, 003 dados de teste,

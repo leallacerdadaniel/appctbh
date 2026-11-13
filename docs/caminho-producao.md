@@ -34,8 +34,9 @@ site. A regra continua: **nada escrito no banco do site sem aprovação do Danie
   nada. Uma vez, abrir `/admin/app/avisos` direto voltou para a home: é uma corrida antiga do site (`useRoles` passa
   um instante sem papéis depois que o login carrega e o `AdminRoute` manda para `/`), não do painel; na segunda vez
   abriu normal. A diferença para a `main` anterior está só no menu do admin, nas rotas do admin e nos arquivos novos do painel.
-- **Falta:** a rotina de limpeza (item 4); levar a `onda-6-pedidos` para a `main` do app; o EAS de produção (item 6,
-  passo 5); os primeiros alunos de teste pelo convite do painel (passo 6); desligar a `bright-service` quando ninguém
+- **App na `main`:** a `onda-6-pedidos` foi para a `main` do app pelo PR #1 (merge `a03f0d2`, 17h59), com a checagem
+  do GitHub rodando no PR.
+- **Falta:** a rotina de limpeza (item 4); o EAS de produção (item 6, passo 5); os primeiros alunos de teste pelo convite do painel (passo 6); desligar a `bright-service` quando ninguém
   mais a usar.
 
 ## 1. Código do app: tranquilo
