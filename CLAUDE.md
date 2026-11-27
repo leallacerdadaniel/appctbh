@@ -187,8 +187,10 @@ próprio artefato).
   em 27/11/2026 (Perto de casa, mieux notés e o tempo a pé até os 107 lugares do guia): 13.395 elementos de rota, 778
   buscas por texto, 175 buscas por proximidade. Rodar de novo só para apartamento novo na janela do app (o script pula
   os prontos), quando o guia ganhar lugares (`--force`) ou uma vez por ano. Na produção, sem gravar a chave secreta do
-  Supabase: a linha de comando está no topo de `scripts/apartment_places.py`. A função `place-photo` ainda usa a chave
-  antiga do Arthur (segredo no projeto Supabase, APIs antigas).
+  Supabase: a linha de comando está no topo de `scripts/apartment_places.py`. As fotos do guia (`place-photo`) também
+  passaram para a chave da Chez Toi em 27/11/2026: Places API (New), segredo `GOOGLE_PLACES_API_KEY` na produção. O
+  segredo antigo `GOOGLE_MAPS_API_KEY` (chave do Arthur, APIs antigas) ficou só como reserva no código; pode ser
+  apagado (`npx supabase secrets unset GOOGLE_MAPS_API_KEY --project-ref miucfiiporxhvvbefonh`).
 - Fora de casa, "Autour de moi" (`src/components/around-me.tsx`): botões que abrem o Google Maps buscando onde o aluno está
   (link do Maps, sem chave e sem custo). Busca ao vivo do Google dentro do app foi descartada pelo custo (09/11/2026:
   de US$ 70 a US$ 1.850 por mês para 100 alunos); se voltar, só no toque, com limite por aluno e alerta de gasto.
