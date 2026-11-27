@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "site-chez-toi",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "/Users/daniel_leal7/Documents/GitHub/chez-toi-bh", "run", "dev", "--", "--host", "localhost", "--port", "8080"],
+      "port": 8080
+    }
+  ]
+}

@@ -186,6 +186,17 @@ próprio artefato).
   As tabelas e a `app-admin` já estão na produção; trocar `appDb` por `supabase` só quando o `types.ts` do site tiver
   as tabelas `app_*` (não é preciso para funcionar). Textos de um idioma só que o aluno lê: `team_note` dos pedidos e encomendas e a
   resposta do feedback (a equipe escreve na língua do aluno).
+- **Admin v2 do site** (26–27/11/2026, protótipo aprovado em https://claude.ai/artifact/R1JMwCP3bKm8CxavZz9KbE): relatório
+  no estilo Power BI em `src/components/admin/v2/` do site (menu com os 68 itens antigos em grupos, ⌘K, gráficos, cores
+  aplicadas também às telas antigas por `body.av-theme`). Telas novas: Visão geral (`/admin`, mesmo cálculo do Resultado
+  Mensal), Metas e OKRs (`/admin/metas`), Venda da empresa (`/admin/venda`, só admin: prontidão + valuation em
+  `src/lib/valuation.ts`), Documentos importantes, Corporativo/CMOC (`/admin/corporativo`: ocupantes, CEMIG, lavanderia) e
+  Seguros. Primeira parte na `main` do site pelo PR #1; o resto na branch `admin/redesenho-2`.
+  **Banco de produção, 27/11/2026, com o ok do Daniel:** `corporate_units/occupants/bills`, `goal_cycles/objectives/key_results`
+  (+ colunas em `goal_actions`), `sale_items`, `valuation_scenarios`, `company_documents`, buckets `corporate-bills` e
+  `company-docs`; SQL em `supabase/aplicadas/` do site (fora de `migrations/`, já registrado no banco). Os 26 ocupantes da
+  CMOC (dados pessoais) entraram direto, fora do Git. Contrato CMOC: 19 aptos assinados + aditivos = 21 na My Place
+  (`corporate/contract.ts`). Histórico da CEMIG jul–out/2026 carregado das análises do OneDrive (CHEZ TOI › CMOC › My Place › CEMIG).
 - Caminho para a produção (09/11/2026; passos 1 a 4 feitos em 12/11/2026, ver o topo do arquivo): `docs/caminho-producao.md`. Resumo: o código junta na `main` sem conflito; o
   banco é aditivo (9 de 11 tabelas `app_*` iguais, 2 com colunas novas, 43 novas), mas sem 001, dados de teste, a
   `user_roles` da 006 e o fim da 020; a produção não tem `pg_net`; a `bright-service` mudou em 08/11 22h32 fora do repo.
@@ -221,6 +232,9 @@ próprio artefato).
 
 - O `Simulator.app` não está no Xcode desta máquina: `expo start --ios` falha. Usar
   `npx expo start --localhost` e abrir `exp://localhost:8081` com `xcrun simctl openurl` no iPhone 18 Pro.
+  Se o Expo Go do simulador disser "Project is incompatible" (em 17/11/2026 estava o 57.0.9), instalar o 58 que o
+  Expo já baixou: `xcrun simctl install booted ~/.expo/ios-simulator-app-cache/Expo-Go-58.0.7.tar.app`. O primeiro
+  bundle depois de ligar o simulador leva uns 10 minutos (cache frio).
 - O servidor `supabase-cheztoi-leitura` (`.mcp.json`) lê o token de `SUPABASE_CHEZTOI_TOKEN`; o app do
   Claude não carrega o `~/.zshrc`, então a variável tem de ir por `launchctl setenv` (some ao reiniciar).
 - O `node_modules` do site nesta máquina tem `@supabase/supabase-js` 2.119, mas o `bun.lock` e o `package-lock.json`
