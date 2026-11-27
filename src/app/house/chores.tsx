@@ -85,6 +85,12 @@ function Content({ data }: { data: ChoresData }) {
       {week && (
         <Section title={c.thisWeek} subtitle={c.weekOf(weekDate(week.weekStart, lang))}>
           <Card style={styles.listCard}>
+            {items.length === 0 && (
+              // Every chore is on another week (every two weeks, every month).
+              <AppText color={theme.textSecondary} style={{ paddingVertical: Spacing.md }}>
+                {c.nothingThisWeek}
+              </AppText>
+            )}
             <ListGroup>
               {items.map((item) => {
                 const chore = choreById(data, item.choreId)!;
@@ -93,7 +99,9 @@ function Content({ data }: { data: ChoresData }) {
                   ? item.doneBy === data.me
                     ? c.doneByYou
                     : c.doneBy(who(item.doneBy))
-                  : [who(item.assignee), item.swapped && c.swappedNote].filter(Boolean).join(' · ');
+                  : [who(item.assignee), item.swapped && c.swappedNote, chore.frequency && chore.frequency !== 'weekly' && c.frequencyShort[chore.frequency]]
+                      .filter(Boolean)
+                      .join(' · ');
                 return (
                   <View key={item.choreId}>
                     <ChoreRow
@@ -141,6 +149,9 @@ function Content({ data }: { data: ChoresData }) {
                 <AppText variant="callout" color={theme.textSecondary}>
                   {c.weekOf(weekDate(w.weekStart, lang))}
                 </AppText>
+                {w.items.filter((x) => choreById(data, x.choreId)).length === 0 && (
+                  <AppText color={theme.textSecondary}>{c.nothingThisWeek}</AppText>
+                )}
                 {w.items
                   .filter((x) => choreById(data, x.choreId))
                   .map((x) => {

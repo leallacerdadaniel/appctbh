@@ -1,6 +1,6 @@
 /**
  * Local twin of the `place-photo` Edge Function, so photos work in development before it is deployed.
- * Same handler, key read from the environment or Chez Toi BH/.env.
+ * Same handler, key read from the environment or this app's .env.local (GOOGLE_MAPS_API_KEY).
  *
  *   node scripts/photo-proxy.mts            → http://localhost:8787/?placeId=…
  *   EXPO_PUBLIC_PHOTO_ENDPOINT=http://<mac-ip>:8787 in .env.local for the phone (Expo Go).
@@ -11,11 +11,21 @@ import { homedir } from 'node:os';
 
 import { handlePhoto } from '../supabase/functions/place-photo/handler.ts';
 
+/** The Chez Toi key (Places API New, 27/11/2026): environment, this app's .env.local, then the old folder. */
 function loadKey() {
   if (process.env.GOOGLE_MAPS_API_KEY) return process.env.GOOGLE_MAPS_API_KEY;
-  const env = readFileSync(`${homedir()}/Desktop/Chez Toi BH/.env`, 'utf8');
-  const line = env.split('\n').find((l) => l.startsWith('GOOGLE_MAPS_API_KEY='));
-  return line?.split('=')[1].trim().replace(/^["']|["']$/g, '') ?? '';
+  for (const file of [new URL('../.env.local', import.meta.url), `${homedir()}/Desktop/Chez Toi BH/.env`]) {
+    try {
+      const line = readFileSync(file, 'utf8')
+        .split('\n')
+        .find((l) => l.startsWith('GOOGLE_MAPS_API_KEY='));
+      const key = line?.split('=')[1].trim().replace(/^["']|["']$/g, '');
+      if (key) return key;
+    } catch {
+      // File not there: try the next one.
+    }
+  }
+  return '';
 }
 
 const key = loadKey();

@@ -9,13 +9,18 @@ import { useToast } from '@/components/toast';
 import { AppText, Button, Card, InlineMessage, Input, LoadingState, RetryCard } from '@/components/ui';
 import { Spacing } from '@/constants/theme';
 import { useI18n } from '@/i18n';
+import { ListGroup, ListRow } from '@/components/list';
+import { Icon } from '@/components/icon';
+import { useTheme } from '@/hooks/use-theme';
 import {
   CHORE_EMOJI,
+  CHORE_FREQUENCIES,
   choreById,
   choreErrorText,
   memberLabel,
   useChoreActions,
   useChores,
+  type ChoreFrequency,
   type ChoresData,
 } from '@/lib/chores';
 
@@ -55,6 +60,8 @@ function Form({ data, id, onDeleted }: { data: ChoresData; id?: string; onDelete
 
   const [name, setName] = useState(existing?.name ?? '');
   const [emoji, setEmoji] = useState(existing?.emoji ?? CHORE_EMOJI[0]);
+  const [frequency, setFrequency] = useState<ChoreFrequency>(existing?.frequency ?? 'weekly');
+  const theme = useTheme();
   // Someone who moved out can't stay in the order (the server only accepts current roommates).
   const [order, setOrder] = useState<string[]>(existing ? existing.rotation.filter((cp) => memberIds.has(cp)) : []);
   const [error, setError] = useState<string | null>(null);
@@ -71,7 +78,7 @@ function Form({ data, id, onDeleted }: { data: ChoresData; id?: string; onDelete
     if (order.length === 0) return setError(c.errors.rotation);
     setSaving(true);
     try {
-      await act.save({ id, emoji, name: name.trim(), rotation: order });
+      await act.save({ id, emoji, name: name.trim(), rotation: order, frequency });
       toast(c.saved);
       router.back();
     } catch (e) {
@@ -110,6 +117,29 @@ function Form({ data, id, onDeleted }: { data: ChoresData; id?: string; onDelete
         />
         <FieldLabel>{c.emoji}</FieldLabel>
         <EmojiPicker options={emojiOptions} value={emoji} onChange={setEmoji} labelFor={c.emojiLabel} />
+      </Card>
+
+      {/* How often (owner, 2026-11-27: "verificar a periodicidade que eles querem pôr"). */}
+      <Card style={{ gap: Spacing.sm, paddingBottom: 0 }}>
+        <FieldLabel hint={c.frequencyHint}>{c.frequency}</FieldLabel>
+        <ListGroup>
+          {CHORE_FREQUENCIES.map((f) => (
+            <ListRow
+              key={f}
+              title={c.frequencies[f].label}
+              subtitle={c.frequencies[f].hint}
+              accessibilityLabel={c.frequencies[f].label}
+              onPress={() => setFrequency(f)}
+              accessory={
+                <Icon
+                  name={frequency === f ? 'checkCircleFill' : 'circle'}
+                  size={22}
+                  color={frequency === f ? theme.brand : theme.textTertiary}
+                />
+              }
+            />
+          ))}
+        </ListGroup>
       </Card>
 
       <Card style={{ gap: Spacing.md }}>

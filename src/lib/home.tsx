@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, type ReactNode } from 'react';
 
+import { splitUnit } from '@/lib/address-unit';
 import { appApi, AppApiError } from '@/lib/app-api';
 import { useAuth } from '@/lib/auth';
 import { useSessionState } from '@/lib/session-state';
@@ -19,7 +20,14 @@ export type StudentDate = { date: string; time: string | null };
 type HomeResponse = {
   student: { name: string; email: string };
   must_change_password: boolean;
-  apartment: { title: string; location: string | null; address_complement: string | null; photo: string | null };
+  apartment: {
+    title: string;
+    location: string | null;
+    address_complement: string | null;
+    photo: string | null;
+    /** Since 029 (27/11/2026). */
+    photos?: unknown[];
+  };
   rental: {
     name: string | null;
     semester: string;
@@ -41,7 +49,7 @@ type HomeResponse = {
     unit_number?: string | null;
     wifi_name: string | null;
     wifi_password: string | null;
-    trash_info?: { fr?: string; en?: string; photos?: { url: string }[] } | null;
+    trash_info?: { fr?: string; en?: string; photos?: { url: string }[]; where?: { fr?: string; en?: string } } | null;
   } | null;
   roommates: string[];
   /** Who cleans the apartment (app_cleaners, 2026-11-08); phone only when she agreed to share it. */
@@ -78,10 +86,12 @@ export type Home = {
     complement: string;
     mapsQuery: string;
     photoUrl: string | null;
+    /** The apartment's photos from the site (up to 12, the public listing ones); empty while none. */
+    photos: string[];
     wifiName: string | null;
     wifiPassword: string | null;
-    /** Trash instructions from the admin; null when nothing was entered for this apartment. */
-    trash: { text: Localized; photos: string[] } | null;
+    /** Trash instructions from the admin (where the bins are, how to sort, photos); null when nothing was entered. */
+    trash: { text: Localized; photos: string[]; where: Localized | null } | null;
   };
   contract: {
     semester: string;
@@ -118,21 +128,29 @@ function toTrash(raw: NonNullable<HomeResponse['info']>['trash_info']): Home['ap
   const fr = raw?.fr?.trim() ?? '';
   const en = raw?.en?.trim() ?? '';
   const photos = (raw?.photos ?? []).map((p) => p.url).filter(Boolean);
-  if (!fr && !en && !photos.length) return null;
-  return { text: { fr: fr || en, en: en || fr }, photos };
+  // Where the bins are (2026-11-27: "o local do lixo"), a short line shown in Maison.
+  const whereFr = raw?.where?.fr?.trim() ?? '';
+  const whereEn = raw?.where?.en?.trim() ?? '';
+  const where = whereFr || whereEn ? { fr: whereFr || whereEn, en: whereEn || whereFr } : null;
+  if (!fr && !en && !photos.length && !where) return null;
+  return { text: { fr: fr || en, en: en || fr }, photos, where };
 }
 
 function toHome(r: HomeResponse): Home {
   const location = r.apartment.location?.trim() ?? '';
+  // Apartment number from the panel (Informações dos aptos) first, then the site's address complement; without
+  // either, the number the site wrote inside the address (taken out of it, so it isn't shown twice).
+  const filled = [r.info?.unit_number?.trim(), r.apartment.address_complement?.trim()].filter(Boolean).join(', ');
+  const inside = filled ? null : splitUnit(location);
   return {
     student: { ...person(r.student.name), email: r.student.email },
     apartment: {
       nickname: r.apartment.title,
-      address: location,
-      // Apartment number from admin › Apartamentos first, then the site's address complement.
-      complement: [r.info?.unit_number?.trim(), r.apartment.address_complement?.trim()].filter(Boolean).join(', '),
+      address: inside?.unit ? inside.address : location,
+      complement: filled || inside?.unit || '',
       mapsQuery: location,
       photoUrl: r.apartment.photo,
+      photos: (r.apartment.photos ?? []).filter((u): u is string => typeof u === 'string' && /^https:\/\//.test(u)),
       wifiName: r.info?.wifi_name || null,
       wifiPassword: r.info?.wifi_password || null,
       trash: toTrash(r.info?.trash_info),

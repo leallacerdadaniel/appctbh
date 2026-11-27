@@ -6,12 +6,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from '@/components/icon';
 import { Screen } from '@/components/screen';
 import { AppText, Card, PressableScale } from '@/components/ui';
-import { Radius, Shadow, Spacing } from '@/constants/theme';
+import { Fonts, Radius, Shadow, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { useHome } from '@/lib/home';
 
-/** Trash instructions for this apartment, entered in the admin: text in the app's language + photos. */
+/** Trash for this apartment, entered in the admin: where the bins are, the instructions in the app's language, photos. */
 export default function TrashScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -22,6 +22,18 @@ export default function TrashScreen() {
 
   return (
     <Screen back title={t.apartment.trash.title} subtitle={t.apartment.trash.subtitle}>
+      {!!trash?.where && (
+        <Card style={styles.where}>
+          <Icon name="address" size={20} color={theme.brand} />
+          <View style={{ flex: 1, gap: 2 }}>
+            <AppText variant="callout" color={theme.textSecondary}>
+              {t.apartment.trash.whereTitle}
+            </AppText>
+            <AppText style={{ fontFamily: Fonts.bodySemi }}>{trash.where[lang]}</AppText>
+          </View>
+        </Card>
+      )}
+
       {!!text && (
         <Card>
           <AppText>{text}</AppText>
@@ -56,6 +68,7 @@ export default function TrashScreen() {
 }
 
 const styles = StyleSheet.create({
+  where: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.md },
   photo: { width: '100%', aspectRatio: 4 / 3, borderRadius: Radius.lg, overflow: 'hidden' },
   zoom: { flex: 1 },
   close: {

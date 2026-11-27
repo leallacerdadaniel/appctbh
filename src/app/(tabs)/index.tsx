@@ -1,7 +1,7 @@
 import * as Clipboard from 'expo-clipboard';
 import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
 import { cloneElement, useCallback, useRef, useState, type ComponentRef, type ReactElement } from 'react';
-import { View, type ScrollView } from 'react-native';
+import { StyleSheet, View, type ScrollView } from 'react-native';
 
 import {
   AddressCard,
@@ -21,7 +21,7 @@ import { Screen, Section } from '@/components/screen';
 import { useToast } from '@/components/toast';
 import { RecapEntry } from '@/components/recap-ui';
 import { SurveyInvite } from '@/components/feedback-ui';
-import { AppText } from '@/components/ui';
+import { AppText, Avatar, PressableScale } from '@/components/ui';
 import { Fonts, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
@@ -39,8 +39,11 @@ import { trackAction } from '@/lib/usage';
 import { TourTarget, useTourScrollTop } from '@/lib/tour';
 import { useWelcome, WELCOME_STEPS, type WelcomeStep } from '@/lib/welcome';
 
-/** Rent is due on the 5th: it shows on Accueil from the 2nd, or once late (v3: "aparece só 3 dias antes"). */
-const RENT_DAY = 5;
+/**
+ * Rent is due on the 1st of the month (owner, 2026-11-27: "o aluguel é devido todo dia 1"): it shows on Accueil from
+ * 3 days before (the end of the previous month, for the month to come), on the day, or once late.
+ */
+const RENT_DAY = 1;
 const RENT_NOTICE_DAYS = 3;
 /** "Cette semaine": the next 7 days. */
 const WEEK_DAYS = 7;
@@ -298,7 +301,26 @@ function HousematesSection() {
       subtitle={t.home.housematesHint}
       action={t.home.housematesAction}
       onAction={() => router.push('/apartment/roommates')}>
-      <TintCard>{rows.map((row, i) => (i === 0 ? cloneElement(row, { first: true }) : row))}</TintCard>
+      <TintCard>
+        {/* Who you share the house with, faces first (2026-11-27). */}
+        <PressableScale
+          accessibilityRole="button"
+          accessibilityLabel={t.home.housematesWith(roommates.map((r) => r.firstName))}
+          onPress={() => router.push('/apartment/roommates')}
+          style={styles.mates}>
+          <View style={styles.faces}>
+            {roommates.slice(0, 4).map((r, i) => (
+              <View key={r.fullName} style={[styles.face, { marginLeft: i ? -10 : 0, borderColor: theme.surface }]}>
+                <Avatar initials={r.initials} size={34} />
+              </View>
+            ))}
+          </View>
+          <AppText style={{ flex: 1, fontFamily: Fonts.bodySemi }}>
+            {t.home.housematesWith(roommates.map((r) => r.firstName))}
+          </AppText>
+        </PressableScale>
+        {rows.map((row) => row)}
+      </TintCard>
     </Section>
   );
 }
@@ -468,17 +490,21 @@ function WeekSection() {
   const { contract, cleanings, payments, cleaner } = useHome();
   const { state: requestsState } = useRequests();
 
-  // Rent: from 3 days before the 5th, or when a month is late. Never earlier (v3). The day is Belo Horizonte's.
+  // Rent: from 3 days before the 1st (for the coming month), on the 1st, or when a month is late. Never earlier (v3).
+  // The day is Belo Horizonte's.
   const today = bhToday();
   const thisMonth = `${today.slice(0, 7)}-01`;
   const dayOfMonth = Number(today.slice(8, 10));
+  const [year, month] = today.split('-').map(Number);
+  const nextMonth = new Date(Date.UTC(year, month, 1)).toISOString().slice(0, 10);
+  const toNextMonth = Math.round((Date.UTC(year, month, 1) - Date.UTC(year, month - 1, dayOfMonth)) / 86_400_000);
   const unpaid = payments.filter((m) => !m.paid && !isFutureMonth(m.month, today));
   const late = unpaid.filter((m) => m.month < thisMonth || (m.month === thisMonth && dayOfMonth > RENT_DAY));
-  const daysToRent = RENT_DAY - dayOfMonth;
-  const soon =
-    late.length === 0 && daysToRent >= 0 && daysToRent <= RENT_NOTICE_DAYS
-      ? unpaid.find((m) => m.month === thisMonth)
-      : undefined;
+  const dueToday = dayOfMonth === RENT_DAY ? unpaid.find((m) => m.month === thisMonth) : undefined;
+  const dueSoon =
+    toNextMonth <= RENT_NOTICE_DAYS ? payments.find((m) => !m.paid && m.month === nextMonth) : undefined;
+  const soon = late.length === 0 ? (dueToday ?? dueSoon) : undefined;
+  const daysToRent = dueToday ? 0 : toNextMonth;
 
   const nextCleaning = upcomingCleanings(cleanings).find((c) => daysUntil(c.date) <= WEEK_DAYS);
   const openRequests = requestsState.status === 'ready' ? requestsState.data.requests.filter(isOpen) : [];
@@ -562,3 +588,9 @@ function WeekSection() {
 }
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+const styles = StyleSheet.create({
+  mates: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
+  faces: { flexDirection: 'row' },
+  face: { borderWidth: 2, borderRadius: 19 },
+});

@@ -1,9 +1,9 @@
 import * as Clipboard from 'expo-clipboard';
-import { Image } from 'expo-image';
+import { Image, type ImageSource } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, type Href } from 'expo-router';
-import type { ReactNode } from 'react';
-import { Linking, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { useState, type ReactNode } from 'react';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon, type IconName } from '@/components/icon';
@@ -17,8 +17,9 @@ import { getAttraction } from '@/lib/attractions';
 import type { Home } from '@/lib/home';
 import { nightPlaces } from '@/lib/nightlife';
 import { usePlaces } from '@/lib/places';
-import { appUrl, getService } from '@/lib/services';
 import { trackAction } from '@/lib/usage';
+
+const HOME_PHOTO_HEIGHT = 200;
 
 /** Fallback photo of the neighborhood while the apartment has none. */
 export const NEIGHBORHOOD_PHOTO = getAttraction('praca-liberdade')?.photo;
@@ -37,83 +38,107 @@ function addressLines(apartment: Home['apartment'], unit: string) {
   const [street, ...rest] = apartment.address.replace(/[\s.,-]*Belo Horizonte.*$/, '').split(/\s+-\s+/);
   const neighborhood = rest.join(' – ');
   const unitText = apartment.complement ? (/^\d/.test(apartment.complement) ? `${unit} ${apartment.complement}` : apartment.complement) : '';
-  return { street: street.trim(), detail: [unitText, neighborhood].filter(Boolean).join(' · ') };
+  // The apartment number gets its own line, as visible as the street (owner, 2026-11-27: "não só o número do prédio").
+  return { street: street.trim(), unit: unitText, detail: neighborhood };
 }
 
 /**
- * "Chez vous" card (v3): what the student needs every time they go home — Uber and 99 with the address as
- * destination, copy it for a delivery app, or show it full screen to a driver.
+ * "Chez vous" card (owner, 2026-11-27: "a aba inicial tá meio morta"): the apartment's own photos from the site in a
+ * swipeable carousel, the address and the apartment number over them, and one tap opens Maison ("ao invés de um botão
+ * Maison e Séjour, deixar só clicar no Chez vous"). Under it: copy the address, or show it big for a driver.
  */
 export function AddressCard({ apartment }: { apartment: Home['apartment'] }) {
   const theme = useTheme();
   const toast = useToast();
   const { t } = useI18n();
-  // Large text (Dynamic Type): the four buttons wrap two by two instead of squeezing their labels.
-  const { fontScale } = useWindowDimensions();
-  const wrap = fontScale > 1.2;
-  const { street, detail } = addressLines(apartment, t.apartment.unit);
+  const { street, unit, detail } = addressLines(apartment, t.apartment.unit);
   const address = fullAddress(apartment);
+  const photos = apartment.photos.length ? apartment.photos : apartment.photoUrl ? [apartment.photoUrl] : [];
+  const [width, setWidth] = useState(0);
+  const [page, setPage] = useState(0);
 
   async function copy() {
     await Clipboard.setStringAsync(address);
     trackAction('copy_address', 'home');
     toast(t.today.addressCopied);
   }
-
-  function uber() {
-    trackAction('open_uber', 'home');
-    const q = `action=setPickup&pickup=my_location&dropoff[formatted_address]=${encodeURIComponent(address)}&dropoff[nickname]=${encodeURIComponent('Chez Toi')}`;
-    Linking.openURL(`https://m.uber.com/ul/?${q}`);
+  function openHouse() {
+    trackAction('open_maison', 'home');
+    router.navigate('/maison');
   }
 
-  async function ninetyNine() {
-    // 99 has no public link with a destination: copy the address, then open the app's store page.
-    await Clipboard.setStringAsync(address);
-    trackAction('open_99', 'home');
-    toast(t.today.pasteIn99);
-    const app = getService('99');
-    if (app) Linking.openURL(appUrl(app));
-  }
-
-  const uberLogo = getService('uber')?.logo;
-  const ninetyNineLogo = getService('99')?.logo;
+  const slide = (key: string, source: ImageSource | number | undefined) => (
+    <Pressable key={key} accessibilityRole="button" accessibilityLabel={t.today.openTab(t.tabs.maison)} onPress={openHouse}>
+      <Image source={source} style={{ width, height: HOME_PHOTO_HEIGHT }} contentFit="cover" transition={150} />
+    </Pressable>
+  );
 
   return (
-    <View style={[styles.addressCard, Shadow.raised, { backgroundColor: theme.surface }]}>
-      <View style={styles.addressTop}>
-        <Image
-          source={apartment.photoUrl ? { uri: apartment.photoUrl } : NEIGHBORHOOD_PHOTO}
-          style={[styles.thumb, { backgroundColor: theme.fill }]}
-          contentFit="cover"
-          accessible={false}
+    <View style={[styles.homeCard, Shadow.raised, { backgroundColor: theme.surface }]}>
+      <View
+        style={[styles.homePhoto, { backgroundColor: theme.fill }]}
+        onLayout={(e) => setWidth(Math.round(e.nativeEvent.layout.width))}>
+        {width > 0 &&
+          (photos.length > 1 ? (
+            <ScrollView
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              scrollEventThrottle={32}
+              onScroll={(e) => setPage(Math.round(e.nativeEvent.contentOffset.x / width))}>
+              {photos.map((uri) => slide(uri, { uri }))}
+            </ScrollView>
+          ) : (
+            slide('one', photos[0] ? { uri: photos[0] } : NEIGHBORHOOD_PHOTO)
+          ))}
+        <LinearGradient
+          colors={['transparent', theme.scrim, theme.scrim]}
+          locations={[0, 0.6, 1]}
+          style={styles.homeShade}
+          pointerEvents="none"
         />
-        <View style={{ flex: 1, gap: 1 }}>
-          <AppText variant="caption" color={theme.textSecondary}>
+        <View style={[styles.homePill, { backgroundColor: theme.surface }]} pointerEvents="none">
+          <Icon name="sofa" size={14} color={theme.text} />
+          <AppText variant="caption" maxFontSizeMultiplier={MaxFontScale} style={{ fontFamily: Fonts.bodySemi }}>
+            {t.today.myHome}
+          </AppText>
+          <Icon name="chevronRight" size={12} color={theme.textSecondary} />
+        </View>
+        <View style={styles.homeText} pointerEvents="none">
+          <AppText variant="caption" color={theme.onBrand} style={{ opacity: 0.85 }}>
             {t.today.chezVous}
           </AppText>
-          <AppText style={{ fontFamily: Fonts.bodySemi }}>{street}</AppText>
+          <AppText variant="title" color={theme.onBrand}>
+            {street}
+          </AppText>
+          {!!unit && (
+            <AppText color={theme.onBrand} style={{ fontFamily: Fonts.bodySemi }}>
+              {unit}
+            </AppText>
+          )}
           {!!detail && (
-            <AppText variant="caption" color={theme.textSecondary}>
+            <AppText variant="caption" color={theme.onBrand} style={{ opacity: 0.85 }}>
               {detail}
             </AppText>
           )}
+          {photos.length > 1 && (
+            <View style={styles.dots}>
+              {photos.map((uri, i) => (
+                <View
+                  key={uri}
+                  style={[styles.dot, { backgroundColor: theme.onBrand, opacity: i === page ? 1 : 0.45 }, i === page && styles.dotOn]}
+                />
+              ))}
+            </View>
+          )}
         </View>
       </View>
-      <View style={[styles.addressActions, wrap && styles.addressActionsWrap]}>
-        <AddressButton wide={wrap} label={t.today.uber} a11y={t.today.uberA11y} logo={uberLogo} onPress={uber} />
+      <View style={styles.homeActions}>
+        <AddressButton label={t.today.copyAddress} a11y={t.today.copyAddress} icon="copy" onPress={copy} />
         <AddressButton
-          wide={wrap}
-          label={t.today.ninetyNine}
-          a11y={t.today.ninetyNineA11y}
-          logo={ninetyNineLogo}
-          onPress={ninetyNine}
-        />
-        <AddressButton wide={wrap} label={t.today.copy} a11y={t.today.addressCopied} icon="copy" onPress={copy} />
-        <AddressButton
-          wide={wrap}
-          label={t.today.show}
+          label={t.today.forDriver}
           a11y={t.today.showA11y}
-          icon="show"
+          icon="car"
           onPress={() => {
             trackAction('show_address', 'home');
             router.push('/address' as Href);
@@ -124,35 +149,16 @@ export function AddressCard({ apartment }: { apartment: Home['apartment'] }) {
   );
 }
 
-function AddressButton({
-  label,
-  a11y,
-  logo,
-  icon,
-  onPress,
-  wide = false,
-}: {
-  label: string;
-  a11y: string;
-  logo?: number;
-  icon?: IconName;
-  onPress: () => void;
-  /** Two per row (large text). */
-  wide?: boolean;
-}) {
+function AddressButton({ label, a11y, icon, onPress }: { label: string; a11y: string; icon: IconName; onPress: () => void }) {
   const theme = useTheme();
   return (
     <PressableScale
       accessibilityRole="button"
       accessibilityLabel={a11y}
       onPress={onPress}
-      style={[styles.addressButton, wide && styles.addressButtonWide, { backgroundColor: theme.background }]}>
-      {logo ? (
-        <Image source={logo} style={styles.logo} contentFit="cover" accessible={false} />
-      ) : (
-        icon && <Icon name={icon} size={15} color={theme.text} />
-      )}
-      <AppText variant="callout" maxFontSizeMultiplier={MaxFontScale} style={{ fontFamily: Fonts.bodySemi }}>
+      style={[styles.addressButton, { backgroundColor: theme.background }]}>
+      <Icon name={icon} size={16} color={theme.text} />
+      <AppText variant="callout" maxFontSizeMultiplier={MaxFontScale} style={{ fontFamily: Fonts.bodySemi, flexShrink: 1 }}>
         {label}
       </AppText>
     </PressableScale>
@@ -175,16 +181,25 @@ export function QuickActions({ apartment }: { apartment: Home['apartment'] }) {
     toast(t.today.wifiCopied);
   }
 
-  const actions: { icon: IconName; label: string; a11y?: string; onPress: () => void; sos?: boolean }[] = [
-    { icon: 'wifi', label: t.today.quick.wifi, onPress: wifi },
+  // Each shortcut in its own tint (2026-11-27: "a aba inicial tá meio morta"), SOS stays the red one.
+  const actions: { icon: IconName; label: string; a11y?: string; onPress: () => void; sos?: boolean; tint: string; ink: string }[] = [
+    { icon: 'wifi', label: t.today.quick.wifi, onPress: wifi, tint: theme.infoSoft, ink: theme.info },
     {
       icon: 'laundry',
       label: t.today.quick.services,
       a11y: t.requests.homeNew,
       onPress: () => router.push('/requests/new' as Href),
+      tint: theme.warningSoft,
+      ink: theme.warning,
     },
-    { icon: 'people', label: t.today.quick.roommates, onPress: () => router.push('/apartment/roommates') },
-    { icon: 'shield', label: t.today.quick.sos, onPress: () => router.push('/emergency'), sos: true },
+    {
+      icon: 'people',
+      label: t.today.quick.roommates,
+      onPress: () => router.push('/apartment/roommates'),
+      tint: theme.successSoft,
+      ink: theme.success,
+    },
+    { icon: 'shield', label: t.today.quick.sos, onPress: () => router.push('/emergency'), sos: true, tint: theme.brandSoft, ink: theme.brand },
   ];
 
   return (
@@ -196,8 +211,8 @@ export function QuickActions({ apartment }: { apartment: Home['apartment'] }) {
           accessibilityLabel={a.a11y ?? a.label}
           onPress={a.onPress}
           style={styles.quick}>
-          <View style={[styles.quickCircle, { backgroundColor: a.sos ? theme.brandSoft : theme.surface }]}>
-            <Icon name={a.icon} size={22} color={a.sos ? theme.brand : theme.text} />
+          <View style={[styles.quickCircle, { backgroundColor: a.tint }]}>
+            <Icon name={a.icon} size={22} color={a.ink} />
           </View>
           <AppText
             variant="caption"
@@ -414,23 +429,35 @@ export function WelcomeHero({ apartment, badge, title }: { apartment: Home['apar
 }
 
 const styles = StyleSheet.create({
-  addressCard: { borderRadius: Radius.xl, padding: 14, gap: 12 },
-  addressTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  thumb: { width: 48, height: 48, borderRadius: 14 },
-  addressActions: { flexDirection: 'row', gap: 6 },
-  addressActionsWrap: { flexWrap: 'wrap' },
+  homeCard: { borderRadius: Radius.xl, overflow: 'hidden' },
+  homePhoto: { height: HOME_PHOTO_HEIGHT, overflow: 'hidden' },
+  homeShade: { position: 'absolute', left: 0, right: 0, bottom: 0, top: '35%' },
+  homeText: { position: 'absolute', left: 16, right: 16, bottom: 12, gap: 1 },
+  homePill: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: Radius.pill,
+  },
+  dots: { flexDirection: 'row', gap: 4, marginTop: 8 },
+  dot: { width: 6, height: 6, borderRadius: 3 },
+  dotOn: { width: 16 },
+  homeActions: { flexDirection: 'row', gap: 8, padding: 12 },
   addressButton: {
     flex: 1,
-    minHeight: TapTarget - 4,
-    borderRadius: 12,
+    minHeight: TapTarget,
+    borderRadius: 14,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
-    paddingHorizontal: 4,
+    gap: 8,
+    paddingHorizontal: 8,
   },
-  addressButtonWide: { flexBasis: '48%', flexGrow: 1, paddingVertical: 6 },
-  logo: { width: 18, height: 18, borderRadius: 5 },
   quickRow: { flexDirection: 'row' },
   quick: { flex: 1, alignItems: 'center', gap: 6 },
   quickCircle: { width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center' },

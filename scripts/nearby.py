@@ -10,8 +10,10 @@ Usage (from App CTBH/app):
     python3 scripts/nearby.py "Rua X, 123 - Bairro, Belo Horizonte"   # one address, for checking
 All the apartments: scripts/apartment_places.py.
 
-Key: GOOGLE_MAPS_API_KEY from the environment, or from ~/Desktop/Chez Toi BH/.env.
-APIs used: Geocoding, Places (Nearby Search), Distance Matrix.
+Key: GOOGLE_MAPS_API_KEY from the environment, from this app's .env.local or ~/Desktop/Chez Toi BH/.env.
+APIs used (27/11/2026): Places API (New) — searchNearby, searchText, Place Details — and Routes API
+(computeRouteMatrix). The legacy Places / Distance Matrix endpoints can't be turned on in a new Google Cloud project
+since March 2025, and the Chez Toi key lives in a new project. The results keep the shape the app reads.
 """
 
 import json
@@ -19,7 +21,7 @@ import math
 import os
 import re
 import sys
-import time
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -92,20 +94,30 @@ CATEGORIES = [
 ]
 
 
+PLACES_URL = "https://places.googleapis.com/v1/"
+ROUTES_URL = "https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix"
+# What we read of a place (the Enterprise fields rating / userRatingCount / priceLevel are the point of the lists).
+PLACE_FIELDS = ["id", "displayName", "formattedAddress", "shortFormattedAddress", "location", "rating",
+                "userRatingCount", "businessStatus", "priceLevel"]
+PRICE_LEVELS = {"PRICE_LEVEL_FREE": 0, "PRICE_LEVEL_INEXPENSIVE": 1, "PRICE_LEVEL_MODERATE": 2,
+                "PRICE_LEVEL_EXPENSIVE": 3, "PRICE_LEVEL_VERY_EXPENSIVE": 4}
+# Centre of BH, to bias text searches made without an apartment (one address, a mall).
+BH_CENTER = {"lat": -19.9245, "lng": -43.9352}
+
 # Top rated near the apartment (owner, 2026-11-09: "puxa os mais bem avaliados do Google nas proximidades do
 # apto"), shown in Explorer with a tap to Google Maps. Google's star average alone favours tiny places (5.0 from
 # 12 reviews), so the list is ranked by a weighted rating: the average pulled towards PRIOR_RATING by
 # PRIOR_REVIEWS imaginary reviews. Only places within TOP_MAX_WALK minutes on foot.
 TOP_RATED = [
-    {"id": "restaurant", "type": "restaurant", "radius": 1300, "min_reviews": 300, "min_rating": 4.5,
+    {"id": "restaurant", "type": "restaurant", "word": "restaurante", "radius": 1300, "min_reviews": 300, "min_rating": 4.5,
      # fast food is not what "best rated" means here
      "exclude": r"mc ?donald|burger king|subway|habib|\bbob'?s\b|giraffas|\bkfc\b|popeyes"},
-    {"id": "bar", "type": "bar", "radius": 1300, "min_reviews": 300, "min_rating": 4.4, "exclude": None},
-    {"id": "cafe", "type": "cafe", "radius": 1300, "min_reviews": 150, "min_rating": 4.5, "exclude": None},
+    {"id": "bar", "type": "bar", "word": "bar", "radius": 1300, "min_reviews": 300, "min_rating": 4.4, "exclude": None},
+    {"id": "cafe", "type": "cafe", "word": "café", "radius": 1300, "min_reviews": 150, "min_rating": 4.5, "exclude": None},
 ]
 TOP_PER_CATEGORY = 6
 TOP_MAX_WALK = 15
-TOP_PAGES = 2  # Google gives 20 places per page; two pages are enough for a 15-minute walk
+TOP_PAGES = 2  # pages of the text search (20 places each), on top of the 20 of searchNearby
 PRIOR_RATING = 4.3
 PRIOR_REVIEWS = 400
 
@@ -126,29 +138,82 @@ def load_key():
         return key
     # The site folder's .env, or this app's .env.local (both outside Git).
     here = os.path.dirname(os.path.abspath(__file__))
-    for env in (os.path.expanduser("~/Desktop/Chez Toi BH/.env"), os.path.join(here, "..", ".env.local")):
+    for env in (os.path.join(here, "..", ".env.local"), os.path.expanduser("~/Desktop/Chez Toi BH/.env")):
         if os.path.exists(env):
             with open(env, encoding="utf-8") as f:
                 for line in f:
                     k, _, v = line.strip().partition("=")
                     if k.strip() == "GOOGLE_MAPS_API_KEY" and v.strip():
                         return v.strip().strip('"').strip("'")
-    sys.exit("ERROR: GOOGLE_MAPS_API_KEY not found (environment, ~/Desktop/Chez Toi BH/.env or .env.local)")
+    sys.exit("ERROR: GOOGLE_MAPS_API_KEY not found (environment, .env.local or ~/Desktop/Chez Toi BH/.env)")
 
 
-def gmaps_get(endpoint, params, key):
-    params = {**params, "key": key}
-    url = f"https://maps.googleapis.com/maps/api/{endpoint}?{urllib.parse.urlencode(params)}"
-    with urllib.request.urlopen(url, timeout=15) as resp:
-        return json.loads(resp.read().decode("utf-8"))
+def google_call(endpoint, body, fields, key):
+    """One call to Places (New) or Routes. `endpoint` is a Places path ("places:searchNearby", "places/<id>") or
+    the Routes URL; `body` None means GET. Stops the run with Google's message on any error."""
+    url = endpoint if endpoint.startswith("http") else PLACES_URL + endpoint
+    headers = {"X-Goog-Api-Key": key, "X-Goog-FieldMask": ",".join(fields), "Content-Type": "application/json"}
+    data = None if body is None else json.dumps(body, ensure_ascii=False).encode("utf-8")
+    req = urllib.request.Request(url, data=data, headers=headers, method="GET" if body is None else "POST")
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            return json.loads(resp.read().decode("utf-8") or "null")
+    except urllib.error.HTTPError as e:
+        sys.exit(f"ERROR: Google {endpoint.split('/')[-1]} — {e.code} {e.read().decode('utf-8', 'replace')[:400]}")
+
+
+def legacy(p):
+    """A Places (New) place in the shape the rest of this file (and the app's data) was written for."""
+    loc = p.get("location") or {}
+    return {
+        "place_id": p["id"],
+        "name": (p.get("displayName") or {}).get("text", ""),
+        "vicinity": p.get("shortFormattedAddress") or p.get("formattedAddress", ""),
+        "formatted_address": p.get("formattedAddress", ""),
+        "geometry": {"location": {"lat": loc.get("latitude"), "lng": loc.get("longitude")}},
+        "rating": p.get("rating"),
+        "user_ratings_total": p.get("userRatingCount"),
+        "business_status": p.get("businessStatus", "OPERATIONAL"),
+        "price_level": PRICE_LEVELS.get(p.get("priceLevel")),
+    }
+
+
+def circle(loc, radius):
+    return {"circle": {"center": {"latitude": loc["lat"], "longitude": loc["lng"]}, "radius": float(radius)}}
+
+
+def search_nearby(loc, radius, place_type, key, rank="POPULARITY"):
+    """Up to 20 places of one type inside the circle (searchNearby has no keyword and no next page)."""
+    data = google_call("places:searchNearby", {
+        "includedTypes": [place_type], "maxResultCount": 20, "rankPreference": rank,
+        "languageCode": "pt-BR", "regionCode": "BR", "locationRestriction": circle(loc, radius),
+    }, ["places." + f for f in PLACE_FIELDS], key)
+    return [legacy(p) for p in (data or {}).get("places", [])]
+
+
+def search_text(query, loc, radius, key, place_type=None, pages=1):
+    """Text search biased to the circle (it may return places outside: callers filter by walking time)."""
+    body = {"textQuery": query, "pageSize": 20, "languageCode": "pt-BR", "regionCode": "BR",
+            "locationBias": circle(loc, radius)}
+    if place_type:
+        body["includedType"] = place_type
+    out = []
+    for _ in range(pages):
+        data = google_call("places:searchText", body, ["places." + f for f in PLACE_FIELDS] + ["nextPageToken"], key) or {}
+        out += [legacy(p) for p in data.get("places", [])]
+        if not data.get("nextPageToken"):
+            break
+        body = {**body, "pageToken": data["nextPageToken"]}
+    return out
 
 
 def geocode(address, key):
-    data = gmaps_get("geocode/json", {"address": address, "region": "br"}, key)
-    if data.get("status") != "OK":
-        sys.exit(f"ERROR: geocode failed — {data.get('status')} {data.get('error_message', '')}")
-    r = data["results"][0]
-    return r["geometry"]["location"], r["formatted_address"]
+    """An address (or a place name) to coordinates, with Places text search (no Geocoding API to turn on)."""
+    found = search_text(address, BH_CENTER, 50000, key)
+    if not found:
+        sys.exit(f"ERROR: nothing found for {address!r}")
+    g = found[0]
+    return g["geometry"]["location"], g["formatted_address"]
 
 
 def meters(a, b):
@@ -168,23 +233,15 @@ def clean_name(name):
 
 
 def nearby(loc, cat, key):
-    params = {
-        "location": f"{loc['lat']},{loc['lng']}",
-        "radius": cat["radius"],
-        "type": cat["type"],
-        "language": "pt-BR",
-    }
-    # Google returns at most 20 places per search. Quality-filtered categories also search without the keyword,
-    # which finds well-rated places whose listing doesn't use the word (a "padaria" that calls itself a café).
-    searches = [{**params, "keyword": cat["keyword"]}] if cat["keyword"] else [params]
-    if cat["keyword"] and cat.get("min_rating"):
-        searches.append(params)
+    # The keyword search ("padaria") is a text search of that type around the apartment; quality-filtered categories
+    # also search the type alone, which finds well-rated places whose listing doesn't use the word (a "padaria" that
+    # calls itself a café). Each gives at most 20 places.
     results = {}
-    for search in searches:
-        data = gmaps_get("place/nearbysearch/json", search, key)
-        if data.get("status") not in ("OK", "ZERO_RESULTS"):
-            sys.exit(f"ERROR: places failed for {cat['id']} — {data.get('status')} {data.get('error_message', '')}")
-        results.update({p["place_id"]: p for p in data.get("results", [])})
+    if cat["keyword"]:
+        found = search_text(cat["keyword"], loc, cat["radius"], key, cat["type"])
+        results.update({p["place_id"]: p for p in found if meters(loc, p["geometry"]["location"]) <= cat["radius"] * 1.5})
+    if not cat["keyword"] or cat.get("min_rating"):
+        results.update({p["place_id"]: p for p in search_nearby(loc, cat["radius"], cat["type"], key)})
     places = []
     for p in results.values():
         if p.get("business_status", "OPERATIONAL") != "OPERATIONAL":
@@ -225,32 +282,12 @@ def weighted_rating(p):
     return (v * (p["rating"] or 0) + PRIOR_REVIEWS * PRIOR_RATING) / (v + PRIOR_REVIEWS)
 
 
-def search_pages(params, key, pages):
-    """Up to `pages` pages of a Nearby Search (the next page token needs a couple of seconds to work)."""
-    results = []
-    data = gmaps_get("place/nearbysearch/json", params, key)
-    for page in range(pages):
-        if data.get("status") not in ("OK", "ZERO_RESULTS"):
-            sys.exit(f"ERROR: places failed for {params.get('type')} — {data.get('status')} {data.get('error_message', '')}")
-        results += data.get("results", [])
-        token = data.get("next_page_token")
-        if not token or page + 1 >= pages:
-            break
-        for _ in range(3):
-            time.sleep(2)
-            data = gmaps_get("place/nearbysearch/json", {"pagetoken": token}, key)
-            if data.get("status") != "INVALID_REQUEST":
-                break
-    return results
-
-
 def top_rated_places(loc, cat, key):
-    found = search_pages({
-        "location": f"{loc['lat']},{loc['lng']}",
-        "radius": cat["radius"],
-        "type": cat["type"],
-        "language": "pt-BR",
-    }, key, TOP_PAGES)
+    # The 20 most popular places of the type in the circle, plus up to TOP_PAGES pages of a text search ("restaurante"),
+    # instead of the two pages of the old Nearby Search.
+    found = search_nearby(loc, cat["radius"], cat["type"], key)
+    found += [p for p in search_text(cat["word"], loc, cat["radius"], key, cat["type"], TOP_PAGES)
+              if meters(loc, p["geometry"]["location"]) <= cat["radius"] * 1.5]
     candidates = {}
     for p in found:
         if p.get("business_status", "OPERATIONAL") != "OPERATIONAL":
@@ -285,10 +322,7 @@ def chain_places(loc, cat, key):
     """Nearest operational unit of each trusted chain (Text Search by chain name, then walking time)."""
     picks = []
     for query, pattern in cat["chains"]:
-        data = gmaps_get("place/textsearch/json", {
-            "query": query, "location": f"{loc['lat']},{loc['lng']}", "radius": CHAIN_SEARCH_RADIUS,
-            "type": cat["type"], "language": "pt-BR",
-        }, key)
+        found = search_text(query, loc, CHAIN_SEARCH_RADIUS, key, cat["type"])
         units = [{
             "name": clean_name(p["name"]),
             "address": short_address(p.get("formatted_address", "")),
@@ -297,7 +331,7 @@ def chain_places(loc, cat, key):
             "lng": p["geometry"]["location"]["lng"],
             "rating": p.get("rating"),
             "ratingCount": p.get("user_ratings_total"),
-        } for p in data.get("results", [])
+        } for p in found
             if p.get("business_status", "OPERATIONAL") == "OPERATIONAL"
             and re.search(pattern, p["name"], re.I)]
         units = [u for u in units if not any(same_shop(u, c) for c in picks)]
@@ -358,40 +392,58 @@ def hospital_places(loc, key):
     reviews are mostly about waiting times (2.6 to 4 for all of them) and don't reflect the ranking."""
     out = []
     for h in HOSPITALS:
-        g = cached(f"hospital {h['placeId']}", lambda: gmaps_get(
-            "place/details/json", {"place_id": h["placeId"], "fields": "geometry"}, key)["result"]["geometry"]["location"])
-        out.append({**h, "lat": g["lat"], "lng": g["lng"], "rating": None, "ratingCount": None})
-    times = matrix(loc, [f"{h['lat']},{h['lng']}" for h in out], key)
+        g = cached(f"hospital {h['placeId']}", lambda: google_call(f"places/{h['placeId']}", None, ["location"], key)["location"])
+        out.append({**h, "lat": g["latitude"], "lng": g["longitude"], "rating": None, "ratingCount": None})
+    times = matrix(loc, [f"{h['lat']},{h['lng']}" for h in out], key, drive="all")
     return sorted([{**h, **t} for h, t in zip(out, times)], key=lambda h: h.get("driveMin", 999))
 
 
-def matrix(loc, destinations, key):
-    """Walking metres/minutes and driving minutes for each destination (lat,lng or address)."""
+def waypoint(destination):
+    """"lat,lng" or an address, as a Routes API waypoint."""
+    m = re.fullmatch(r"\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*", destination)
+    if m:
+        return {"waypoint": {"location": {"latLng": {"latitude": float(m[1]), "longitude": float(m[2])}}}}
+    return {"waypoint": {"address": destination}}
+
+
+def matrix(loc, destinations, key, drive="far"):
+    """Walking metres/minutes for each destination (lat,lng or address) and, with the Routes API, driving minutes:
+    drive="far" only where the walk is over WALK_LIMIT (the app shows the car only then, src/lib/places.tsx),
+    "all" for every destination (hospitals are sorted by it), "none" for candidates that are dropped unless walkable.
+    Routes bills per element: 27/11/2026, 722 elements for one apartment with walk + drive everywhere."""
     out = [{} for _ in destinations]
     if not destinations:
         return out
-    for mode in ("walking", "driving"):
-        data = gmaps_get("distancematrix/json", {
-            "origins": f"{loc['lat']},{loc['lng']}",
-            "destinations": "|".join(destinations),
-            "mode": mode,
-        }, key)
-        if data.get("status") != "OK":
-            sys.exit(f"ERROR: distance matrix — {data.get('status')} {data.get('error_message', '')}")
-        for i, el in enumerate(data["rows"][0]["elements"]):
-            if el.get("status") != "OK":
+    origin = {"waypoint": {"location": {"latLng": {"latitude": loc["lat"], "longitude": loc["lng"]}}}}
+    for mode in ("WALK", "DRIVE"):
+        idx = list(range(len(destinations)))
+        if mode == "DRIVE":
+            if drive == "none":
+                break
+            if drive == "far":
+                idx = [i for i in idx if out[i].get("walkMin", WALK_LIMIT + 1) > WALK_LIMIT]
+            if not idx:
+                break
+        body = {"origins": [origin], "destinations": [waypoint(destinations[i]) for i in idx], "travelMode": mode}
+        if mode == "DRIVE":
+            body["routingPreference"] = "TRAFFIC_UNAWARE"
+        data = google_call(ROUTES_URL, body, ["originIndex", "destinationIndex", "distanceMeters", "duration", "condition"], key)
+        for el in data or []:
+            if el.get("condition") != "ROUTE_EXISTS" or "duration" not in el:
                 continue
-            mins = max(1, round(el["duration"]["value"] / 60))
-            if mode == "walking":
-                out[i]["distanceM"] = el["distance"]["value"]
+            i = idx[el.get("destinationIndex", 0)]
+            mins = max(1, round(int(str(el["duration"]).rstrip("s")) / 60))
+            if mode == "WALK":
+                out[i]["distanceM"] = el.get("distanceMeters", 0)
                 out[i]["walkMin"] = mins
             else:
                 out[i]["driveMin"] = mins
     return out
 
 
-def with_times(loc, places, key):
-    times = matrix(loc, [f"{p['lat']},{p['lng']}" for p in places], key)
+def with_times(loc, places, key, drive="none"):
+    """Candidates with their walking time (only walkable ones are kept, so no driving time by default)."""
+    times = matrix(loc, [f"{p['lat']},{p['lng']}" for p in places], key, drive)
     merged = [{**p, **t} for p, t in zip(places, times) if "walkMin" in t]
     return sorted(merged, key=lambda p: p["walkMin"])
 

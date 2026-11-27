@@ -7,6 +7,7 @@ import { TourOverlay } from '@/components/tour-overlay';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { useHome } from '@/lib/home';
+import { useLanguageIntro } from '@/lib/language-intro';
 import { usePermissionsIntro } from '@/lib/permissions-intro';
 import { useRulesIntro } from '@/lib/rules-intro';
 import { TourProvider, useTourAutoStart } from '@/lib/tour';
@@ -15,19 +16,28 @@ export default function TabLayout() {
   const theme = useTheme();
   const { t } = useI18n();
   const { student } = useHome();
-  // The house rules intro opens over the tabs until the student signs the current version.
+  // First run, one screen at a time: the language (once per phone), the house rules (until the current version is
+  // signed), notifications and location (once per student on this phone), then Charlotte's tour.
+  const languageNeeded = useLanguageIntro();
   const rulesNeeded = useRulesIntro(student.email);
   // Then, once per phone, notifications and location (owner, 2026-11-27); the tour waits for both.
   const permissionsNeeded = usePermissionsIntro(student.email);
   useEffect(() => {
+    if (languageNeeded === null || languageNeeded) {
+      if (languageNeeded) router.push('/language-intro' as Href);
+      return;
+    }
     if (rulesNeeded) router.push('/rules-intro' as Href);
     else if (rulesNeeded === false && permissionsNeeded) router.push('/permissions-intro' as Href);
-  }, [rulesNeeded, permissionsNeeded]);
+  }, [languageNeeded, rulesNeeded, permissionsNeeded]);
 
   return (
     <TourProvider email={student.email}>
       <View style={{ flex: 1 }}>
-        <TourStarter email={student.email} ready={rulesNeeded === false && permissionsNeeded === false} />
+        <TourStarter
+          email={student.email}
+          ready={languageNeeded === false && rulesNeeded === false && permissionsNeeded === false}
+        />
         <Tabs
           tabBar={(props) => <TabBar {...props} />}
           screenOptions={{

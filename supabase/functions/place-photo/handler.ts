@@ -5,9 +5,13 @@
  * GET ?placeId=<Google place id>&w=<max width px>&i=<photo index 0–9, default 0>
  *  → { uri, author, authorUrl }
  *
- * The Google key stays here. `uri` is the keyless lh3.googleusercontent.com address Google redirects
- * to, so the app never sees the key. Google's terms: show the author credit, do not store photos —
- * the app loads them live and only lets the HTTP cache keep them briefly.
+ * The Google key stays here. `uri` is the keyless lh3.googleusercontent.com address Google gives back,
+ * so the app never sees the key. Google's terms: show the author credit, do not store photos — the app
+ * loads them live and only lets the HTTP cache keep them briefly.
+ *
+ * Places API (New) since 27/11/2026, with the Chez Toi key (project "Chez Toi BH app"): Place Details with the
+ * `photos` field, then the photo's /media with skipHttpRedirect. The legacy Place Details / Place Photo calls used
+ * Arthur's key. The photo order may differ a little from the legacy one (the `photoIndex` chosen per place).
  */
 import allowed from './allowed.json' with { type: 'json' };
 
@@ -36,33 +40,33 @@ export async function handlePhoto(req: Request, key: string): Promise<Response> 
   // Only places the team curated: the endpoint is public, the key must not become an open proxy.
   if (!ALLOWED.has(placeId)) return json({ error: 'unknown place' }, 404);
 
-  const details = await fetch(
-    `https://maps.googleapis.com/maps/api/place/details/json?${new URLSearchParams({
-      place_id: placeId,
-      fields: 'photos',
-      key,
-    })}`,
-  ).then((r) => r.json());
+  const headers = { 'X-Goog-Api-Key': key };
+  const details = await fetch(`https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`, {
+    headers: { ...headers, 'X-Goog-FieldMask': 'photos' },
+  })
+    .then((r) => (r.ok ? r.json() : null))
+    .catch(() => null);
 
-  const photos = details?.result?.photos ?? [];
+  const photos: { name: string; authorAttributions?: { displayName?: string; uri?: string }[] }[] =
+    details?.photos ?? [];
   const photo = photos[index] ?? photos[0];
   if (!photo) return json({ error: 'no photo' }, 404, { 'Cache-Control': 'public, max-age=3600' });
 
   const media = await fetch(
-    `https://maps.googleapis.com/maps/api/place/photo?${new URLSearchParams({
-      maxwidth: String(width),
-      photo_reference: photo.photo_reference,
-      key,
+    `https://places.googleapis.com/v1/${photo.name}/media?${new URLSearchParams({
+      maxWidthPx: String(width),
+      skipHttpRedirect: 'true',
     })}`,
-    { redirect: 'manual' },
-  );
-  const uri = media.headers.get('location');
+    { headers },
+  )
+    .then((r) => (r.ok ? r.json() : null))
+    .catch(() => null);
+  const uri: string | undefined = media?.photoUri;
   if (!uri || uri.includes(key)) return json({ error: 'photo unavailable' }, 502);
 
-  // html_attributions: ['<a href="https://maps.google.com/maps/contrib/…">Name</a>']
-  const attribution: string = photo.html_attributions?.[0] ?? '';
-  const author = attribution.replace(/<[^>]+>/g, '').trim() || null;
-  const authorUrl = attribution.match(/href="([^"]+)"/)?.[1] ?? null;
+  const credit = photo.authorAttributions?.[0];
+  const author = credit?.displayName?.trim() || null;
+  const authorUrl = credit?.uri ?? null;
 
   return json({ uri, author, authorUrl }, 200, { 'Cache-Control': 'public, max-age=3600' });
 }
