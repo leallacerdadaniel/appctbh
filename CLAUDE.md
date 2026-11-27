@@ -197,6 +197,13 @@ próprio artefato).
   tela modelo `AdminContactForms.tsx`. Caixa **"Coisas que não usamos"** no fim do menu (`NAV_ARCHIVE` em `nav.ts`, só
   sócios): Eventos/Esportes, Tarefas/Kanban/Rotinas, Atas, Aprendizados e o portal antigo do aluno; para voltar uma tela,
   mover o item de grupo. Nomes do menu em português (os antigos seguem na busca ⌘K).
+  **Segurança do banco do site, 27/11/2026, com o ok do Daniel** (`supabase/aplicadas/2026-11-27_seguranca.sql` do site):
+  nome e contato do proprietário saíram de `apartments` (a vitrine, que qualquer visitante lê) para
+  `apartment_owner_info` (só equipe; contador lê); o admin usa `src/lib/apartmentOwnerInfo.ts`. Bucket
+  `student-documents` privado (o admin abre por link temporário). Fechadas para visitantes as funções
+  `auto_inactivate_expired_rentals`, `verify_student_password`, `log_auth_attempt`, `get_all_users_with_roles` e as de gatilho.
+  Ficam abertas de propósito `is_staff`, `has_role`, `is_student`, `get_student_rental_id` (usadas nas regras de acesso) e as do blog.
+  Nunca gravar dado pessoal em `apartments`.
   **Banco de produção, 27/11/2026, com o ok do Daniel:** `corporate_units/occupants/bills`, `goal_cycles/objectives/key_results`
   (+ colunas em `goal_actions`), `sale_items`, `valuation_scenarios`, `company_documents`, buckets `corporate-bills` e
   `company-docs`; SQL em `supabase/aplicadas/` do site (fora de `migrations/`, já registrado no banco). Os 26 ocupantes da
