@@ -20,7 +20,14 @@ export type StudentDate = { date: string; time: string | null };
 type HomeResponse = {
   student: { name: string; email: string };
   must_change_password: boolean;
-  apartment: { title: string; location: string | null; address_complement: string | null; photo: string | null };
+  apartment: {
+    title: string;
+    location: string | null;
+    address_complement: string | null;
+    photo: string | null;
+    /** Since 029 (27/11/2026). */
+    photos?: unknown[];
+  };
   rental: {
     name: string | null;
     semester: string;
@@ -79,6 +86,8 @@ export type Home = {
     complement: string;
     mapsQuery: string;
     photoUrl: string | null;
+    /** The apartment's photos from the site (up to 12, the public listing ones); empty while none. */
+    photos: string[];
     wifiName: string | null;
     wifiPassword: string | null;
     /** Trash instructions from the admin (where the bins are, how to sort, photos); null when nothing was entered. */
@@ -141,6 +150,7 @@ function toHome(r: HomeResponse): Home {
       complement: filled || inside?.unit || '',
       mapsQuery: location,
       photoUrl: r.apartment.photo,
+      photos: (r.apartment.photos ?? []).filter((u): u is string => typeof u === 'string' && /^https:\/\//.test(u)),
       wifiName: r.info?.wifi_name || null,
       wifiPassword: r.info?.wifi_password || null,
       trash: toTrash(r.info?.trash_info),

@@ -1,7 +1,7 @@
 import * as Clipboard from 'expo-clipboard';
 import { router, useFocusEffect, useLocalSearchParams, type Href } from 'expo-router';
 import { cloneElement, useCallback, useRef, useState, type ComponentRef, type ReactElement } from 'react';
-import { View, type ScrollView } from 'react-native';
+import { StyleSheet, View, type ScrollView } from 'react-native';
 
 import {
   AddressCard,
@@ -21,7 +21,7 @@ import { Screen, Section } from '@/components/screen';
 import { useToast } from '@/components/toast';
 import { RecapEntry } from '@/components/recap-ui';
 import { SurveyInvite } from '@/components/feedback-ui';
-import { AppText } from '@/components/ui';
+import { AppText, Avatar, PressableScale } from '@/components/ui';
 import { Fonts, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
@@ -298,7 +298,26 @@ function HousematesSection() {
       subtitle={t.home.housematesHint}
       action={t.home.housematesAction}
       onAction={() => router.push('/apartment/roommates')}>
-      <TintCard>{rows.map((row, i) => (i === 0 ? cloneElement(row, { first: true }) : row))}</TintCard>
+      <TintCard>
+        {/* Who you share the house with, faces first (2026-11-27). */}
+        <PressableScale
+          accessibilityRole="button"
+          accessibilityLabel={t.home.housematesWith(roommates.map((r) => r.firstName))}
+          onPress={() => router.push('/apartment/roommates')}
+          style={styles.mates}>
+          <View style={styles.faces}>
+            {roommates.slice(0, 4).map((r, i) => (
+              <View key={r.fullName} style={[styles.face, { marginLeft: i ? -10 : 0, borderColor: theme.surface }]}>
+                <Avatar initials={r.initials} size={34} />
+              </View>
+            ))}
+          </View>
+          <AppText style={{ flex: 1, fontFamily: Fonts.bodySemi }}>
+            {t.home.housematesWith(roommates.map((r) => r.firstName))}
+          </AppText>
+        </PressableScale>
+        {rows.map((row) => row)}
+      </TintCard>
     </Section>
   );
 }
@@ -562,3 +581,9 @@ function WeekSection() {
 }
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+const styles = StyleSheet.create({
+  mates: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
+  faces: { flexDirection: 'row' },
+  face: { borderWidth: 2, borderRadius: 19 },
+});

@@ -235,6 +235,11 @@ próprio artefato).
   Poubelles, Règles) → Ménage → Colis → Colocs → Résidents. "Poubelles" mostra onde ficam as lixeiras
   (`app_apartment_info.trash_info.where` {fr,en}, campo "Onde fica" na tela Informações dos aptos do painel); sem nada
   preenchido, a linha pede à equipe pelo WhatsApp.
+  **Accueil com fotos** (27/11/2026, "a aba inicial tá meio morta"): o cartão "Chez vous" mostra as fotos do apto da
+  vitrine do site (`apartments.images`, até 12) em carrossel, com endereço e número por cima; o toque abre a Maison;
+  botões "Copier l'adresse" e "Pour le chauffeur". As fotos chegam pela `app_home_for` (`apartment.photos`): 029 no dev,
+  `supabase/producao/006_fotos_do_apto.sql` na produção (sem ela, o app mostra só a capa). A pergunta da língua é uma
+  folha pequena por cima do Accueil (`transparentModal`), não mais uma tela inteira.
   **Lembretes** (028 no dev; na produção é o `supabase/producao/005_lembretes.sql`): `app_send_reminders` pelo pg_cron,
   aluguel 5, 3 e 1 dia antes do dia 5 se o mês não está pago (10h de BH) e faxina na véspera com o horário (18h de BH);
   viram aviso no sino e push para quem tem o app instalado; cada um sai uma vez (`app_reminders_sent`). Para testar
