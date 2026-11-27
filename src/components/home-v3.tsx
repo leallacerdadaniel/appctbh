@@ -192,10 +192,14 @@ export function QuickActions({ apartment }: { apartment: Home['apartment'] }) {
       tint: theme.warningSoft,
       ink: theme.warning,
     },
+    // Trips, not roommates: "Entre colocs" is right under the shortcuts (owner, 2026-11-27).
     {
-      icon: 'people',
-      label: t.today.quick.roommates,
-      onPress: () => router.push('/apartment/roommates'),
+      icon: 'travel',
+      label: t.today.quick.trips,
+      onPress: () => {
+        trackAction('open_trips', 'home');
+        router.navigate({ pathname: '/explorer', params: { category: 'trips' } });
+      },
       tint: theme.successSoft,
       ink: theme.success,
     },
@@ -217,7 +221,7 @@ export function QuickActions({ apartment }: { apartment: Home['apartment'] }) {
           <AppText
             variant="caption"
             color={a.sos ? theme.brandText : theme.text}
-            // Four labels share the width of the screen: a lower cap keeps "Roommates" in one piece.
+            // Four labels share the width of the screen: a lower cap keeps "Extra services" in one piece.
             maxFontSizeMultiplier={QUICK_FONT_SCALE}
             style={{ fontFamily: a.sos ? Fonts.bodySemi : Fonts.bodyMedium, textAlign: 'center' }}>
             {a.label}

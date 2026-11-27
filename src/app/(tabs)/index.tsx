@@ -38,6 +38,8 @@ import { isOpen, useRequests } from '@/lib/requests';
 import { trackAction } from '@/lib/usage';
 import { TourTarget, useTourScrollTop } from '@/lib/tour';
 import { useWelcome, WELCOME_STEPS, type WelcomeStep } from '@/lib/welcome';
+import { useFirstStepsCard } from '@/lib/first-steps-card';
+import { FirstStepsCard } from '@/components/first-steps-card';
 
 /**
  * Rent is due on the 1st of the month (owner, 2026-11-27: "o aluguel é devido todo dia 1"): it shows on Accueil from
@@ -77,6 +79,7 @@ export default function HomeScreen() {
   const { t, lang } = useI18n();
   const params = useLocalSearchParams<{ welcome?: string }>();
   const welcome = useWelcome(home, params.welcome === '1');
+  const firstSteps = useFirstStepsCard(home);
   const { student, apartment } = home;
   // The tour scrolls Accueil back to the top before it measures what it points at.
   const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
@@ -128,6 +131,8 @@ export default function HomeScreen() {
         <TourTarget id="quick">
           <QuickActions apartment={apartment} />
         </TourTarget>
+        {/* Until hidden or a week after the arrival (the arrival checklist has its own "apps" step). */}
+        {firstSteps.visible && <FirstStepsCard onHide={firstSteps.hide} />}
       </View>
       <HousematesSection />
       <TonightSection />
@@ -331,7 +336,7 @@ function HousematesSection() {
 function WallSection() {
   const theme = useTheme();
   const { t } = useI18n();
-  const { state } = useCommunity<{ posts: Post[] }>('feed', { scope: 'all' });
+  const { state } = useCommunity<{ posts: Post[] }>('feed');
   if (state.status !== 'ready') return null;
   const posts = state.data.posts.filter((p) => p.status === 'published').slice(0, 2);
   return (

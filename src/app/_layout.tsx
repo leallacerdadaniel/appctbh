@@ -139,6 +139,7 @@ function RootStack() {
           <Stack.Screen name="expenses/settle" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="travel/[id]" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="attraction/[id]" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="attractions" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="festival/[id]" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="profile" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="recap/index" options={{ animation: 'slide_from_right' }} />
@@ -185,6 +186,9 @@ function RootStack() {
           <Stack.Screen name="community/trips/index" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="community/trips/[id]" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="community/trips/edit" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="community/groups/index" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="community/groups/[id]" options={{ animation: 'slide_from_right' }} />
+          <Stack.Screen name="community/groups/edit" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="community/events/[id]" options={{ animation: 'slide_from_right' }} />
         </Stack.Protected>
       </Stack>

@@ -27,7 +27,7 @@ export default function DestinationScreen() {
 
       {/* Where the card's photo lands in the zoom transition from Explorer (iOS 18+; a plain push elsewhere). */}
       <Link.AppleZoomTarget>
-        <View>
+        <View collapsable={false}>
           <PlacePhoto
             placeId={d.placeId}
             source={d.photo}

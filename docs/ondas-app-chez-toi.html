@@ -155,7 +155,7 @@ h2{font-family:var(--display);font-weight:400;font-size:clamp(24px,3.4vw,32px);l
     <p class="logo"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 15.5 16 6l11 9.5V27a1 1 0 0 1-1 1h-6.5v-7.5h-7V28H6a1 1 0 0 1-1-1z" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/></svg>Chez Toi BH</p>
     <h1>Do app demo ao app que nenhum estudante quer largar</h1>
     <p class="lead">Dezenove ondas, na ordem em que as dependências mandam. O painel mora no site da Chez Toi e alimenta o perfil de cada morador; o app lê o mesmo banco. Marque as caixas conforme andar: o que você marcar fica salvo para todo mundo que abrir este link.</p>
-    <div class="meta"><span>Expo SDK 58 e Expo Router</span><span>Supabase da Chez Toi</span><span>Painel no site (Lovable)</span><span>iOS e Android</span><span id="atualizado">Atualizado em 27/11/2026 às 16:37</span></div>
+    <div class="meta"><span>Expo SDK 58 e Expo Router</span><span>Supabase da Chez Toi</span><span>Painel no site (Lovable)</span><span>iOS e Android</span><span id="atualizado">Atualizado em 27/11/2026 às 20:06</span></div>
     <!-- span#atualizado: dia e hora da última atualização deste arquivo, horário de Brasília.
          Toda vez que este HTML mudar, o carimbo muda junto, antes de republicar. -->
   </div>
@@ -214,7 +214,7 @@ h2{font-family:var(--display);font-weight:400;font-size:clamp(24px,3.4vw,32px);l
       <div class="dl"><code>R23</code><b>Escala de tarefas</b><span class="tag meio">Desenvolvimento</span><p>Tarefas criadas pelos moradores, com rodízio semanal, troca e feito; a minha tarefa aparece no Início. Onda 7.</p></div>
       <div class="dl"><code>R24</code><b>Espaço gourmet</b><span class="tag meio">Desenvolvimento</span><p>Reserva com horário, convidados e conflito de horário, pronta no <code>appctbh</code>; o espaço é cadastrado por prédio. Onda 6.</p></div>
       <div class="dl"><code>R25</code><b>Documentos do morador</b><span class="tag meio">Parcial</span><p>Documentos com título pelo tipo (contrato, laudos). Passaporte, visto e RNM do aluno: onda 5.</p></div>
-      <div class="dl"><code>R26</code><b>Comunidade</b><span class="tag meio">Desenvolvimento</span><p>Mural, viagens em grupo, eventos da Chez Toi, denúncia e bloqueio, com a IA moderando e a equipe decidindo (09/11/2026). Onda 15.</p></div>
+      <div class="dl"><code>R26</code><b>Comunidade</b><span class="tag meio">Desenvolvimento</span><p>Mural, viagens em grupo, eventos da Chez Toi, denúncia e bloqueio, com a IA moderando e a equipe decidindo (09/11/2026). Desde 27/11/2026, grupos criados pelos alunos no lugar do mural "só do apartamento". Onda 15.</p></div>
       <div class="dl"><code>R27</code><b>Sincronizar com a agenda do celular</b><span class="tag nao">Não existe</span><p>Pedido de 05/11/2026. O Calendário do app mostra feriados e eventos, mas nada vai para a agenda do aluno. Onda 9.</p></div>
     </div>
   </section>
@@ -356,7 +356,7 @@ const ONDAS = [
      "Aluguel do mês, vencimento e situação: pago, em aberto ou atrasado",
      "Conta da Chez Toi e chave Pix com botão copiar, e o Pix copia e cola do mês",
      "Contrato em PDF vindo do bucket privado",
-     "Regras da casa e do prédio, com a data da última mudança (27/11/2026: a tela começa pelo lado bom, \"Ce qui rend la vie facile ici\", e deixou de ser toda vermelha)",
+     "Regras da casa e do prédio, com a data da última mudança (27/11/2026: a tela deixou de ser toda vermelha; o bloco verde \"Ce qui rend la vie facile ici\" entrou e saiu no mesmo dia, a pedido do Daniel)",
      "Inventário do apartamento e laudo de vistoria de entrada, com fotos",
      "Meus documentos: passaporte, visto, RNM, CPF e seguro, com validade",
      "Situação da caução e o que é descontado na saída<span class=\"prop\">proposta</span>",
@@ -385,7 +385,7 @@ const ONDAS = [
   {n:7, t:"Rotina da casa: limpeza e tarefas", tags:[["app","app"]],
    por:"A limpeza periódica é da Chez Toi; as tarefas do dia a dia são dos moradores. As duas ficam no mesmo calendário.",
    itens:[
-     "Agenda da limpeza periódica real de cada apartamento, no Calendário",
+     "Agenda da limpeza periódica real de cada apartamento, no Calendário (27/11/2026: enquanto a equipe não marca a data no site, o app mostra o ritmo do contrato, como \"uma vez por mês\", e quantas faxinas ainda faltam marcar)",
      "Escala de tarefas entre moradores (lixo, louça, compras), com rodízio automático",
      "Trocar a vez com um colega",
      "Lista do que a faxina precisa (já existe) ligada ao apartamento certo",
@@ -420,7 +420,7 @@ const ONDAS = [
      "Lembretes pessoais criados pelo próprio aluno",
      "Comunicado do painel vira push e fica guardado na central de avisos (pronto no desenvolvimento em 09/11/2026; chega ao celular com o build nativo, a chave APNs e o Firebase)",
      "Preferências: o que receber e em que língua",
-     "Encomendas: o aluno avisa o que espera, a equipe marca \"chegou na portaria\" e o aviso cai no sino (pronto no desenvolvimento em 09/11/2026; tela Encomendas no painel do site desde 13/11/2026)",
+     "Encomendas: o aluno avisa o que espera, a equipe marca \"chegou na portaria\" e o aviso cai no sino (pronto no desenvolvimento em 09/11/2026; tela Encomendas no painel do site desde 13/11/2026; escondidas no app em 27/11/2026, a pedido do Daniel, como as visitas)",
      "Widget na tela de bloqueio e na tela inicial: senha do wifi, endereço, próxima faxina, minha tarefa e o atalho \"voltar pra casa\" (Uber) (aprovado em 08/11/2026; precisa do build de desenvolvimento desta onda, não roda no Expo Go)"
    ],
    pronto:"um comunicado enviado pelo painel chega no celular do aluno em segundos, e a faxina remarcada no painel muda sozinha na agenda do celular dele."},
@@ -501,13 +501,14 @@ const ONDAS = [
    por:"Comunidade é o que mais encanta e o que mais dá trabalho: alguém tem de moderar. <em>Começa pequena</em>, com o que a equipe controla. <em>Decidido e pronto no desenvolvimento em 09/11/2026:</em> a IA lê cada post, comentário e viagem antes de publicar; o que ela segura vai para a equipe no painel, e 3 denúncias escondem o conteúdo até a equipe decidir (função <code>app-community</code>; falta a chave da IA no <code>appctbh</code>).",
    itens:[
      "Decidir o formato e quem modera (decidido em 09/11/2026: a IA modera e a equipe decide o que ela segura)",
-     "Mural só entre moradores: entre colegas do apartamento ou de todos os residentes (pronto no desenvolvimento em 09/11/2026; desde 27/11/2026 os 2 últimos posts aparecem no Início, como um blog)",
+     "Mural só entre moradores, para todos os residentes (pronto no desenvolvimento em 09/11/2026; desde 27/11/2026 os 2 últimos posts aparecem no Início, como um blog, e o mural \"só do apartamento\" saiu: no lugar dele, os grupos)",
      "Eventos da Chez Toi com confirmação de presença (pronto no desenvolvimento em 09/11/2026; a equipe cria no painel e o aviso cai no sino de todos)",
      "Desapego entre turmas: \"Je donne / je vends\" no mural (pronto no desenvolvimento em 09/11/2026)",
      "Conversa com ex-moradores da mesma escola<span class=\"prop\">proposta</span>",
      "Denunciar e bloquear (exigência das lojas para conteúdo de usuário; pronto no desenvolvimento em 09/11/2026, com a carta da comunidade aceita antes do primeiro post). Nenhum link em nada que o aluno escreve, no app, na função e no banco (decisão do Daniel, 09/11/2026)",
      "Viagens em grupo: um aluno propõe destino e datas, os outros entram, e o app intermedia transporte e hospedagem com parceiros da Chez Toi (pedido de 08/11/2026; versão simples pronto no desenvolvimento em 09/11/2026: propor, entrar, conversa da viagem dentro do app só para quem vai (sem link de grupo do WhatsApp, decisão do Daniel) e um botão para pedir transporte ou hospedagem à Chez Toi; parceiros depois)",
-     "Perfil de cada morador: escola, cidade, línguas, Instagram e uma frase, visível para os colegas só se o aluno ligar a opção (pronto no desenvolvimento em 09/11/2026)"
+     "Perfil de cada morador: escola, cidade, línguas, Instagram e uma frase, visível para os colegas só se o aluno ligar a opção (pronto no desenvolvimento em 09/11/2026)",
+     "Grupos criados pelos alunos (pedido do Daniel, 27/11/2026: \"comunidade ou é pra todos, ou pra grupos que ele deveria poder criar\"): abertos como as viagens, qualquer morador entra e só os membros leem e escrevem; a IA confere nome e descrição, a equipe decide o que ela segura na tela Comunidade do painel, e post novo avisa os membros (pronto no desenvolvimento em 27/11/2026)"
    ],
    pronto:"a equipe publica um evento e vê quem confirmou, e qualquer post pode ser denunciado."},
 

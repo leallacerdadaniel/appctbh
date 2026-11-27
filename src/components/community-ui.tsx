@@ -8,7 +8,16 @@ import { AppText, Avatar, Card, InlineMessage, PressableScale } from '@/componen
 import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
-import { initialsOf, tripDates, type Author, type ChezEvent, type Comment, type Post, type Trip } from '@/lib/community';
+import {
+  initialsOf,
+  tripDates,
+  type Author,
+  type ChezEvent,
+  type Comment,
+  type Group,
+  type Post,
+  type Trip,
+} from '@/lib/community';
 import { formatTime } from '@/lib/format';
 
 const BH_OFFSET_MS = 3 * 3_600_000;
@@ -54,11 +63,10 @@ export function PostCard({ post, onPress }: { post: Post; onPress: () => void })
   const { t } = useI18n();
   const w = t.community.wall;
   const kind = post.kind === 'post' ? undefined : w.kinds[post.kind];
-  const scope = post.scope === 'apartment' ? w.scopeApartment : undefined;
   return (
     <PressableScale accessibilityRole="button" onPress={onPress}>
       <Card style={{ gap: Spacing.sm }}>
-        <AuthorLine author={post.author} at={post.createdAt} extra={[kind, scope].filter(Boolean).join(' · ')} />
+        <AuthorLine author={post.author} at={post.createdAt} extra={kind} />
         <AppText>{post.body}</AppText>
         <ContentStatusNote item={post} />
         {post.status === 'published' && (
@@ -190,6 +198,45 @@ export function TripCard({ trip, onPress }: { trip: Trip; onPress: () => void })
           <AppText variant="caption" color={statusColor}>
             {trip.status === 'hidden' ? t.community.wall.notPublished : status}
           </AppText>
+        </View>
+        <Icon name="chevronRight" size={16} color={theme.textTertiary} />
+      </Card>
+    </PressableScale>
+  );
+}
+
+/** A residents' group (2026-11-27): name, members, who created it, and whether the student is in. */
+export function GroupCard({ group, onPress }: { group: Group; onPress: () => void }) {
+  const theme = useTheme();
+  const { t } = useI18n();
+  const g = t.community.groups;
+  const by = group.creator ? g.createdBy(group.creator.me ? t.common.you : group.creator.name) : g.noCreator;
+  const status =
+    group.status === 'pending'
+      ? g.pending
+      : group.status === 'hidden'
+        ? t.community.wall.notPublished
+        : group.joined
+          ? g.joined
+          : null;
+  const statusColor =
+    group.status === 'hidden' ? theme.error : group.status === 'published' && group.joined ? theme.success : theme.textSecondary;
+  return (
+    <PressableScale accessibilityRole="button" onPress={onPress}>
+      <Card style={styles.eventCard}>
+        <View style={[styles.tripIcon, { backgroundColor: theme.fill }]}>
+          <Icon name="people" size={20} color={theme.text} />
+        </View>
+        <View style={{ flex: 1, gap: 2 }}>
+          <AppText style={{ fontFamily: Fonts.bodyMedium }}>{group.name}</AppText>
+          <AppText variant="callout" color={theme.textSecondary}>
+            {g.members(group.membersCount)} · {by}
+          </AppText>
+          {status && (
+            <AppText variant="caption" color={statusColor}>
+              {status}
+            </AppText>
+          )}
         </View>
         <Icon name="chevronRight" size={16} color={theme.textTertiary} />
       </Card>

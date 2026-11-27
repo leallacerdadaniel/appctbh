@@ -39,7 +39,9 @@ export type UsageAction =
   | 'referral_shared'
   // 2026-11-27: the address card on Accueil goes to Maison and Séjour (Uber and 99 left it)
   | 'open_maison'
-  | 'open_sejour';
+  | 'open_sejour'
+  // 2026-11-27: the Voyages shortcut took the place of Colocs on Accueil
+  | 'open_trips';
 
 type UsageEvent = { kind: 'screen' | 'action'; name: string; item?: string; at: string };
 type UsageSearch = { query: string; results: number; at: string };
