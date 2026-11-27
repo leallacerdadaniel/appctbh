@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, type ReactNode } from 'react';
 
+import { splitUnit } from '@/lib/address-unit';
 import { appApi, AppApiError } from '@/lib/app-api';
 import { useAuth } from '@/lib/auth';
 import { useSessionState } from '@/lib/session-state';
@@ -124,13 +125,16 @@ function toTrash(raw: NonNullable<HomeResponse['info']>['trash_info']): Home['ap
 
 function toHome(r: HomeResponse): Home {
   const location = r.apartment.location?.trim() ?? '';
+  // Apartment number from the panel (Informações dos aptos) first, then the site's address complement; without
+  // either, the number the site wrote inside the address (taken out of it, so it isn't shown twice).
+  const filled = [r.info?.unit_number?.trim(), r.apartment.address_complement?.trim()].filter(Boolean).join(', ');
+  const inside = filled ? null : splitUnit(location);
   return {
     student: { ...person(r.student.name), email: r.student.email },
     apartment: {
       nickname: r.apartment.title,
-      address: location,
-      // Apartment number from admin › Apartamentos first, then the site's address complement.
-      complement: [r.info?.unit_number?.trim(), r.apartment.address_complement?.trim()].filter(Boolean).join(', '),
+      address: inside?.unit ? inside.address : location,
+      complement: filled || inside?.unit || '',
       mapsQuery: location,
       photoUrl: r.apartment.photo,
       wifiName: r.info?.wifi_name || null,

@@ -388,6 +388,7 @@ const fr = {
     addressCopied: 'Adresse copiée',
     pasteIn99: 'Adresse copiée : collez-la dans 99',
     uberA11y: 'Commander un Uber jusqu’à chez vous',
+    openTab: (tab: string) => `Ouvrir ${tab}`,
     ninetyNineA11y: 'Copier l’adresse et ouvrir 99',
     showA11y: 'Montrer l’adresse au chauffeur',
     quick: { wifi: 'Wi‑Fi', services: 'Services en plus', roommates: 'Colocs', sos: 'SOS' },
@@ -521,7 +522,7 @@ const fr = {
     },
     steps: {
       welcome: 'Bonjour, moi c’est Charlotte ! L’essentiel de l’app en 30 secondes.',
-      address: 'Uber, 99, copier ou montrer au chauffeur : votre adresse, d’une touche.',
+      address: 'Votre adresse et le numéro de l’appartement : à copier ou à montrer au chauffeur, avec Maison et Séjour à une touche.',
       arrival: 'Commencez ici : Wi‑Fi, adresse, applis, colocs et règles.',
       quick: 'Wi‑Fi copié d’une touche, services, colocs. SOS : urgences et santé.',
       top: 'Vos initiales : profil et langue FR/EN. La cloche : les avis de l’équipe.',
@@ -2701,6 +2702,7 @@ const en: Strings = {
     addressCopied: 'Address copied',
     pasteIn99: 'Address copied: paste it in 99',
     uberA11y: 'Order an Uber to your home',
+    openTab: (tab: string) => `Open ${tab}`,
     ninetyNineA11y: 'Copy the address and open 99',
     showA11y: 'Show the address to the driver',
     quick: { wifi: 'Wi‑Fi', services: 'Extra services', roommates: 'Roommates', sos: 'SOS' },
@@ -2831,7 +2833,7 @@ const en: Strings = {
     },
     steps: {
       welcome: 'Hi, I’m Charlotte! The essentials of the app in 30 seconds.',
-      address: 'Uber, 99, copy it or show it to the driver: your address, one tap away.',
+      address: 'Your address and apartment number: copy it or show it to the driver, with House and My stay one tap away.',
       arrival: 'Start here: Wi‑Fi, address, apps, roommates and rules.',
       quick: 'Wi‑Fi copied in one tap, services, roommates. SOS: emergencies and health.',
       top: 'Your initials: profile and FR/EN language. The bell: notices from the team.',

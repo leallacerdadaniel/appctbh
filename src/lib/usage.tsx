@@ -36,7 +36,10 @@ export type UsageAction =
   // 2026-11-09: wave 14 (feedback, stay survey, refer a friend)
   | 'feedback_sent'
   | 'survey_sent'
-  | 'referral_shared';
+  | 'referral_shared'
+  // 2026-11-27: the address card on Accueil goes to Maison and Séjour (Uber and 99 left it)
+  | 'open_maison'
+  | 'open_sejour';
 
 type UsageEvent = { kind: 'screen' | 'action'; name: string; item?: string; at: string };
 type UsageSearch = { query: string; results: number; at: string };

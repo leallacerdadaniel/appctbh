@@ -3,7 +3,7 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, type Href } from 'expo-router';
 import type { ReactNode } from 'react';
-import { Linking, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon, type IconName } from '@/components/icon';
@@ -17,7 +17,6 @@ import { getAttraction } from '@/lib/attractions';
 import type { Home } from '@/lib/home';
 import { nightPlaces } from '@/lib/nightlife';
 import { usePlaces } from '@/lib/places';
-import { appUrl, getService } from '@/lib/services';
 import { trackAction } from '@/lib/usage';
 
 /** Fallback photo of the neighborhood while the apartment has none. */
@@ -37,12 +36,14 @@ function addressLines(apartment: Home['apartment'], unit: string) {
   const [street, ...rest] = apartment.address.replace(/[\s.,-]*Belo Horizonte.*$/, '').split(/\s+-\s+/);
   const neighborhood = rest.join(' – ');
   const unitText = apartment.complement ? (/^\d/.test(apartment.complement) ? `${unit} ${apartment.complement}` : apartment.complement) : '';
-  return { street: street.trim(), detail: [unitText, neighborhood].filter(Boolean).join(' · ') };
+  // The apartment number gets its own line, as visible as the street (owner, 2026-11-27: "não só o número do prédio").
+  return { street: street.trim(), unit: unitText, detail: neighborhood };
 }
 
 /**
- * "Chez vous" card (v3): what the student needs every time they go home — Uber and 99 with the address as
- * destination, copy it for a delivery app, or show it full screen to a driver.
+ * "Chez vous" card (v3): the address with the apartment number, copy it for a ride or delivery app, show it full
+ * screen to a driver, and straight to Maison and Séjour (owner, 2026-11-27: Uber and 99 left the card; the address
+ * page and Explorer still open them).
  */
 export function AddressCard({ apartment }: { apartment: Home['apartment'] }) {
   const theme = useTheme();
@@ -51,7 +52,7 @@ export function AddressCard({ apartment }: { apartment: Home['apartment'] }) {
   // Large text (Dynamic Type): the four buttons wrap two by two instead of squeezing their labels.
   const { fontScale } = useWindowDimensions();
   const wrap = fontScale > 1.2;
-  const { street, detail } = addressLines(apartment, t.apartment.unit);
+  const { street, unit, detail } = addressLines(apartment, t.apartment.unit);
   const address = fullAddress(apartment);
 
   async function copy() {
@@ -59,24 +60,6 @@ export function AddressCard({ apartment }: { apartment: Home['apartment'] }) {
     trackAction('copy_address', 'home');
     toast(t.today.addressCopied);
   }
-
-  function uber() {
-    trackAction('open_uber', 'home');
-    const q = `action=setPickup&pickup=my_location&dropoff[formatted_address]=${encodeURIComponent(address)}&dropoff[nickname]=${encodeURIComponent('Chez Toi')}`;
-    Linking.openURL(`https://m.uber.com/ul/?${q}`);
-  }
-
-  async function ninetyNine() {
-    // 99 has no public link with a destination: copy the address, then open the app's store page.
-    await Clipboard.setStringAsync(address);
-    trackAction('open_99', 'home');
-    toast(t.today.pasteIn99);
-    const app = getService('99');
-    if (app) Linking.openURL(appUrl(app));
-  }
-
-  const uberLogo = getService('uber')?.logo;
-  const ninetyNineLogo = getService('99')?.logo;
 
   return (
     <View style={[styles.addressCard, Shadow.raised, { backgroundColor: theme.surface }]}>
@@ -92,6 +75,7 @@ export function AddressCard({ apartment }: { apartment: Home['apartment'] }) {
             {t.today.chezVous}
           </AppText>
           <AppText style={{ fontFamily: Fonts.bodySemi }}>{street}</AppText>
+          {!!unit && <AppText style={{ fontFamily: Fonts.bodySemi }}>{unit}</AppText>}
           {!!detail && (
             <AppText variant="caption" color={theme.textSecondary}>
               {detail}
@@ -100,13 +84,25 @@ export function AddressCard({ apartment }: { apartment: Home['apartment'] }) {
         </View>
       </View>
       <View style={[styles.addressActions, wrap && styles.addressActionsWrap]}>
-        <AddressButton wide={wrap} label={t.today.uber} a11y={t.today.uberA11y} logo={uberLogo} onPress={uber} />
         <AddressButton
           wide={wrap}
-          label={t.today.ninetyNine}
-          a11y={t.today.ninetyNineA11y}
-          logo={ninetyNineLogo}
-          onPress={ninetyNine}
+          label={t.tabs.maison}
+          a11y={t.today.openTab(t.tabs.maison)}
+          icon="sofa"
+          onPress={() => {
+            trackAction('open_maison', 'home');
+            router.navigate('/maison');
+          }}
+        />
+        <AddressButton
+          wide={wrap}
+          label={t.tabs.sejour}
+          a11y={t.today.openTab(t.tabs.sejour)}
+          icon="stay"
+          onPress={() => {
+            trackAction('open_sejour', 'home');
+            router.navigate('/sejour');
+          }}
         />
         <AddressButton wide={wrap} label={t.today.copy} a11y={t.today.addressCopied} icon="copy" onPress={copy} />
         <AddressButton

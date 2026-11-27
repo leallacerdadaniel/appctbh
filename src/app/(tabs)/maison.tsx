@@ -59,6 +59,29 @@ export default function MaisonScreen() {
       title={t.tabs.maison}
       subtitle={t.maison.subtitle}
       onRefresh={() => Promise.all([refresh(), reloadExpenses(), reloadChores(), reloadPackages()])}>
+      {/* Cleaning first (owner, 2026-11-27): what the students check most in Maison. */}
+      <Section title={t.maison.cleaning} subtitle={t.maison.cleaningHint}>
+        <HubGrid>
+          <HubTile
+            emoji="🧹"
+            title={t.apartment.cleaning.next}
+            status={nextLabel}
+            onPress={() => router.push('/apartment/cleaning')}
+          />
+          {toRate && (
+            <HubTile
+              emoji="⭐"
+              title={t.maison.rateTile}
+              status={
+                toRate.feedback
+                  ? t.maison.rated(toRate.feedback.rating)
+                  : t.maison.rateStatus(formatLongDate(toRate.date, lang))
+              }
+              onPress={() => router.push({ pathname: '/apartment/feedback', params: { id: toRate.id ?? '' } })}
+            />
+          )}
+        </HubGrid>
+      </Section>
       <Section title={t.maison.daily} subtitle={t.maison.dailyHint}>
         <Card style={styles.listCard}>
           <ListGroup inset>
@@ -192,28 +215,6 @@ export default function MaisonScreen() {
         </HubGrid>
       </Section>
 
-      <Section title={t.maison.cleaning} subtitle={t.maison.cleaningHint}>
-        <HubGrid>
-          <HubTile
-            emoji="🧹"
-            title={t.apartment.cleaning.next}
-            status={nextLabel}
-            onPress={() => router.push('/apartment/cleaning')}
-          />
-          {toRate && (
-            <HubTile
-              emoji="⭐"
-              title={t.maison.rateTile}
-              status={
-                toRate.feedback
-                  ? t.maison.rated(toRate.feedback.rating)
-                  : t.maison.rateStatus(formatLongDate(toRate.date, lang))
-              }
-              onPress={() => router.push({ pathname: '/apartment/feedback', params: { id: toRate.id ?? '' } })}
-            />
-          )}
-        </HubGrid>
-      </Section>
     </Screen>
   );
 }
