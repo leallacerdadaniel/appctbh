@@ -4,22 +4,19 @@ import { Linking, StyleSheet, View } from 'react-native';
 import { RowPill, TintCard, TintRow } from '@/components/home-v3';
 import { Icon, type IconName } from '@/components/icon';
 import { Screen } from '@/components/screen';
-import { AppText, Avatar, Button, Card, LoadingState, RetryCard } from '@/components/ui';
+import { AppText, Avatar, Card, LoadingState, RetryCard } from '@/components/ui';
 import { Fonts, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { person, useHome } from '@/lib/home';
-import {
-  hasContent,
-  languageName,
-  useMyProfile,
-  useRoommateProfiles,
-  type SocialProfile,
-} from '@/lib/house-social';
+import { useChoreStatus } from '@/lib/chores';
+import { useBalanceLabel } from '@/lib/expenses';
+import { hasContent, languageName, useRoommateProfiles, type SocialProfile } from '@/lib/house-social';
 
 /**
  * Who lives in the apartment with the student (Maison › Entre colocataires), with the short profile each
- * roommate chose to share (school, city, languages, Instagram, one line), and the student's own profile.
+ * roommate chose to share (school, city, languages, Instagram, one line), then the shared expenses and the chores.
+ * The student's own profile is edited from Profil (2026-11-27).
  */
 export default function RoommatesScreen() {
   const theme = useTheme();
@@ -27,14 +24,15 @@ export default function RoommatesScreen() {
   const s = t.houseSocial.profile;
   const { roommates } = useHome();
   const { state, reload } = useRoommateProfiles();
-  const mine = useMyProfile();
+  const balance = useBalanceLabel();
+  const choreStatus = useChoreStatus();
 
   return (
     <Screen
       back
       title={t.roommates.title}
       subtitle={t.roommates.subtitle}
-      onRefresh={() => Promise.all([reload(), mine.reload()])}>
+      onRefresh={reload}>
       {roommates.length === 0 ? (
         <Card>
           <AppText color={theme.textSecondary}>{t.roommates.empty}</AppText>
@@ -50,30 +48,33 @@ export default function RoommatesScreen() {
             <RetryCard message={s.roommatesUnavailable} retryLabel={t.common.retry} onRetry={reload} />
           )}
 
+          {/* The house tools here, not the student's own profile (owner, 2026-11-27); the profile stays in Profil. */}
           <TintCard>
             <TintRow
               first
-              icon="idCard"
-              tint={theme.infoSoft}
-              ink={theme.info}
-              title={s.yours}
-              subtitle={
-                mine.state.status === 'ready' && hasContent(mine.state.data.profile)
-                  ? mine.state.data.profile.visible
-                    ? s.yoursVisible
-                    : s.yoursHidden
-                  : s.yoursEmpty
-              }
-              onPress={() => router.push('/house/my-profile' as Href)}
+              icon="wallet"
+              tint={theme.successSoft}
+              ink={theme.success}
+              title={t.expenses.homeRow}
+              subtitle={balance || t.expenses.subtitle}
+              onPress={() => router.push('/expenses')}
+            />
+            <TintRow
+              icon="plus"
+              tint={theme.fill}
+              ink={theme.text}
+              title={t.expenses.add}
+              onPress={() => router.push('/expenses/edit')}
+            />
+            <TintRow
+              icon="chores"
+              tint={theme.warningSoft}
+              ink={theme.warning}
+              title={t.chores.tile}
+              subtitle={choreStatus || t.chores.subtitle}
+              onPress={() => router.push('/house/chores' as Href)}
             />
           </TintCard>
-
-          <Card style={{ gap: Spacing.md }}>
-            <AppText variant="callout" color={theme.textSecondary}>
-              {t.roommates.expensesHint}
-            </AppText>
-            <Button variant="secondary" label={t.expenses.title} onPress={() => router.push('/expenses')} />
-          </Card>
         </>
       )}
     </Screen>
