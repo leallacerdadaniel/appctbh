@@ -217,6 +217,12 @@ próprio artefato).
   (contas e tarefas) e "Le mur des résidents" (2 últimos posts). Para olhar o app na web contra o dev sem mexer no Metro
   do simulador: uma cópia da pasta com `node_modules` em link e `.env.local` do dev (o cache do Metro é dividido entre
   os servidores e guarda o endereço embutido; com a mesma pasta, a web foi para a produção).
+  **Permissões na abertura (27/11/2026, decisão do Daniel):** depois das regras e antes do tour, uma vez por aluno no
+  celular, `src/app/permissions-intro.tsx` explica e pede **notificações** (`requestPushPermission` em `src/lib/push.ts`,
+  registra o aparelho na hora) e **localização** (o mesmo opt-in da carta de BH do recap, `enableLocation`). Fora de
+  propósito: **rastrear entre apps** (ATT; o app não rastreia, o manifesto diz `NSPrivacyTracking: false` e a política
+  do site diz "no tracking") e **rede local** (o aviso que aparece no desenvolvimento é do Expo Go; o app não usa a rede
+  local). No Expo Go e no simulador as notificações aparecem como "só no app instalado".
 - **Admin v2 do site** (26–27/11/2026, protótipo aprovado em https://claude.ai/artifact/R1JMwCP3bKm8CxavZz9KbE): relatório
   no estilo Power BI em `src/components/admin/v2/` do site (menu com os 68 itens antigos em grupos, ⌘K, gráficos, cores
   aplicadas também às telas antigas por `body.av-theme`). Telas novas: Visão geral (`/admin`, mesmo cálculo do Resultado
