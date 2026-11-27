@@ -238,11 +238,11 @@ próprio artefato).
   **Accueil com fotos** (27/11/2026, "a aba inicial tá meio morta"): o cartão "Chez vous" mostra as fotos do apto da
   vitrine do site (`apartments.images`, até 12) em carrossel, com endereço e número por cima; o toque abre a Maison;
   botões "Copier l'adresse" e "Pour le chauffeur". As fotos chegam pela `app_home_for` (`apartment.photos`): 029 no dev,
-  `supabase/producao/006_fotos_do_apto.sql` na produção (sem ela, o app mostra só a capa). A pergunta da língua é uma
+  `supabase/producao/006_fotos_do_apto.sql` aplicada na produção em 27/11/2026 com o ok do Daniel. A pergunta da língua é uma
   folha pequena por cima do Accueil (`transparentModal`), não mais uma tela inteira.
   **Aluguel vence todo dia 1** (Daniel, 27/11/2026): o Accueil mostra o aluguel 3 dias antes, no dia 1 ou atrasado.
-  **Lembretes e avisos automáticos** (030 no dev, aplicada e testada; na produção é o `supabase/producao/005_lembretes.sql`,
-  completo e idempotente): `app_send_reminders(kind)` pelo pg_cron — 10h: aluguel 5, 3 e 1 dia antes do dia 1 se o mês
+  **Lembretes e avisos automáticos** (030 no dev, aplicada e testada; na produção o `supabase/producao/005_lembretes.sql`,
+  completo e idempotente, aplicado em 27/11/2026 com o ok do Daniel): `app_send_reminders(kind)` pelo pg_cron — 10h: aluguel 5, 3 e 1 dia antes do dia 1 se o mês
   não está pago, véspera da chegada, recap do mês (dia 1), uma semana antes da saída, pesquisa quando a janela abre;
   18h: faxina, feriado (`app_holidays`, gerado de `src/lib/holidays.ts`) e evento da Chez Toi de amanhã (quem confirmou);
   segunda 10h: frase em português da semana (`app_pt_phrases`, de `src/lib/portuguese.ts`). Despesa nova avisa na hora
