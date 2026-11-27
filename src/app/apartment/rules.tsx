@@ -1,17 +1,22 @@
 import { router, type Href } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
-import { Icon } from '@/components/icon';
-import { ListGroup, ListRow } from '@/components/list';
+import { TintCard, TintRow } from '@/components/home-v3';
+import { Icon, type IconName } from '@/components/icon';
+import { ListRow } from '@/components/list';
 import { Screen, Section } from '@/components/screen';
 import { AppText, Card } from '@/components/ui';
 import { Fonts, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 
+/** One icon per line of "Ce qui rend la vie facile ici", in the order of the strings. */
+const GOOD_ICONS: IconName[] = ['whatsapp', 'cleaning', 'party', 'handshake', 'sparkles'];
+
 /**
- * House rules from the Cartilha: quiet hours, what is forbidden, toilet, deposit, reminders, contacts;
- * a question left? The assistant knows the rules (row at the end).
+ * House rules from the Cartilha. The good side comes first and the rest is not all red (owner, 2026-11-27:
+ * "pra não ficar tudo muito vermelho"): green for what the stay gives, amber for the toilet warning, gray for what
+ * is not allowed, blue for the reminders. A question left? The assistant knows the rules (row at the end).
  */
 export default function RulesScreen() {
   const theme = useTheme();
@@ -30,6 +35,22 @@ export default function RulesScreen() {
         />
       </Card>
 
+      <Section title={r.goodTitle}>
+        <TintCard>
+          {r.good.map((item, i) => (
+            <TintRow
+              key={item.title}
+              first={i === 0}
+              icon={GOOD_ICONS[i] ?? 'checkCircle'}
+              tint={theme.successSoft}
+              ink={theme.success}
+              title={item.title}
+              subtitle={item.detail}
+            />
+          ))}
+        </TintCard>
+      </Section>
+
       <Section title={r.quietTitle}>
         <Card style={{ gap: 2 }}>
           <AppText variant="display">{r.quietHours}</AppText>
@@ -40,36 +61,40 @@ export default function RulesScreen() {
       </Section>
 
       {/* The one rule foreigners don't expect, and it can cost them money: before the list. */}
-      <Card style={[styles.warning, { backgroundColor: theme.errorSoft }]}>
-        <Icon name="warning" size={20} color={theme.error} />
+      <Card style={[styles.warning, { backgroundColor: theme.warningSoft }]}>
+        <Icon name="warning" size={20} color={theme.warning} />
         <View style={{ flex: 1, gap: 4 }}>
-          <AppText color={theme.error} style={{ fontFamily: Fonts.bodyMedium }}>
+          <AppText color={theme.warning} style={{ fontFamily: Fonts.bodyMedium }}>
             {r.toiletTitle}
           </AppText>
-          <AppText variant="callout" color={theme.error}>
+          <AppText variant="callout" color={theme.text}>
             {r.toiletText}
           </AppText>
         </View>
       </Card>
 
       <Section title={r.forbiddenTitle}>
-        <Card style={styles.listCard}>
-          <ListGroup inset>
-            {r.forbidden.map((rule) => (
-              <ListRow key={rule.title} icon="close" title={rule.title} subtitle={rule.detail} />
-            ))}
-          </ListGroup>
-        </Card>
+        <TintCard>
+          {r.forbidden.map((rule, i) => (
+            <TintRow
+              key={rule.title}
+              first={i === 0}
+              icon="close"
+              tint={theme.fill}
+              ink={theme.textSecondary}
+              title={rule.title}
+              subtitle={rule.detail}
+            />
+          ))}
+        </TintCard>
       </Section>
 
       <Section title={r.remindersTitle}>
-        <Card style={styles.listCard}>
-          <ListGroup inset>
-            {r.reminders.map((reminder) => (
-              <ListRow key={reminder} icon="checkCircle" title={reminder} />
-            ))}
-          </ListGroup>
-        </Card>
+        <TintCard>
+          {r.reminders.map((reminder, i) => (
+            <TintRow key={reminder} first={i === 0} icon="checkCircle" tint={theme.infoSoft} ink={theme.info} title={reminder} />
+          ))}
+        </TintCard>
       </Section>
 
       <Card style={styles.listCard}>

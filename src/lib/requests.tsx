@@ -105,6 +105,10 @@ export type RequestsData = {
 
 export const isOpen = (r: TeamRequest) => OPEN_STATUSES.includes(r.status);
 export const canCancel = (r: TeamRequest) => r.status === 'received' || r.status === 'scheduled';
+/** Something broken (maintenance) vs something the student orders (extras, stay changes, gourmet). */
+export const isProblem = (r: Pick<TeamRequest, 'kind'>) => r.kind === 'maintenance';
+/** The student says the problem is solved ("C'est réparé"): own maintenance request, still open. */
+export const canResolve = (r: TeamRequest) => isProblem(r) && isOpen(r);
 
 /** Total of an extra service in centavos (quantity × frozen unit price). */
 export const serviceTotal = (r: Pick<TeamRequest, 'quantity' | 'unitPriceCents'>) => r.quantity * (r.unitPriceCents ?? 0);
@@ -201,6 +205,11 @@ export function useRequestActions() {
     },
     async cancel(id: string) {
       const r = await requestsApi<{ request: TeamRequest }>('cancel', { token, body: { id } });
+      await reload();
+      return r.request;
+    },
+    async resolve(id: string) {
+      const r = await requestsApi<{ request: TeamRequest }>('resolve', { token, body: { id } });
       await reload();
       return r.request;
     },

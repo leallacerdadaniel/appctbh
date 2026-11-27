@@ -83,7 +83,18 @@ próprio artefato).
   push desligados quando a sessão cai (`app_students_devices_off`); o aviso nunca falha por causa do push;
   `app_account_delete` mantém suspensão, bloqueios e log sobre o aluno e avisa os membros das viagens dele;
   `app_gourmet_book` (reserva atômica, por prédio); regra de links A–D (igual a `src/lib/no-links.ts`).
-  A conta de teste fica no `.env.local` (fora do Git).
+  026 painel junto com o site (27/11/2026, aplicada no dev e na produção como `supabase/producao/003_painel_unificado.sql`,
+  com o ok do Daniel): a equipe lê `app_cleaning_feedback` e grava Wi-Fi, número, lixo e `building_info` em
+  `app_apartment_info` (+ fotos no bucket público `app-apartment-files`, só JPEG); `app_requests.incident_id` liga o
+  chamado de manutenção a uma ocorrência do site (`rental_incidents`) e o gatilho `app_incident_resolved` conclui o
+  chamado quando a ocorrência é resolvida; `app_payment_info` e `app_settings` só para o papel admin.
+  027 o aluno conclui o chamado de manutenção ("C'est réparé", rota `/app-requests/resolve`, função
+  `app_request_student_resolve`): o chamado fica concluído "por você", sem aviso no sino para ele, e a ocorrência ligada
+  é resolvida. Aplicada no dev e na produção em 27/11/2026 (`supabase/producao/004_aluno_conclui_chamado.sql`, ok do
+  Daniel), com `app-requests`, `app-events-sync` e `app-assistant` publicadas nos dois projetos pelo CLI (logado nesta
+  máquina desde 27/11; o CLI v3 roda da raiz do repositório e pede `--yes`).
+  A conta de teste fica no `.env.local` (fora do Git); a senha da Léa no comentário do `.env.local` não entra mais
+  no dev (27/11/2026), a do Hugo (`TEST_HUGO_PASSWORD`) entra.
 - **Produção:** banco do site (`miucfiiporxhvvbefonh`), função `bright-service` (a `app-api` do Arthur) e
   tabelas `app_*`. Desde 12/11/2026 (18h08, com aprovação do Daniel): as 53 tabelas `app_*` e funções do banco iguais
   ao dev (`supabase/producao/001_app_do_aluno.sql`, uma transação, sem dados de teste), `pg_net`, bucket
@@ -186,6 +197,26 @@ próprio artefato).
   As tabelas e a `app-admin` já estão na produção; trocar `appDb` por `supabase` só quando o `types.ts` do site tiver
   as tabelas `app_*` (não é preciso para funcionar). Textos de um idioma só que o aluno lê: `team_note` dos pedidos e encomendas e a
   resposta do feedback (a equipe escreve na língua do aluno).
+  **Um lugar só para cada coisa** (Daniel, 27/11/2026: "unificar o máximo de coisas possível ... na hora de gerenciar o
+  app, aquela aba do painel tem que vir com tudo"). Branch `app/painel-unificado` do site: as faxineiras e as notas que
+  os alunos dão às faxinas moram na tela **Faxinas** (abas Faxineiras e Notas dos alunos; o item Faxineiras do App do
+  aluno abre `/admin/cleanings?aba=faxineiras`); os chamados de manutenção do app aparecem em **Ocorrências** ("Registrar
+  ocorrência" preenche e liga os dois); telas novas no App do aluno: **Informações dos aptos** (`/admin/app/apartamentos`:
+  número, Wi-Fi, lixo FR/EN com fotos, WhatsApp da portaria, espaço gourmet) e **Configurações do app**
+  (`/admin/app/configuracoes`, só admin: Pix, banco, IBAN e quem entra no app). Na produção, em 27/11 o Pix estava vazio
+  (o app não mostrava como pagar) e só 2 aptos tinham ficha no app. Os dados de pagamento do portal antigo continuam fixos
+  em `src/pages/student/StudentPayments.tsx` do site.
+  **27/11/2026, produção:** o robô da agenda (`app-events-sync-daily`, 06:15) nunca tinha rodado desde 12/11 (nenhuma
+  execução no `cron.job_run_details`); o agendamento foi recriado e o robô rodado à mão, com o ok do Daniel. A **Sympla
+  bloqueia robôs no robots.txt** desde ~17/11/2026: o robô respeita e, desde 27/11, usa o título, a data e o local que a
+  equipe digita no link (antes ele parava em `not_allowed` e o evento nunca aparecia). O catálogo de extras da produção
+  estava vazio: os 5 serviços do dev foram copiados ligados (ménage R$ 120, laverie R$ 45, draps R$ 40, chef R$ 90,
+  transfer R$ 180; a equipe revisa em Serviços extras do app).
+  **App, 27/11/2026:** visitas escondidas na Maison (telas continuam, TODO); "Un problème ?" sem "(gratuit)"; "Mes
+  demandes" em Problèmes · Demandes; regras com "Ce qui rend la vie facile ici" em verde; Accueil com "Entre colocs"
+  (contas e tarefas) e "Le mur des résidents" (2 últimos posts). Para olhar o app na web contra o dev sem mexer no Metro
+  do simulador: uma cópia da pasta com `node_modules` em link e `.env.local` do dev (o cache do Metro é dividido entre
+  os servidores e guarda o endereço embutido; com a mesma pasta, a web foi para a produção).
 - **Admin v2 do site** (26–27/11/2026, protótipo aprovado em https://claude.ai/artifact/R1JMwCP3bKm8CxavZz9KbE): relatório
   no estilo Power BI em `src/components/admin/v2/` do site (menu com os 68 itens antigos em grupos, ⌘K, gráficos, cores
   aplicadas também às telas antigas por `body.av-theme`). Telas novas: Visão geral (`/admin`, mesmo cálculo do Resultado
