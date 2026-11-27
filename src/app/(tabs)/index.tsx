@@ -39,8 +39,11 @@ import { trackAction } from '@/lib/usage';
 import { TourTarget, useTourScrollTop } from '@/lib/tour';
 import { useWelcome, WELCOME_STEPS, type WelcomeStep } from '@/lib/welcome';
 
-/** Rent is due on the 5th: it shows on Accueil from the 2nd, or once late (v3: "aparece só 3 dias antes"). */
-const RENT_DAY = 5;
+/**
+ * Rent is due on the 1st of the month (owner, 2026-11-27: "o aluguel é devido todo dia 1"): it shows on Accueil from
+ * 3 days before (the end of the previous month, for the month to come), on the day, or once late.
+ */
+const RENT_DAY = 1;
 const RENT_NOTICE_DAYS = 3;
 /** "Cette semaine": the next 7 days. */
 const WEEK_DAYS = 7;
@@ -487,17 +490,21 @@ function WeekSection() {
   const { contract, cleanings, payments, cleaner } = useHome();
   const { state: requestsState } = useRequests();
 
-  // Rent: from 3 days before the 5th, or when a month is late. Never earlier (v3). The day is Belo Horizonte's.
+  // Rent: from 3 days before the 1st (for the coming month), on the 1st, or when a month is late. Never earlier (v3).
+  // The day is Belo Horizonte's.
   const today = bhToday();
   const thisMonth = `${today.slice(0, 7)}-01`;
   const dayOfMonth = Number(today.slice(8, 10));
+  const [year, month] = today.split('-').map(Number);
+  const nextMonth = new Date(Date.UTC(year, month, 1)).toISOString().slice(0, 10);
+  const toNextMonth = Math.round((Date.UTC(year, month, 1) - Date.UTC(year, month - 1, dayOfMonth)) / 86_400_000);
   const unpaid = payments.filter((m) => !m.paid && !isFutureMonth(m.month, today));
   const late = unpaid.filter((m) => m.month < thisMonth || (m.month === thisMonth && dayOfMonth > RENT_DAY));
-  const daysToRent = RENT_DAY - dayOfMonth;
-  const soon =
-    late.length === 0 && daysToRent >= 0 && daysToRent <= RENT_NOTICE_DAYS
-      ? unpaid.find((m) => m.month === thisMonth)
-      : undefined;
+  const dueToday = dayOfMonth === RENT_DAY ? unpaid.find((m) => m.month === thisMonth) : undefined;
+  const dueSoon =
+    toNextMonth <= RENT_NOTICE_DAYS ? payments.find((m) => !m.paid && m.month === nextMonth) : undefined;
+  const soon = late.length === 0 ? (dueToday ?? dueSoon) : undefined;
+  const daysToRent = dueToday ? 0 : toNextMonth;
 
   const nextCleaning = upcomingCleanings(cleanings).find((c) => daysUntil(c.date) <= WEEK_DAYS);
   const openRequests = requestsState.status === 'ready' ? requestsState.data.requests.filter(isOpen) : [];

@@ -240,10 +240,15 @@ próprio artefato).
   botões "Copier l'adresse" e "Pour le chauffeur". As fotos chegam pela `app_home_for` (`apartment.photos`): 029 no dev,
   `supabase/producao/006_fotos_do_apto.sql` na produção (sem ela, o app mostra só a capa). A pergunta da língua é uma
   folha pequena por cima do Accueil (`transparentModal`), não mais uma tela inteira.
-  **Lembretes** (028 no dev; na produção é o `supabase/producao/005_lembretes.sql`): `app_send_reminders` pelo pg_cron,
-  aluguel 5, 3 e 1 dia antes do dia 5 se o mês não está pago (10h de BH) e faxina na véspera com o horário (18h de BH);
-  viram aviso no sino e push para quem tem o app instalado; cada um sai uma vez (`app_reminders_sent`). Para testar
-  outro dia: `select app_send_reminders('rent', date '2026-11-04')` numa transação desfeita.
+  **Aluguel vence todo dia 1** (Daniel, 27/11/2026): o Accueil mostra o aluguel 3 dias antes, no dia 1 ou atrasado.
+  **Lembretes e avisos automáticos** (030 no dev, aplicada e testada; na produção é o `supabase/producao/005_lembretes.sql`,
+  completo e idempotente): `app_send_reminders(kind)` pelo pg_cron — 10h: aluguel 5, 3 e 1 dia antes do dia 1 se o mês
+  não está pago, véspera da chegada, recap do mês (dia 1), uma semana antes da saída, pesquisa quando a janela abre;
+  18h: faxina, feriado (`app_holidays`, gerado de `src/lib/holidays.ts`) e evento da Chez Toi de amanhã (quem confirmou);
+  segunda 10h: frase em português da semana (`app_pt_phrases`, de `src/lib/portuguese.ts`). Despesa nova avisa na hora
+  os colegas com parte nela (gatilho em `app_expense_shares`). Tudo vira aviso no sino e push para quem tem o app
+  instalado, uma vez cada (`app_reminders_sent`). Testar outro dia: `select app_send_reminders('rent', date '2026-10-29')`
+  numa transação desfeita. Rodar SQL grande pelo CLI: `npx supabase@latest db query --remote=<ref> -f arquivo.sql --yes`.
 - **Admin v2 do site** (26–27/11/2026, protótipo aprovado em https://claude.ai/artifact/R1JMwCP3bKm8CxavZz9KbE): relatório
   no estilo Power BI em `src/components/admin/v2/` do site (menu com os 68 itens antigos em grupos, ⌘K, gráficos, cores
   aplicadas também às telas antigas por `body.av-theme`). Telas novas: Visão geral (`/admin`, mesmo cálculo do Resultado
