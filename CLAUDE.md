@@ -50,6 +50,7 @@ próprio artefato).
 - **Código:** repositório `leallacerdadaniel/appctbh` (remoto `origin`); o do Arthur (`arthurhp14/ctbh-app`)
   ficou como remoto `arthur`, só referência. O Arthur parou de mexer no app em 07/11/2026.
   Desde 13/11/2026 a `main` tem todo o trabalho da `onda-6-pedidos` (PR #1, merge `a03f0d2`, feito pelo Daniel no GitHub).
+  Em 27/11/2026 a `main` recebeu a `painel-unificado` (PRs #2 e #3, merge `f599424`); trabalho novo sai da `main`.
 - **Desenvolvimento:** projeto Supabase **`appctbh`** (`gxhvhacqemdwwebsftcd`, organização Chez Toi BH), com a
   estrutura das tabelas do site que o app lê, as tabelas `app_*`, a `app-api` e dados fictícios.
   SQL em `supabase/appctbh/` (001 estrutura do site, 002 tabelas e funções do app, 003 dados de teste,
@@ -205,7 +206,7 @@ próprio artefato).
   as tabelas `app_*` (não é preciso para funcionar). Textos de um idioma só que o aluno lê: `team_note` dos pedidos e encomendas e a
   resposta do feedback (a equipe escreve na língua do aluno).
   **Um lugar só para cada coisa** (Daniel, 27/11/2026: "unificar o máximo de coisas possível ... na hora de gerenciar o
-  app, aquela aba do painel tem que vir com tudo"). Branch `app/painel-unificado` do site: as faxineiras e as notas que
+  app, aquela aba do painel tem que vir com tudo"). Branch `app/painel-unificado` do site (na `main` do site pelos PRs #9 e #10, merge `47f70efc`, 27/11/2026): as faxineiras e as notas que
   os alunos dão às faxinas moram na tela **Faxinas** (abas Faxineiras e Notas dos alunos; o item Faxineiras do App do
   aluno abre `/admin/cleanings?aba=faxineiras`); os chamados de manutenção do app aparecem em **Ocorrências** ("Registrar
   ocorrência" preenche e liga os dois); telas novas no App do aluno: **Informações dos aptos** (`/admin/app/apartamentos`:
