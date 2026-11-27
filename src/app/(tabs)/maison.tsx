@@ -17,7 +17,7 @@ import { canRate, formatLongDate, pastCleanings, upcomingCleanings } from '@/lib
 import { useBalanceLabel, useExpenses } from '@/lib/expenses';
 import { formatTime, shortAddress } from '@/lib/format';
 import { useHome, useHomeState } from '@/lib/home';
-import { usePackages, usePackagesStatus, useVisitors, useVisitorsStatus } from '@/lib/house-social';
+import { usePackages, usePackagesStatus } from '@/lib/house-social';
 import { trackAction } from '@/lib/usage';
 import { openWhatsApp } from '@/lib/whatsapp';
 
@@ -37,9 +37,7 @@ export default function MaisonScreen() {
   const { reload: reloadChores } = useChores();
   const balance = useBalanceLabel();
   const choreStatus = useChoreStatus();
-  const { reload: reloadVisitors } = useVisitors();
   const { reload: reloadPackages } = usePackages();
-  const visitorsStatus = useVisitorsStatus();
   const packagesStatus = usePackagesStatus();
 
   async function copy(value: string, message: string) {
@@ -60,7 +58,7 @@ export default function MaisonScreen() {
     <Screen
       title={t.tabs.maison}
       subtitle={t.maison.subtitle}
-      onRefresh={() => Promise.all([refresh(), reloadExpenses(), reloadChores(), reloadVisitors(), reloadPackages()])}>
+      onRefresh={() => Promise.all([refresh(), reloadExpenses(), reloadChores(), reloadPackages()])}>
       <Section title={t.maison.daily} subtitle={t.maison.dailyHint}>
         <Card style={styles.listCard}>
           <ListGroup inset>
@@ -146,12 +144,7 @@ export default function MaisonScreen() {
 
       <Section title={t.houseSocial.section} subtitle={t.houseSocial.sectionHint}>
         <HubGrid>
-          <HubTile
-            emoji="🚪"
-            title={t.houseSocial.visitors.tile}
-            status={visitorsStatus || t.houseSocial.visitors.tileEmpty}
-            onPress={() => router.push('/house/visitors' as Href)}
-          />
+          {/* TODO: visitors (house/visitors) hidden for now (owner, 2026-11-27); the screens stay in the app. */}
           <HubTile
             emoji="📦"
             title={t.houseSocial.packages.tile}

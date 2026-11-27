@@ -1,4 +1,5 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 
 import { Icon } from '@/components/icon';
@@ -12,12 +13,18 @@ import {
   StatusPill,
 } from '@/components/request-ui';
 import { Screen, Section } from '@/components/screen';
+import { SegmentedControl } from '@/components/segmented-control';
 import { AppText, Button, Card } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
-import { isOpen, useRequests, type RequestsData, type TeamRequest } from '@/lib/requests';
+import { isOpen, isProblem, useRequests, type RequestsData, type TeamRequest } from '@/lib/requests';
 
-/** "Mes demandes": open requests first, then the history. Pull down to refresh. */
+type Segment = 'problems' | 'orders';
+
+/**
+ * "Mes demandes" in two (owner, 2026-11-27): "Problèmes" (something broken: the repair the team sends someone for)
+ * and "Demandes" (extras, late check-out, early check-in, gourmet space). Open first, then the history.
+ */
 export default function RequestsScreen() {
   const { t } = useI18n();
   const { reload } = useRequests();
@@ -32,9 +39,22 @@ function Content({ data }: { data: RequestsData }) {
   const theme = useTheme();
   const { t, lang } = useI18n();
   const r = t.requests;
+  const params = useLocalSearchParams<{ tab?: string }>();
+  // Opens on the problems when one is open (or when asked for), otherwise on the requests.
+  const [segment, setSegment] = useState<Segment>(() =>
+    params.tab === 'problems' || params.tab === 'orders'
+      ? params.tab
+      : data.requests.some((x) => isProblem(x) && isOpen(x))
+        ? 'problems'
+        : 'orders',
+  );
+
   // The list comes newest first.
-  const open = data.requests.filter(isOpen);
-  const past = data.requests.filter((x) => !isOpen(x));
+  const mine = data.requests.filter((x) => (segment === 'problems' ? isProblem(x) : !isProblem(x)));
+  const open = mine.filter(isOpen);
+  const past = mine.filter((x) => !isOpen(x));
+  const openIn = (s: Segment) => data.requests.filter((x) => isOpen(x) && (s === 'problems' ? isProblem(x) : !isProblem(x))).length;
+  const label = (s: Segment) => (openIn(s) ? `${r.segments[s]} (${openIn(s)})` : r.segments[s]);
 
   const row = (req: TeamRequest) => (
     <ListRow
@@ -50,15 +70,24 @@ function Content({ data }: { data: RequestsData }) {
 
   return (
     <>
-      <Button
-        label={r.newRequest}
-        icon={<Icon name="plus" size={17} color={theme.onBrand} />}
-        onPress={() => router.push(requestHref('/requests/new'))}
+      <SegmentedControl<Segment>
+        options={[
+          { value: 'problems', label: label('problems') },
+          { value: 'orders', label: label('orders') },
+        ]}
+        value={segment}
+        onChange={setSegment}
       />
 
-      {data.requests.length === 0 && (
+      <Button
+        label={segment === 'problems' ? r.reportProblem : r.newRequest}
+        icon={<Icon name="plus" size={17} color={theme.onBrand} />}
+        onPress={() => router.push(requestHref(segment === 'problems' ? '/requests/maintenance' : '/requests/new'))}
+      />
+
+      {mine.length === 0 && (
         <Card>
-          <AppText color={theme.textSecondary}>{r.empty}</AppText>
+          <AppText color={theme.textSecondary}>{segment === 'problems' ? r.problemsEmpty : r.ordersEmpty}</AppText>
         </Card>
       )}
 

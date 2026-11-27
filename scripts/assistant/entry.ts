@@ -139,7 +139,6 @@ shown(
   'src/app/(tabs)/maison.tsx',
   't.maison.daily',
   't.houseSocial.section',
-  't.houseSocial.visitors.tile',
   't.houseSocial.packages.tile',
   't.maison.roommates',
   't.chores.tile',
@@ -179,7 +178,8 @@ const appMap = [
   `  - ${name('explorerTab.categories.trips')} : ${name('community.trips.banner')} (${s('community.trips.bannerBody')}) et les destinations.`,
   `- ${name('tabs.maison')} : ${s('maison.subtitle')}`,
   `  - ${name('maison.daily')} : ${s('maison.dailyHint')}.`,
-  `  - ${name('houseSocial.section')} : ${names('houseSocial.visitors.tile', 'houseSocial.packages.tile')}.`,
+  // Visitors hidden for now (owner, 2026-11-27): Charlotte doesn't send students to a screen they can't open.
+  `  - ${name('houseSocial.section')} : ${names('houseSocial.packages.tile')}.`,
   `  - ${name('maison.roommates')} : ${names('chores.tile', 'expenses.tile', 'maison.roommatesTile')}.`,
   `  - ${name('maison.residents')} : ${name('community.hubRow')} (${s('community.hubRowSubtitle')}).`,
   `  - ${name('maison.cleaning')} : ${s('maison.cleaningHint')}.`,
@@ -262,8 +262,7 @@ const stay = [
 ].join('\n');
 
 const building = [
-  `## Visites, colis et profil (${name('tabs.maison')} › ${name('houseSocial.section')})`,
-  `- ${name('houseSocial.visitors.tile')} : ${say('houseSocial.visitors.subtitle', 'houseSocial.visitors.why', 'houseSocial.visitors.noPortaria', 'houseSocial.visitors.changedNotice')}`,
+  `## Colis et profil (${name('tabs.maison')} › ${name('houseSocial.section')})`,
   `- ${name('houseSocial.packages.tile')} : ${s('houseSocial.packages.how')}`,
   `- ${name('houseSocial.profile.row')} (${name('profile.title')}) : ${s('houseSocial.profile.subtitle')} ${[s('houseSocial.profile.school'), s('houseSocial.profile.hometown'), s('houseSocial.profile.languages'), s('houseSocial.profile.instagram'), s('houseSocial.profile.about')].join(', ')}. ${say('houseSocial.profile.visibleHint', 'houseSocial.profile.teamNote')}`,
 ].join('\n');

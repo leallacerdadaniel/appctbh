@@ -14,7 +14,7 @@ import {
   TonightCarousel,
   WelcomeHero,
 } from '@/components/home-v3';
-import { EventCard } from '@/components/community-ui';
+import { EventCard, PostCard } from '@/components/community-ui';
 import type { IconName } from '@/components/icon';
 import { rentMonthLabel, requestHref, requestTitle } from '@/components/request-ui';
 import { Screen, Section } from '@/components/screen';
@@ -27,8 +27,9 @@ import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { bhHour, bhToday } from '@/lib/bh-time';
 import { choreById, myChoresThisWeek, useChoreActions, useChores } from '@/lib/chores';
+import { useBalanceLabel } from '@/lib/expenses';
 import { daysUntil, upcomingCleanings } from '@/lib/cleaning';
-import { useCommunity, type ChezEvent } from '@/lib/community';
+import { useCommunity, type ChezEvent, type Post } from '@/lib/community';
 import { toIso, type EventKind } from '@/lib/events';
 import { formatDayDate, formatTime, isFutureMonth } from '@/lib/format';
 import { useHome, useHomeState, type Home } from '@/lib/home';
@@ -97,9 +98,11 @@ export default function HomeScreen() {
         <TourTarget id="quick">
           <QuickActions apartment={apartment} />
         </TourTarget>
+        <HousematesSection />
         <TonightSection />
         <WeekSection />
         <NextEventSection />
+        <WallSection />
       </Screen>
     );
   }
@@ -123,9 +126,11 @@ export default function HomeScreen() {
           <QuickActions apartment={apartment} />
         </TourTarget>
       </View>
+      <HousematesSection />
       <TonightSection />
       <WeekSection />
       <NextEventSection />
+      <WallSection />
       {/* Wave 14: the stay survey, only while it is due (middle and end of the stay). */}
       <SurveyInvite />
       <RecapEntry />
@@ -195,6 +200,142 @@ function NextEventSection() {
         event={event}
         onPress={() => router.push(`/community/events/${event.id}` as Href)}
       />
+    </Section>
+  );
+}
+
+/* ---------- Between roommates ---------- */
+
+/**
+ * The house tools the roommates really use (owner, 2026-11-27): shared expenses (the "Splitwise") with the balance and
+ * "Ajouter", and this week's chores with "C'est fait". Nothing when the student lives alone.
+ */
+function HousematesSection() {
+  const theme = useTheme();
+  const toast = useToast();
+  const { t } = useI18n();
+  const { roommates } = useHome();
+  const balance = useBalanceLabel();
+  const { state: choresState } = useChores();
+  const choreActions = useChoreActions();
+  if (roommates.length === 0) return null;
+
+  const choresData = choresState.status === 'ready' ? choresState.data : null;
+  const myChores = choresData ? myChoresThisWeek(choresData).filter((i) => !i.done) : [];
+  const choresLine =
+    choresState.status === 'error'
+      ? t.chores.unavailable
+      : !choresData
+        ? t.chores.subtitle
+        : choresData.chores.length === 0
+          ? t.chores.tileEmpty
+          : myChores.length === 0
+            ? t.chores.tileNothing
+            : t.chores.subtitle;
+
+  const rows: ReactElement<{ first?: boolean }>[] = [
+    <TintRow
+      key="expenses"
+      icon="wallet"
+      tint={theme.successSoft}
+      ink={theme.success}
+      title={t.expenses.homeRow}
+      subtitle={balance || t.expenses.subtitle}
+      onPress={() => router.push('/expenses')}
+    />,
+    // Its own row, not a pill inside the row above (a button can't sit inside a pressable row).
+    <TintRow
+      key="expense-add"
+      icon="plus"
+      tint={theme.fill}
+      ink={theme.text}
+      title={t.expenses.add}
+      onPress={() => router.push('/expenses/edit')}
+    />,
+  ];
+  for (const item of myChores) {
+    const chore = choresData && choreById(choresData, item.choreId);
+    if (!chore || !choresData) continue;
+    rows.push(
+      <TintRow
+        key={`chore-${item.choreId}`}
+        emoji={chore.emoji}
+        tint={theme.fill}
+        ink={theme.text}
+        title={t.home.myChore}
+        subtitle={chore.name}
+        accessory={
+          <RowPill
+            dark
+            label={t.today.done}
+            onPress={() => {
+              trackAction('chore_done', 'home');
+              choreActions
+                .setDone(item.choreId, choresData.weeks[0].weekStart, true, choresData.me)
+                .then(() => toast(t.today.doneToast))
+                .catch(() => toast(t.chores.errors.action));
+            }}
+          />
+        }
+      />,
+    );
+  }
+  rows.push(
+    <TintRow
+      key="chores"
+      icon="chores"
+      tint={theme.warningSoft}
+      ink={theme.warning}
+      title={t.chores.tile}
+      subtitle={choresLine}
+      onPress={() => router.push('/house/chores' as Href)}
+    />,
+  );
+
+  return (
+    <Section
+      title={t.home.housemates}
+      subtitle={t.home.housematesHint}
+      action={t.home.housematesAction}
+      onAction={() => router.push('/apartment/roommates')}>
+      <TintCard>{rows.map((row, i) => (i === 0 ? cloneElement(row, { first: true }) : row))}</TintCard>
+    </Section>
+  );
+}
+
+/* ---------- Community wall ---------- */
+
+/** The latest two posts of the wall, like a small blog (owner, 2026-11-27). Hidden while loading or on error. */
+function WallSection() {
+  const theme = useTheme();
+  const { t } = useI18n();
+  const { state } = useCommunity<{ posts: Post[] }>('feed', { scope: 'all' });
+  if (state.status !== 'ready') return null;
+  const posts = state.data.posts.filter((p) => p.status === 'published').slice(0, 2);
+  return (
+    <Section
+      title={t.home.wall}
+      subtitle={t.home.wallHint}
+      action={t.home.wallAction}
+      onAction={() => router.push('/community' as Href)}>
+      {posts.length > 0 ? (
+        <View style={{ gap: Spacing.md }}>
+          {posts.map((post) => (
+            <PostCard key={post.id} post={post} onPress={() => router.push(`/community/post/${post.id}` as Href)} />
+          ))}
+        </View>
+      ) : (
+        <TintCard>
+          <TintRow
+            first
+            icon="feedback"
+            tint={theme.fill}
+            ink={theme.textSecondary}
+            title={t.community.wall.empty}
+            accessory={<RowPill label={t.community.wall.write} onPress={() => router.push('/community' as Href)} />}
+          />
+        </TintCard>
+      )}
     </Section>
   );
 }
@@ -323,12 +464,9 @@ function WelcomeChecklist({
 
 function WeekSection() {
   const theme = useTheme();
-  const toast = useToast();
   const { t, lang } = useI18n();
   const { contract, cleanings, payments, cleaner } = useHome();
   const { state: requestsState } = useRequests();
-  const { state: choresState } = useChores();
-  const choreActions = useChoreActions();
 
   // Rent: from 3 days before the 5th, or when a month is late. Never earlier (v3). The day is Belo Horizonte's.
   const today = bhToday();
@@ -342,8 +480,6 @@ function WeekSection() {
       ? unpaid.find((m) => m.month === thisMonth)
       : undefined;
 
-  const choresData = choresState.status === 'ready' ? choresState.data : null;
-  const myChores = choresData ? myChoresThisWeek(choresData).filter((i) => !i.done) : [];
   const nextCleaning = upcomingCleanings(cleanings).find((c) => daysUntil(c.date) <= WEEK_DAYS);
   const openRequests = requestsState.status === 'ready' ? requestsState.data.requests.filter(isOpen) : [];
   const events = upcomingEvents({ cleanings, ...contract })
@@ -363,33 +499,6 @@ function WeekSection() {
         subtitle={late.length > 0 ? t.home.rentDueHint : t.today.rentHint}
         subtitleColor={late.length > 0 ? theme.warning : undefined}
         accessory={<RowPill primary label={t.today.pay} onPress={() => router.push('/apartment/payments')} />}
-      />,
-    );
-  }
-  for (const item of myChores) {
-    const chore = choresData && choreById(choresData, item.choreId);
-    if (!chore || !choresData) continue;
-    rows.push(
-      <TintRow
-        key={`chore-${item.choreId}`}
-        emoji={chore.emoji}
-        tint={theme.fill}
-        ink={theme.text}
-        title={t.home.myChore}
-        subtitle={chore.name}
-        accessory={
-          <RowPill
-            dark
-            label={t.today.done}
-            onPress={() => {
-              trackAction('chore_done', 'home');
-              choreActions
-                .setDone(item.choreId, choresData.weeks[0].weekStart, true, choresData.me)
-                .then(() => toast(t.today.doneToast))
-                .catch(() => toast(t.chores.errors.action));
-            }}
-          />
-        }
       />,
     );
   }

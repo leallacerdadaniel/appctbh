@@ -154,6 +154,8 @@ function RootStack() {
           <Stack.Screen name="address" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
           {/* Mandatory until signed: no swipe to close. */}
           <Stack.Screen name="rules-intro" options={{ presentation: 'fullScreenModal', gestureEnabled: false, animation: 'fade' }} />
+          {/* Once, right after the rules: notifications and location, explained before the system asks. */}
+          <Stack.Screen name="permissions-intro" options={{ presentation: 'fullScreenModal', gestureEnabled: false, animation: 'fade' }} />
           <Stack.Screen name="requests/index" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="requests/new" options={{ animation: 'slide_from_right' }} />
           <Stack.Screen name="requests/service/[id]" options={{ animation: 'slide_from_right' }} />

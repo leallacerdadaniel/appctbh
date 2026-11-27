@@ -18,8 +18,9 @@ import { isTourOpen } from '@/lib/tour';
  * changed status, a package arrived); the database calls the "app-push" function (supabase/appctbh/
  * 022_push.sql), which sends it through the Expo Push API to the phones registered here.
  *
- * - The system asks once per phone, never on the login screen nor during the first run (house rules and app
- *   tour): on the next launch, or the next time the app comes back to the foreground, after both are done.
+ * - Since 2026-11-27 the permissions screen (src/app/permissions-intro.tsx, right after the house rules) asks first,
+ *   with an explanation. Otherwise the system asks once per phone, never on the login screen nor during the first
+ *   run: on the next launch, or the next time the app comes back to the foreground, after the rules and the tour.
  * - With the permission, the Expo push token goes to `app-house/device` with the platform and the app's
  *   language (the push is written in it; FR when unknown). Sent again on each launch and on a language change.
  * - Tapping a notification opens its `data.href`, only an internal path of the app.
@@ -103,6 +104,35 @@ async function ensureChannel(N: NotificationsModule) {
 
 /** Last registration sent from this launch: session, push token and language. */
 let lastSent: string | null = null;
+/** Set by PushSetup: registers the phone again (after the permissions screen got a yes). */
+let registerAgain: (() => void) | null = null;
+
+export type PushPermission = 'granted' | 'denied' | 'blocked' | 'unavailable';
+
+/** Where notifications can work at all: a native build on a real phone, with the EAS project id. */
+export const pushAvailable = () => !!notifications() && !!projectId();
+
+/** What the system says now, without asking. */
+export async function pushPermission(): Promise<PushPermission> {
+  const N = notifications();
+  if (!N || !projectId()) return 'unavailable';
+  const p = await N.getPermissionsAsync();
+  return p.granted ? 'granted' : p.canAskAgain ? 'denied' : 'blocked';
+}
+
+/**
+ * The permissions screen at first launch (owner, 2026-11-27): asks the system now and, on a yes, registers the
+ * phone at once (no waiting for the next launch). Marks the question as asked so PushSetup never asks again.
+ */
+export async function requestPushPermission(): Promise<PushPermission> {
+  const N = notifications();
+  if (!N || !projectId()) return 'unavailable';
+  await ensureChannel(N);
+  await AsyncStorage.setItem(ASKED_KEY, new Date().toISOString()).catch(() => {});
+  const p = await N.requestPermissionsAsync();
+  if (p.granted) registerAgain?.();
+  return p.granted ? 'granted' : p.canAskAgain ? 'denied' : 'blocked';
+}
 
 /**
  * Registers this phone for the signed-in student. Asks the system once per phone when `mayAsk`;
@@ -188,6 +218,9 @@ export function PushSetup({ email }: { email: string }) {
     };
     // At launch only if the first run was already over; otherwise on the next return to the foreground.
     const timer = setTimeout(attempt, ASK_DELAY_MS);
+    registerAgain = () => {
+      attempt();
+    };
     let background = false;
     const sub = AppState.addEventListener('change', (state) => {
       if (state === 'background') background = true;
@@ -200,6 +233,7 @@ export function PushSetup({ email }: { email: string }) {
       alive = false;
       clearTimeout(timer);
       sub.remove();
+      registerAgain = null;
     };
   }, [token, lang, email]);
 

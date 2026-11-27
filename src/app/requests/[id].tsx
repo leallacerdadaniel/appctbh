@@ -17,6 +17,7 @@ import {
 } from '@/components/request-ui';
 import { Screen, Section } from '@/components/screen';
 import { useToast } from '@/components/toast';
+import { Icon } from '@/components/icon';
 import { AppText, Button, Card, InlineMessage, Input, LoadingState, RetryCard } from '@/components/ui';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -26,6 +27,7 @@ import {
   AppApiError,
   billingMonthFor,
   canCancel,
+  canResolve,
   isOpen,
   localized,
   serviceTotal,
@@ -108,10 +110,12 @@ function Content({
   const toast = useToast();
   const { t, lang } = useI18n();
   const r = t.requests;
-  const { cancel, rate } = useRequestActions();
+  const { cancel, rate, resolve } = useRequestActions();
 
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [confirmFixed, setConfirmFixed] = useState(false);
+  const [fixing, setFixing] = useState(false);
   const [stars, setStars] = useState(0);
   const [comment, setComment] = useState('');
   const [rating, setRating] = useState(false);
@@ -136,6 +140,22 @@ function Content({
     } finally {
       setCancelling(false);
       setConfirmCancel(false);
+    }
+  }
+
+  /** "C'est réparé": the student closes an open maintenance request (and its linked incident on the site). */
+  async function onFixed() {
+    if (!confirmFixed) return setConfirmFixed(true);
+    setError(null);
+    setFixing(true);
+    try {
+      await resolve(req.id);
+      toast(r.fixedToast);
+    } catch (e) {
+      setError(requestErrorText(e, t));
+    } finally {
+      setFixing(false);
+      setConfirmFixed(false);
     }
   }
 
@@ -254,6 +274,20 @@ function Content({
       )}
 
       {error && <InlineMessage kind="error" text={error} />}
+
+      {canResolve(req) && (
+        <View style={styles.group}>
+          <AppText variant="callout" color={theme.textSecondary}>
+            {r.fixedHint}
+          </AppText>
+          <Button
+            label={confirmFixed ? r.fixedConfirm : r.fixed}
+            icon={<Icon name="check" size={17} color={theme.onBrand} />}
+            onPress={onFixed}
+            loading={fixing}
+          />
+        </View>
+      )}
 
       {canCancel(req) && (
         <View style={styles.group}>

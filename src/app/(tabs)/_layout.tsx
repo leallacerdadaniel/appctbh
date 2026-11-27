@@ -7,6 +7,7 @@ import { TourOverlay } from '@/components/tour-overlay';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
 import { useHome } from '@/lib/home';
+import { usePermissionsIntro } from '@/lib/permissions-intro';
 import { useRulesIntro } from '@/lib/rules-intro';
 import { TourProvider, useTourAutoStart } from '@/lib/tour';
 
@@ -16,14 +17,17 @@ export default function TabLayout() {
   const { student } = useHome();
   // The house rules intro opens over the tabs until the student signs the current version.
   const rulesNeeded = useRulesIntro(student.email);
+  // Then, once per phone, notifications and location (owner, 2026-11-27); the tour waits for both.
+  const permissionsNeeded = usePermissionsIntro(student.email);
   useEffect(() => {
     if (rulesNeeded) router.push('/rules-intro' as Href);
-  }, [rulesNeeded]);
+    else if (rulesNeeded === false && permissionsNeeded) router.push('/permissions-intro' as Href);
+  }, [rulesNeeded, permissionsNeeded]);
 
   return (
     <TourProvider email={student.email}>
       <View style={{ flex: 1 }}>
-        <TourStarter email={student.email} ready={rulesNeeded === false} />
+        <TourStarter email={student.email} ready={rulesNeeded === false && permissionsNeeded === false} />
         <Tabs
           tabBar={(props) => <TabBar {...props} />}
           screenOptions={{
@@ -38,7 +42,7 @@ export default function TabLayout() {
           <Tabs.Screen name="maison" options={{ title: t.tabs.maison }} />
           <Tabs.Screen name="sejour" options={{ title: t.tabs.sejour }} />
         </Tabs>
-        {/* The app tour (once, after the house rules), above the tab bar too. */}
+        {/* The app tour (once, after the house rules and the permissions), above the tab bar too. */}
         <TourOverlay />
       </View>
     </TourProvider>

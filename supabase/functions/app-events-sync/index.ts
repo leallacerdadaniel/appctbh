@@ -690,7 +690,7 @@ async function syncLinks(now: string, onlyId?: string): Promise<Report> {
     // pendentes e com erro todo dia; os que deram certo, uma vez por semana (data mudou? cancelado?)
     const weekAgo = new Date(Date.now() - 7 * DAY).toISOString();
     const recent = new Date(Date.now() - 120 * DAY).toISOString();
-    query = query.or(`status.in.(pending,error,needs_info),and(status.eq.ok,checked_at.lt.${weekAgo},created_at.gt.${recent})`).limit(60);
+    query = query.or(`status.in.(pending,error,needs_info,not_allowed),and(status.eq.ok,checked_at.lt.${weekAgo},created_at.gt.${recent})`).limit(60);
   }
   const { data: links, error } = await query;
   if (error) return { ...report, error: error.message };
@@ -736,8 +736,13 @@ async function syncLinks(now: string, onlyId?: string): Promise<Report> {
           free: ld?.free ?? null,
         };
       } else if (page.reason === 'robots') {
-        await update('not_allowed', 'O robots.txt deste site não deixa o robô ler a página.');
-        continue;
+        // O site não deixa o robô ler (a Sympla fechou em 11/2026). O que a equipe digitou no painel ainda vale:
+        // com título e data, o evento entra com o link; sem eles, o painel pede que a equipe preencha.
+        if (!link.title || !link.starts_at) {
+          await update('not_allowed', 'Este site não deixa o robô ler a página: preencha título, data e local no painel.');
+          continue;
+        }
+        detail = 'Lido do que a equipe digitou (o site não deixa o robô ler).';
       } else if (page.reason === 'recent' || page.reason === 'unchanged') {
         continue;
       } else {

@@ -12,6 +12,8 @@
 //       late_checkout  { date, time, note? }   early_checkin { date, time, note? }
 //       gourmet        { date, startTime, endTime, guests, note? }
 //   /app-requests/cancel         { id }            (só enquanto recebido ou confirmado)
+//   /app-requests/resolve        { id }            (chamado de manutenção aberto: "C'est réparé"; conclui e resolve
+//                                                   a ocorrência ligada no site, 027)
 //   /app-requests/rate           { id, rating, comment? }  (só depois de concluído)
 //   /app-requests/photo-upload   { contentType } → { path, signedUrl } para enviar uma foto (PUT)
 //
@@ -377,6 +379,22 @@ async function cancel(req: Request, body: { id?: unknown }) {
   return json({ request: shape(data as Row) });
 }
 
+/** O aluno diz que o problema foi resolvido (027): só o chamado de manutenção dele, enquanto aberto. */
+async function resolve(req: Request, body: { id?: unknown }) {
+  const who = await readToken(req);
+  if (!who) return json({ error: 'unauthorized' }, 401);
+  const row = await ownRequest(who.cp, body.id);
+  if (!row) return json({ error: 'notFound' }, 404);
+  if (row.kind !== 'maintenance' || !['received', 'scheduled', 'in_progress'].includes(row.status as string)) {
+    return json({ error: 'forbidden' }, 403);
+  }
+  const { data: ok, error } = await db.rpc('app_request_student_resolve', { p_cp: who.cp, p_id: row.id });
+  if (error) return json({ error: 'server' }, 500);
+  if (!ok) return json({ error: 'forbidden' }, 403);
+  const { data } = await db.from('app_requests').select(SELECT).eq('id', row.id as string).maybeSingle();
+  return data ? json({ request: shape(data as Row) }) : json({ error: 'server' }, 500);
+}
+
 async function rate(req: Request, body: { id?: unknown; rating?: unknown; comment?: unknown }) {
   const who = await readToken(req);
   if (!who) return json({ error: 'unauthorized' }, 401);
@@ -431,6 +449,8 @@ Deno.serve(async (req) => {
         return await create(req, body);
       case 'cancel':
         return await cancel(req, body);
+      case 'resolve':
+        return await resolve(req, body);
       case 'rate':
         return await rate(req, body);
       case 'photo-upload':
