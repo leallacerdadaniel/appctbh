@@ -59,29 +59,6 @@ export default function MaisonScreen() {
       title={t.tabs.maison}
       subtitle={t.maison.subtitle}
       onRefresh={() => Promise.all([refresh(), reloadExpenses(), reloadChores(), reloadPackages()])}>
-      {/* Cleaning first (owner, 2026-11-27): what the students check most in Maison. */}
-      <Section title={t.maison.cleaning} subtitle={t.maison.cleaningHint}>
-        <HubGrid>
-          <HubTile
-            emoji="🧹"
-            title={t.apartment.cleaning.next}
-            status={nextLabel}
-            onPress={() => router.push('/apartment/cleaning')}
-          />
-          {toRate && (
-            <HubTile
-              emoji="⭐"
-              title={t.maison.rateTile}
-              status={
-                toRate.feedback
-                  ? t.maison.rated(toRate.feedback.rating)
-                  : t.maison.rateStatus(formatLongDate(toRate.date, lang))
-              }
-              onPress={() => router.push({ pathname: '/apartment/feedback', params: { id: toRate.id ?? '' } })}
-            />
-          )}
-        </HubGrid>
-      </Section>
       <Section title={t.maison.daily} subtitle={t.maison.dailyHint}>
         <Card style={styles.listCard}>
           <ListGroup inset>
@@ -145,26 +122,52 @@ export default function MaisonScreen() {
                 )
               }
             />
+            {/* Where the bins are (owner, 2026-11-27): always here; without the info, the row asks the team. */}
+            <ListRow
+              icon="trash"
+              title={t.apartment.trash.title}
+              subtitle={
+                apartment.trash?.where?.[lang] ?? (apartment.trash ? t.apartment.trash.tileStatus : t.maison.trashAsk)
+              }
+              onPress={
+                apartment.trash
+                  ? () => router.push('/apartment/trash')
+                  : () => openWhatsApp('maison_trash', t.maison.trashAskMessage)
+              }
+            />
+            <ListRow
+              icon="document"
+              title={t.apartment.rules.title}
+              subtitle={t.apartment.rules.tileStatus}
+              onPress={() => router.push('/apartment/rules')}
+            />
           </ListGroup>
         </Card>
-        <HubGrid>
-          {apartment.trash && (
-            <HubTile
-              emoji="🗑️"
-              title={t.apartment.trash.title}
-              status={t.apartment.trash.tileStatus}
-              onPress={() => router.push('/apartment/trash')}
-            />
-          )}
-          <HubTile
-            emoji="📋"
-            title={t.apartment.rules.title}
-            status={t.apartment.rules.tileStatus}
-            onPress={() => router.push('/apartment/rules')}
-          />
-        </HubGrid>
       </Section>
 
+      {/* Cleaning right under the apartment and its rules (owner, 2026-11-27). */}
+      <Section title={t.maison.cleaning} subtitle={t.maison.cleaningHint}>
+        <HubGrid>
+          <HubTile
+            emoji="🧹"
+            title={t.apartment.cleaning.next}
+            status={nextLabel}
+            onPress={() => router.push('/apartment/cleaning')}
+          />
+          {toRate && (
+            <HubTile
+              emoji="⭐"
+              title={t.maison.rateTile}
+              status={
+                toRate.feedback
+                  ? t.maison.rated(toRate.feedback.rating)
+                  : t.maison.rateStatus(formatLongDate(toRate.date, lang))
+              }
+              onPress={() => router.push({ pathname: '/apartment/feedback', params: { id: toRate.id ?? '' } })}
+            />
+          )}
+        </HubGrid>
+      </Section>
       <Section title={t.houseSocial.section} subtitle={t.houseSocial.sectionHint}>
         <HubGrid>
           {/* TODO: visitors (house/visitors) hidden for now (owner, 2026-11-27); the screens stay in the app. */}

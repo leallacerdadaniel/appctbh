@@ -436,6 +436,13 @@ const fr = {
     },
   },
   /** First launch, after the house rules (owner, 2026-11-27): notifications and location, explained first. */
+  /** First of the first-run screens (owner, 2026-11-27): the app's language, asked once per phone. */
+  languageIntro: {
+    title: 'Quelle langue préférez-vous ?',
+    subtitle: 'Pour toute l’app. Vous pourrez la changer dans votre profil.',
+    fr: 'Français',
+    en: 'English',
+  },
   permissionsIntro: {
     title: 'Deux autorisations, et c’est parti',
     subtitle: 'C’est vous qui choisissez. Tout se change ensuite dans les réglages du téléphone.',
@@ -753,6 +760,7 @@ const fr = {
     trash: {
       title: 'Poubelles',
       tileStatus: 'Consignes pour vos déchets',
+      whereTitle: 'Où les déposer',
       subtitle: 'Les consignes pour votre logement.',
       enlarge: 'Agrandir la photo',
       close: 'Fermer',
@@ -1635,6 +1643,8 @@ const fr = {
     rated: (n: number) => `Votre note : ${n} sur 5, encore modifiable`,
     residents: 'Entre résidents',
     wifiAsk: 'Demandez à l’équipe',
+    trashAsk: 'Où sont les poubelles ? Demandez à l’équipe',
+    trashAskMessage: 'Bonjour ! Où se trouve le local poubelles de l’immeuble, et comment trier les déchets ?',
     wifiAskMessage: 'Bonjour ! Pouvez-vous m’envoyer le nom et le mot de passe du Wi‑Fi de l’appartement ?',
   },
   houseSocial: {
@@ -2748,6 +2758,12 @@ const en: Strings = {
       doneA11y: 'Done',
     },
   },
+  languageIntro: {
+    title: 'Which language do you prefer?',
+    subtitle: 'For the whole app. You can change it in your profile.',
+    fr: 'Français',
+    en: 'English',
+  },
   permissionsIntro: {
     title: 'Two permissions and you’re set',
     subtitle: 'You choose. You can change everything later in your phone’s settings.',
@@ -3063,6 +3079,7 @@ const en: Strings = {
     trash: {
       title: 'Trash',
       tileStatus: 'How to handle your trash',
+      whereTitle: 'Where to drop it',
       subtitle: 'The instructions for your apartment.',
       enlarge: 'Enlarge photo',
       close: 'Close',
@@ -3938,6 +3955,8 @@ const en: Strings = {
     rated: (n: number) => `Your rating: ${n} out of 5, still editable`,
     residents: 'Between residents',
     wifiAsk: 'Ask the team',
+    trashAsk: 'Where are the bins? Ask the team',
+    trashAskMessage: 'Hi! Where is the building’s trash room, and how should we sort the waste?',
     wifiAskMessage: 'Hi! Could you send me the apartment’s Wi‑Fi name and password?',
   },
   houseSocial: {

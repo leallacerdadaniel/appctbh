@@ -42,7 +42,7 @@ type HomeResponse = {
     unit_number?: string | null;
     wifi_name: string | null;
     wifi_password: string | null;
-    trash_info?: { fr?: string; en?: string; photos?: { url: string }[] } | null;
+    trash_info?: { fr?: string; en?: string; photos?: { url: string }[]; where?: { fr?: string; en?: string } } | null;
   } | null;
   roommates: string[];
   /** Who cleans the apartment (app_cleaners, 2026-11-08); phone only when she agreed to share it. */
@@ -81,8 +81,8 @@ export type Home = {
     photoUrl: string | null;
     wifiName: string | null;
     wifiPassword: string | null;
-    /** Trash instructions from the admin; null when nothing was entered for this apartment. */
-    trash: { text: Localized; photos: string[] } | null;
+    /** Trash instructions from the admin (where the bins are, how to sort, photos); null when nothing was entered. */
+    trash: { text: Localized; photos: string[]; where: Localized | null } | null;
   };
   contract: {
     semester: string;
@@ -119,8 +119,12 @@ function toTrash(raw: NonNullable<HomeResponse['info']>['trash_info']): Home['ap
   const fr = raw?.fr?.trim() ?? '';
   const en = raw?.en?.trim() ?? '';
   const photos = (raw?.photos ?? []).map((p) => p.url).filter(Boolean);
-  if (!fr && !en && !photos.length) return null;
-  return { text: { fr: fr || en, en: en || fr }, photos };
+  // Where the bins are (2026-11-27: "o local do lixo"), a short line shown in Maison.
+  const whereFr = raw?.where?.fr?.trim() ?? '';
+  const whereEn = raw?.where?.en?.trim() ?? '';
+  const where = whereFr || whereEn ? { fr: whereFr || whereEn, en: whereEn || whereFr } : null;
+  if (!fr && !en && !photos.length && !where) return null;
+  return { text: { fr: fr || en, en: en || fr }, photos, where };
 }
 
 function toHome(r: HomeResponse): Home {

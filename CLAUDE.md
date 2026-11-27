@@ -189,8 +189,7 @@ próprio artefato).
   os prontos), quando o guia ganhar lugares (`--force`) ou uma vez por ano. Na produção, sem gravar a chave secreta do
   Supabase: a linha de comando está no topo de `scripts/apartment_places.py`. As fotos do guia (`place-photo`) também
   passaram para a chave da Chez Toi em 27/11/2026: Places API (New), segredo `GOOGLE_PLACES_API_KEY` na produção. O
-  segredo antigo `GOOGLE_MAPS_API_KEY` (chave do Arthur, APIs antigas) ficou só como reserva no código; pode ser
-  apagado (`npx supabase secrets unset GOOGLE_MAPS_API_KEY --project-ref miucfiiporxhvvbefonh`).
+  segredo antigo `GOOGLE_MAPS_API_KEY` (chave do Arthur) foi apagado da produção em 27/11/2026, com o ok do Daniel.
 - Fora de casa, "Autour de moi" (`src/components/around-me.tsx`): botões que abrem o Google Maps buscando onde o aluno está
   (link do Maps, sem chave e sem custo). Busca ao vivo do Google dentro do app foi descartada pelo custo (09/11/2026:
   de US$ 70 a US$ 1.850 por mês para 100 alunos); se voltar, só no toque, com limite por aluno e alerta de gasto.
@@ -231,6 +230,15 @@ próprio artefato).
   propósito: **rastrear entre apps** (ATT; o app não rastreia, o manifesto diz `NSPrivacyTracking: false` e a política
   do site diz "no tracking") e **rede local** (o aviso que aparece no desenvolvimento é do Expo Go; o app não usa a rede
   local). No Expo Go e no simulador as notificações aparecem como "só no app instalado".
+  **Primeira abertura, na ordem** (27/11/2026): língua (`src/app/language-intro.tsx`, uma vez por celular, a pergunta
+  nas duas línguas) → regras → permissões → tour da Charlotte. **Maison:** Au quotidien (apto, endereço, Wi-Fi,
+  Poubelles, Règles) → Ménage → Colis → Colocs → Résidents. "Poubelles" mostra onde ficam as lixeiras
+  (`app_apartment_info.trash_info.where` {fr,en}, campo "Onde fica" na tela Informações dos aptos do painel); sem nada
+  preenchido, a linha pede à equipe pelo WhatsApp.
+  **Lembretes** (028 no dev; na produção é o `supabase/producao/005_lembretes.sql`): `app_send_reminders` pelo pg_cron,
+  aluguel 5, 3 e 1 dia antes do dia 5 se o mês não está pago (10h de BH) e faxina na véspera com o horário (18h de BH);
+  viram aviso no sino e push para quem tem o app instalado; cada um sai uma vez (`app_reminders_sent`). Para testar
+  outro dia: `select app_send_reminders('rent', date '2026-11-04')` numa transação desfeita.
 - **Admin v2 do site** (26–27/11/2026, protótipo aprovado em https://claude.ai/artifact/R1JMwCP3bKm8CxavZz9KbE): relatório
   no estilo Power BI em `src/components/admin/v2/` do site (menu com os 68 itens antigos em grupos, ⌘K, gráficos, cores
   aplicadas também às telas antigas por `body.av-theme`). Telas novas: Visão geral (`/admin`, mesmo cálculo do Resultado
