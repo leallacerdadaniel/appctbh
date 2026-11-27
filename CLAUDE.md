@@ -192,6 +192,11 @@ próprio artefato).
   Mensal), Metas e OKRs (`/admin/metas`), Venda da empresa (`/admin/venda`, só admin: prontidão + valuation em
   `src/lib/valuation.ts`), Documentos importantes, Corporativo/CMOC (`/admin/corporativo`: ocupantes, CEMIG, lavanderia) e
   Seguros. Primeira parte na `main` do site pelo PR #1; o resto na branch `admin/redesenho-2`.
+  Em 27/11 (pedido do Daniel: "refaz o design do admin todo") as ~80 telas restantes foram refeitas no mesmo padrão,
+  só apresentação (mesmas consultas e gravações). Guia e peças: `src/components/admin/v2/README.md` e `page.tsx` do site;
+  tela modelo `AdminContactForms.tsx`. Caixa **"Coisas que não usamos"** no fim do menu (`NAV_ARCHIVE` em `nav.ts`, só
+  sócios): Eventos/Esportes, Tarefas/Kanban/Rotinas, Atas, Aprendizados e o portal antigo do aluno; para voltar uma tela,
+  mover o item de grupo. Nomes do menu em português (os antigos seguem na busca ⌘K).
   **Banco de produção, 27/11/2026, com o ok do Daniel:** `corporate_units/occupants/bills`, `goal_cycles/objectives/key_results`
   (+ colunas em `goal_actions`), `sale_items`, `valuation_scenarios`, `company_documents`, buckets `corporate-bills` e
   `company-docs`; SQL em `supabase/aplicadas/` do site (fora de `migrations/`, já registrado no banco). Os 26 ocupantes da
