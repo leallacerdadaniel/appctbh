@@ -180,9 +180,15 @@ próprio artefato).
 - Mais bem avaliados do Google perto de casa (09/11/2026): `scripts/nearby.py` (`TOP_RATED`: restaurantes, bares e cafés a
   até 15 min a pé, nota ponderada pelo número de avaliações) grava em `app_apartment_places.nearby.topRated`; no app,
   `src/components/top-rated-near-home.tsx` na Explorer, com toque para o Google Maps. Some enquanto o apartamento não tem a lista.
-  **Decisão do Daniel (09/11/2026): seguir sem a chave do Google**, com o "Autour de moi" levando ao Maps. A lista fica escondida
-  (não há dados); o script continua no repositório caso a chave apareça (`python3 scripts/apartment_places.py --top-rated`).
-  Sem a chave, apartamento novo também fica sem o "Perto de casa" (o mesmo script calcula os dois).
+  Em 09/11/2026 o Daniel decidiu seguir sem a chave; **em 27/11/2026 voltou atrás**: chave do Google no projeto
+  "Chez Toi BH app" da conta Google da Chez Toi (Places API New + Routes API, só essas duas; a linha `GOOGLE_MAPS_API_KEY`
+  fica no `.env.local`). `scripts/nearby.py` foi migrado das APIs antigas (que projeto novo não ativa) para as novas, e
+  pede o tempo de carro só acima de 20 min a pé (o que o app mostra). Os **31 apartamentos de 2027/1 foram calculados**
+  em 27/11/2026 (Perto de casa, mieux notés e o tempo a pé até os 107 lugares do guia): 13.395 elementos de rota, 778
+  buscas por texto, 175 buscas por proximidade. Rodar de novo só para apartamento novo na janela do app (o script pula
+  os prontos), quando o guia ganhar lugares (`--force`) ou uma vez por ano. Na produção, sem gravar a chave secreta do
+  Supabase: a linha de comando está no topo de `scripts/apartment_places.py`. A função `place-photo` ainda usa a chave
+  antiga do Arthur (segredo no projeto Supabase, APIs antigas).
 - Fora de casa, "Autour de moi" (`src/components/around-me.tsx`): botões que abrem o Google Maps buscando onde o aluno está
   (link do Maps, sem chave e sem custo). Busca ao vivo do Google dentro do app foi descartada pelo custo (09/11/2026:
   de US$ 70 a US$ 1.850 por mês para 100 alunos); se voltar, só no toque, com limite por aluno e alerta de gasto.
