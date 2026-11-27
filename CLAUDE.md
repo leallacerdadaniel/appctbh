@@ -204,6 +204,9 @@ próprio artefato).
   `auto_inactivate_expired_rentals`, `verify_student_password`, `log_auth_attempt`, `get_all_users_with_roles` e as de gatilho.
   Ficam abertas de propósito `is_staff`, `has_role`, `is_student`, `get_student_rental_id` (usadas nas regras de acesso) e as do blog.
   Nunca gravar dado pessoal em `apartments`.
+  **Avisos da Visão geral** (27/11/2026): cada aviso tem ação que resolve (contas de luz: "Dar baixa" acha o pagamento nos
+  lançamentos e liga em `corporate_bills.finance_transaction_id`; vencidos; repasses; mensagens) e um "Ok" guardado em
+  `admin_alert_resolutions` (produção, com o ok do Daniel; chave do aviso + impressão digital, volta se aparecer algo novo).
   **Banco de produção, 27/11/2026, com o ok do Daniel:** `corporate_units/occupants/bills`, `goal_cycles/objectives/key_results`
   (+ colunas em `goal_actions`), `sale_items`, `valuation_scenarios`, `company_documents`, buckets `corporate-bills` e
   `company-docs`; SQL em `supabase/aplicadas/` do site (fora de `migrations/`, já registrado no banco). Os 26 ocupantes da
