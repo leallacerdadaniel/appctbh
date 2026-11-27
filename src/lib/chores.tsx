@@ -14,7 +14,11 @@ import { person, type Person } from '@/lib/home';
 
 export type ChoreMember = Person & { id: string };
 
-export type Chore = { id: string; emoji: string; name: string; rotation: string[] };
+/** How often the chore happens (031, 2026-11-27): daily = one person all week, every day. */
+export type ChoreFrequency = 'daily' | 'weekly' | 'biweekly' | 'monthly';
+export const CHORE_FREQUENCIES: ChoreFrequency[] = ['daily', 'weekly', 'biweekly', 'monthly'];
+
+export type Chore = { id: string; emoji: string; name: string; rotation: string[]; frequency?: ChoreFrequency };
 
 export type ChoreItem = {
   choreId: string;
@@ -104,7 +108,7 @@ export function useChoreActions() {
   const { state, reload, patch } = useChores();
 
   return {
-    async save(input: { id?: string; emoji: string; name: string; rotation: string[] }) {
+    async save(input: { id?: string; emoji: string; name: string; rotation: string[]; frequency: ChoreFrequency }) {
       const r = await houseApi<{ id: string }>('chore-save', { token, body: input });
       await reload();
       return r.id;

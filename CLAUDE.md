@@ -240,6 +240,10 @@ próprio artefato).
   botões "Copier l'adresse" e "Pour le chauffeur". As fotos chegam pela `app_home_for` (`apartment.photos`): 029 no dev,
   `supabase/producao/006_fotos_do_apto.sql` aplicada na produção em 27/11/2026 com o ok do Daniel. A pergunta da língua é uma
   folha pequena por cima do Accueil (`transparentModal`), não mais uma tela inteira.
+  **Frequência das tarefas** (27/11/2026): ao criar a tarefa os colegas escolhem Tous les jours (uma pessoa a semana
+  toda), Chaque semaine, Toutes les deux semaines ou Chaque mois (`app_chores.frequency`, 031 no dev; na produção
+  `supabase/producao/007_frequencia_das_tarefas.sql`, antes de publicar a `app-house`). O rodízio anda a cada vez que a
+  tarefa acontece; nas semanas sem ela, a tarefa não aparece.
   **Aluguel vence todo dia 1** (Daniel, 27/11/2026): o Accueil mostra o aluguel 3 dias antes, no dia 1 ou atrasado.
   **Lembretes e avisos automáticos** (030 no dev, aplicada e testada; na produção o `supabase/producao/005_lembretes.sql`,
   completo e idempotente, aplicado em 27/11/2026 com o ok do Daniel): `app_send_reminders(kind)` pelo pg_cron — 10h: aluguel 5, 3 e 1 dia antes do dia 1 se o mês
