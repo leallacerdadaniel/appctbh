@@ -9,7 +9,8 @@ import { formatDayDate, formatShortDate } from '@/lib/format';
 
 /**
  * The residents' community (wave 15, owner 2026-11-09), served by the "app-community" function: the wall
- * (roommates or every resident), group trips, Chez Toi events, reports and blocks. Every post, comment and trip
+ * (every resident), the groups students create, group trips, Chez Toi events, reports and blocks. "Mon appart" left
+ * on 2026-11-27 (owner: "comunidade ou é pra todos, ou pra grupos que ele deveria poder criar"). Every post, comment and trip
  * goes through the AI moderator before it shows; the team decides what it holds (panel › Comunidade).
  */
 
@@ -19,7 +20,8 @@ export const COMMUNITY_TERMS_VERSION = '2026-11';
 export type Localized = { fr: string; en: string };
 export type Author = { id: string; name: string; me: boolean };
 export type PostKind = 'post' | 'question' | 'giveaway';
-export type Scope = 'all' | 'apartment';
+/** 'apartment' only on posts written before 2026-11-27 (the app no longer offers it). */
+export type Scope = 'all' | 'group' | 'apartment';
 /** pending: held for the team · hidden: not published (AI or reports) · removed never reaches the app. */
 export type ContentStatus = 'pending' | 'published' | 'hidden';
 
@@ -27,6 +29,8 @@ export type Post = {
   id: string;
   author: Author;
   scope: Scope;
+  /** The group, for a post written in one. */
+  groupId: string | null;
   kind: PostKind;
   body: string;
   status: ContentStatus;
@@ -65,6 +69,25 @@ export type Trip = {
 
 export type TripMember = { id: string; name: string; me: boolean; creator: boolean };
 
+/**
+ * A group created by a resident (2026-11-27): open, like the trips. Anyone sees it and joins with a tap; only the
+ * members read and write in it. The AI checks the name and the description before it shows.
+ */
+export type Group = {
+  id: string;
+  /** null when its creator deleted their account (the group stays for the others). */
+  creator: Author | null;
+  name: string;
+  description: string | null;
+  membersCount: number;
+  joined: boolean;
+  status: ContentStatus;
+  reason: Localized | null;
+  createdAt: string;
+};
+
+export type GroupDetail = { group: Group; members: TripMember[]; canPost: boolean };
+
 /** A trip as its page shows it: the group chat is only for the people going (no links: owner, 2026-11-09). */
 export type TripDetail = { trip: Trip; members: TripMember[]; canTalk: boolean; comments: Comment[] };
 
@@ -91,7 +114,7 @@ export type CommunityStatus = {
   suspendedUntil: string | null;
 };
 
-export type ReportTarget = 'post' | 'comment' | 'trip';
+export type ReportTarget = 'post' | 'comment' | 'trip' | 'group';
 export type ReportReason = 'spam' | 'harassment' | 'inappropriate' | 'danger' | 'personal_data' | 'other';
 export type SaveResult = { id: string; status: ContentStatus; reason: Localized | null };
 
@@ -138,7 +161,9 @@ export function useCommunityActions() {
   const call = <T>(route: string, body: Record<string, unknown>) => communityApi<T>(route, { token, body });
   return {
     acceptTerms: (lang: Lang) => call('terms-accept', { version: COMMUNITY_TERMS_VERSION, lang }),
-    savePost: (b: { scope: Scope; kind: PostKind; body: string }) => call<SaveResult>('post-save', b),
+    /** For everyone, or in a group the student joined (`groupId`). */
+    savePost: (b: { groupId?: string; kind: PostKind; body: string }) =>
+      call<SaveResult>('post-save', { ...b, scope: b.groupId ? 'group' : 'all' }),
     deletePost: (id: string) => call('post-delete', { id }),
     saveComment: (postId: string, body: string) => call<SaveResult>('comment-save', { postId, body }),
     deleteComment: (id: string) => call('comment-delete', { id }),
@@ -160,6 +185,10 @@ export function useCommunityActions() {
     joinTrip: (id: string) => call('trip-join', { id }),
     leaveTrip: (id: string) => call('trip-leave', { id }),
     rsvp: (id: string, going: boolean) => call('event-rsvp', { id, going }),
+    saveGroup: (b: { id?: string; name: string; description: string | null }) => call<SaveResult>('group-save', b),
+    joinGroup: (id: string) => call('group-join', { id }),
+    leaveGroup: (id: string) => call('group-leave', { id }),
+    archiveGroup: (id: string) => call('group-archive', { id }),
   };
 }
 

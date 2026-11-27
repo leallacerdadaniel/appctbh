@@ -120,26 +120,27 @@ function shown(file: string, ...needles: string[]) {
 /** Explorer's categories, in the order of the screen. */
 const explorerSrc = shown(
   'src/app/(tabs)/explorer.tsx',
-  '<FirstStepsBanner',
+  '<TripsCarousel',
   '<PortugueseEntry',
-  '<PhoneStolenEntry',
-  '<HealthEntry',
-  "only={['around', 'start', 'daily']}",
+  't.phoneStolen.entry',
+  't.health.entry',
+  "'/first-steps'",
+  "only={['around']}",
+  '<AroundMe',
   '<GroupTripsEntry',
+  '<FestivalsCarousel',
 );
-shown('src/components/guide-content.tsx', 't.admin.title', 't.services.title', 't.nearby.title', 't.home.emergency');
+shown('src/app/(tabs)/index.tsx', '<FirstStepsCard');
 const categories = /const CATEGORIES = \[([^\]]+)\]/.exec(explorerSrc)?.[1].match(/\w+/g);
 if (!categories) throw new Error('src/app/(tabs)/explorer.tsx: CATEGORIES não encontrado.');
 
 shown('src/app/(tabs)/_layout.tsx', 'explorer', 'maison', 'sejour');
-shown('src/components/home-v3.tsx', 't.today.quick.wifi', 't.today.quick.services', 't.today.quick.roommates', 't.today.quick.sos');
+shown('src/components/home-v3.tsx', 't.today.quick.wifi', 't.today.quick.services', 't.today.quick.trips', 't.today.quick.sos');
 shown('src/app/emergency.tsx', 't.health.entry', 't.emergency.hospitals');
 shown('src/app/profile.tsx', 't.profile.language', 't.profile.contact', 't.profile.signOut', 't.account.rowTitle', '/house/my-profile');
 shown(
   'src/app/(tabs)/maison.tsx',
   't.maison.daily',
-  't.houseSocial.section',
-  't.houseSocial.packages.tile',
   't.maison.roommates',
   't.chores.tile',
   't.expenses.tile',
@@ -173,13 +174,15 @@ const appMap = [
   `- En haut de chaque onglet. ${s('tour.steps.top')} ${name('profile.title')} : ${names('houseSocial.profile.row', 'profile.language', 'profile.contact', 'profile.signOut', 'account.rowTitle')}. La cloche : ${name('notices.title')}.`,
   `- ${name('tabs.home')} : ${s('tour.steps.address')} Raccourcis : ${s('tour.steps.quick')} SOS ouvre ${name('emergency.title')} : ${names('health.entry', 'emergency.hospitals')}.`,
   `- ${name('tabs.explorer')} : ${s('tour.steps.explorer')} Catégories : ${categories.map((c) => name(`explorerTab.categories.${c}`)).join(', ')}.`,
-  `  - ${name('explorerTab.categories.forYou')} : ${name('explorerTab.firstSteps')} (${s('explorerTab.firstStepsHint')}).`,
-  `  - ${practical} : ${names('portuguese.title', 'phoneStolen.entry', 'health.entry', 'admin.title', 'services.title', 'nearby.title', 'home.emergency')}.`,
-  `  - ${name('explorerTab.categories.trips')} : ${name('community.trips.banner')} (${s('community.trips.bannerBody')}) et les destinations.`,
+  `  - ${name('explorerTab.categories.forYou')} : ${name('explorerTab.tripsTitle')} (${s('explorerTab.tripsHint')}), ${name('community.trips.banner')}, la semaine à BH, le ${name('explorerTab.pick')} et les mieux notés près de chez soi.`,
+  `  - ${name('explorerTab.categories.trips')} : ${name('community.trips.banner')} (${s('community.trips.bannerBody')}) et les destinations (Minas, Brésil, Amérique du Sud).`,
+  `  - ${name('explorerTab.categories.out')} : la semaine à BH, ${name('explorerTab.bars')}, ${name('explorerTab.festivals')}, les lieux à voir à BH et le sport.`,
+  `  - ${name('explorerTab.categories.eat')} : ${name('explorerTab.restaurants')}, les mieux notés près de chez soi et ${name('dishes.entry')}.`,
+  `  - ${practical} : ${name('home.around')} (supermarché, pharmacie, boulangerie…, avec le temps à pied), puis ${names('explorerTab.firstSteps', 'portuguese.title', 'health.entry', 'phoneStolen.entry')}, et ${name('aroundMe.title')} (Google Maps là où l’on est).`,
+  `  - ${name('explorerTab.firstSteps')} (${s('explorerTab.firstStepsHint')}) est aussi sur ${name('tabs.home')} jusqu’à une semaine après l’arrivée, ou jusqu’à ce que l’étudiant le masque.`,
   `- ${name('tabs.maison')} : ${s('maison.subtitle')}`,
   `  - ${name('maison.daily')} : ${s('maison.dailyHint')}.`,
-  // Visitors hidden for now (owner, 2026-11-27): Charlotte doesn't send students to a screen they can't open.
-  `  - ${name('houseSocial.section')} : ${names('houseSocial.packages.tile')}.`,
+  // Visitors and packages hidden for now (owner, 2026-11-27): Charlotte doesn't send students to a screen they can't open.
   `  - ${name('maison.roommates')} : ${names('chores.tile', 'expenses.tile', 'maison.roommatesTile')}.`,
   `  - ${name('maison.residents')} : ${name('community.hubRow')} (${s('community.hubRowSubtitle')}).`,
   `  - ${name('maison.cleaning')} : ${s('maison.cleaningHint')}.`,
@@ -213,7 +216,8 @@ const charter = at(fr, 'community.charter.rules') as { title: string; body: stri
 const community = [
   `## Communauté des résidents (${name('tabs.maison')} › ${name('community.hubRow')})`,
   `${s('community.subtitle')}. ${s('community.errors.noRental')}`,
-  `- ${s('community.wall.title')} : ${s('community.wall.subtitle')}. ${s('community.compose.who')} ${s('community.compose.scopeAll')} ou ${s('community.compose.scopeApartment')}. ${s('community.compose.kind')} : ${labels('community.wall.kinds')}.`,
+  `- ${s('community.wall.title')} : ${s('community.wall.subtitle')}. ${s('community.compose.toAll')}. ${s('community.compose.kind')} : ${labels('community.wall.kinds')}.`,
+  `- ${s('community.groups.title')} : ${s('community.groups.subtitle')}. Groupes ouverts : on rejoint d’un geste (${name('community.groups.join')}), et seuls les membres lisent et écrivent les messages du groupe. ${name('community.groups.create')} : ${[s('community.groupEdit.name'), s('community.groupEdit.description')].join(', ')} ; ${s('community.groupEdit.aiNote')}`,
   `- ${s('community.trips.title')} : ${say('community.trips.subtitle')}. ${name('community.trips.propose')} : ${[s('community.tripEdit.destination'), s('community.tripEdit.start'), s('community.tripEdit.duration'), s('community.tripEdit.seats'), s('community.tripEdit.description')].join(', ')}. Pour participer : ${name('community.trips.join')}. ${s('community.trips.talk')} : ${say('community.trips.talkHint', 'community.trips.talkJoin')} ${s('community.trips.help')}. ${s('community.trips.cancelConfirm')}`,
   `- ${s('community.events.title')} : ${s('community.events.subtitle')}. Réponse : ${names('community.events.join', 'community.events.decline')}.`,
   `- ${s('community.charter.title')} (à accepter avant de publier) : ${charter.map((r) => `${r.title} : ${r.body}`).join(' ')}`,
@@ -262,8 +266,7 @@ const stay = [
 ].join('\n');
 
 const building = [
-  `## Colis et profil (${name('tabs.maison')} › ${name('houseSocial.section')})`,
-  `- ${name('houseSocial.packages.tile')} : ${s('houseSocial.packages.how')}`,
+  `## Profil`,
   `- ${name('houseSocial.profile.row')} (${name('profile.title')}) : ${s('houseSocial.profile.subtitle')} ${[s('houseSocial.profile.school'), s('houseSocial.profile.hometown'), s('houseSocial.profile.languages'), s('houseSocial.profile.instagram'), s('houseSocial.profile.about')].join(', ')}. ${say('houseSocial.profile.visibleHint', 'houseSocial.profile.teamNote')}`,
 ].join('\n');
 

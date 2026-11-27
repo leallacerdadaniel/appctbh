@@ -78,6 +78,22 @@ export type Deposit = {
 
 export type Person = { firstName: string; fullName: string; initials: string };
 
+export type CleaningFrequency = 'weekly' | 'biweekly' | 'monthly';
+
+/** The site's words for the rental's cleaning rhythm; anything else (empty, a name typed by mistake) is unknown. */
+export function cleaningFrequency(value: string | null | undefined): CleaningFrequency | null {
+  switch (value?.trim().toLowerCase()) {
+    case 'semanal':
+      return 'weekly';
+    case 'quinzenal':
+      return 'biweekly';
+    case 'mensal':
+      return 'monthly';
+    default:
+      return null;
+  }
+}
+
 export type Home = {
   student: Person & { email: string };
   apartment: {
@@ -103,13 +119,19 @@ export type Home = {
     rent: number | null;
     currency: 'BRL' | 'EUR';
     hasDocument: boolean;
-    cleaningFrequency: string | null;
+    /** How often the cleaner comes, from the site's rental ("mensal", "quinzenal", "semanal"); null when unknown. */
+    cleaningFrequency: CleaningFrequency | null;
   };
   roommates: Person[];
   /** The professional who cleans the apartment, when the team filled it in. */
   cleaner: { name: string; phone: string | null; photoUrl: string | null } | null;
   /** Cleanings with a date, oldest first. */
   cleanings: CleaningVisit[];
+  /**
+   * Cleanings of the contract the team hasn't dated yet (the site creates them all at signing, the date comes later:
+   * on 2026-11-27, 161 of the 164 cleanings of 2027/1 in production had none).
+   */
+  cleaningsToSchedule: number;
   /** Monthly rent status only (amounts never reach the app), oldest month first. */
   payments: { month: string; paid: boolean }[];
   deposit: Deposit | null;
@@ -164,7 +186,7 @@ function toHome(r: HomeResponse): Home {
       rent: r.rental.contract_rent ?? null,
       currency: r.rental.currency,
       hasDocument: r.rental.has_contract,
-      cleaningFrequency: r.rental.cleaning_frequency,
+      cleaningFrequency: cleaningFrequency(r.rental.cleaning_frequency),
     },
     roommates: r.roommates.map(person),
     cleaner: r.cleaner?.name ? { name: r.cleaner.name.trim(), phone: r.cleaner.phone, photoUrl: r.cleaner.photo } : null,
@@ -178,6 +200,7 @@ function toHome(r: HomeResponse): Home {
         feedbackUntil: c.feedback_until ?? undefined,
         feedback: c.feedback,
       })),
+    cleaningsToSchedule: r.cleanings.filter((c) => !c.date && !c.completed).length,
     payments: r.payments ?? [],
     deposit: r.deposit
       ? {

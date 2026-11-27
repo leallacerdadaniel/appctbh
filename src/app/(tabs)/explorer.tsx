@@ -7,50 +7,46 @@ import { AroundMe } from '@/components/around-me';
 import { BhEventsSection } from '@/components/bh-events-ui';
 import { CharlotteFace } from '@/components/charlotte';
 import { GroupTripsEntry } from '@/components/community-ui';
-import { ExplorerContent } from '@/components/explorer-content';
+import { BhSights, ExplorerContent, FestivalsCarousel, TripsCarousel } from '@/components/explorer-content';
 import { GuideContent } from '@/components/guide-content';
-import { HealthEntry } from '@/components/health-ui';
-import { TonightCarousel } from '@/components/home-v3';
+import { TintCard, TintRow, TonightCarousel } from '@/components/home-v3';
 import { Icon, type IconName } from '@/components/icon';
 import { Carousel, RestaurantPhotoCard } from '@/components/photo-card';
-import { PhoneStolenEntry } from '@/components/phone-stolen-ui';
-import { PhraseOfTheDay, PortugueseEntry } from '@/components/portuguese-ui';
+import { PortugueseEntry } from '@/components/portuguese-ui';
 import { Screen, Section } from '@/components/screen';
 import { TopRatedNearHome } from '@/components/top-rated-near-home';
 import { AppText, PressableScale } from '@/components/ui';
 import { Fonts, MaxFontScale, Radius, Shadow, Spacing, TapTarget, Type } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useI18n } from '@/i18n';
-import { attractions, getAttraction } from '@/lib/attractions';
+import { getAttraction } from '@/lib/attractions';
 import { MUST_GO } from '@/lib/must-go';
-import { nightPlaces } from '@/lib/nightlife';
-import { usePlaces } from '@/lib/places';
 import { restaurants } from '@/lib/restaurants';
-import { getService } from '@/lib/services';
 import { trackAction } from '@/lib/usage';
 import { textParam } from '@/lib/params';
 
-/** "Pratique" second (UX review 2026-11-09): health, Portuguese and the stolen phone must be easy to find. */
-const CATEGORIES = ['forYou', 'practical', 'out', 'eat', 'sport', 'culture', 'trips'] as const;
+/**
+ * Five categories that all fit on the screen (owner, 2026-11-27: "deixa o explore mais simples, tá com muita coisa e
+ * pouco intuitivo"; Voyages was the seventh and sat off screen). Culture and Sport went into Sortir.
+ */
+const CATEGORIES = ['forYou', 'trips', 'out', 'eat', 'practical'] as const;
 type Category = (typeof CATEGORIES)[number];
+/** Links written before 2026-11-27. */
+const MERGED: Record<string, Category> = { culture: 'out', sport: 'out' };
 
 const CATEGORY_ICON: Record<Category, IconName> = {
   forYou: 'heart',
+  trips: 'travel',
   out: 'bar',
   eat: 'restaurant',
-  sport: 'sport',
-  culture: 'culture',
-  trips: 'travel',
   practical: 'supermarket',
 };
 
-/** Walking distance that still counts as "à pied de chez vous". */
-const NEAR_MIN = 15;
-
 /**
- * Explorer v3 (owner, 2026-11-08): the search on top is also the question to the assistant; categories
- * as in Airbnb; "Pour vous" opens with the first steps in Brazil, the team's pick and what is a walk away.
- * The other categories reuse the Guide and Explorer content. Links: `/explorer?category=trips`, `?q=…`.
+ * Explorer v3 (owner, 2026-11-08): the search on top is also the question to the assistant; categories as in Airbnb.
+ * Simpler since 2026-11-27: "Pour vous" opens on the getaways (the trips get the emphasis), then this week in BH, the
+ * team's pick and the best rated near home; every topic has one place. The first steps in Brazil moved to Accueil
+ * (and stay in Pratique). Links: `/explorer?category=trips`, `?q=…`.
  */
 export default function ExplorerScreen() {
   const theme = useTheme();
@@ -58,7 +54,9 @@ export default function ExplorerScreen() {
   // A link can repeat a parameter (it then arrives as a list): only plain text is read.
   const params = useLocalSearchParams<{ category?: string; q?: string }>();
   const asked = textParam(params.category);
-  const category: Category = (CATEGORIES as readonly string[]).includes(asked) ? (asked as Category) : 'forYou';
+  const category: Category = (CATEGORIES as readonly string[]).includes(asked)
+    ? (asked as Category)
+    : (MERGED[asked] ?? 'forYou');
   const [query, setQuery] = useState(() => textParam(params.q));
   const q = query.trim();
   const e = t.explorerTab;
@@ -116,22 +114,7 @@ export default function ExplorerScreen() {
           )}
         </View>
 
-        {!q && (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.bleed} contentContainerStyle={styles.chips}>
-            {e.suggestions.map((s) => (
-              <PressableScale
-                key={s}
-                accessibilityRole="button"
-                onPress={() => ask(s)}
-                style={[styles.chip, { borderColor: theme.line, backgroundColor: theme.surface }]}>
-                <AppText variant="callout" maxFontSizeMultiplier={MaxFontScale}>
-                  {s}
-                </AppText>
-              </PressableScale>
-            ))}
-          </ScrollView>
-        )}
-
+        {/* No ready-made questions under the search (owner, 2026-11-27: "tirar essas sugestões"). */}
         {!q && (
           <ScrollView
             ref={barRef}
@@ -202,30 +185,39 @@ export default function ExplorerScreen() {
 }
 
 function CategoryContent({ category }: { category: Category }) {
+  const theme = useTheme();
   const { t } = useI18n();
   const e = t.explorerTab;
   switch (category) {
     case 'forYou':
       return (
         <>
-          <FirstStepsBanner />
+          <TripsCarousel onSeeAll={() => router.setParams({ category: 'trips' })} />
+          <GroupTripsEntry />
           <BhEventsSection limit={8} />
           <TeamPick />
-          <PhraseOfTheDay />
-          <NearHome />
           <TopRatedNearHome />
-          <AroundMe />
+        </>
+      );
+    case 'trips':
+      return (
+        <>
+          <GroupTripsEntry />
+          <ExplorerContent segments={['mg', 'br', 'sa']} />
         </>
       );
     case 'out':
+      // Events, bars, what to see in BH, festivals and sport: Culture and Sport were their own categories. One row
+      // each, the full lists one tap away.
       return (
         <>
           <BhEventsSection limit={10} />
           <Section title={e.bars} subtitle={e.barsHint} action={e.seeAll} onAction={() => router.push('/nightlife')}>
             <TonightCarousel />
           </Section>
-          <TopRatedNearHome only={['bar']} />
-          <ExplorerContent segments={['events']} />
+          <BhSights />
+          <FestivalsCarousel />
+          <GuideContent query="" only={['sport']} />
         </>
       );
     case 'eat':
@@ -246,64 +238,58 @@ function CategoryContent({ category }: { category: Category }) {
             </Carousel>
           </Section>
           <TopRatedNearHome only={['restaurant', 'cafe']} />
-          <GuideContent query="" only={['eat']} />
-        </>
-      );
-    case 'sport':
-      return <GuideContent query="" only={['sport']} />;
-    case 'culture':
-      return <ExplorerContent segments={['bh']} />;
-    case 'trips':
-      return (
-        <>
-          <GroupTripsEntry />
-          {/* "Autour de moi" lives in Pour vous only (UX review 2026-11-10: it was in two categories). */}
-          <ExplorerContent segments={['mg', 'br', 'sa']} />
+          <TintCard>
+            <TintRow
+              first
+              icon="restaurant"
+              tint={theme.warningSoft}
+              ink={theme.warning}
+              title={t.dishes.entry}
+              subtitle={t.guide.dishesStatus}
+              onPress={() => router.push('/restaurants/dishes')}
+            />
+          </TintCard>
         </>
       );
     case 'practical':
+      // One list for what is useful, the circles near home, then Google Maps wherever the student is.
       return (
         <>
-          <PortugueseEntry />
-          <PhoneStolenEntry />
-          <HealthEntry />
-          <GuideContent query="" only={['around', 'start', 'daily']} />
+          <GuideContent query="" only={['around']} />
+          <Section title={e.essentials}>
+            <TintCard>
+              <TintRow
+                first
+                icon="apps"
+                tint={theme.brandSoft}
+                ink={theme.brand}
+                title={e.firstSteps}
+                subtitle={e.firstStepsHint}
+                onPress={() => router.push('/first-steps' as Href)}
+              />
+              <PortugueseEntry variant="row" first={false} />
+              <TintRow
+                icon="emergency"
+                tint={theme.successSoft}
+                ink={theme.success}
+                title={t.health.entry}
+                subtitle={t.health.entryHint}
+                onPress={() => router.push('/health' as Href)}
+              />
+              <TintRow
+                icon="phoneOff"
+                tint={theme.brandSoft}
+                ink={theme.brand}
+                title={t.phoneStolen.entry}
+                subtitle={t.phoneStolen.entryHint}
+                onPress={() => router.push('/phone-stolen' as Href)}
+              />
+            </TintCard>
+          </Section>
+          <AroundMe />
         </>
       );
   }
-}
-
-/** "Premiers pas au Brésil": apps, CPF and bank, in order (also step 3 of the arrival checklist). */
-function FirstStepsBanner() {
-  const theme = useTheme();
-  const { t } = useI18n();
-  const logos = ['uber', 'ifood', 'nubank'].map((id) => getService(id)?.logo).filter((l): l is number => l != null);
-  return (
-    <PressableScale
-      accessibilityRole="button"
-      accessibilityLabel={t.explorerTab.firstSteps}
-      onPress={() => router.push('/first-steps' as Href)}
-      style={[styles.banner, { backgroundColor: theme.brandSoft }]}>
-      <View style={{ flexDirection: 'row' }}>
-        {logos.map((logo, i) => (
-          <Image
-            key={i}
-            source={logo}
-            style={[styles.bannerLogo, { marginLeft: i ? -6 : 0, borderColor: theme.brandSoft }]}
-            contentFit="cover"
-            accessible={false}
-          />
-        ))}
-      </View>
-      <View style={{ flex: 1, gap: 1 }}>
-        <AppText style={{ fontFamily: Fonts.bodySemi }}>{t.explorerTab.firstSteps}</AppText>
-        <AppText variant="caption" color={theme.textSecondary}>
-          {t.explorerTab.firstStepsHint}
-        </AppText>
-      </View>
-      <Icon name="chevronRight" size={16} color={theme.brand} />
-    </PressableScale>
-  );
 }
 
 /** One of the team's must-go places in BH, a different one each week. */
@@ -338,61 +324,6 @@ function TeamPick() {
   );
 }
 
-/** Bars and sights with a photo, at most 15 minutes on foot, closest first. */
-function NearHome() {
-  const theme = useTheme();
-  const { t, lang } = useI18n();
-  const times = usePlaces()?.times;
-  const items = [
-    ...nightPlaces
-      .filter((p) => p.photo != null)
-      .map((p) => ({
-        id: `n-${p.id}`,
-        name: p.name,
-        kind: p.vibe[lang],
-        photo: p.photo as number,
-        walk: times?.[p.placeId]?.walkMin,
-        href: { pathname: '/nightlife/[id]', params: { id: p.id } } as Href,
-      })),
-    ...attractions
-      .filter((a) => a.photo != null)
-      .map((a) => ({
-        id: `a-${a.id}`,
-        name: a.name,
-        kind: t.explore.groups[a.group],
-        photo: a.photo as number,
-        walk: times?.[a.placeId]?.walkMin,
-        href: { pathname: '/attraction/[id]', params: { id: a.id } } as Href,
-      })),
-  ]
-    .filter((x) => x.walk != null && x.walk <= NEAR_MIN)
-    .sort((x, y) => (x.walk ?? 0) - (y.walk ?? 0))
-    .slice(0, 8);
-
-  // Walking times not known yet (new apartment, or offline): the bars instead, without distances.
-  if (items.length === 0)
-    return (
-      <Section title={t.explorerTab.bars} subtitle={t.explorerTab.barsHint}>
-        <TonightCarousel />
-      </Section>
-    );
-  return (
-    <Section title={t.explorerTab.nearHome}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.bleed} contentContainerStyle={styles.chips}>
-        {items.map((x) => (
-          <PressableScale key={x.id} accessibilityRole="button" onPress={() => router.push(x.href)} style={styles.nearCard}>
-            <Image source={x.photo} style={[styles.nearPhoto, { backgroundColor: theme.fill }]} contentFit="cover" />
-            <AppText style={{ fontFamily: Fonts.bodySemi }}>{x.name}</AppText>
-            <AppText variant="caption" color={theme.textSecondary}>
-              {[x.kind, t.today.walk(x.walk!)].join(' · ')}
-            </AppText>
-          </PressableScale>
-        ))}
-      </ScrollView>
-    </Section>
-  );
-}
-
 const styles = StyleSheet.create({
   search: {
     minHeight: 58,
@@ -407,20 +338,9 @@ const styles = StyleSheet.create({
   input: { minHeight: TapTarget, paddingVertical: 0 },
   bleed: { marginHorizontal: -Spacing.gutter },
   chips: { paddingHorizontal: Spacing.gutter, gap: Spacing.sm },
-  chip: {
-    minHeight: 36,
-    paddingHorizontal: 14,
-    borderRadius: Radius.pill,
-    borderWidth: StyleSheet.hairlineWidth,
-    justifyContent: 'center',
-  },
   categories: { paddingHorizontal: Spacing.gutter, gap: 22 },
   category: { alignItems: 'center', gap: 5, paddingTop: 4, paddingBottom: 10, borderBottomWidth: 2, minWidth: TapTarget },
   askRow: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: Radius.lg },
-  banner: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: Radius.lg },
-  bannerLogo: { width: 28, height: 28, borderRadius: 8, borderWidth: 2 },
   pickPhoto: { width: '100%', aspectRatio: 16 / 9, borderRadius: Radius.lg },
   pickBadge: { position: 'absolute', top: 12, left: 12, paddingHorizontal: 10, paddingVertical: 5, borderRadius: Radius.pill },
-  nearCard: { width: 150, gap: 4 },
-  nearPhoto: { width: 150, height: 100, borderRadius: 16, marginBottom: 4 },
 });

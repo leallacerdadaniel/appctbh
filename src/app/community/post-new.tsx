@@ -4,7 +4,6 @@ import { KeyboardAvoidingView, Platform, View } from 'react-native';
 
 import { ChipWrap, FieldLabel, Notice } from '@/components/request-ui';
 import { Screen } from '@/components/screen';
-import { SegmentedControl } from '@/components/segmented-control';
 import { useToast } from '@/components/toast';
 import { Button, Card, Chip, InlineMessage, Input } from '@/components/ui';
 import { Spacing } from '@/constants/theme';
@@ -15,15 +14,16 @@ import {
   replaceRefused,
   useCommunityActions,
   type PostKind,
-  type Scope,
 } from '@/lib/community';
 import { hasLink } from '@/lib/no-links';
+import { textParam } from '@/lib/params';
 
 const KINDS: PostKind[] = ['post', 'question', 'giveaway'];
 const MAX = 1000;
 
 /**
- * Write on the wall. The AI checks it first: published, held for the team, or not published with the reason.
+ * Write on the wall (every resident) or in a group the student joined (`groupId`, with its name to say where it
+ * goes). "Mes colocataires" left on 2026-11-27 (owner). The AI checks it first: published, held for the team, or not published with the reason.
  * A refused post is already stored (its author sees it, with the reason): sending the corrected text deletes it
  * first, so one attempt stays one post (review, 2026-11-10).
  */
@@ -32,8 +32,9 @@ export default function NewPostScreen() {
   const c = t.community;
   const toast = useToast();
   const act = useCommunityActions();
-  const params = useLocalSearchParams<{ scope?: string }>();
-  const [scope, setScope] = useState<Scope>(params.scope === 'apartment' ? 'apartment' : 'all');
+  const params = useLocalSearchParams<{ groupId?: string; groupName?: string }>();
+  const groupId = textParam(params.groupId) || undefined;
+  const groupName = textParam(params.groupName);
   const [kind, setKind] = useState<PostKind>('post');
   const [body, setBody] = useState('');
   const [sending, setSending] = useState(false);
@@ -48,7 +49,7 @@ export default function NewPostScreen() {
     try {
       await replaceRefused(refusedId, act.deletePost);
       setRefusedId(null);
-      const r = await act.savePost({ scope, kind, body: body.trim() });
+      const r = await act.savePost({ groupId, kind, body: body.trim() });
       if (r.status === 'hidden') {
         // Not published: keep the text so the student can change it and try again.
         setRefusedId(r.id);
@@ -73,17 +74,7 @@ export default function NewPostScreen() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <Screen back title={c.compose.title}>
         <Card style={{ gap: Spacing.lg }}>
-          <View style={{ gap: Spacing.sm }}>
-            <FieldLabel>{c.compose.who}</FieldLabel>
-            <SegmentedControl
-              options={[
-                { value: 'all', label: c.compose.scopeAll },
-                { value: 'apartment', label: c.compose.scopeApartment },
-              ]}
-              value={scope}
-              onChange={setScope}
-            />
-          </View>
+          <Notice icon="people" text={groupId ? c.compose.toGroup(groupName) : c.compose.toAll} />
           <View style={{ gap: Spacing.sm }}>
             <FieldLabel>{c.compose.kind}</FieldLabel>
             <ChipWrap>

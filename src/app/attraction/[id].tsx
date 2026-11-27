@@ -22,7 +22,7 @@ export default function AttractionScreen() {
   const a = useTimes(getAttraction(id));
   const fromHome = useFromHome(a);
 
-  if (!a) return <Redirect href={{ pathname: '/explorer', params: { category: 'culture' } }} />;
+  if (!a) return <Redirect href="/attractions" />;
 
 
   return (

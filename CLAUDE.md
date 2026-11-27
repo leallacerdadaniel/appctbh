@@ -50,6 +50,7 @@ próprio artefato).
 - **Código:** repositório `leallacerdadaniel/appctbh` (remoto `origin`); o do Arthur (`arthurhp14/ctbh-app`)
   ficou como remoto `arthur`, só referência. O Arthur parou de mexer no app em 07/11/2026.
   Desde 13/11/2026 a `main` tem todo o trabalho da `onda-6-pedidos` (PR #1, merge `a03f0d2`, feito pelo Daniel no GitHub).
+  Em 27/11/2026 a `main` recebeu a `painel-unificado` (PRs #2 e #3, merge `f599424`); trabalho novo sai da `main`.
 - **Desenvolvimento:** projeto Supabase **`appctbh`** (`gxhvhacqemdwwebsftcd`, organização Chez Toi BH), com a
   estrutura das tabelas do site que o app lê, as tabelas `app_*`, a `app-api` e dados fictícios.
   SQL em `supabase/appctbh/` (001 estrutura do site, 002 tabelas e funções do app, 003 dados de teste,
@@ -135,8 +136,9 @@ próprio artefato).
   de ponta a ponta no dev, só login certo do aluno de teste). O GitHub roda tipos, lint e testes a cada push
   (`.github/workflows/ci.yml`). Charlotte: `node scripts/assistant/build.mjs` regenera a base a partir dos textos do
   app e para se algo sumir; depois publicar `index.ts` e `knowledge.ts` juntos.
-- Segredos que faltam no `appctbh` (o dev): para e-mail, `RESEND_API_KEY` + `RESEND_FROM` (a `ANTHROPIC_API_KEY` já
-  está lá; na produção os três estão desde 13/11/2026). Sem e-mail, o "esqueci a senha" vira pedido na tela Acesso ao app do painel. Se a IA falhar ou faltar a chave, o que o
+- Segredos que faltam no `appctbh` (o dev): para e-mail, `RESEND_API_KEY` + `RESEND_FROM`; e a `ANTHROPIC_API_KEY` do dev
+  passou a ser recusada em 27/11/2026 ("invalid x-api-key" no log da `app-community`): no dev a IA não modera (tudo fica
+  `pending`) nem responde até entrar uma chave nova (na produção os três estão desde 13/11/2026 e funcionam). Sem e-mail, o "esqueci a senha" vira pedido na tela Acesso ao app do painel. Se a IA falhar ou faltar a chave, o que o
   aluno publica fica `pending` (fora do ar) até a equipe decidir. A Charlotte só relê respostas que ela assinou (`signature`).
 - Primeiro acesso (09/11/2026, decisão do Daniel: nascimento + passaporte): `src/app/first-access.tsx` (3 passos:
   quem é você, seus dados da ficha, senha) e as rotas `first-access-verify` e `first-access-complete` da `app-api`.
@@ -205,7 +207,7 @@ próprio artefato).
   as tabelas `app_*` (não é preciso para funcionar). Textos de um idioma só que o aluno lê: `team_note` dos pedidos e encomendas e a
   resposta do feedback (a equipe escreve na língua do aluno).
   **Um lugar só para cada coisa** (Daniel, 27/11/2026: "unificar o máximo de coisas possível ... na hora de gerenciar o
-  app, aquela aba do painel tem que vir com tudo"). Branch `app/painel-unificado` do site: as faxineiras e as notas que
+  app, aquela aba do painel tem que vir com tudo"). Branch `app/painel-unificado` do site (na `main` do site pelos PRs #9 e #10, merge `47f70efc`, 27/11/2026): as faxineiras e as notas que
   os alunos dão às faxinas moram na tela **Faxinas** (abas Faxineiras e Notas dos alunos; o item Faxineiras do App do
   aluno abre `/admin/cleanings?aba=faxineiras`); os chamados de manutenção do app aparecem em **Ocorrências** ("Registrar
   ocorrência" preenche e liga os dois); telas novas no App do aluno: **Informações dos aptos** (`/admin/app/apartamentos`:
@@ -220,8 +222,36 @@ próprio artefato).
   estava vazio: os 5 serviços do dev foram copiados ligados (ménage R$ 120, laverie R$ 45, draps R$ 40, chef R$ 90,
   transfer R$ 180; a equipe revisa em Serviços extras do app).
   **App, 27/11/2026:** visitas escondidas na Maison (telas continuam, TODO); "Un problème ?" sem "(gratuit)"; "Mes
-  demandes" em Problèmes · Demandes; regras com "Ce qui rend la vie facile ici" em verde; Accueil com "Entre colocs"
-  (contas e tarefas) e "Le mur des résidents" (2 últimos posts). Para olhar o app na web contra o dev sem mexer no Metro
+  demandes" em Problèmes · Demandes; Accueil com "Entre colocs" (contas e tarefas) e "Le mur des résidents" (2 últimos
+  posts). Depois do teste no celular (27/11, noite): regras sem "Ce qui rend la vie facile ici" (saiu); "Colis" escondido
+  na Maison como as visitas (telas continuam, TODO); atalho do Accueil **Voyages** no lugar de Colocs (abre Explorer ›
+  Voyages); sem sugestões embaixo da busca da Explorer; Premiers pas mostra todos os apps de uma vez (o link "Toutes les
+  applis utiles" saiu); o aviso `Link.AppleZoom … single native child` sumiu com `collapsable={false}` na View de dentro.
+  **Explorer mais simples (27/11, noite: "deixa o explore mais simples, tá com muita coisa e pouco intuitivo"):** 5
+  categorias que cabem na tela, **Pour vous · Voyages · Sortir · Manger · Pratique** (Culture e Sport entraram em Sortir;
+  links antigos `category=culture|sport` caem em Sortir). Pour vous abre nas viagens ("Partir de BH", imperdíveis de
+  Minas e do Brasil, e "Partir en groupe"), depois a semana em BH, o coup de cœur e os mieux notés. Sortir: semana,
+  bares, "À voir à BH" (só os imperdíveis; a lista inteira em `src/app/attractions.tsx`), festivais e sport. Pratique:
+  círculos perto de casa (o toque abre direto a lista do apto; o cartão "Chez moi / Où je suis" saiu porque o toque
+  parecia não fazer nada), "L’essentiel" (Premiers pas, português, saúde, celular roubado) e "Autour de moi". Saíram
+  "Everyday life", "Getting started", a frase do dia e "À pied de chez vous" (repetiam o resto). **Premiers pas no
+  Accueil** (`src/components/first-steps-card.tsx`, `src/lib/first-steps-card.ts`): até o aluno esconder no X ou uma
+  semana depois da chegada; continua em Explorer › Pratique.
+  **Faxina com os dados do site (27/11):** na produção as faxinas do contrato nascem sem data (`cleaning_records`
+  com `scheduled_date` nulo: 161 de 164 em 2027/1) e a equipe marca a data depois. O app conta as sem data
+  (`cleaningsToSchedule` em `src/lib/home.tsx`) e mostra o ritmo do contrato (`apartment_rentals.cleaning_frequency`:
+  mensal, quinzenal, semanal; outro valor não aparece): "Une fois par mois · date à venir" na Maison e "5 ménages prévus
+  dans votre contrat" na tela Ménage, no lugar de "Aucun ménage pour l’instant".
+  **Grupos da comunidade (27/11, pedido do Daniel: "comunidade ou é pra todos, ou pra grupos que ele deveria poder
+  criar"):** "Mon appart" saiu do mural; um post é para todos (`scope 'all'`) ou para um grupo (`scope 'group'` +
+  `group_id`). `app_community_groups` + `app_community_group_members` (032 no dev; `supabase/producao/008_grupos_da_comunidade.sql`,
+  aplicada na produção em 27/11/2026 com o ok do Daniel, junto com a `app-community` e a `app-assistant` publicadas).
+  Grupos abertos como as viagens: qualquer morador vê e entra; só membros leem e escrevem; post novo avisa os outros
+  membros; a IA confere nome e descrição; quem cria edita ou arquiva (`archived`); conta excluída deixa o grupo sem
+  criador (`creator_cp` nulo) ou o apaga se ninguém mais estava nele. Rotas `groups`, `group`, `group-save`,
+  `group-join`, `group-leave`, `group-archive` e `feed { groupId }` na `app-community`; telas em `src/app/community/groups/`.
+  No painel, os grupos entram nas filas de Comunidade e há a aba Grupos (`app_team_moderate` aceita `group`); a 008 já
+  está na produção, então o site pode ser publicado (a mudança do painel está na branch `app/painel-unificado` do site). Para olhar o app na web contra o dev sem mexer no Metro
   do simulador: uma cópia da pasta com `node_modules` em link e `.env.local` do dev (o cache do Metro é dividido entre
   os servidores e guarda o endereço embutido; com a mesma pasta, a web foi para a produção).
   **Permissões na abertura (27/11/2026, decisão do Daniel):** depois das regras e antes do tour, uma vez por aluno no

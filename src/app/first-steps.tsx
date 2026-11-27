@@ -1,6 +1,6 @@
 import { router, type Href } from 'expo-router';
 import { useState } from 'react';
-import { Linking, View } from 'react-native';
+import { Linking } from 'react-native';
 
 import { RowPill, TintCard, TintRow } from '@/components/home-v3';
 import { Icon } from '@/components/icon';
@@ -15,8 +15,11 @@ import { appUrl, services, type ServiceGroup } from '@/lib/services';
 import { trackAction } from '@/lib/usage';
 
 type Tab = 'apps' | 'paperwork';
-/** The groups residents need in their first weeks (flights, buses and car rental stay in "Applis et services"). */
-const GROUPS: ServiceGroup[] = ['daily', 'ride', 'food', 'money', 'bank', 'health', 'events'];
+/**
+ * Every app at once, the first-week ones first (owner, 2026-11-27: "poderiam aparecer todos já de uma vez"; the
+ * link to "Applis et services" only added flights, buses and car rental).
+ */
+const GROUPS: ServiceGroup[] = ['daily', 'ride', 'food', 'money', 'bank', 'health', 'events', 'air', 'bus', 'car'];
 
 /**
  * "Premiers pas au Brésil" (v3, 2026-11-08): the apps residents install in their first week, each with
@@ -71,18 +74,6 @@ export default function FirstStepsScreen() {
               </TintCard>
             </Section>
           ))}
-          <PressableScale
-            accessibilityRole="button"
-            onPress={() => router.push('/services')}
-            style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.sm }}>
-            <View style={{ flex: 1, gap: 2 }}>
-              <AppText style={{ fontFamily: Fonts.bodySemi }}>{f.more}</AppText>
-              <AppText variant="caption" color={theme.textSecondary}>
-                {f.moreHint}
-              </AppText>
-            </View>
-            <Icon name="chevronRight" size={15} color={theme.textTertiary} />
-          </PressableScale>
         </>
       ) : (
         <>

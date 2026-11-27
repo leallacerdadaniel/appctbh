@@ -17,7 +17,6 @@ import { canRate, formatLongDate, pastCleanings, upcomingCleanings } from '@/lib
 import { useBalanceLabel, useExpenses } from '@/lib/expenses';
 import { formatTime, shortAddress } from '@/lib/format';
 import { useHome, useHomeState } from '@/lib/home';
-import { usePackages, usePackagesStatus } from '@/lib/house-social';
 import { trackAction } from '@/lib/usage';
 import { openWhatsApp } from '@/lib/whatsapp';
 
@@ -31,14 +30,12 @@ export default function MaisonScreen() {
   const toast = useToast();
   const { t, lang } = useI18n();
   const [showWifi, setShowWifi] = useState(false);
-  const { apartment, cleanings, roommates } = useHome();
+  const { apartment, cleanings, cleaningsToSchedule, contract, roommates } = useHome();
   const { refresh } = useHomeState();
   const { reload: reloadExpenses } = useExpenses();
   const { reload: reloadChores } = useChores();
   const balance = useBalanceLabel();
   const choreStatus = useChoreStatus();
-  const { reload: reloadPackages } = usePackages();
-  const packagesStatus = usePackagesStatus();
 
   async function copy(value: string, message: string) {
     await Clipboard.setStringAsync(value);
@@ -48,9 +45,13 @@ export default function MaisonScreen() {
   // The unit number gets its own row; the copied address still carries it (for deliveries / rides).
   const fullAddress = [apartment.address, apartment.complement].filter(Boolean).join(', ');
   const next = upcomingCleanings(cleanings)[0];
+  const rhythm = contract.cleaningFrequency ? t.apartment.cleaning.frequency[contract.cleaningFrequency] : null;
+  // No dated visit yet but cleanings in the contract: the rhythm and "date à venir", not "Aucun ménage".
   const nextLabel = next
     ? [capitalize(formatLongDate(next.date, lang)), next.time && formatTime(next.time, lang)].filter(Boolean).join(' · ')
-    : t.apartment.cleaning.empty;
+    : (cleaningsToSchedule ?? 0) > 0
+      ? capitalize([rhythm, t.apartment.cleaning.dateSoon].filter(Boolean).join(' · '))
+      : (rhythm ?? t.apartment.cleaning.empty);
   // Latest visit still inside its 7-day rating window.
   const toRate = pastCleanings(cleanings).find(canRate);
 
@@ -58,7 +59,7 @@ export default function MaisonScreen() {
     <Screen
       title={t.tabs.maison}
       subtitle={t.maison.subtitle}
-      onRefresh={() => Promise.all([refresh(), reloadExpenses(), reloadChores(), reloadPackages()])}>
+      onRefresh={() => Promise.all([refresh(), reloadExpenses(), reloadChores()])}>
       <Section title={t.maison.daily} subtitle={t.maison.dailyHint}>
         <Card style={styles.listCard}>
           <ListGroup inset>
@@ -168,17 +169,8 @@ export default function MaisonScreen() {
           )}
         </HubGrid>
       </Section>
-      <Section title={t.houseSocial.section} subtitle={t.houseSocial.sectionHint}>
-        <HubGrid>
-          {/* TODO: visitors (house/visitors) hidden for now (owner, 2026-11-27); the screens stay in the app. */}
-          <HubTile
-            emoji="📦"
-            title={t.houseSocial.packages.tile}
-            status={packagesStatus || t.houseSocial.packages.tileEmpty}
-            onPress={() => router.push('/house/packages' as Href)}
-          />
-        </HubGrid>
-      </Section>
+      {/* TODO: "À l’immeuble" hidden for now (owner, 2026-11-27): visitors and then packages ("oculte a parte de
+          packages"). The screens stay in the app (house/visitors, house/packages); a package notice still opens its page. */}
 
       {/* Nobody to take turns or split with, nobody to list, when the student lives alone. */}
       {roommates.length > 0 && (

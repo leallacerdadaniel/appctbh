@@ -43,11 +43,10 @@ import { trackAction, trackSearch } from '@/lib/usage';
 const SEARCH_SETTLE_MS = 1500;
 
 /**
- * Everyday categories shown as circles (moved from Home); they open "À proximité" on that category.
- * One entry per need (UX review 2026-11-10): the two that also make sense away from home (`aroundMe`) ask
- * "Chez moi / Où je suis" under the row: the list near the apartment, or Google Maps around the phone
- * (what the "Autour de moi" section used to offer as a second "Pharmacie" and "Courses"). While the apartment
- * has no list for that category there is nothing to choose: the circle opens Google Maps straight away.
+ * Everyday categories shown as circles (moved from Home); a tap opens "À proximité" on that category, the list near
+ * the apartment with walking times. The "Chez moi / Où je suis" card under the row left on 2026-11-27 (owner: a tap
+ * on "Courses" seemed to do nothing, the card opened below the fold). While the apartment has no list for
+ * groceries or pharmacies, the circle opens Google Maps around the phone instead.
  */
 const CATEGORIES: { id: NearbyCategoryId; emoji: string; aroundMe?: AroundMeId }[] = [
   { id: 'supermarket', emoji: '🛒', aroundMe: 'supermarket' },
@@ -59,7 +58,8 @@ const CATEGORIES: { id: NearbyCategoryId; emoji: string; aroundMe?: AroundMeId }
   { id: 'hospital', emoji: '🏥' },
 ];
 
-export type GuideBlock = 'around' | 'start' | 'daily' | 'eat' | 'sport';
+/** What Explorer still shows from the guide (2026-11-27): the circles near home (Pratique) and sport (Sortir). */
+export type GuideBlock = 'around' | 'sport';
 
 /**
  * v3 (2026-11-08): the Explorer tab owns the search field and passes `query`; with no query it shows the
@@ -80,9 +80,6 @@ export function GuideContent({
   const { t, lang } = useI18n();
   const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
   const [ownQuery, setQuery] = useState('');
-  // The circle whose "Chez moi / Où je suis" choice is open.
-  const [whereFor, setWhereFor] = useState<NearbyCategoryId | null>(null);
-  const whereChoice = CATEGORIES.find((c) => c.id === whereFor && c.aroundMe);
   const query = controlled ?? ownQuery;
   const show = (block: GuideBlock) => !only || only.includes(block);
   const nearby = usePlaces()?.nearby;
@@ -181,95 +178,14 @@ export function GuideContent({
                     key={c.id}
                     emoji={c.emoji}
                     label={t.nearby.short[c.id]}
-                    expanded={c.aroundMe && hasHomeList(c.id) ? whereFor === c.id : undefined}
                     onPress={() => {
-                      if (!c.aroundMe) router.push({ pathname: '/nearby', params: { category: c.id } });
-                      else if (hasHomeList(c.id)) setWhereFor(whereFor === c.id ? null : c.id);
-                      else openAroundMe(c.aroundMe);
+                      // The apartment's own list when it has one; Google Maps around the phone otherwise.
+                      if (c.aroundMe && !hasHomeList(c.id)) openAroundMe(c.aroundMe);
+                      else router.push({ pathname: '/nearby', params: { category: c.id } });
                     }}
                   />
                 ))}
               </ScrollView>
-              {whereChoice?.aroundMe && hasHomeList(whereChoice.id) && (
-                <Card style={styles.whereCard}>
-                  <AppText variant="callout" color={theme.textSecondary} style={styles.whereTitle}>
-                    {t.nearby.where.title(t.nearby.categories[whereChoice.id])}
-                  </AppText>
-                  <ListGroup inset>
-                    <ListRow
-                      icon="home"
-                      title={t.nearby.where.home}
-                      subtitle={t.nearby.where.homeHint}
-                      onPress={() => router.push({ pathname: '/nearby', params: { category: whereChoice.id } })}
-                    />
-                    <ListRow
-                      icon="address"
-                      title={t.nearby.where.here}
-                      subtitle={t.nearby.where.hereHint}
-                      accessory={<Icon name="external" size={15} color={theme.textTertiary} />}
-                      onPress={() => whereChoice.aroundMe && openAroundMe(whereChoice.aroundMe)}
-                    />
-                  </ListGroup>
-                </Card>
-              )}
-            </Section>
-          )}
-
-          {show('start') && (
-            <Section title={t.guide.start} subtitle={t.guide.startHint}>
-              <HubGrid>
-                <HubTile emoji="🛂" title={t.admin.title} status={t.admin.status} onPress={() => router.push('/admin')} />
-                <HubTile
-                  emoji="📱"
-                  title={t.services.title}
-                  status={t.services.status}
-                  onPress={() => router.push('/services')}
-                />
-              </HubGrid>
-            </Section>
-          )}
-
-          {show('daily') && (
-            <Section title={t.guide.daily} subtitle={t.guide.dailyHint}>
-              <HubGrid>
-                <HubTile
-                  emoji="🛒"
-                  title={t.nearby.title}
-                  status={t.guide.nearbyStatus}
-                  onPress={() => router.push('/nearby')}
-                />
-                <HubTile
-                  emoji="🚑"
-                  title={t.home.emergency}
-                  status={t.guide.emergencyStatus}
-                  onPress={() => router.push('/emergency')}
-                />
-              </HubGrid>
-            </Section>
-          )}
-
-          {show('eat') && (
-            <Section title={t.guide.eat} subtitle={t.guide.eatHint}>
-              <HubGrid>
-                <HubTile
-                  emoji="🍽️"
-                  title={t.restaurants.title}
-                  status={t.guide.restaurantsStatus(restaurants.length)}
-                  onPress={() => router.push('/restaurants')}
-                />
-                <HubTile
-                  emoji="🧀"
-                  title={t.dishes.entry}
-                  status={t.guide.dishesStatus}
-                  onPress={() => router.push('/restaurants/dishes')}
-                />
-                <HubTile
-                  emoji="🌙"
-                  title={t.nightlife.title}
-                  status={t.nightlife.status}
-                  onPress={() => router.push('/nightlife')}
-                />
-              </HubGrid>
             </Section>
           )}
 

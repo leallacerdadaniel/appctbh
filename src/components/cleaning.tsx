@@ -29,7 +29,10 @@ export function CleaningVisits() {
   const { t, lang } = useI18n();
   const c = t.apartment.cleaning;
   const [tab, setTab] = useState<'upcoming' | 'done'>('upcoming');
-  const { cleanings } = useHome();
+  const { cleanings, cleaningsToSchedule, contract } = useHome();
+  // Older offline copies (before 2026-11-27) don't carry the count.
+  const toSchedule = cleaningsToSchedule ?? 0;
+  const rhythm = contract.cleaningFrequency ? c.frequency[contract.cleaningFrequency] : null;
 
   const upcoming = upcomingCleanings(cleanings);
   const past = pastCleanings(cleanings);
@@ -42,9 +45,17 @@ export function CleaningVisits() {
 
   return (
     <Card style={{ gap: Spacing.md }}>
+      {rhythm && (
+        <View style={styles.rhythm}>
+          <Icon name="calendar" size={16} color={theme.textSecondary} />
+          <AppText variant="callout" style={{ fontFamily: Fonts.bodyMedium }}>
+            {rhythm}
+          </AppText>
+        </View>
+      )}
       <View style={styles.tabs}>
         <Chip
-          label={`${c.upcoming} · ${upcoming.length}`}
+          label={`${c.upcoming} · ${upcoming.length + toSchedule}`}
           selected={tab === 'upcoming'}
           onPress={() => setTab('upcoming')}
         />
@@ -96,7 +107,13 @@ export function CleaningVisits() {
         </ListGroup>
       ) : (
         <AppText variant="callout" color={theme.textSecondary}>
-          {c.empty}
+          {tab === 'upcoming' && toSchedule > 0 ? c.toSchedule(toSchedule) : c.empty}
+        </AppText>
+      )}
+      {/* Dated visits listed above; the rest of the contract waits for the team to set a date on the site. */}
+      {tab === 'upcoming' && visits.length > 0 && toSchedule > 0 && (
+        <AppText variant="caption" color={theme.textSecondary}>
+          {c.moreToSchedule(toSchedule)}
         </AppText>
       )}
     </Card>
@@ -154,6 +171,7 @@ export function CleaningSupplies() {
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 const styles = StyleSheet.create({
+  rhythm: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
   tabs: { flexDirection: 'row', gap: Spacing.sm },
   tableHead: { flexDirection: 'row', paddingTop: 4 },
   supply: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, paddingVertical: 12 },

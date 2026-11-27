@@ -1,4 +1,4 @@
-import { Link, router } from 'expo-router';
+import { Link, router, type Href } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
@@ -60,6 +60,26 @@ export function ExplorerContent({ segments = SEGMENTS }: { segments?: Segment[] 
 }
 
 /* ---------- BH ---------- */
+
+/** Sortir: the team's must-see places in BH, the full list one tap away (`/attractions`, 2026-11-27). */
+export function BhSights() {
+  const { t } = useI18n();
+  const mustGo = MUST_GO.bh.map(getAttraction).filter((a): a is Attraction => !!a);
+  if (mustGo.length === 0) return null;
+  return (
+    <Section
+      title={t.explorerTab.sights}
+      subtitle={t.explorerTab.sightsHint}
+      action={t.explorerTab.seeAll}
+      onAction={() => router.push('/attractions' as Href)}>
+      <Carousel>
+        {mustGo.map((a) => (
+          <AttractionCard key={a.id} attraction={a} />
+        ))}
+      </Carousel>
+    </Section>
+  );
+}
 
 function BhAttractions() {
   const { t } = useI18n();
@@ -174,7 +194,22 @@ function Events() {
   );
 }
 
-/** Carousel tile for a must-go event. */
+/** Sortir: the festivals of BH and Minas in one row (the long list left with the simpler Explorer, 2026-11-27). */
+export function FestivalsCarousel() {
+  const { t } = useI18n();
+  if (festivals.length === 0) return null;
+  return (
+    <Section title={t.explorerTab.festivals} subtitle={t.explorerTab.festivalsHint}>
+      <Carousel>
+        {festivals.map((e) => (
+          <EventTile key={e.id} event={e} />
+        ))}
+      </Carousel>
+    </Section>
+  );
+}
+
+/** Carousel tile for an event (the must-go badge only on the team's picks). */
 function EventTile({ event: e }: { event: FestivalItem }) {
   const theme = useTheme();
   return (
@@ -192,9 +227,7 @@ function EventTile({ event: e }: { event: FestivalItem }) {
           radius={0}
           credit="overlay"
         />
-        <View style={styles.badges}>
-          <MustGoBadge />
-        </View>
+        <View style={styles.badges}>{e.mustGo && <MustGoBadge />}</View>
       </View>
       <View style={styles.body}>
         <AppText style={{ fontFamily: Fonts.bodyMedium }}>{e.name}</AppText>
@@ -307,6 +340,25 @@ function Trips({ region }: { region: Region }) {
   );
 }
 
+/**
+ * "Pour vous" opens on the getaways (owner, 2026-11-27: "as viagens têm que ter mais ênfase"): the team's must-go
+ * places in Minas, then in Brazil, and the way to every trip.
+ */
+export function TripsCarousel({ onSeeAll }: { onSeeAll: () => void }) {
+  const { t } = useI18n();
+  const list = [...MUST_GO.mg, ...MUST_GO.br].map(getDestination).filter((d): d is DestinationWithPhoto => !!d);
+  if (list.length === 0) return null;
+  return (
+    <Section title={t.explorerTab.tripsTitle} subtitle={t.explorerTab.tripsHint} action={t.explorerTab.seeAll} onAction={onSeeAll}>
+      <Carousel>
+        {list.map((d) => (
+          <DestinationTile key={d.id} destination={d} />
+        ))}
+      </Carousel>
+    </Section>
+  );
+}
+
 /** Carousel tile for a must-go destination. */
 function DestinationTile({ destination: d }: { destination: DestinationWithPhoto }) {
   const theme = useTheme();
@@ -320,7 +372,8 @@ function DestinationTile({ destination: d }: { destination: DestinationWithPhoto
         accessibilityLabel={`${d.name}, ${placeLabel(d, lang)}`}
         style={StyleSheet.flatten([styles.card, Shadow.card, { backgroundColor: theme.surface }])}>
         <Link.AppleZoom>
-          <View>
+          {/* collapsable={false}: one native child for the zoom, not the photo and the badges apart. */}
+          <View collapsable={false}>
             <PlacePhoto
               placeId={d.placeId}
               source={d.photo}
@@ -362,7 +415,8 @@ function DestinationCard({ destination: d }: { destination: DestinationWithPhoto
         accessibilityLabel={`${d.name}, ${placeLabel(d, lang)}`}
         style={StyleSheet.flatten([styles.wideCard, Shadow.card, { backgroundColor: theme.surface }])}>
         <Link.AppleZoom>
-          <View>
+          {/* collapsable={false}: one native child for the zoom, not the photo and the badges apart. */}
+          <View collapsable={false}>
             <PlacePhoto
               placeId={d.placeId}
               source={d.photo}
