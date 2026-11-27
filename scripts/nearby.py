@@ -394,7 +394,7 @@ def hospital_places(loc, key):
     for h in HOSPITALS:
         g = cached(f"hospital {h['placeId']}", lambda: google_call(f"places/{h['placeId']}", None, ["location"], key)["location"])
         out.append({**h, "lat": g["latitude"], "lng": g["longitude"], "rating": None, "ratingCount": None})
-    times = matrix(loc, [f"{h['lat']},{h['lng']}" for h in out], key)
+    times = matrix(loc, [f"{h['lat']},{h['lng']}" for h in out], key, drive="all")
     return sorted([{**h, **t} for h, t in zip(out, times)], key=lambda h: h.get("driveMin", 999))
 
 
@@ -406,21 +406,32 @@ def waypoint(destination):
     return {"waypoint": {"address": destination}}
 
 
-def matrix(loc, destinations, key):
-    """Walking metres/minutes and driving minutes for each destination (lat,lng or address), with the Routes API."""
+def matrix(loc, destinations, key, drive="far"):
+    """Walking metres/minutes for each destination (lat,lng or address) and, with the Routes API, driving minutes:
+    drive="far" only where the walk is over WALK_LIMIT (the app shows the car only then, src/lib/places.tsx),
+    "all" for every destination (hospitals are sorted by it), "none" for candidates that are dropped unless walkable.
+    Routes bills per element: 27/11/2026, 722 elements for one apartment with walk + drive everywhere."""
     out = [{} for _ in destinations]
     if not destinations:
         return out
     origin = {"waypoint": {"location": {"latLng": {"latitude": loc["lat"], "longitude": loc["lng"]}}}}
     for mode in ("WALK", "DRIVE"):
-        body = {"origins": [origin], "destinations": [waypoint(d) for d in destinations], "travelMode": mode}
+        idx = list(range(len(destinations)))
+        if mode == "DRIVE":
+            if drive == "none":
+                break
+            if drive == "far":
+                idx = [i for i in idx if out[i].get("walkMin", WALK_LIMIT + 1) > WALK_LIMIT]
+            if not idx:
+                break
+        body = {"origins": [origin], "destinations": [waypoint(destinations[i]) for i in idx], "travelMode": mode}
         if mode == "DRIVE":
             body["routingPreference"] = "TRAFFIC_UNAWARE"
         data = google_call(ROUTES_URL, body, ["originIndex", "destinationIndex", "distanceMeters", "duration", "condition"], key)
         for el in data or []:
             if el.get("condition") != "ROUTE_EXISTS" or "duration" not in el:
                 continue
-            i = el["destinationIndex"]
+            i = idx[el.get("destinationIndex", 0)]
             mins = max(1, round(int(str(el["duration"]).rstrip("s")) / 60))
             if mode == "WALK":
                 out[i]["distanceM"] = el.get("distanceMeters", 0)
@@ -430,8 +441,9 @@ def matrix(loc, destinations, key):
     return out
 
 
-def with_times(loc, places, key):
-    times = matrix(loc, [f"{p['lat']},{p['lng']}" for p in places], key)
+def with_times(loc, places, key, drive="none"):
+    """Candidates with their walking time (only walkable ones are kept, so no driving time by default)."""
+    times = matrix(loc, [f"{p['lat']},{p['lng']}" for p in places], key, drive)
     merged = [{**p, **t} for p, t in zip(places, times) if "walkMin" in t]
     return sorted(merged, key=lambda p: p["walkMin"])
 
