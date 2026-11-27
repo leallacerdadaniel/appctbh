@@ -14,7 +14,12 @@ Usage (from App CTBH/app):
     python3 scripts/apartment_places.py                     # all the others
     python3 scripts/apartment_places.py --top-rated         # only "les mieux notés" for apartments already saved
 
-Keys: SUPABASE_SECRET_KEY and EXPO_PUBLIC_SUPABASE_URL from .env.local; Google key as in nearby.py.
+Keys: SUPABASE_SECRET_KEY and EXPO_PUBLIC_SUPABASE_URL from the environment or .env.local; Google key as in
+nearby.py (Places API New + Routes API, 27/11/2026). Production, without writing the secret key anywhere:
+    EXPO_PUBLIC_SUPABASE_URL=https://miucfiiporxhvvbefonh.supabase.co \
+    SUPABASE_SECRET_KEY="$(npx supabase@latest projects api-keys --project-ref miucfiiporxhvvbefonh -o json \
+      | python3 -c 'import sys,json; print(next(k["api_key"] for k in json.load(sys.stdin) if k["name"]=="service_role"))')" \
+    python3 scripts/apartment_places.py --only "Apto Camila"
 """
 
 import argparse
@@ -41,25 +46,34 @@ calls = collections.Counter()
 
 
 def count_calls():
-    """Calls per Google endpoint, to measure the real cost on the first apartment."""
-    real = google.gmaps_get
+    """Calls per Google endpoint, to measure the real cost on the first apartment (Routes bills per element)."""
+    real = google.google_call
 
-    def counted(endpoint, params, key):
-        calls[endpoint] += 1
-        if endpoint.startswith("distancematrix"):
-            calls["matrix elements"] += len(params["destinations"].split("|"))
-        return real(endpoint, params, key)
+    def counted(endpoint, body, fields, key):
+        name = "computeRouteMatrix" if endpoint.startswith("http") else ("placeDetails" if body is None else endpoint)
+        calls[name] += 1
+        if name == "computeRouteMatrix":
+            calls["matrix elements"] += len(body["destinations"])
+        return real(endpoint, body, fields, key)
 
-    google.gmaps_get = counted
+    google.google_call = counted
 
 
 def load_env():
+    """Supabase URL and secret key: from the environment first (27/11/2026: the production key is fetched for the
+    one command with `supabase projects api-keys`, never written to a file), then from .env.local."""
     env = {}
-    with open(os.path.join(here, "..", ".env.local"), encoding="utf-8") as f:
-        for line in f:
-            k, _, v = line.strip().partition("=")
-            env[k.strip()] = v.strip().strip('"').strip("'")
-    return env["EXPO_PUBLIC_SUPABASE_URL"], env["SUPABASE_SECRET_KEY"]
+    path = os.path.join(here, "..", ".env.local")
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as f:
+            for line in f:
+                k, _, v = line.strip().partition("=")
+                env[k.strip()] = v.strip().strip('"').strip("'")
+    url = os.environ.get("EXPO_PUBLIC_SUPABASE_URL") or env.get("EXPO_PUBLIC_SUPABASE_URL")
+    secret = os.environ.get("SUPABASE_SECRET_KEY") or env.get("SUPABASE_SECRET_KEY")
+    if not url or not secret:
+        sys.exit("ERROR: EXPO_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY (environment or .env.local)")
+    return url, secret
 
 
 def rest(url, key, path, body=None, prefer=None):
